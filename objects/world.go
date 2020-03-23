@@ -1,0 +1,57 @@
+package objects
+
+import (
+	"github.com/ArcCS/Nevermore/data"
+	"log"
+	"runtime"
+)
+
+
+// Rooms contains all of the world rooms tagged with their room_id
+// This makes it very simple to move people by room_id and retain their connecting exit
+var Rooms = map[int64]*Room{}
+var Mobs = map[int64]*Mob{}
+var Items = map[int64]*Item{}
+
+// Load fills the world with love.
+func Load() {
+	log.Printf("Loading rooms")
+	preparse := data.LoadRooms()
+	for _, room := range preparse {
+		if room != nil {
+			roomData := room.(map[string]interface{})
+			Rooms[roomData["room_id"].(int64)], _ = LoadRoom(roomData)
+		}
+
+	}
+
+	log.Printf("Finished loading %d rooms.", len(Rooms))
+	preparse = nil
+
+	log.Printf("Loading mobs")
+	preparse = data.LoadMobs()
+	for _, mob := range preparse {
+		if mob != nil {
+			mobData := mob.(map[string]interface{})
+			Mobs[mobData["mob_id"].(int64)], _ = LoadMob(mobData)
+		}
+
+	}
+	log.Printf("Finished loading %d mobs.", len(Mobs))
+	preparse = nil
+
+	log.Printf("Loading items")
+	preparse = data.LoadItems()
+	for _, item := range preparse {
+		if item != nil {
+			itemData := item.(map[string]interface{})
+			Items[itemData["item_id"].(int64)], _ = LoadItem(itemData)
+		}
+
+	}
+	log.Printf("Finished loading %d items.", len(Items))
+	preparse = nil
+	runtime.GC()
+
+}
+
