@@ -13,6 +13,7 @@ How to Run Locally:
   ```
 	DBUname:		"USERNAME",
 	DBPword:		"PASSWORD",
+	DBAddress:		"127.0.0.1",
   ```
   
   You can then build the code base:
