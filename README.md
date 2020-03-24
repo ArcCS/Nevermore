@@ -11,8 +11,8 @@ How to Run Locally:
   
   Lines 25 and 26
   ```
-  	DBUname:		"USERNAME",
-	  DBPword:		"PASSWORD",
+	DBUname:		"USERNAME",
+	DBPword:		"PASSWORD",
   ```
   
   You can then build the code base:
