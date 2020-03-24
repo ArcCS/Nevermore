@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	URI = fmt.Sprintf("bolt://%s:%s@207.192.75.216:7687", config.Server.DBUname, config.Server.DBPword)
+	URI = fmt.Sprintf("bolt://%s:%s@%s:7687", config.Server.DBUname, config.Server.DBPword, config.Server.DBAddress)
 )
 
 func getConn() (bolt.Conn, error) {

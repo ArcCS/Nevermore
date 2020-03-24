@@ -11,6 +11,7 @@ var Server = struct {
 	Host           string        // Host for server to listen on
 	DBUname		   string		// The Username for the neo4j instance
 	DBPword		   string		// The Password for the neo4j instance
+	DBAddress	   string		// The address of the neo4j server
 	Port           string        // Port for server to listen on
 	Greeting       []byte        // Connection greeting
 	Motd		   string		// MOTD when logging in
@@ -24,6 +25,7 @@ var Server = struct {
 	Host:           "127.0.0.1",
 	DBUname:		"USERNAME",
 	DBPword:		"PASSWORD",
+	DBLocation:		"127.0.0.1",
 	Port:           "4001",
 	Greeting:       []byte("Welcome to Aalynor's Nexus."),
 	Motd:			"",
