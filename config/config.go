@@ -25,7 +25,7 @@ var Server = struct {
 	Host:           "127.0.0.1",
 	DBUname:		"USERNAME",
 	DBPword:		"PASSWORD",
-	DBLocation:		"127.0.0.1",
+	DBAddress:		"127.0.0.1",
 	Port:           "4001",
 	Greeting:       []byte("Welcome to Aalynor's Nexus."),
 	Motd:			"",
