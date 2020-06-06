@@ -6,13 +6,14 @@ Tech Requirements:
   Local go/workspace install to compile and run
 
 How to Run Locally:
-  You will have to modify the configuration file with the neo4j username and password in order to successfully run the game.
+  You will have to modify the configuration file with the neo4j uname, pword, and address in order to successfully run the game.
   (In the future this may be replaced with a JSON file for the system to read in)
   
-  Lines 25 and 26
+  Lines 25-27
   ```
 	DBUname:		"USERNAME",
 	DBPword:		"PASSWORD",
+	DBAddress:		"127.0.0.1",
   ```
   
   You can then build the code base:
