@@ -6,6 +6,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strings"
 )
@@ -19,6 +20,7 @@ type handler interface {
 // to add new handlers. dispatchHandler then uses this list to lookup the
 // correct handler to invoke for a given command.
 var handlers = map[string]handler{}
+var handlerPermission = map[string]permissions.Permissions{}
 
 // addHandler adds the given commands for the specified handler. The commands
 // will automatically be uppercased. Each command and its aliases should
@@ -31,9 +33,13 @@ var handlers = map[string]handler{}
 // In this example the LOOK command and it's alias 'L' register an instance of
 // Look as their handler. If a handler is added for an existing command or
 // alias the original handler will be replaced.
-func addHandler(h handler, cmd ...string) {
-	for _, cmd := range cmd {
+func addHandler(h handler, helpText string, permission permissions.Permissions, cmds ...string ) {
+	for _, cmd := range cmds {
 		handlers[strings.ToUpper(cmd)] = h
+		handlerPermission[strings.ToUpper(cmd)] = permission
+	}
+	if helpText != "" {
+		addHelp(helpText, cmds...)
 	}
 }
 
@@ -46,15 +52,14 @@ func addHandler(h handler, cmd ...string) {
 func dispatchHandler(s *state) {
 
 	if len(s.cmd) > 0 {
-
+		log.Println("received",  s.cmd, s.actor.Permission)
 		if s.cmd[0] == '$' && !s.scripting {
-			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands")
+			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (2)")
 			return
 		}
 
 		// Check the player stack for the command first
 		if val, ok := s.actor.Menu[strings.ToLower(s.cmd)]; ok {
-			log.Println("Match" + val.Command)
 			s.scriptActor(val.Command, strings.Join(s.input, " "))
 			return
 		}
@@ -62,19 +67,22 @@ func dispatchHandler(s *state) {
 
 		// Check the room stack for a command second:
 		if val, ok := s.where.Commands[s.cmd]; ok {
-			log.Println("Match" + val.Command)
 			s.scriptAll(val.Command, strings.Join(s.input, " "))
 			return
 		}
 
 		switch handler, valid := handlers[s.cmd]; {
 		case valid:
-			handler.process(s)
+			//if s.actor.Permission.HasFlag(handlerPermission[s.cmd]) {
+			//	s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
+			//}else {
+				handler.process(s)
+			//}
 		default:
-			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands")
+			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (3)")
 		}
 
 	}else{
-		s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands")
+		s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (4)")
 	}
 }

@@ -1,14 +1,17 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 	"strings"
 )
 
 // Syntax: ( INVENTORY | INV )
 func init() {
-	addHandler(inventory{}, "INV", "INVENTORY")
-	addHelp("Usage:  inventory \n \n Display the current items in your inventory.", 0, "get")
+	addHandler(inventory{},
+           "Usage:  inventory \n \n Display the current items in your inventory.",
+           permissions.Player,
+           "INV")
 }
 
 type inventory cmd

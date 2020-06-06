@@ -33,22 +33,22 @@ func MaxWeight(str int64) int64 {
 }
 
 func CalcHealth(tier int, con int, class int) int {
-	if class>=50 {
-		return 400
+	if class>=99 {
+		return 800
 	}
 	return (tier * Classes[AvailableClasses[class]].Health) + (tier * ((con/ConBonusHealthDiv)*ConBonusHealth))
 }
 
 func CalcStamina(tier int, con int, class int) int {
-	if class>=50 {
-		return 400
+	if class>=99 {
+		return 800
 	}
 	return (tier * Classes[AvailableClasses[class]].Stamina) + (tier * ((con/ConBonusHealthDiv)*ConBonusHealth))
 }
 
 func CalcMana(tier int, intel int, class int) int {
-	if class>=50 {
-		return 400
+	if class>=99 {
+		return 800
 	}
 	return (tier * Classes[AvailableClasses[class]].Mana) + (tier * ((intel/IntManaPoolDiv)*IntManaPool))
 }

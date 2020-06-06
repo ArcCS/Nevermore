@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 
 	"github.com/ArcCS/Nevermore/data"
@@ -105,7 +106,7 @@ func (l *login) passwordProcess() {
 	}
 
 	l.frontend.account = acctData["name"].(string)
-	l.frontend.accountType = int(acctData["account_type"].(int64))
+	l.frontend.permissions = permissions.Permissions(acctData["permissions"].(int64))
 	accounts.inuse[l.inputName] = struct{}{}
 	accounts.Unlock()
 

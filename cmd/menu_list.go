@@ -1,7 +1,9 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 func init() {
-	addHandler(list{}, "$LIST")
+	addHandler(list{}, "", permissions.Player,  "$LIST")
 }
 
 type list cmd

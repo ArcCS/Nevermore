@@ -10,6 +10,7 @@ import (
 	"encoding/hex"
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"sort"
@@ -54,28 +55,27 @@ func (m *start) startDisplay() {
  X. Make a new character
  2. Change account password
 `)
-	switch m.accountType {
-	case 100:
+	if m.permissions.HasFlag(permissions.Gamemaster) {
 		if m.powerCharacter == "" {
 			output.WriteString(" 3. Create a gamemaster account.\r\n")
-		}else{
+		} else {
 			output.WriteString(" 3. Load gamemaster account:" + m.powerCharacter + "\r\n")
 		}
-	case 50:
+	}else if m.permissions.HasFlag(permissions.Builder) {
 		if m.powerCharacter == "" {
 			output.WriteString(" 3. Create a builder account.\r\n")
 		}else{
 			output.WriteString(" 3. Load builder account:" + m.powerCharacter + "\r\n")
 		}
 		m.optionEnd = 3
-	case 60:
+	}else if m.permissions.HasFlag(permissions.Dungeonmaster) {
 		if m.powerCharacter == "" {
 			output.WriteString(" 3. Create a dungeon master account.\r\n")
-		}else{
+		} else {
 			output.WriteString(" 3. Load dungeonmaster account:" + m.powerCharacter + "\r\n")
 		}
 		m.optionEnd = 3
-	default:
+	}else{
 		m.optionEnd = 2
 	}
 	output.WriteString("\n==== Your Character List ====\n")
@@ -102,7 +102,7 @@ func (m *start) startProcess() {
 		m.buf.Send(text.Info, "Enter your new password:")
 		m.nextFunc = m.verifyPw
 	default:
-		if m.accountType > 0 && string(m.input) == "3"{
+		if m.permissions.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) && string(m.input) == "3"{
 			if m.powerCharacter == ""{
 				NewPCharacter(m.frontend)
 				return

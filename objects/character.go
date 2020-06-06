@@ -3,6 +3,7 @@ package objects
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/text"
 	"io"
@@ -19,6 +20,8 @@ type Character struct {
 	// Our stuff!
 	Equipment Equipment
 	Inventory ItemInventory
+	Permission permissions.Permissions
+
 
 	Flags map[string]bool
 	Effects map[string]Effect
@@ -82,8 +85,6 @@ type Character struct {
 	BluntExperience Accumulator
 	PoleExperience Accumulator
 	MissileExperience Accumulator
-
-	// TODO Tickers and Timers oh my
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
@@ -103,6 +104,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			charData["character_id"].(int64),
 			Equipment{},
 			ItemInventory{},
+			0,
 			make(map[string]bool),
 			make(map[string]Effect),
 			make(map[string]Effect),
@@ -155,7 +157,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 		}
 
 		// GM Specifics:
-		if FilledCharacter.Class >= 50 {
+		if FilledCharacter.Class >= 99 {
 			FilledCharacter.Flags["hidden"] = true
 			FilledCharacter.Flags["invisible"] = true
 		}
@@ -285,7 +287,7 @@ type PromptStyle int
 
 const (
 	StyleNone = iota
-	StyleStat = iota
+	StyleStat
 )
 
 func (c *Character) Tick(){

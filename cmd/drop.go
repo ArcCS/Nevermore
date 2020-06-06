@@ -1,13 +1,16 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 )
 
 // Syntax: DROP item
 func init() {
-	addHandler(drop{},"DROP")
-	addHelp("Usage:  drop itemName # \n \n Drop the specified item name and number.", 0, "drop")
+	addHandler(drop{},
+	"Usage:  drop itemName # \n \n Drop the specified item name and number.",
+	permissions.Player,
+	"drop")
 }
 
 type drop cmd

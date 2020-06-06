@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 )
 
 func init() {
-	addHandler(put{}, "PUT")
-	addHelp("Usage:  put itemName # [chest] \n \n Put the specified item name in a chest.", 0, "put")
+	addHandler(put{},
+           "Usage:  put itemName # [chest] \n \n Put the specified item name in a chest.",
+           permissions.Player,
+           "PUT")
 }
 
 type put cmd

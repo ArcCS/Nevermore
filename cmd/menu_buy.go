@@ -1,7 +1,9 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 func init() {
-	addHandler(buy{}, "$BUY")
+	addHandler(buy{}, "", permissions.Player, "$BUY")
 }
 
 type buy cmd

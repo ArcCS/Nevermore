@@ -146,13 +146,9 @@ func (a *newPCharacter) confirmFastProcess() {
 }
 
 func (a *newPCharacter) completeBuilder() {
-	chooseClass := a.accountType
-	if chooseClass == 0{
-		chooseClass = 50
-	}
 	charData := make(map[string]interface{})
 	charData["name"] = a.name
-	charData["class"] = chooseClass
+	charData["class"] = 100
 	charData["race"] = a.race
 	charData["account"] = a.account
 	charData["gender"] = a.gender

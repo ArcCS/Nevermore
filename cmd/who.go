@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 
 	"github.com/ArcCS/Nevermore/stats"
@@ -8,15 +9,17 @@ import (
 
 // Syntax: WHO
 func init() {
-	addHandler(who{}, "WHO")
-	addHelp("Usage:  who \n \n Display other currently logged in characters.", 0, "who")
+	addHandler(who{},
+           "Usage:  who \n \n Display other currently logged in characters.",
+           permissions.Player,
+           "WHO")
 }
 
 type who cmd
 
 func (who) process(s *state) {
 	var players []string
-	if s.actor.Class == 100{
+	if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
 		players = stats.ActiveCharacters.GMList()
 	}else{
 		players = stats.ActiveCharacters.List()

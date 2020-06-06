@@ -2,24 +2,21 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 )
 
 func init() {
 	addHandler(teleport{},
-		 "teleport",
-	)
-	addHelp("Usage:  teleport id # \n \n teleports you to the specified room id", 50, "teleport")
+	"Usage:  teleport id # \n \n teleports you to the specified room id",
+	permissions.Builder,
+	"teleport")
 }
 
 type teleport cmd
 
 func (teleport) process(s *state) {
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 1 {
 		s.msg.Actor.SendBad("Teleport where?")
 		return

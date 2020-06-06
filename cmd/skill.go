@@ -3,14 +3,17 @@ package cmd
 import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"text/template"
 )
 
 // Syntax: WHO
 func init() {
-	addHandler(skills{}, "skill", "skills")
-	addHelp("Usage:  skill \n \n Display the current level of your various weapon skills", 0, "skills")
+	addHandler(skills{},
+           "Usage:  skill \n \n Display the current level of your various weapon skills",
+           permissions.Player,
+           "skill")
 }
 
 type skills cmd

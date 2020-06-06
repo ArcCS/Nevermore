@@ -2,22 +2,20 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 )
 
 func init() {
-	addHandler(kill{}, "kill", "k", "attack")
-	addHelp("Usage:  kill target # \n\n Try to attack something! Can also use attack, or shorthand k", 0, "kill")
+	addHandler(kill{},
+           "Usage:  kill target # \n\n Try to attack something! Can also use attack, or shorthand k",
+           permissions.Player,
+           "kill")
 }
 
 type kill cmd
 
 func (kill) process(s *state) {
-	if s.actor.Class == 50 {
-		s.msg.Actor.SendInfo("As a builder you can't use these commands.")
-		return
-	}
-
 	name := s.input[0]
 	nameNum := 1
 
@@ -31,7 +29,7 @@ func (kill) process(s *state) {
 	var whatMob *objects.Mob
 
 	// This is an override for a GM to delete a mob
-	if s.actor.Class >= 60 {
+	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		whatMob = s.where.Mobs.Search(name, int64(nameNum),true)
 		if whatMob != nil {
 			s.msg.Actor.SendInfo("You smashed ", whatMob.Name , " out of existence.")

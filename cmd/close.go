@@ -1,13 +1,16 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
 
 // Syntax: CLOSE <door>
 func init() {
-	addHandler(closeExit{}, "CLOSE")
-	addHelp("Usage:  close exitName \n\n Close the specified exit so no one can pass through it.", 0, "close")
+	addHandler(closeExit{},
+           "Usage:  close exitName \n\n Close the specified exit so no one can pass through it.",
+           permissions.Player,
+           "CLOSE")
 }
 
 type closeExit cmd

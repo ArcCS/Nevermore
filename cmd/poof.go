@@ -5,10 +5,14 @@
 
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
 
 // Syntax: $POOF
 func init() {
-	addHandler(poof{}, "$POOF")
+	addHandler(poof{},
+	"",
+	permissions.Anyone,
+	"$POOF")
 }
 
 type poof cmd

@@ -1,8 +1,12 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 func init() {
-	addHandler(whisper{}, "WHISPER")
-	addHelp("Usage:  whisper \n \n Get the specified item.", 0, "whisper")
+	addHandler(whisper{},
+           "Usage:  whisper \n \n Get the specified item.",
+           permissions.Player,
+           "WHISPER")
 }
 
 type whisper cmd

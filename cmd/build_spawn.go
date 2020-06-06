@@ -2,28 +2,26 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"strconv"
 	"strings"
 )
 
 func init() {
-	addHandler(spawn{}, "spawn")
-	addHelp("Usage:  spawn (mob|item) (name) \n \n Use this command to spawn a mob or item to be modified: \n" +
+	addHandler(spawn{},
+	"Usage:  spawn (mob|item) (name) \n \n Use this command to spawn a mob or item to be modified: \n" +
 		"Items: Item will be added to your inventory\n" +
 		"  -->  If you wish to save it as the template for that item, use the 'savetemplate item' command\n" +
 		"Mob:  Mob will be spawned into your room. \n" +
-		"  -->  If you wish to save it as the template for that mob, use the 'savetemplate mob' command\n\n",50, "spawn")
+		"  -->  If you wish to save it as the template for that mob, use the 'savetemplate mob' command\n\n",
+		permissions.Dungeonmaster,
+		"spawn")
 }
 
 type spawn cmd
 
 func (spawn) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("Spawn what?")
 		return

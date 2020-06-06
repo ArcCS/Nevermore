@@ -3,23 +3,21 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 	"strings"
 )
 
 func init() {
-	addHandler(link{}, "link", "tunnel")
-	addHelp("Usage:  link exit_name (room_id) [exit_back] \n Required: exit_name room_name \n \n Dig creates a new exit with the exit name, and links it to the room ID specified. If you specify a name back, the exit back will be automatically generated.  \n Optionals: exit_back will create the exit name back to current room \n", 50, "link", "tunnel")
+	addHandler(link{},
+           "Usage:  link exit_name (room_id) [exit_back] \n Required: exit_name room_name \n \n Dig creates a new exit with the exit name, and links it to the room ID specified. If you specify a name back, the exit back will be automatically generated.  \n Optionals: exit_back will create the exit name back to current room \n",
+           permissions.Builder,
+           "link")
 }
 
 type link cmd
 
 func (link) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("Link where?")
 		return

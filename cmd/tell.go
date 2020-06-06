@@ -1,8 +1,12 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 func init() {
-	addHandler(tell{}, "TELL", "SEND")
-	addHelp("Usage:  send character_name \n \n Send a telepathic message to another player", 0, "send", "tell")
+	addHandler(tell{},
+           "Usage:  send character_name \n \n Send a telepathic message to another player",
+           permissions.Player,
+           "TELL")
 }
 
 type tell cmd

@@ -8,7 +8,7 @@ package cmd
 // init adds a handler for the empty command. See the process method for
 // details.
 func init() {
-	addHandler(cmd{})
+	addHandler(cmd{}, "", 0)
 }
 
 // cmd is the default type used to build commands.

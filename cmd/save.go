@@ -1,9 +1,13 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 // Syntax: WHO
 func init() {
-	addHandler(who{}, "SAVE")
-	addHelp("Usage:  Commit your current character state to the db.", 0, "save")
+	addHandler(who{},
+           "Usage:  Commit your current character state to the db.",
+           permissions.Player,
+           "SAVE")
 }
 
 type save cmd

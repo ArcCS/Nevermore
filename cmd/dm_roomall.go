@@ -5,17 +5,15 @@ import (
 )
 
 func init() {
-	addHandler(roomall{}, "roomall")
-	addHelp("Usage:  roomall A mouse darts by in the corner of the square", 60, "roomall")
+	addHandler(roomall{},
+           "Usage:  roomall A mouse darts by in the corner of the square",
+           0,
+           "roomall")
 }
 
 type roomall cmd
 
 func (roomall) process(s *state) {
-	if s.actor.Class < 60 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) == 0 {
 		s.msg.Actor.SendInfo("What happened in this room?")
 		return

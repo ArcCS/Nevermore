@@ -1,13 +1,16 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 )
 
 // Syntax: JUNK item
 func init() {
-	addHandler(toss{}, "toss")
-	addHelp("Usage:  toss itemName # \n \n Toss an item away, this is a permanent deletion.", 0, "toss")
+	addHandler(toss{},
+           "Usage:  toss itemName # \n \n Toss an item away, this is a permanent deletion.",
+           permissions.Player,
+           "toss")
 }
 
 type toss cmd

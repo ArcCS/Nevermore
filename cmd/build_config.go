@@ -1,21 +1,22 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 func init() {
-	addHandler(config_var{}, "config")
-	addHelp("Usage:  config list  \n Show all configurable variables \n" +
-		                      "config var_name value \n Change the configuration value" ,60, "config")
+	addHandler(configVar{},
+		"Usage:  config list  \n Show all configurable variables \n" +
+			"config var_name value \n Change the configuration value",
+		permissions.Builder,
+		"config")
+
 }
 
-type config_var cmd
+type configVar cmd
 
-func (config_var) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 55 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
+func (configVar) process(s *state) {
+	// Handle necessary arguements
 	if len(s.words) < 1 {
-		s.msg.Actor.SendInfo("Add what?")
+		s.msg.Actor.SendInfo("Edit which config with what value?")
 		return
 	}
 

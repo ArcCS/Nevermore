@@ -2,23 +2,21 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strconv"
 )
 
 func init() {
-	addHandler(remspawn{}, "remspawn")
-	addHelp("Usage:  remspawn id \n \n Remove a spawn from the encounter table \n" ,50, "remspawn")
+	addHandler(remspawn{},
+	"Usage:  remspawn id \n \n Remove a spawn from the encounter table \n" ,
+	permissions.Builder,
+	"remspawn")
 }
 
 type remspawn cmd
 
 func (remspawn) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 1{
 		s.msg.Actor.SendInfo("Remove what?")
 		return

@@ -7,8 +7,10 @@ import (
 )
 
 func init() {
-	addHandler(stat{}, "STAT", "STATS")
-	addHelp("Usage:  stats \n \n Show your current stat line", 0, "stat")
+	addHandler(stat{},
+           "Usage:  stats \n \n Show your current stat line",
+           0,
+           "STAT")
 }
 
 type stat cmd

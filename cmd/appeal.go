@@ -1,13 +1,16 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/stats"
 	"strings"
 )
 
 func init() {
-	addHandler(appeal{}, "APPEAL")
-	addHelp("Usage:  appeal HELP ME OH GODS OR CREATORS\n \n Appeal a message to higher powers.  Note: Append OOC to clarify it's a non RP issue", 0, "appeal")
+	addHandler(appeal{},
+		"Usage:  appeal HELP ME OH GODS OR CREATORS\n \n Appeal a message to higher powers.  Note: Preppend OOC to clarify it's a non RP issue", 				permissions.Player,
+		"APPEAL")
+
 }
 
 type appeal cmd

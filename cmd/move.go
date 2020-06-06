@@ -1,12 +1,15 @@
 package cmd
 
-import "strconv"
+import (
+	"github.com/ArcCS/Nevermore/permissions"
+	"strconv"
+)
 
 func init() {
 	addHandler(move{},
-		 "SPRINT", "MOVE", "MV", "SPR", "F", "FORWARD", "BACK", "B",
-	)
-	addHelp("Usage:  move|sprint forward|backwards # \n \n Change combat stance in the room's 5 space grid.  Sprint will move 2, move will move 1", 0, "move", "sprint")
+		"Usage:  move|sprint forward|backwards # \n \n Change combat stance in the room's 5 space grid.  Sprint will move 2, move will move 1",
+	 	permissions.Player,
+		"SPRINT", "MOVE", "MV", "SPR", "F", "FORWARD", "BACK", "B")
 }
 
 
