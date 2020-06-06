@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
 
 func init() {
-	addHandler(act{}, "act", "emote")
-	addHelp("Usage:  act performs for all to see \n \n Perform actions.", 0, "act", "emote")
+	addHandler(act{},
+		"Usage:  act performs for all to see \n \n Perform actions.",
+		permissions.Player,
+		"act", "emote")
 }
 
 type act cmd

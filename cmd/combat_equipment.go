@@ -1,8 +1,12 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 func init() {
-	addHandler(equipment{}, "equipment")
-	addHelp("Usage:  equipment \n\n Display currently equipped gear", 0, "equipment")
+	addHandler(equipment{},
+           "Usage:  equipment \n\n Display currently equipped gear",
+           permissions.Player,
+           "equipment")
 }
 
 type equipment cmd

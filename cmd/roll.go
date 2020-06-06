@@ -1,14 +1,17 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 )
 
 // Syntax: DROP item
 func init() {
-	addHandler(roll{},"roll")
-	addHelp("Usage:  roll sides num_dice \n \n Roll a number of specified sided dice", 0, "roll")
+	addHandler(roll{},
+	"Usage:  roll sides num_dice \n \n Roll a number of specified sided dice",
+	permissions.Player,
+	"roll")
 }
 
 type roll cmd

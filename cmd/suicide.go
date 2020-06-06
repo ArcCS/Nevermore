@@ -1,9 +1,13 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 // Syntax: SNEEZE
 func init() {
-	addHandler(suicide{}, "SUICIDE")
-	addHelp("Usage:  suicide \n \n Permanently kills your character and removes them from the world.", 0, "suicide")
+	addHandler(suicide{},
+           "Usage:  suicide \n \n Permanently kills your character and removes them from the world.",
+           permissions.Player,
+           "SUICIDE")
 }
 
 type suicide cmd

@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 )
 
 func init() {
-	addHandler(get{}, "GET", "TAKE")
-	addHelp("Usage:  get [container_name] itemName # \n \n Get the specified item.", 0, "get")
+	addHandler(get{},
+           "Usage:  get [container_name] itemName # \n \n Get the specified item.",
+           permissions.Player,
+           "GET")
 }
 
 type get cmd

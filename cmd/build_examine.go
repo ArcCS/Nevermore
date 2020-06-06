@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strconv"
 	"strings"
@@ -10,18 +11,15 @@ import (
 )
 
 func init() {
-	addHandler(examine{}, "examine")
-	addHelp("Usage:  examine (room|mob|object|exit) (name|#####) \n\n  Examine will display the item and all of it's modifiable properties", 50, "examine")
+	addHandler(examine{},
+           "Usage:  examine (room|mob|object|exit) (name|#####) \n\n  Examine will display the item and all of it's modifiable properties",
+           permissions.Builder,
+           "examine")
 }
 
 type examine cmd
 
 func (examine) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("What do you want to examine?")
 		return

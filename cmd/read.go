@@ -1,8 +1,12 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 func init() {
-	addHandler(read{}, "READ", "STUDY")
-	addHelp("Usage:  read item_name # \n \n Read the specified scroll into your spellbook", 0, "read", "study")
+	addHandler(read{},
+           "Usage:  read item_name # \n \n Read the specified scroll into your spellbook",
+           permissions.Player,
+           "READ")
 }
 
 type read cmd

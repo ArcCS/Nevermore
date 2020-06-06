@@ -1,7 +1,9 @@
 package cmd
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 func init() {
-	addHandler(train{}, "$TRAIN")
+	addHandler(train{}, "", permissions.Player,  "$TRAIN")
 }
 
 type train cmd

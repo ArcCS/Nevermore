@@ -3,23 +3,21 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strconv"
 )
 
 func init() {
-	addHandler(addspawn{}, "addspawn")
-	addHelp("Usage:  addspawn 452 39 \n Add a spawn to a room with a whole number chance of encounter when an encounter is triggered \n" ,50, "addspawn")
+	addHandler(addspawn{},
+	"Usage:  addspawn 452 39 \n Add a spawn to a room with a whole number chance of encounter when an encounter is triggered \n" ,
+	permissions.Builder,
+	"addspawn")
 }
 
 type addspawn cmd
 
 func (addspawn) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 2{
 		s.msg.Actor.SendInfo("Add what, where?")
 		return

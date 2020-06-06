@@ -1,13 +1,16 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
 
 // Syntax: SAY <message> | " <message>
 func init() {
-	addHandler(say{}, "SAY", "\"")
-	addHelp("Usage:  say [character] \n \n Say something out loud!", 0, "say")
+	addHandler(say{},
+           "Usage:  say [character] \n \n Say something out loud!",
+           permissions.Player,
+           "SAY")
 }
 
 type say cmd

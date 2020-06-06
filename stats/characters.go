@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/ArcCS/Nevermore/message"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"io"
 	"log"
@@ -24,7 +25,7 @@ var IpMap = make(map[string]string)
 
 // Add adds the specified character to the list of characters.
 func (c *characterStats) Add(character *objects.Character, address string) {
-	if character.Flags["invisible"] || character.Class >=50 {
+	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster, permissions.God) {
 		c.MessageGM("###: " + character.Name + "["+ address +"] joins the realm.")
 	}else{
 		c.MessageAll("###: " + character.Name + " joins the realm.")
@@ -38,8 +39,8 @@ func (c *characterStats) Add(character *objects.Character, address string) {
 // Pass character as a pointer, compare and remove
 func (c *characterStats) Remove(character *objects.Character) {
 	log.Println("trying to let everyone know...")
-	if character.Flags["invisible"] || character.Class >=50 {
-		c.MessageGM("###: " + character.Name + " departs the realm.")
+	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
+		c.MessageGM("### (GM):" + character.Name + " departs the realm.")
 	}else{
 		c.MessageAll("###: " + character.Name + " departs the realm.")
 	}
@@ -73,6 +74,7 @@ func (c *characterStats) Find(name string) *objects.Character {
 			return p
 		}
 	}
+	c.Unlock()
 	return nil
 }
 
@@ -144,7 +146,7 @@ func (c *characterStats) MessageGM(msg string) {
 	msgbuf.Send(text.White, "[DM] ", msg)
 	players := []io.Writer{}
 	for _, p := range c.list {
-		if p.Class >= int64(50) {
+		if p.Permission.HasAnyFlags(permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster, permissions.Builder) {
 			players = append(players, p)
 		}
 	}

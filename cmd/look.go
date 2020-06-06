@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 	"strings"
 )
@@ -9,8 +10,10 @@ import (
 // Overloaded Look object for all of your looking pleasure
 // Syntax: ( LOOK | L ) has.Thing
 func init() {
-	addHandler(look{}, "L", "LOOK")
-	addHelp("Usage:  look [object|exit|character|mob] # \n \n Put your peepers on something. (Also can use short hand L", 0, "look")
+	addHandler(look{},
+           "Usage:  look [object|exit|character|mob] # \n \n Put your peepers on something. (Also can use short hand L",
+           permissions.Player,
+           "LOOK", "L")
 }
 
 type look cmd
@@ -19,13 +22,13 @@ func (look) process(s *state) {
 	var others []string
 	var mobs []string
 	if len(s.input) == 0 {
-		if s.actor.Class >= 50 {
+		if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(true))
 		}else{
 			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(false))
 		}
 		// Pick whether it's a GM or a user looking and go for it.
-		if s.actor.Class == 100 {
+		if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			others = objects.Rooms[s.actor.ParentId].Chars.List(true, s.actor.Name, true)
 			mobs = objects.Rooms[s.actor.ParentId].Mobs.List(true, true)
 		}else{
@@ -58,7 +61,7 @@ func (look) process(s *state) {
 
 	var whatChar *objects.Character
 	// Check characters in the room first.
-	if s.actor.Class >= 50 {
+	if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		whatChar = s.where.Chars.Search(name, true)
 	}else{
 		whatChar = s.where.Chars.Search(name, false)
@@ -80,7 +83,7 @@ func (look) process(s *state) {
 
 	// Check mobs
 	var whatMob *objects.Mob
-	if s.actor.Class >= 50 {
+	if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		whatMob = s.where.Mobs.Search(name, int64(nameNum),true)
 	}else{
 		whatMob = s.where.Mobs.Search(name, int64(nameNum),false)

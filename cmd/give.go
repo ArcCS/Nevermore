@@ -2,13 +2,16 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 	"strings"
 )
 
 func init() {
-	addHandler(give{}, "GIVE")
-	addHelp("Usage:  give [person] itemName # \n \n Give the specific person an item.", 0, "give")
+	addHandler(give{},
+           "Usage:  give [person] itemName # \n \n Give the specific person an item.",
+           permissions.Player,
+           "GIVE")
 }
 
 type give cmd
@@ -25,7 +28,7 @@ func (give) process(s *state) {
 	targetNum := 1
 
 	var who *objects.Character
-	if s.actor.Class >= 50 {
+	if s.actor.Permission.HasFlag(permissions.Dungeonmaster) || s.actor.Permission.HasFlag(permissions.Gamemaster) {
 		who = s.where.Chars.Search(whoStr, true)
 	}else{
 		who = s.where.Chars.Search(whoStr, false)

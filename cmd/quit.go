@@ -2,12 +2,15 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/stats"
 )
 
 func init() {
-	addHandler(quit{}, "QUIT")
-	addHelp("Usage:  quit \n \n GTFO ", 0, "quit")
+	addHandler(quit{},
+           "Usage:  quit \n \n GTFO ",
+           permissions.Anyone,
+           "QUIT")
 }
 
 type quit cmd

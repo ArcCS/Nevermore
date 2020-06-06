@@ -197,11 +197,8 @@ var ClassTitles = map[string]classTitles{
 }
 
 func ClassTitle(class int64, gender string, tier int64) string{
-	if class >= 50 && class < 60 {
-		return "Builder"
-	}
-	if class >= 60 && class < 100 {
-		return "DungeonMaster"
+	if class == 99 {
+		return "Deity"
 	}
 	if class == 100 {
 		return "GameMaster"

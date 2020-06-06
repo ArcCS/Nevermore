@@ -2,18 +2,18 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"strings"
 )
 
 func init() {
 	addHandler(godir{},
-		 "N", "NE", "E", "SE", "S", "SW", "W", "NW", "U", "D",
+		"Usage:  go direction # \n \n Proceed to the specified exit.   The cardinal directions can also be used without the use of go", 						permissions.Player,
+		"N", "NE", "E", "SE", "S", "SW", "W", "NW", "U", "D",
 		"NORTH", "NORTHEAST", "EAST", "SOUTHEAST",
 		"SOUTH", "SOUTHWEST", "WEST", "NORTHWEST",
-		"UP", "DOWN", "GO",
-	)
-	addHelp("Usage:  go direction # \n \n Proceed to the specified exit.   The cardinal directions can also be used without the use of go", 0, "go")
+		"UP", "DOWN", "GO")
 }
 
 var (

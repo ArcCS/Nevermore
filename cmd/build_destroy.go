@@ -3,24 +3,22 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 	"strings"
 )
 
 func init() {
-	addHandler(destroy{}, "destroy", "delete", "del")
-	addHelp("Usage:  destroy (room|mob|item|exit) ID/name) \n \n Delete the item entirely from the database.  If this is a builder account, you must be the creator of the item to delete.  If you delete a room, it will delete the exits to and from it; be mindful and grab id's or tunnel around prior to deletion.", 50, "destroy", "delete", "del")
+	addHandler(destroy{},
+	"Usage:  destroy (room|mob|item|exit) ID/name) \n \n Delete the item entirely from the database.  If this is a builder account, you must be the creator of the item to delete.  If you delete a room, it will delete the exits to and from it; be mindful and grab id's or tunnel around prior to deletion.",
+	permissions.Builder,
+	"destroy", "delete", "del")
 }
 
 type destroy cmd
 
 func (destroy) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("Delete what?")
 		return
@@ -35,7 +33,7 @@ func (destroy) process(s *state) {
 		}
 		room, rErr := objects.Rooms[int64(objectRef)]
 		if rErr {
-			if s.actor.Class > 50 || room.Creator == s.actor.Name {
+			if s.actor.Permission.HasFlag(permissions.Builder) || room.Creator == s.actor.Name {
 				data.DeleteRoom(int64(objectRef))
 				delete(objects.Rooms, int64(objectRef))
 				s.where.CleanExits()
@@ -61,7 +59,7 @@ func (destroy) process(s *state) {
 		}
 		exit, rErr := s.where.Exits[objectRef]
 		if rErr {
-			if s.actor.Class > 50 || s.where.Creator == s.actor.Name {
+			if (s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster)) || objects.Rooms[exit.ToId].Creator == s.actor.Name {
 				data.DeleteExit(exit.Name, s.where.RoomId )
 				delete(s.where.Exits, objectRef)
 				s.where.CleanExits()

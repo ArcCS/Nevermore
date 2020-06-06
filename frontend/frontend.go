@@ -31,6 +31,7 @@ package frontend
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"bytes"
+	"github.com/ArcCS/Nevermore/permissions"
 	"io"
 	"sync"
 
@@ -80,7 +81,7 @@ type frontend struct {
 	remoteAddr string  // IP Address
 	character *objects.Character // The current player instance (ingame or not)
 	account   string
-	accountType int
+	permissions permissions.Permissions
 	err       error           // First error to occur else nil
 }
 

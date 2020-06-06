@@ -3,22 +3,20 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
 
 func init() {
-	addHandler(dig{}, "dig")
-	addHelp("Usage:  dig exit_name exit_back (room_name)  \n Required: exit_name room_name \n \n Use dig with single world exit names (can be changed later) and a room name to create the new room, the exit to, and exit back.   Temporary exit can be deleted if you don't want an exit back to the previous room. \n", 50, "dig")
+	addHandler(dig{},
+           "Usage:  dig exit_name exit_back (room_name)  \n Required: exit_name room_name \n \n Use dig with single world exit names (can be changed later) and a room name to create the new room, the exit to, and exit back.   Temporary exit can be deleted if you don't want an exit back to the previous room. \n",
+           permissions.Builder,
+           "dig")
 }
 
 type dig cmd
 
 func (dig) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 3 {
 		s.msg.Actor.SendInfo("Not enough parameters to dig")
 		return

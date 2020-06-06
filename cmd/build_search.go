@@ -3,23 +3,21 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 	"strings"
 )
 
 func init() {
-	addHandler(find{}, "find", "searchdb")
-	addHelp("Usage:  find (room|mob|item) name|desc (text) (page #) \n \n Use this command to search the database and find a list of matching items", 50, "find", "searchdb")
+	addHandler(find{},
+           "Usage:  find (room|mob|item) name|desc (text) (page #) \n \n Use this command to search the database and find a list of matching items",
+           permissions.Builder,
+           "find")
 }
 
 type find cmd
 
 func (find) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 3 {
 		s.msg.Actor.SendInfo("Search what?  Missing parameters")
 		return

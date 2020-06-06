@@ -1,13 +1,16 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/stats"
 	"strings"
 )
 
 func init() {
-	addHandler(broadcast{}, "BROADCAST")
-	addHelp("Usage:  broadcast I have so many things to talk about! \n \n Broadcast messages to the entire realm at the cost of a broadcast point.", 0, "broadcast")
+	addHandler(broadcast{},
+		"Usage:  broadcast I have so many things to talk about! \n \n Broadcast messages to the entire realm at the cost of a broadcast point.",
+		permissions.Player,
+		"BROADCAST")
 }
 
 type broadcast cmd
@@ -19,7 +22,7 @@ func (broadcast) process(s *state) {
 	}
 
 	/* TODO: Uncomment this block after Beta
-	if s.actor.Tier	< 50 {
+	if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster {
 		if s.actor.Broadcasts < 1 {
 			s.msg.Actor.SendBad("You're out of broadcasts today.")
 		}else{

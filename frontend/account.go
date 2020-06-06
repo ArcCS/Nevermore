@@ -4,9 +4,9 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strconv"
-
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/text"
 )
@@ -17,19 +17,17 @@ type account struct {
 	*frontend
 	account  string
 	password [16]byte
-	acctType int
+	permission permissions.Permissions
 }
 
 // NewAccount returns an account with the specified frontend embedded. The
 // returned account can be used for processing the creation of new accounts and
 // players.
 func NewAccount(f *frontend) (a *account) {
-	a = &account{frontend: f, acctType: 0}
+	a = &account{frontend: f, permission: 1}
 	a.explainAccountDisplay()
 	return
 }
-
-
 
 // explainAccountDisplay displays the requirements for new account IDs. It is
 // separated from newAccountDisplay so that if there is a problem we can ask

@@ -3,13 +3,17 @@ package cmd
 import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"text/template"
 )
 
 // Syntax: ( INFORMATION | INFO | INF | ME | STATS)
 func init() {
-	addHandler(information{}, "INF", "INFORMATION", "STATS", "INFO")
+	addHandler(information{},
+		"Displays all of your current character information.",
+		permissions.Player,
+		"INF", "INFORMATION", "STATS", "INFO")
 }
 
 type information cmd

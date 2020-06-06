@@ -14,7 +14,7 @@ func NewAcct(acctData map[string]interface{}) bool {
 	result, _ := conn.ExecNeo("CREATE (a:account) SET " +
 		"a.account_id = {acctId}, " +
 		"a.name = {acctName}, " +
-		"a.account_type = 0,  " +
+		"a.permissions = 1,  " +
 		"a.password = {acctPass}, " +
 		"a.active = true",
 		map[string]interface{}{
@@ -36,7 +36,7 @@ func LoadAcct(acctName string) (map[string]interface{}, bool) {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, _ := conn.QueryNeoAll("MATCH (a:account) WHERE toLower(a.name)=toLower({acctName}) RETURN " +
-		"{account_id: a.account_id, name: a.name, account_type: a.account_type, password: a.password}",
+		"{account_id: a.account_id, name: a.name, permissions: a.permissions, password: a.password}",
 		map[string]interface {}{
 			"acctName": acctName,
 		},
@@ -140,14 +140,14 @@ func UpdatePassword(acctName string, acctPass string) bool {
 	}
 }
 
-func ChangeAcctType(acctName string, acctType int) bool {
+func TogglePermission(acctName string, permission uint32) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	result, rtrap := conn.ExecNeo("MATCH (a:account) WHERE toLower(a.name)=toLower({acctName}) SET " +
-		"a.account_type = {acctType}",
+		"a.permissions = apoc.bitwise.op(a.permissions,'^',{permission})",
 		map[string]interface {}{
 			"acctName": acctName,
-			"acctType": acctType,
+			"permission": permission,
 		},
 	)
 	log.Println(rtrap)

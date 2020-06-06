@@ -1,13 +1,17 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"sort"
 	"strings"
 )
 
 // Syntax: COMANDS
 func init() {
-	addHandler(help{},  "HELP", "COMMANDS", "CMDS")
+	addHandler(help{},
+	"",
+	permissions.Player,
+	"HELP", "COMMANDS", "CMDS")
 }
 
 // Width of gutter between columns
@@ -29,7 +33,7 @@ func (help) process(s *state) {
 
 			// Ommit empty handler if installed and special commands starting with '#'
 			// and scripting commands starting with '$'
-			if len(cmd) == 0 || cmd[0] == '#' || cmd[0] == '$' || helpText[cmd].permission >= int(s.actor.Class) {
+			if len(cmd) == 0 || cmd[0] == '#' || cmd[0] == '$' || !s.actor.Permission.HasFlag(handlerPermission[strings.ToUpper(cmd)]) {
 				ommit++
 				continue
 			}
@@ -81,8 +85,8 @@ func (help) process(s *state) {
 	}else{
 		// Here we return the help text
 		subject := s.words[0]
-		if s.actor.Class >= int64(helpText[subject].permission) {
-			s.msg.Actor.SendGood("Command: ", subject, "\n\n", helpText[subject].helptext)
+		if s.actor.Permission.HasFlag(handlerPermission[strings.ToUpper(subject)]) {
+			s.msg.Actor.SendGood("Command: ", subject, "\n\n", helpText[subject].Text)
 		}
 	}
 }

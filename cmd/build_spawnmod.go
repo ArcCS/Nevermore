@@ -2,23 +2,21 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strconv"
 )
 
 func init() {
-	addHandler(modspawn{}, "modspawn")
-	addHelp("Usage:  modspawn 452 39 \n Modify a current spawn with a new value \n" ,50, "modspawn")
+	addHandler(modspawn{},
+	"Usage:  modspawn 452 39 \n Modify a current spawn with a new value \n",
+	permissions.Builder,
+	"modspawn")
 }
 
 type modspawn cmd
 
 func (modspawn) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
 	if len(s.words) < 2{
 		s.msg.Actor.SendInfo("Add what, where?")
 		return

@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
 
 func init() {
-	addHandler(open{}, "OPEN")
-	addHelp("Usage:  open exit_name \n \n Open the specified exit.", 0, "open")
+	addHandler(open{},
+           "Usage:  open exit_name \n \n Open the specified exit.",
+           permissions.Player,
+           "OPEN")
 }
 
 type open cmd

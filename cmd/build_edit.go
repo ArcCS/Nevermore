@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"strconv"
@@ -9,8 +10,7 @@ import (
 )
 
 func init() {
-	addHandler(edit{}, "edit", "modify")
-	addHelp("Usage:  edit (room|mob|item|exit) (Name) (commands) \n \n Use this command and the sub commands to make modifications to world objects: \n" +
+	addHandler(edit{},"Usage:  edit (room|mob|item|exit) (Name) (commands) \n \n Use this command and the sub commands to make modifications to world objects: \n" +
 		"Rooms: you must be in the room you wish to edit name not required\n" +
 		"Exits:  it must be already created in the room you are standing in \n" +
 		"Items: You must edit the item in your inventory.\n" +
@@ -18,17 +18,15 @@ func init() {
 		"Mob: You must summon the mob into the room you are in to edit it. \n" +
 		"  -->  If you wish to save it as the template for that item, use the 'savetemplate mob' command\n\n" +
 		"Change value:   edit room description Here is a new description \n\n" +
-		"Toggle flag(s):   edit exit north toggle unpickable closed hidden\n",50, "edit", "modify")
+		"Toggle flag(s):   edit exit north toggle unpickable closed hidden\n",
+		permissions.Builder,
+		"edit", "modify")
 }
 
 type edit cmd
 
 func (edit) process(s *state) {
-	// Handle Permissions
-	if s.actor.Class < 50 {
-		s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-		return
-	}
+	// Check arguements
 	if len(s.words) < 3 {
 		s.msg.Actor.SendInfo("Edit what, how?")
 		return
@@ -40,10 +38,8 @@ func (edit) process(s *state) {
 	case "room":
 		// Toggle Flags
 		if strings.ToLower(s.words[1]) == "toggle" {
-			log.Println("Gonna get mah toggle on")
 			for _, flag := range s.input[2:] {
-				log.Println("Looking to toggle: ", flag)
-				if s.actor.Class > 60 || flag != "active" {
+				if (s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster)) || flag != "active" {
 					if s.where.ToggleFlag(strings.ToLower(flag)) {
 						s.msg.Actor.SendGood("Toggled " + flag)
 					} else {

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strings"
 	"text/template"
@@ -9,8 +10,10 @@ import (
 
 // Syntax: spells
 func init() {
-	addHandler(spells{}, "SPELLS", "SPELL", "SPL")
-	addHelp("Usage:  spells \n \n List the spells currently bound to your character, and your spellbook", 0, "spells")
+	addHandler(spells{},
+           "Usage:  spells \n \n List the spells currently bound to your character, and your spellbook",
+           permissions.Player,
+           "SPELLS")
 }
 
 type spells cmd
