@@ -4,33 +4,34 @@ import (
 	"time"
 )
 
-// Todo: Effects are really timers with sub-tickers in some cases.
-// Use should include putting a timer for a spell that expires and removes any toggles
-// Or it expires and removes anything ticking.
-// Ticking may have environmental impact, capture here
-
 type Effect struct{
-	timer *time.Timer
-	timeEnd time.Time
-	// Does it do something?
-	repetition int64
-	effectFunc string
-	callback string
+	startTime time.Time
+	length time.Duration
+
+	lastTrigger time.Time
+	interval time.Duration
+
+	effect string
+	effectOff string
 }
 
-func NewEffect(t time.Duration, rep int64, effect string, callback string) *Effect {
-	return &Effect{time.NewTimer(t), time.Now().Add(t), rep, effect, callback}
+func NewEffect(t time.Duration, length string, interval string,  effect string, effectOff string) *Effect {
+	parseLength,_ := time.ParseDuration(length)
+	parseInterval, _ := time.ParseDuration(interval)
+	return &Effect{time.Now(),
+		parseLength,
+		time.Now(),
+		parseInterval,
+		effect,
+		effectOff }
 }
 
 func (s *Effect) Reset(t time.Duration) {
-	s.timer.Reset(t)
-	s.timeEnd = time.Now().Add(t)
+	s.startTime = time.Now()
+	s.length = t
 }
 
-func (s *Effect) Stop() {
-	s.timer.Stop()
-}
-
-func (s *Effect) TimeRemaining() time.Duration {
-	return s.timeEnd.Sub(time.Now())
+func (s *Effect) TimeRemaining() float64 {
+	calc := s.length - (time.Now().Sub(s.startTime))
+	return calc.Minutes()
 }

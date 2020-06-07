@@ -291,7 +291,34 @@ const (
 )
 
 func (c *Character) Tick(){
-	// The standard character ticker for regenerating
+	//_,_ = c.Write([]byte(text.Good + "Your Ticker Executed Here!"))
+	// The tick is affected by all things around the character and any currently applied effects
+	if Rooms[c.ParentId].Flags["heal_fast"] {
+		c.Stam.Add(c.Con.Current * 2)
+		c.Vit.Add(c.Con.Current * 2)
+		c.Mana.Add(c.Pie.Current * 2)
+	} else {
+		c.Stam.Add(c.Con.Current)
+		c.Vit.Add(c.Con.Current)
+		c.Mana.Add(c.Pie.Current)
+	}
+
+	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
+	for name, effect := range c.Effects {
+		// Process Removing the effect
+		if effect.TimeRemaining() <= 0 {
+			//TODO: Execute the spell to turn this off, but for now, just toggles
+			if effect.effectOff == "toggle"{
+				c.ToggleFlag(name)
+			}
+			delete(c.Effects, name)
+			continue
+		}
+
+		//TODO:  Process an interval execution of the effect
+	}
+
+
 }
 
 
