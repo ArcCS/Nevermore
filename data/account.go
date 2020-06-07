@@ -14,7 +14,7 @@ func NewAcct(acctData map[string]interface{}) bool {
 	result, _ := conn.ExecNeo("CREATE (a:account) SET " +
 		"a.account_id = {acctId}, " +
 		"a.name = {acctName}, " +
-		"a.permissions = 1,  " +
+		"a.permissions = 3,  " +
 		"a.password = {acctPass}, " +
 		"a.active = true",
 		map[string]interface{}{

@@ -85,7 +85,7 @@ var Debug = struct {
 
 var StartingRoom = 3
 var OocRoom = 2
-
+var ServerShutdown = make(chan bool)
 
 // Load loads the configuration file and overrides the default configuration
 // values with any values found.

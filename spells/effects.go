@@ -1,9 +1,11 @@
 package spells
 
 type MobNPCSpells interface {
+
 	ChangePlacement(place int64)
-	ApplyEffect()
-	RemoteEffect(effect string)
+	ApplyEffect(effect string)
+	RemoveEffect(effect string)
+
 	ReceiveDamage(damage int)
 	ReceiveVitalDamage(damage int)
 	Heal(damage int)
@@ -141,4 +143,5 @@ func Dodge(caller MobNPCSpells, target MobNPCSpells){ return }
 func ResistAcid(caller MobNPCSpells, target MobNPCSpells){ return }
 
 func Embolden(caller MobNPCSpells, target MobNPCSpells){ return }
+
 

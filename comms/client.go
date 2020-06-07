@@ -111,6 +111,9 @@ func (c *client) process() {
 
 		log.Printf("Starting game loop: %s", c.RemoteAddr())
 		for c.Error() == nil {
+			if config.Server.Running == false {
+				_ = c.Close()
+			}
 			err = c.SetReadDeadline(time.Now().Add(config.Server.IdleTimeout))
 			if in, err = s.ReadSlice('\n'); err != nil {
 				frontend.Zero(in)

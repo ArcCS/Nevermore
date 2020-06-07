@@ -13,6 +13,7 @@ import (
 	"github.com/ArcCS/Nevermore/stats"
 )
 
+
 func main() {
 	stats.Start()
 	// Lets set some settings
