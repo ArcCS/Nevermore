@@ -9,6 +9,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Character struct {
@@ -27,8 +28,7 @@ type Character struct {
 	Effects map[string]Effect
 	HiddenEffects map[string]Effect
 	//TODO ??? Modifiers map[string]int64
-	//TODO Ticker needs to be invoked
-	// Ticker will output > every 60 seconds,
+
 	// Should we count idle time based on last command entry and register the character as absent
 
 	// ParentId is the room id for the room
@@ -85,6 +85,9 @@ type Character struct {
 	BluntExperience Accumulator
 	PoleExperience Accumulator
 	MissileExperience Accumulator
+
+	CharTicker *time.Ticker
+	CharTickerUnload chan bool
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
@@ -146,6 +149,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			Accumulator{charData["bluntexp"].(int64)},
 			Accumulator{charData["sharpexp"].(int64)},
 			Accumulator{charData["missileexp"].(int64)},
+			nil,
+			make(chan bool),
 		}
 
 		for k, v := range charData["flags"].(map[string]interface{}){
@@ -162,9 +167,22 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			FilledCharacter.Flags["invisible"] = true
 		}
 
+		FilledCharacter.CharTicker = time.NewTicker(8 * time.Second)
+		go func() {
+			for {
+				select {
+				case <-FilledCharacter.CharTickerUnload:
+					return
+				case <-FilledCharacter.CharTicker.C:
+					FilledCharacter.Tick()
+				}
+			}
+		}()
+
 		return FilledCharacter, false
 	}
 }
+
 
 // TODO:  A hooking system
 // Extend the anon scripts to bind from items and add hooks to characters
@@ -184,6 +202,11 @@ hook [list]
  onreset
  oncleanup
 veto*/
+
+func (c *Character) Unload(){
+	c.CharTicker.Stop()
+	c.CharTickerUnload<-true
+}
 
 func (c *Character) OnAction(act string){
 	//TODO: Loop the actions based on the act sent
@@ -321,6 +344,9 @@ func (c *Character) Tick(){
 
 }
 
+func (c *Character) Died() {
+
+}
 
 // Drop out the description of this character
 func (c *Character) Look() (buildText string) {

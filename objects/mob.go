@@ -55,7 +55,7 @@ type Mob struct {
 	WimpyValue int64
 }
 
-// Pop the room data
+// Pop the mob data
 func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 	description := ""
 	var ok bool
@@ -172,6 +172,9 @@ func (m *Mob) CastSpell(spell string) bool {
 	return true
 }
 
+func (m *Mob) Died() {
+
+}
 
 func (m *Mob) Look() string {
 	buildText := "You see a " + m.Name + ", " + config.TextTiers[m.Level] + " level. \n"

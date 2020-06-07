@@ -143,7 +143,7 @@ func (c *characterStats) MessageGM(msg string) {
 
 	// Setup buffer
 	msgbuf := message.AcquireBuffer()
-	msgbuf.Send(text.White, "[DM] ", msg)
+	msgbuf.Send(text.White, "[GM] ", msg)
 	players := []io.Writer{}
 	for _, p := range c.list {
 		if p.Permission.HasAnyFlags(permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster, permissions.Builder) {

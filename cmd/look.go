@@ -84,9 +84,9 @@ func (look) process(s *state) {
 	// Check mobs
 	var whatMob *objects.Mob
 	if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		whatMob = s.where.Mobs.Search(name, int64(nameNum),true)
+		whatMob = s.where.Mobs.Search(name, nameNum,true)
 	}else{
-		whatMob = s.where.Mobs.Search(name, int64(nameNum),false)
+		whatMob = s.where.Mobs.Search(name, nameNum,false)
 	}
 	// It was a mob!
 	if whatMob != nil {

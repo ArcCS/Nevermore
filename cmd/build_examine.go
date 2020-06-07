@@ -51,7 +51,7 @@ description:	{{.Description}}
 	 natural_light:		{{.Natural_light}}
 	 indoors:		{{.Indoors}}
 	 fire:			{{.Fire}}
-	 encounters_off:	{{.Encounters_off}}
+	 encounters_on:	{{.Encounters_on}}
 	 no_word_of_recall:	{{.No_word_of_recall}}
 	 water:			{{.Water}}
 	 no_magic:		{{.No_magic}}
@@ -75,7 +75,7 @@ description:	{{.Description}}
 			Natural_light     string
 			Indoors           string
 			Fire              string
-			Encounters_off    string
+			Encounters_on    string
 			No_word_of_recall string
 			Water             string
 			No_magic          string
@@ -98,7 +98,7 @@ description:	{{.Description}}
 			strconv.FormatBool(roomRef.Flags["natural_light"]),
 			strconv.FormatBool(roomRef.Flags["indoors"]),
 			strconv.FormatBool(roomRef.Flags["fire"]),
-			strconv.FormatBool(roomRef.Flags["encounters_off"]),
+			strconv.FormatBool(roomRef.Flags["encounters_on"]),
 			strconv.FormatBool(roomRef.Flags["no_word_of_recall"]),
 			strconv.FormatBool(roomRef.Flags["water"]),
 			strconv.FormatBool(roomRef.Flags["no_magic"]),

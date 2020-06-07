@@ -11,7 +11,6 @@ import (
 	"github.com/ArcCS/Nevermore/message"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/stats"
-	"time"
 )
 
 // game embeds a frontend instance adding fields and methods specific to
@@ -49,15 +48,6 @@ func (g *game) gameInit() {
 
 	cmd.Script(g.character, "$POOF")
 	// Initialize this characters ticker
-	tickerCharacter := time.NewTicker(8 * time.Second)
-	go func() {
-		for {
-			select {
-			case <-tickerCharacter.C:
-				g.character.Tick()
-			}
-		}
-	}()
 	g.nextFunc = g.gameProcess
 }
 
@@ -67,6 +57,7 @@ func (g *game) gameInit() {
 func (g *game) gameProcess() {
 	c := cmd.Parse(g.character, string(g.input))
 	if c == "QUIT" {
+		g.character.Unload()
 		g.character = nil
 		g.buf = message.AcquireBuffer()
 		g.buf.OmitLF(true)

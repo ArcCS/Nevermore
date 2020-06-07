@@ -6,8 +6,10 @@ import (
 	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"github.com/jinzhu/copier"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Room contains the map of fields for a room in nexus
@@ -26,6 +28,8 @@ type Room struct {
 	EncounterRate int64
 	// MobID mapped to an encounter percentage
 	EncounterTable map[int64]int64
+	roomTicker *time.Ticker
+	roomTickerUnload chan bool
 }
 
 // Pop the room data
@@ -39,13 +43,15 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool){
 		roomData["room_id"].(int64),
 		roomData["creator"].(string),
 		make(map[string]*Exit),
-		NewMobInventory(),
-		NewCharInventory(),
+		NewMobInventory(roomData["room_id"].(int64)),
+		NewCharInventory(roomData["room_id"].(int64)),
 		NewItemInventory(),
 		make(map[string]bool),
 		make(map[string]prompt.MenuItem),
 		roomData["encounter_rate"].(int64),
 		make(map[int64]int64),
+		nil,
+		make(chan bool),
 	}
 
 	// TODO: Load Permanent Items
@@ -172,6 +178,64 @@ func (r *Room) ToggleFlag(flagName string) bool {
 	}
 }
 
+// Actions to be taken on the first person entering a room
+func (r *Room) FirstPerson() {
+	// Construct and institute the ticker
+	//*
+	if r.Flags["encounters_on"] || r.Flags["fire"] || r.Flags["earth"] || r.Flags["wind"] || r.Flags["water"] {
+		r.roomTicker = time.NewTicker(8 * time.Second)
+		go func() {
+			for {
+				select {
+				case <-r.roomTickerUnload:
+					return
+				case <-r.roomTicker.C:
+					// Roll the dice and see if we get a mob here
+					if int64(utils.Roll(100, 1, 0)) <= r.EncounterRate {
+						// Successful roll:  Roll again to pick the mob
+						mobCalc := int64(0)
+						mobPick := int64(utils.Roll(100, 1, 0))
+						for mob, chance := range r.EncounterTable {
+							mobCalc += chance
+							if mobPick <= mobCalc{
+								// This is the mob!  Put it in the room!
+								newMob := Mob{}
+								copier.Copy(&newMob, Mobs[mob])
+								newMob.Placement = 5
+								r.Mobs.Add(&newMob)
+								break
+							}
+						}
+					}
+					//TODO: Do some elemental damage
+				}
+			}
+		}()
+	}
+	// Resume permanent mob/item tickers
+}
+
+func (r *Room) LastPerson(){
+
+	r.Mobs.RemoveNonPerms()
+
+	r.Items.RemoveNonPerms()
+
+	// Destruct the ticker
+	if r.Flags["encounters_on"] || r.Flags["fire"] || r.Flags["earth"] || r.Flags["wind"] || r.Flags["water"] {
+		r.roomTickerUnload<-true
+		r.roomTicker.Stop()
+	}
+
+}
+
+func (r *Room) MessageAll(Message string){
+	// Message all the characters in this room
+	for _, chara := range r.Chars.Contents{
+		chara.Write([]byte(Message))
+	}
+}
+
 func (r *Room) Save(){
 	roomData := make(map[string]interface{})
 	roomData["room_id"] = r.RoomId
@@ -191,7 +255,7 @@ func (r *Room) Save(){
 	roomData["natural_light"] =  utils.Btoi(r.Flags["natural_light"])
 	roomData["indoors"] =  utils.Btoi(r.Flags["indoors"])
 	roomData["fire"] =  utils.Btoi(r.Flags["fire"])
-	roomData["encounters_off"] =  utils.Btoi(r.Flags["encounters_off"])
+	roomData["encounters_on"] =  utils.Btoi(r.Flags["encounters_on"])
 	roomData["no_word_of_recall"] =  utils.Btoi(r.Flags["no_word_of_recall"])
 	roomData["water"] =  utils.Btoi(r.Flags["water"])
 	roomData["no_magic"] =  utils.Btoi(r.Flags["no_magic"])
