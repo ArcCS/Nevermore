@@ -219,6 +219,7 @@ func (c *client) close() {
 			c.frontend.GetCharacter().Save()
 			stats.ActiveCharacters.Remove(c.frontend.GetCharacter())
 			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
+			c.frontend.GetCharacter().Unload()
 		}
 		//rooms.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
 

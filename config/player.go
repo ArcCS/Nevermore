@@ -7,15 +7,15 @@ var AllRaces = []string{"human", "half-giant", "troll", "ogre", "dwarf", "elf", 
 
 
 func init(){
-	AvailableClasses[0] = "barbarian"
-	AvailableClasses[1] = "bard"
-	AvailableClasses[2] = "cleric"
-	AvailableClasses[3] = "fighter"
-	AvailableClasses[4] = "mage"
-	AvailableClasses[5] = "monk"
-	AvailableClasses[6] = "paladin"
-	AvailableClasses[7] = "ranger"
-	AvailableClasses[8] = "thief"
+	AvailableClasses[0] = "fighter"
+	//AvailableClasses[1] = "barbarian"
+	//AvailableClasses[2] = "thief"
+	//AvailableClasses[3] = "ranger"
+	//AvailableClasses[4] = "mage"
+	//AvailableClasses[5] = "cleric"
+	//AvailableClasses[6] = "paladin"
+	//AvailableClasses[7] = "monk"
+	//AvailableClasses[8] = "bard"
 
 	AvailableRaces[0] = "human"
 	AvailableRaces[1] = "half-giant"

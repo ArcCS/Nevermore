@@ -48,6 +48,23 @@ func (i *ItemInventory) Remove(o *Item) {
 	i.TotalWeight -= o.GetWeight()
 }
 
+// Clear all non permanent
+func (i *ItemInventory) RemoveNonPerms() {
+	newContents := make([]*Item, 0, 0)
+	newWeight := int64(0)
+	for _, item := range i.Contents {
+		if item.Flags["permanent"] == true {
+			newContents = append(newContents, item)
+			newWeight += item.GetWeight()
+		}else{
+			item = nil
+		}
+	}
+	i.Contents = newContents
+	i.TotalWeight = newWeight
+}
+
+
 // Search the ItemInventory to return a specific instance of something
 func (i *ItemInventory) Search(alias string, num int) *Item {
 	if i == nil {

@@ -9,7 +9,7 @@ import (
 
 func init() {
 	addHandler(modspawn{},
-	"Usage:  modspawn 452 39 \n Modify a current spawn with a new value \n",
+	"Usage:  modspawn 452 39 \n Modify a current spawn with a new value \n -or- Usage:  modspawn rate 50 \n Percentage chance \n",
 	permissions.Builder,
 	"modspawn")
 }
@@ -18,7 +18,22 @@ type modspawn cmd
 
 func (modspawn) process(s *state) {
 	if len(s.words) < 2{
-		s.msg.Actor.SendInfo("Add what, where?")
+		s.msg.Actor.SendInfo("Add which mob, how does it spawn????")
+		return
+	}
+
+	if s.words[0] == "RATE"{
+		val2, err2 := strconv.Atoi(s.words[1])
+		if err2 != nil {
+			log.Println(err2)
+			return
+		}
+		if val2 > 100 {
+			val2 = 100
+		}
+		s.where.EncounterRate = int64(val2)
+		s.msg.Actor.SendGood("Mob encounter rates for this room set to a " + strconv.Itoa(val2) + "% chance every 8 seconds.")
+		s.where.Save()
 		return
 	}
 
@@ -30,10 +45,12 @@ func (modspawn) process(s *state) {
 	mob_id = int64(val)
 
 	val2, err2 := strconv.Atoi(s.words[1])
-	if err != nil {
+	if err2 != nil {
 		log.Println(err2)
 	}
 	mob_rate = int64(val2)
+
+
 
 	if _, ok := s.where.EncounterTable[mob_id]; ok {
 		previousRate := s.where.EncounterTable[mob_id]
