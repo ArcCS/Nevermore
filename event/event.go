@@ -17,7 +17,7 @@ import (
 )
 
 // Script is an indirect reference to the cmd.Script function. The cmd package
-// cannot be imported directly as it causes a cyclic dependency. However the
+// cannot be imported directly as it causes a cyclic dependency. However the\\
 // cmd package can import the event package to initialise this variable which
 // we can then use. See cmd.Init in cmd/state.go for initialization.
 var Script func(o *objects.Character, input string) string
