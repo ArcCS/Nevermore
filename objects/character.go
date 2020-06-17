@@ -211,7 +211,7 @@ func (c *Character) Unload(){
 func (c *Character) OnAction(act string){
 	//TODO: Loop the actions based on the act sent
 	// Invoke functions tied to the act
-
+	return
 }
 
 func (c *Character) ToggleFlag(flagName string) bool {
@@ -411,4 +411,9 @@ func (c *Character) CastSpell(spell string) bool {
 
 func (c *Character) MaxWeight() int64 {
 	return config.MaxWeight(c.Str.Current)
+}
+
+func (c *Character) WriteMovement() {
+	// Regex for movement parsing
+
 }

@@ -12,7 +12,7 @@ func init() {
 	addHandler(link{},
            "Usage:  link exit_name (room_id) [exit_back] \n Required: exit_name room_name \n \n Dig creates a new exit with the exit name, and links it to the room ID specified. If you specify a name back, the exit back will be automatically generated.  \n Optionals: exit_back will create the exit name back to current room \n",
            permissions.Builder,
-           "link")
+           "link", "tunnel")
 }
 
 type link cmd
