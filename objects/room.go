@@ -124,10 +124,10 @@ func (r *Room) Look(gm bool) (buildText string) {
 		buildText += text.Yellow + r.Description + "\n"
 		if len(r.Exits) > 0 {
 			buildText += "From here you can go: "
-			invis := ""
-			hidden := ""
-			inactive := ""
 			for _, exiti := range r.Exits {
+				invis := ""
+				hidden := ""
+				inactive := ""
 				if nextRoom, ok := Rooms[exiti.ToId]; !ok{
 					delete(r.Exits, exiti.Name)
 				}else {

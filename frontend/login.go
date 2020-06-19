@@ -46,7 +46,7 @@ func (l *login) accountDisplay() {
 // account ID hash. At this point the account ID is not validated yet, just
 // stored and we proceed to ask for the account ID's password.
 func (l *login) accountProcess() {
-	log.Printf("String from: %s", string(l.input))
+	//log.Printf("String from: %s", string(l.input))
 	switch {
 	case len(l.input) == 0:
 		NewAccount(l.frontend)

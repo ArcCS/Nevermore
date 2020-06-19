@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/utils"
+	"strings"
 )
 
 func init() {
@@ -23,7 +24,7 @@ func (togglePerm) process(s *state) {
 	}
 
 	// Update the DB
-	acctLevel := s.words[1]
+	acctLevel := strings.ToLower(s.words[1])
 	if acctLevel == "gamemaster" || acctLevel == "gm"{
 		if utils.StringIn(s.words[0], stats.ActiveCharacters.List()) {
 			character := stats.ActiveCharacters.Find(s.words[0])

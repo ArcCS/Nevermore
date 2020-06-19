@@ -36,10 +36,10 @@ func (f *Permissions) ToggleFlag(flag Permissions)  { *f ^= flag }
 // List of constants to use for bit wise operations
 const (
 	Anyone Permissions = 1 << iota
-	Player
-	Builder
-	Dungeonmaster
-	Gamemaster
+	Player  //2
+	Builder //4
+	Dungeonmaster //8
+	Gamemaster //16
 	God
 	NPC
 	Fighter
