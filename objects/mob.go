@@ -55,7 +55,7 @@ type Mob struct {
 	WimpyValue int64
 }
 
-// Pop the room data
+// Pop the mob data
 func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 	description := ""
 	var ok bool
@@ -121,6 +121,28 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 	return newMob, true
 }
 
+
+// The mob brain is this ticker
+func Tick(){
+	// Movement
+	 // Am I in combat and moving toward something?
+	  // Can I cast spells or ranged hit?
+	 // Am I in the center of the room?
+
+	// Combat
+	// Am I changing targets because of threat table generation?
+	// Am I in range to attack?
+	  // Spells
+	  // Ranged
+	  // Melee
+
+	// Do I pick stuff up off the ground?
+	  // Yoink!
+
+	// Do I want to wander away?
+
+}
+
 // On copy to a room calculate the inventory
 func CalculateInventory(){
 	return
@@ -172,6 +194,9 @@ func (m *Mob) CastSpell(spell string) bool {
 	return true
 }
 
+func (m *Mob) Died() {
+
+}
 
 func (m *Mob) Look() string {
 	buildText := "You see a " + m.Name + ", " + config.TextTiers[m.Level] + " level. \n"

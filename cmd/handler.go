@@ -7,7 +7,6 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
-	"log"
 	"strings"
 )
 
@@ -21,38 +20,26 @@ type handler interface {
 // correct handler to invoke for a given command.
 var handlers = map[string]handler{}
 var handlerPermission = map[string]permissions.Permissions{}
+var helpText = map[string]string{}
 
-// addHandler adds the given commands for the specified handler. The commands
-// will automatically be uppercased. Each command and its aliases should
-// register its handler in its init function. For example:
-//
-//	func init() {
-//		addHandler(Look{}, "L", "LOOK")
-//	}
-//
-// In this example the LOOK command and it's alias 'L' register an instance of
-// Look as their handler. If a handler is added for an existing command or
-// alias the original handler will be replaced.
-func addHandler(h handler, helpText string, permission permissions.Permissions, cmds ...string ) {
+// addHandler adds the given commands for the specified handler.
+// It requires the command handler,  a help string to add to the help data, a bitmask permission, and the relative
+// commands that will be each added to dispatch
+func addHandler(h handler, helpString string, permission permissions.Permissions, cmds ...string ) {
 	for _, cmd := range cmds {
 		handlers[strings.ToUpper(cmd)] = h
 		handlerPermission[strings.ToUpper(cmd)] = permission
-	}
-	if helpText != "" {
-		addHelp(helpText, cmds...)
+		if helpString != "" {
+			helpText[strings.ToUpper(cmd)] = helpString
+		}
 	}
 }
 
-// dispatchHandler runs the registered handler for the current state command.
-// If a handler cannot be found a message will be written to the actor's output
-// buffer.
-//
-// dispatchHandler will only allow scripting specific commands to be executed
-// if the state.scripting field is set to true.
+// dispatch handler takes the command sent and attempts to find it in a stack of command locations for execution
 func dispatchHandler(s *state) {
 
 	if len(s.cmd) > 0 {
-		log.Println("received",  s.cmd, s.actor.Permission)
+		//log.Println("received",  s.cmd, s.actor.Permission)
 		if s.cmd[0] == '$' && !s.scripting {
 			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (2)")
 			return
@@ -73,11 +60,11 @@ func dispatchHandler(s *state) {
 
 		switch handler, valid := handlers[s.cmd]; {
 		case valid:
-			//if s.actor.Permission.HasFlag(handlerPermission[s.cmd]) {
-			//	s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
-			//}else {
+			if s.actor.Permission.HasFlag(handlerPermission[s.cmd]) {
 				handler.process(s)
-			//}
+			}else {
+				s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
+			}
 		default:
 			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (3)")
 		}

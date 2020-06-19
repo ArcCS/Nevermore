@@ -1,11 +1,15 @@
 package objects
 
 import (
+	"github.com/ArcCS/Nevermore/text"
+	"log"
+	"strconv"
 	"strings"
 	"sync"
 )
 
 type MobInventory struct {
+	ParentId int64
 	Contents    []*Mob
 	sync.Mutex
 	Flags map[string]bool
@@ -13,8 +17,9 @@ type MobInventory struct {
 
 
 // New MobInventory returns a new basic MobInventory structure
-func NewMobInventory(o ...*Mob) *MobInventory {
+func NewMobInventory(ParentID int64, o ...*Mob) *MobInventory {
 	i := &MobInventory{
+		ParentId: ParentID,
 		Contents:  make([]*Mob, 0, len(o)),
 	}
 
@@ -27,11 +32,12 @@ func NewMobInventory(o ...*Mob) *MobInventory {
 
 // Add adds the specified Mob to the Contents.
 func (i *MobInventory) Add(o *Mob) {
-	//log.Println("Adding mob" + o.Name)
+	o.ParentId = i.ParentId
 	i.Contents = append(i.Contents, o)
+	Rooms[i.ParentId].MessageAll(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
 }
 
-// Pass character as a pointer, compare and remove
+// Pass mob as a pointer, compare and remove
 func (i *MobInventory) Remove(o *Mob) {
 	for c, p := range i.Contents {
 		if p == o {
@@ -46,8 +52,21 @@ func (i *MobInventory) Remove(o *Mob) {
 	}
 }
 
+// Clear all non permanent
+func (i *MobInventory) RemoveNonPerms() {
+	newContents := make([]*Mob, 0, 0)
+	for _, mob := range i.Contents {
+		if mob.Flags["permanent"] == true {
+			newContents = append(newContents, mob)
+		}else{
+			mob = nil
+		}
+	}
+	i.Contents = newContents
+}
+
 // Search the MobInventory to return a specific instance of something
-func (i *MobInventory) Search(alias string, num int64, gm bool) *Mob {
+func (i *MobInventory) Search(alias string, num int, gm bool) *Mob {
 	if i == nil {
 		return nil
 	}
@@ -55,7 +74,8 @@ func (i *MobInventory) Search(alias string, num int64, gm bool) *Mob {
 	pass := 1
 	for _, c := range i.Contents {
 		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)){
-			if pass == int(num) {
+			log.Println("Searching for mob on pass " + strconv.Itoa(pass) + " looking for " + strconv.Itoa(num))
+			if pass == num {
 				if i.Flags["invisible"] == false || gm {
 					return c
 				}

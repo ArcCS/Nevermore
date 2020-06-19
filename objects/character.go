@@ -9,6 +9,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Character struct {
@@ -27,8 +28,7 @@ type Character struct {
 	Effects map[string]Effect
 	HiddenEffects map[string]Effect
 	//TODO ??? Modifiers map[string]int64
-	//TODO Ticker needs to be invoked
-	// Ticker will output > every 60 seconds,
+
 	// Should we count idle time based on last command entry and register the character as absent
 
 	// ParentId is the room id for the room
@@ -85,6 +85,9 @@ type Character struct {
 	BluntExperience Accumulator
 	PoleExperience Accumulator
 	MissileExperience Accumulator
+
+	CharTicker *time.Ticker
+	CharTickerUnload chan bool
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
@@ -146,6 +149,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			Accumulator{charData["bluntexp"].(int64)},
 			Accumulator{charData["sharpexp"].(int64)},
 			Accumulator{charData["missileexp"].(int64)},
+			nil,
+			make(chan bool),
 		}
 
 		for k, v := range charData["flags"].(map[string]interface{}){
@@ -162,9 +167,22 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			FilledCharacter.Flags["invisible"] = true
 		}
 
+		FilledCharacter.CharTicker = time.NewTicker(8 * time.Second)
+		go func() {
+			for {
+				select {
+				case <-FilledCharacter.CharTickerUnload:
+					return
+				case <-FilledCharacter.CharTicker.C:
+					FilledCharacter.Tick()
+				}
+			}
+		}()
+
 		return FilledCharacter, false
 	}
 }
+
 
 // TODO:  A hooking system
 // Extend the anon scripts to bind from items and add hooks to characters
@@ -185,10 +203,15 @@ hook [list]
  oncleanup
 veto*/
 
+func (c *Character) Unload(){
+	c.CharTicker.Stop()
+	c.CharTickerUnload<-true
+}
+
 func (c *Character) OnAction(act string){
 	//TODO: Loop the actions based on the act sent
 	// Invoke functions tied to the act
-
+	return
 }
 
 func (c *Character) ToggleFlag(flagName string) bool {
@@ -291,9 +314,39 @@ const (
 )
 
 func (c *Character) Tick(){
-	// The standard character ticker for regenerating
+	//_,_ = c.Write([]byte(text.Good + "Your Ticker Executed Here!"))
+	// The tick is affected by all things around the character and any currently applied effects
+	if Rooms[c.ParentId].Flags["heal_fast"] {
+		c.Stam.Add(c.Con.Current * 2)
+		c.Vit.Add(c.Con.Current * 2)
+		c.Mana.Add(c.Pie.Current * 2)
+	} else {
+		c.Stam.Add(c.Con.Current)
+		c.Vit.Add(c.Con.Current)
+		c.Mana.Add(c.Pie.Current)
+	}
+
+	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
+	for name, effect := range c.Effects {
+		// Process Removing the effect
+		if effect.TimeRemaining() <= 0 {
+			//TODO: Execute the spell to turn this off, but for now, just toggles
+			if effect.effectOff == "toggle"{
+				c.ToggleFlag(name)
+			}
+			delete(c.Effects, name)
+			continue
+		}
+
+		//TODO:  Process an interval execution of the effect
+	}
+
+
 }
 
+func (c *Character) Died() {
+
+}
 
 // Drop out the description of this character
 func (c *Character) Look() (buildText string) {
@@ -358,4 +411,9 @@ func (c *Character) CastSpell(spell string) bool {
 
 func (c *Character) MaxWeight() int64 {
 	return config.MaxWeight(c.Str.Current)
+}
+
+func (c *Character) WriteMovement() {
+	// Regex for movement parsing
+
 }

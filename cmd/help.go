@@ -86,7 +86,7 @@ func (help) process(s *state) {
 		// Here we return the help text
 		subject := s.words[0]
 		if s.actor.Permission.HasFlag(handlerPermission[strings.ToUpper(subject)]) {
-			s.msg.Actor.SendGood("Command: ", subject, "\n\n", helpText[subject].Text)
+			s.msg.Actor.SendGood("Command: ", subject, "\n\n", helpText[subject])
 		}
 	}
 }

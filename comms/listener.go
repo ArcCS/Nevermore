@@ -12,6 +12,11 @@ import (
 	"runtime"
 )
 
+var (
+	ServerListener *net.TCPListener
+	ServerErr error
+)
+
 // Listen sets up a socket to listen for client connections. When a client
 // connects the connection made is passed to newClient to setup a client
 // instance for housekeeping. client.Process is then launched as a new
@@ -24,16 +29,25 @@ func Listen(host, port string) {
 		return
 	}
 
-	listener, err := net.ListenTCP("tcp", addr)
-	if err != nil {
+	ServerListener, ServerErr = net.ListenTCP("tcp", addr)
+	if ServerErr != nil {
 		log.Printf("Error setting up listener: %s", err)
 		return
 	}
 
 	log.Printf("Accepting connections on: %s", addr)
 
-	for config.Server.Running == true {
-		conn, err := listener.AcceptTCP()
+	go func() {
+		for {
+			select {
+			case <-config.ServerShutdown:
+				_ = ServerListener.Close()
+			}
+		}
+	}()
+
+	for config.Server.Running {
+		conn, err := ServerListener.AcceptTCP()
 		if err != nil {
 			log.Printf("Error accepting connection: %s", err)
 			continue

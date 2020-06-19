@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/text"
+	"github.com/jinzhu/copier"
 	"strconv"
 	"strings"
 )
@@ -37,11 +37,9 @@ func (spawn) process(s *state) {
 			return
 		}
 		//log.Println("Copying mob")
-		newMob := objects.Mobs[int64(mob_id)]
-		//#log.Println("Adding the mob to the room...")
-		s.msg.Actor.Send(text.Magenta + "You encounter: " + newMob.Name + text.Reset )
-		s.msg.Observer.Send(text.Magenta + "You encounter: " + newMob.Name + text.Reset )
-		s.where.Mobs.Add(newMob)
+		newMob := objects.Mob{}
+		copier.Copy(&newMob, objects.Mobs[int64(mob_id)])
+		s.where.Mobs.Add(&newMob)
 	// Handle Exits
 	case "object":
 		return

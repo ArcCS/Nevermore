@@ -6,6 +6,7 @@ import (
 )
 
 type CharInventory struct {
+	ParentId int64
 	Contents    []*Character
 	sync.Mutex
 	Flags map[string]bool
@@ -13,8 +14,9 @@ type CharInventory struct {
 
 
 // New CharInventory returns a new basic CharInventory structure
-func NewCharInventory(o ...*Character) *CharInventory {
+func NewCharInventory(roomID int64, o ...*Character) *CharInventory {
 	i := &CharInventory{
+		ParentId: roomID,
 		Contents:  make([]*Character, 0, len(o)),
 	}
 
@@ -27,6 +29,9 @@ func NewCharInventory(o ...*Character) *CharInventory {
 
 // Add adds the specified object to the contents.
 func (i *CharInventory) Add(o *Character) {
+	if len(i.Contents) == 0 {
+		Rooms[i.ParentId].FirstPerson()
+	}
 	i.Contents = append(i.Contents, o)
 }
 
@@ -39,6 +44,9 @@ func (i *CharInventory) Remove(o *Character) {
 			i.Contents = i.Contents[:len(i.Contents)-1]
 			break
 		}
+	}
+	if len(i.Contents) == 0{
+		Rooms[i.ParentId].LastPerson()
 	}
 	if len(i.Contents) == 0 {
 		i.Contents = make([]*Character, 0, 10)

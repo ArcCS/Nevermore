@@ -39,7 +39,7 @@ func LoadRooms() []interface{} {
 	natural_light: r.natural_light,
 	indoors: r.indoors,
 	fire: r.fire,
-	encounters_off: r.encounters_off,
+	encounters_on: r.encounters_on,
 	no_word_of_recall: r.no_word_of_recall,
 	water: r.water,
 	no_magic: r.no_magic,
@@ -91,7 +91,7 @@ func LoadRoom(roomId int64) map[string]interface{} {
 	natural_light: r.natural_light,
 	indoors: r.indoors,
 	fire: r.fire,
-	encounters_off: r.encounters_off,
+	encounters_on: r.encounters_on,
 	no_word_of_recall: r.no_word_of_recall,
 	water: r.water,
 	no_magic: r.no_magic,
@@ -165,7 +165,7 @@ func CreateRoom(roomName string, creator string) (int64, bool) {
 			"r.natural_light = 1, " +
 			"r.indoors = 0, " +
 			"r.fire = 0, " +
-			"r.encounters_off = 0, " +
+			"r.encounters_on = 0, " +
 			"r.no_word_of_recall = 0, " +
 			"r.water = 0, " +
 			"r.no_magic = 0, " +
@@ -291,7 +291,7 @@ func UpdateRoom(roomData map[string]interface{})  bool {
 			"r.natural_light = {natural_light}, " +
 			"r.indoors = {indoors}, " +
 			"r.fire = {fire}, " +
-			"r.encounters_off = {encounters_off}, " +
+			"r.encounters_on = {encounters_on}, " +
 			"r.no_word_of_recall = {no_word_of_recall}, " +
 			"r.water = {water}, " +
 			"r.no_magic = {no_magic}, " +
@@ -319,7 +319,7 @@ func UpdateRoom(roomData map[string]interface{})  bool {
 			"natural_light": roomData["natural_light"],
 			"indoors": roomData["indoors"],
 			"fire": roomData["fire"],
-			"encounters_off": roomData["encounters_off"],
+			"encounters_on": roomData["encounters_on"],
 			"no_word_of_recall": roomData["no_word_of_recall"],
 			"water": roomData["water"],
 			"no_magic": roomData["no_magic"],

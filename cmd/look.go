@@ -22,13 +22,13 @@ func (look) process(s *state) {
 	var others []string
 	var mobs []string
 	if len(s.input) == 0 {
-		if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(true))
 		}else{
 			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(false))
 		}
 		// Pick whether it's a GM or a user looking and go for it.
-		if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			others = objects.Rooms[s.actor.ParentId].Chars.List(true, s.actor.Name, true)
 			mobs = objects.Rooms[s.actor.ParentId].Mobs.List(true, true)
 		}else{
@@ -61,7 +61,7 @@ func (look) process(s *state) {
 
 	var whatChar *objects.Character
 	// Check characters in the room first.
-	if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		whatChar = s.where.Chars.Search(name, true)
 	}else{
 		whatChar = s.where.Chars.Search(name, false)
@@ -83,10 +83,10 @@ func (look) process(s *state) {
 
 	// Check mobs
 	var whatMob *objects.Mob
-	if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		whatMob = s.where.Mobs.Search(name, int64(nameNum),true)
+	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		whatMob = s.where.Mobs.Search(name, nameNum,true)
 	}else{
-		whatMob = s.where.Mobs.Search(name, int64(nameNum),false)
+		whatMob = s.where.Mobs.Search(name, nameNum,false)
 	}
 	// It was a mob!
 	if whatMob != nil {

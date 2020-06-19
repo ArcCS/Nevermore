@@ -47,6 +47,7 @@ func (g *game) gameInit() {
 	objects.Rooms[g.character.ParentId].Chars.Unlock()
 
 	cmd.Script(g.character, "$POOF")
+	// Initialize this characters ticker
 	g.nextFunc = g.gameProcess
 }
 
@@ -56,6 +57,7 @@ func (g *game) gameInit() {
 func (g *game) gameProcess() {
 	c := cmd.Parse(g.character, string(g.input))
 	if c == "QUIT" {
+		g.character.Unload()
 		g.character = nil
 		g.buf = message.AcquireBuffer()
 		g.buf.OmitLF(true)

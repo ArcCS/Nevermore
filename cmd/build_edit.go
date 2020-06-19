@@ -32,7 +32,7 @@ func (edit) process(s *state) {
 		return
 	}
 
-	log.Println("Trying to edit: " + strings.ToLower(s.words[0]))
+	//log.Println("Trying to edit: " + strings.ToLower(s.words[0]))
 	switch strings.ToLower(s.words[0]) {
 	// Handle Rooms
 	case "room":
@@ -67,10 +67,11 @@ func (edit) process(s *state) {
 	// Handle Exits
 	case "exit":
 		// Toggle Flags
-		exitName := s.input[1]
-		if len(s.words) > 0 {
-			exitName = strings.Join(s.input[1:], " ")
-		}
+		exitName := s.input[2]
+		log.Println("Attempting to edit ", exitName)
+		//if len(s.words) > 0 {
+		//	exitName = strings.Join(s.input[1:], " ")
+		//}
 		objectRef := strings.ToLower(exitName)
 		if !utils.StringIn(strings.ToUpper(objectRef), directionals) {
 			for txtE, _ := range s.where.Exits {
@@ -80,7 +81,7 @@ func (edit) process(s *state) {
 			}
 		}
 		if exit, exists := s.where.Exits[objectRef]; exists {
-			if strings.ToLower(s.words[2]) == "toggle" {
+			if strings.ToLower(s.input[1]) == "toggle" {
 				for _, flag := range s.input[3:] {
 					if exit.ToggleFlag(strings.ToLower(flag)) {
 						s.msg.Actor.SendGood("Toggled " + flag)
@@ -91,7 +92,7 @@ func (edit) process(s *state) {
 
 			// Set a variable
 			} else {
-				switch strings.ToLower(s.words[2]) {
+				switch strings.ToLower(s.input[1]) {
 				case "description":
 					exit.Description = strings.Join(s.input[3:], " ")
 					s.msg.Actor.SendGood("Description changed.")

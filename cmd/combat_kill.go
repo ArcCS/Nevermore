@@ -30,7 +30,7 @@ func (kill) process(s *state) {
 
 	// This is an override for a GM to delete a mob
 	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		whatMob = s.where.Mobs.Search(name, int64(nameNum),true)
+		whatMob = s.where.Mobs.Search(name, nameNum,true)
 		if whatMob != nil {
 			s.msg.Actor.SendInfo("You smashed ", whatMob.Name , " out of existence.")
 			objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
