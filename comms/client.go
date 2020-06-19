@@ -98,7 +98,6 @@ func (c *client) process() {
 		c.close()
 	}()
 
-	log.Printf("Starting processing loop: %s", c.RemoteAddr())
 	// Main input processing loop, terminates on any error raised not just read
 	// or Parse errors.
 	{
@@ -109,7 +108,7 @@ func (c *client) process() {
 			in  []byte                                // Input string from buffer
 		)
 
-		log.Printf("Starting game loop: %s", c.RemoteAddr())
+		//log.Printf("Starting game loop: %s", c.RemoteAddr())
 		for c.Error() == nil {
 			if config.Server.Running == false {
 				_ = c.Close()
@@ -131,6 +130,7 @@ func (c *client) process() {
 				continue
 			}
 
+			//log.Println(&in)
 			fixDEL(&in)
 			if err = c.frontend.Parse(in); err != nil {
 				c.SetError(err)
@@ -284,9 +284,6 @@ func (c *client) Write(d []byte) (n int, err error) {
 	if len(d) != 0 {
 		t = text.Fold(d, termColumns)
 	}*/
-
-	// I don't think I care about a write time out???
-	// err = c.SetWriteDeadline(time.Now().Add(config.Server.IdleTimeout))
 
 	if n, err = c.TCPConn.Write(d); err != nil {
 		c.SetError(err)

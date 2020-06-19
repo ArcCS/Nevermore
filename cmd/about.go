@@ -13,7 +13,6 @@ type about cmd
 
 func (about) process(s *state) {
 
-	// Echo some stuff
 	s.msg.Actor.SendInfo("We're running Nevermore for Aalynor's Nexus. " +
 		"©2020 \n" +
 		"Some components used from WolfMUD (https://www.wolfmud.org/)")
