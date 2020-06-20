@@ -41,7 +41,8 @@ func LoadMobs() []interface{} {
 	flags:{
 	hide_encounter: m.hide_encounter, 
 	invisible:m.invisible, 
-	permanent:m.permanent }}`, nil)
+	permanent:m.permanent,
+	hostile:m.hostile}}`, nil)
 	if rtrap != nil{
 		log.Println(rtrap)
 		return nil
@@ -90,7 +91,8 @@ func LoadMob(mobId int64) map[string]interface{} {
 	flags:{
 	hide_encounter: m.hide_encounter, 
 	invisible:m.invisible, 
-	permanent:m.permanent }}`,
+	permanent:m.permanent,
+	hostile:m.hostile }}`,
 		map[string]interface {}{
 			"mobId": mobId,
 		})
@@ -137,7 +139,8 @@ func CreateMob(mobName string, creator string) (int64, bool) {
 		water_resistance= 0, 
 		hide_encounter=  0, 
 		invisible= 0, 
-		permanent= 0`,
+		permanent= 0,
+		hostile=0`,
 		map[string]interface {}{
 			"mobId": mob_id,
 			"name":   mobName,
@@ -190,7 +193,8 @@ func UpdateMob(mobData map[string]interface{})  bool {
 		m.water_resistance={water_resistance}, 
 		m.hide_encounter={hide_encounter}, 
 		m.invisible={invisible}, 
-		m.permanent={permanent}`,
+		m.permanent={permanent},
+		m.hostile={hostile}`,
 		map[string]interface {}{
 			"mob_id": mobData["mob_id"],
 			"name": mobData["name"],
@@ -222,6 +226,7 @@ func UpdateMob(mobData map[string]interface{})  bool {
 			"hide_encounter": mobData["hide_encounter"],
 			"invisible": mobData["invisible"],
 			"permanent": mobData["permanent"],
+			"hostile": mobData["hostile"],
 		},
 	)
 
