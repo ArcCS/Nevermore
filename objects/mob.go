@@ -4,7 +4,9 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/utils"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // Mob implements a control object for mobs interacting with players and each other
@@ -52,7 +54,11 @@ type Mob struct {
 	CurrentTarget string
 
 	NumWander int64
+	TicksAlive int64
 	WimpyValue int64
+
+	MobTickerUnload chan bool
+	MobTicker *time.Ticker
 }
 
 // Pop the mob data
@@ -98,8 +104,10 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 		make(map[string]Accumulator),
 		"",
 		mobData["wimpyvalue"].(int64),
+		0,
 		mobData["numwander"].(int64),
-
+		nil,
+		nil,
 	}
 
 	for _, drop := range mobData["drops"].([]interface{}) {
@@ -121,11 +129,56 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 	return newMob, true
 }
 
+func (m *Mob) StartTicking(){
+	m.MobTickerUnload = make(chan bool)
+	//TODO Modify this ticker if the mob is especially fast moving
+	m.MobTicker = time.NewTicker(8 * time.Second)
+	go func() {
+		for {
+			select {
+			case <-m.MobTickerUnload:
+				return
+			case <-m.MobTicker.C:
+				m.Tick()
+			}
+		}
+	}()
+}
 
 // The mob brain is this ticker
-func Tick(){
-	// Movement
-	 // Am I in combat and moving toward something?
+func (m *Mob) Tick(){
+	//log.Println(m.Name + " did a tick!")
+	m.TicksAlive++
+	if m.TicksAlive >= m.NumWander && m.CurrentTarget == "" {
+		Rooms[m.ParentId].WanderMob(m)
+	}
+	// Am I hostile?  Should I pick a target?
+	if m.CurrentTarget == "" && !m.Flags["hostile"] {
+		// Randomly choose someone from this room to be hostile towards
+
+	}
+	// todo: Threat table management
+
+	// Perform movement/action/combat/stealing
+	// I have no target and want to move
+	if m.CurrentTarget == "" && m.Placement != 3 {
+		// We aren't fighting, we don't want to fight, and we aren't in the middle of the room.  Lets get there.
+		oldPlacement := m.Placement
+		if m.Placement > 3 {
+			m.Placement--
+		}else{
+			m.Placement++
+		}
+		if !m.Flags["hidden"] {
+			whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
+			Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name + " #" + strconv.Itoa(whichNumber))
+		}
+	}
+	// Am I mad at something?
+	//if m.CurrentTarget != "" {
+		// Is that target near enough to me?
+	//	target := Rooms[m.ParentId].Chars.Search()
+	//}
 	  // Can I cast spells or ranged hit?
 	 // Am I in the center of the room?
 
@@ -144,16 +197,16 @@ func Tick(){
 }
 
 // On copy to a room calculate the inventory
-func CalculateInventory(){
+func (m *Mob) CalculateInventory(){
 	return
 }
 
 // On death calculate and distribute experience
-func CalculateExperience(attackerName string){
+func (m *Mob) CalculateExperience(attackerName string){
 	return
 }
 
-func AddThreadDamage(damage string, attackerName string){
+func (m *Mob) AddThreatDamage(damage string, attackerName string){
 	return
 }
 
@@ -161,7 +214,7 @@ func (m *Mob) ApplyEffect(){
 	return
 }
 
-func (m *Mob) RemoteEffect(effect string){
+func (m *Mob) RemoveEffect(effect string){
 	return
 }
 
@@ -243,5 +296,6 @@ func (m *Mob) Save() {
 	mobData["hide_encounter"]= utils.Btoi(m.Flags["hide_encounter"])
 	mobData["invisible"]= utils.Btoi(m.Flags["invisible"])
 	mobData["permanent"]= utils.Btoi(m.Flags["permanent"])
+	mobData["hostile"]= utils.Btoi(m.Flags["hostile"])
 	data.UpdateMob(mobData)
 }

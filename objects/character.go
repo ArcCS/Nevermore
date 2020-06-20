@@ -7,6 +7,7 @@ import (
 	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/text"
 	"io"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -322,7 +323,6 @@ func (c *Character) Tick(){
 		c.Mana.Add(c.Pie.Current * 2)
 	} else {
 		c.Stam.Add(c.Con.Current)
-		c.Vit.Add(c.Con.Current)
 		c.Mana.Add(c.Pie.Current)
 	}
 
@@ -413,7 +413,27 @@ func (c *Character) MaxWeight() int64 {
 	return config.MaxWeight(c.Str.Current)
 }
 
-func (c *Character) WriteMovement() {
-	// Regex for movement parsing
+func (c *Character) WriteMovement(previous int64, new int64, subject string) {
+	mvAmnt := math.Abs(float64(previous - new))
+	color := text.Yellow
+	// Moving backwards
+	if (previous > new) && (mvAmnt == 1) && (new > c.Placement) {
+		c.Write([]byte(color + subject + " moves backwards, towards you." + text.Reset))
+	}else if (previous > new) && (mvAmnt == 1) && (new == c.Placement) {
+		c.Write([]byte(color + subject + " moves backwards, next to you." + text.Reset))
+	}else if (previous > new) && (mvAmnt == 2) && (new > c.Placement) {
+		c.Write([]byte(color + subject + " sprints backwards, towards you." + text.Reset))
+	}else if (previous > new) && (mvAmnt == 2) && (new == c.Placement) {
+		c.Write([]byte(color + subject + " sprints backwards, next to you." + text.Reset))
+	// Moving forwards
+	}else if (previous < new) && (mvAmnt == 1) && (new < c.Placement) {
+		c.Write([]byte(color + subject + " moves forwards, towards you." + text.Reset))
+	}else if (previous < new) && (mvAmnt == 1) && (new == c.Placement) {
+		c.Write([]byte(color + subject + " moves forwards, next to you." + text.Reset))
+	}else if (previous < new) && (mvAmnt == 2) && (new < c.Placement) {
+		c.Write([]byte(color + subject + " sprints forwards, towards you." + text.Reset))
+	}else if (previous < new) && (mvAmnt == 2) && (new == c.Placement) {
+		c.Write([]byte(color + subject + " sprints forwards, next to you." + text.Reset))
+	}
 
 }

@@ -3,6 +3,7 @@ package objects
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
@@ -94,6 +95,9 @@ func (r *Room) Crowded() (crowded bool) {
 
 // Drop out the description of this room
 func (r *Room) Look(gm bool) (buildText string) {
+	invis := ""
+	hidden := ""
+	inactive := ""
 	if !gm {
 		buildText += r.Description + "\n"
 		if len(r.Exits) > 0 {
@@ -125,9 +129,9 @@ func (r *Room) Look(gm bool) (buildText string) {
 		if len(r.Exits) > 0 {
 			buildText += "From here you can go: "
 			for _, exiti := range r.Exits {
-				invis := ""
-				hidden := ""
-				inactive := ""
+				invis = ""
+				hidden = ""
+				inactive = ""
 				if nextRoom, ok := Rooms[exiti.ToId]; !ok{
 					delete(r.Exits, exiti.Name)
 				}else {
@@ -190,20 +194,24 @@ func (r *Room) FirstPerson() {
 				case <-r.roomTickerUnload:
 					return
 				case <-r.roomTicker.C:
-					// Roll the dice and see if we get a mob here
-					if int64(utils.Roll(100, 1, 0)) <= r.EncounterRate {
-						// Successful roll:  Roll again to pick the mob
-						mobCalc := int64(0)
-						mobPick := int64(utils.Roll(100, 1, 0))
-						for mob, chance := range r.EncounterTable {
-							mobCalc += chance
-							if mobPick <= mobCalc{
-								// This is the mob!  Put it in the room!
-								newMob := Mob{}
-								copier.Copy(&newMob, Mobs[mob])
-								newMob.Placement = 5
-								r.Mobs.Add(&newMob)
-								break
+					// Is the room crowded?
+					if len(r.Mobs.Contents) < config.Inventory.CrowdSize {
+						// Roll the dice and see if we get a mob here
+						if int64(utils.Roll(100, 1, 0)) <= r.EncounterRate {
+							// Successful roll:  Roll again to pick the mob
+							mobCalc := int64(0)
+							mobPick := int64(utils.Roll(100, 1, 0))
+							for mob, chance := range r.EncounterTable {
+								mobCalc += chance
+								if mobPick <= mobCalc {
+									// This is the mob!  Put it in the room!
+									newMob := Mob{}
+									copier.Copy(&newMob, Mobs[mob])
+									newMob.Placement = 5
+									r.Mobs.Add(&newMob)
+									newMob.StartTicking()
+									break
+								}
 							}
 						}
 					}
@@ -231,9 +239,54 @@ func (r *Room) LastPerson(){
 
 func (r *Room) MessageAll(Message string){
 	// Message all the characters in this room
+	r.Chars.Lock()
 	for _, chara := range r.Chars.Contents{
 		chara.Write([]byte(Message))
 	}
+	r.Chars.Unlock()
+}
+
+func (r *Room) MessageVisible(Message string){
+	// Message all the characters in this room
+	r.Chars.Lock()
+	for _, chara := range r.Chars.Contents{
+		// Check invisible detection
+		visDetect, err := chara.Flags["detect_invisible"]; if err {
+			continue
+		}
+		if visDetect || chara.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+			chara.Write([]byte(Message))
+		}
+	}
+	r.Chars.Unlock()
+}
+
+func (r *Room) MessageMovement(previous int64, new int64, subject string){
+	// Message all the characters in this room
+	r.Chars.Lock()
+	for _, chara := range r.Chars.Contents{
+		// Check invisible detection
+		visDetect, err := chara.Flags["detect_invisible"]; if err {
+			continue
+		}
+		if visDetect || chara.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			chara.WriteMovement(previous, new, subject)
+		}
+	}
+	r.Chars.Unlock()
+}
+
+func (r *Room) WanderMob(o *Mob) {
+	if o.Flags["invisible"] {
+		r.MessageVisible(o.Name + " wanders away.")
+	}else if !o.Flags["hidden"] {
+		r.MessageAll(o.Name + " wanders away.")
+	}
+	r.Mobs.Lock()
+	r.Mobs.Remove(o)
+	o.MobTickerUnload <- true
+	o = nil
+	r.Mobs.Unlock()
 }
 
 func (r *Room) Save(){

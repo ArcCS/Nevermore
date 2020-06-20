@@ -2,8 +2,6 @@ package objects
 
 import (
 	"github.com/ArcCS/Nevermore/text"
-	"log"
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -34,11 +32,16 @@ func NewMobInventory(ParentID int64, o ...*Mob) *MobInventory {
 func (i *MobInventory) Add(o *Mob) {
 	o.ParentId = i.ParentId
 	i.Contents = append(i.Contents, o)
-	Rooms[i.ParentId].MessageAll(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
+	if o.Flags["invisible"] {
+		Rooms[i.ParentId].MessageVisible(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
+	}else if !o.Flags["hidden"] {
+		Rooms[i.ParentId].MessageAll(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
+	}
 }
 
 // Pass mob as a pointer, compare and remove
 func (i *MobInventory) Remove(o *Mob) {
+	o.MobTickerUnload <- true
 	for c, p := range i.Contents {
 		if p == o {
 			copy(i.Contents[c:], i.Contents[c+1:])
@@ -59,6 +62,7 @@ func (i *MobInventory) RemoveNonPerms() {
 		if mob.Flags["permanent"] == true {
 			newContents = append(newContents, mob)
 		}else{
+			mob.MobTickerUnload <- true
 			mob = nil
 		}
 	}
@@ -74,7 +78,7 @@ func (i *MobInventory) Search(alias string, num int, gm bool) *Mob {
 	pass := 1
 	for _, c := range i.Contents {
 		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)){
-			log.Println("Searching for mob on pass " + strconv.Itoa(pass) + " looking for " + strconv.Itoa(num))
+			//log.Println("Searching for mob on pass " + strconv.Itoa(pass) + " looking for " + strconv.Itoa(num))
 			if pass == num {
 				if i.Flags["invisible"] == false || gm {
 					return c
@@ -86,6 +90,19 @@ func (i *MobInventory) Search(alias string, num int, gm bool) *Mob {
 	}
 
 	return nil
+}
+
+// Search the MobInventory to return a specific instance of something
+func (i *MobInventory) GetNumber(o *Mob) int {
+	pass := 1
+	for _, c := range i.Contents {
+		if c == o {
+			return pass
+		}else if c.Name == o.Name {
+			pass++
+		}
+	}
+	return pass
 }
 
 // List the items in this MobInventory
@@ -111,7 +128,6 @@ func (i *MobInventory) List(seeInvisible bool, gm bool) []string {
 
 	return items
 }
-
 
 
 // Free recursively calls Free on all of it's content when the MobInventory
