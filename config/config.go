@@ -102,4 +102,3 @@ func init() {
 		log.Printf("Switching to short log format.")
 	}
 }
-

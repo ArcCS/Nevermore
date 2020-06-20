@@ -435,5 +435,4 @@ func (c *Character) WriteMovement(previous int64, new int64, subject string) {
 	}else if (previous < new) && (mvAmnt == 2) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " sprints forwards, next to you." + text.Reset))
 	}
-
 }
