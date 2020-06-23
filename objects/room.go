@@ -239,16 +239,13 @@ func (r *Room) LastPerson(){
 
 func (r *Room) MessageAll(Message string){
 	// Message all the characters in this room
-	r.Chars.Lock()
 	for _, chara := range r.Chars.Contents{
 		chara.Write([]byte(Message))
 	}
-	r.Chars.Unlock()
 }
 
 func (r *Room) MessageVisible(Message string){
 	// Message all the characters in this room
-	r.Chars.Lock()
 	for _, chara := range r.Chars.Contents{
 		// Check invisible detection
 		visDetect, err := chara.Flags["detect_invisible"]; if err {
@@ -258,12 +255,10 @@ func (r *Room) MessageVisible(Message string){
 			chara.Write([]byte(Message))
 		}
 	}
-	r.Chars.Unlock()
 }
 
 func (r *Room) MessageMovement(previous int64, new int64, subject string){
 	// Message all the characters in this room
-	r.Chars.Lock()
 	for _, chara := range r.Chars.Contents{
 		// Check invisible detection
 		visDetect, err := chara.Flags["detect_invisible"]; if err {
@@ -273,7 +268,6 @@ func (r *Room) MessageMovement(previous int64, new int64, subject string){
 			chara.WriteMovement(previous, new, subject)
 		}
 	}
-	r.Chars.Unlock()
 }
 
 func (r *Room) WanderMob(o *Mob) {
@@ -282,11 +276,9 @@ func (r *Room) WanderMob(o *Mob) {
 	}else if !o.Flags["hidden"] {
 		r.MessageAll(o.Name + " wanders away.")
 	}
-	r.Mobs.Lock()
 	r.Mobs.Remove(o)
 	o.MobTickerUnload <- true
 	o = nil
-	r.Mobs.Unlock()
 }
 
 func (r *Room) Save(){

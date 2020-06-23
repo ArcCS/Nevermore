@@ -3,7 +3,9 @@ package objects
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -49,8 +51,8 @@ type Mob struct {
 	EarthResistance int64
 
 	//Threat table attacker -> damage
-	TotalThreatDamage Accumulator
-	ThreatTable map[string]Accumulator
+	TotalThreatDamage int
+	ThreatTable map[string]int
 	CurrentTarget string
 
 	NumWander int64
@@ -100,8 +102,8 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 		mobData["air_resistance"].(int64),
 		mobData["fire_resistance"].(int64),
 		mobData["earth_resistance"].(int64),
-		Accumulator{0},
-		make(map[string]Accumulator),
+		0,
+		make(map[string]int),
 		"",
 		mobData["wimpyvalue"].(int64),
 		0,
@@ -147,6 +149,11 @@ func (m *Mob) StartTicking(){
 
 // The mob brain is this ticker
 func (m *Mob) Tick(){
+	// We're kind of managing our own state...  set all the locks
+	Rooms[m.ParentId].Chars.Lock()
+	Rooms[m.ParentId].Mobs.Lock()
+	Rooms[m.ParentId].Items.Lock()
+
 	//log.Println(m.Name + " did a tick!")
 	m.TicksAlive++
 	if m.TicksAlive >= m.NumWander && m.CurrentTarget == "" {
@@ -193,7 +200,9 @@ func (m *Mob) Tick(){
 	  // Yoink!
 
 	// Do I want to wander away?
-
+	Rooms[m.ParentId].Chars.Unlock()
+	Rooms[m.ParentId].Mobs.Unlock()
+	Rooms[m.ParentId].Items.Unlock()
 }
 
 // On copy to a room calculate the inventory
@@ -206,8 +215,8 @@ func (m *Mob) CalculateExperience(attackerName string){
 	return
 }
 
-func (m *Mob) AddThreatDamage(damage string, attackerName string){
-	return
+func (m *Mob) AddThreatDamage(damage int, attackerName string){
+	m.ThreatTable[attackerName] += damage
 }
 
 func (m *Mob) ApplyEffect(){
@@ -219,28 +228,31 @@ func (m *Mob) RemoveEffect(effect string){
 }
 
 
-func (m *Mob) ReceiveDamage(damage int){
-	return
+func (m *Mob) ReceiveDamage(damage int64) int {
+	//TODO: Review the numbers for armor here
+	finalDamage := math.Ceil(float64(damage) * (1 - (float64(int(m.Armor)/config.MobArmorReductionPoints)*config.MobArmorReduction)))
+	m.Stam.Subtract(int64(finalDamage))
+	return int(finalDamage)
 }
 
-func (m *Mob) ReceiveVitalDamage(damage int){
-
+func (m *Mob) ReceiveVitalDamage(damage int64){
+	m.ReceiveDamage(damage)
 }
 
 func (m *Mob) Heal(damage int){
-	return
+	m.Stam.Add(int64(damage))
 }
 
 func (m *Mob) HealVital(damage int){
-
+	m.Heal(damage)
 }
 
 func (m *Mob) RestoreMana(damage int){
-
+	m.Mana.Add(int64(damage))
 }
 
-func (m *Mob) InflictDamage() (damage int){
-	return
+func (m *Mob) InflictDamage() int {
+	return utils.Roll(int(m.SidesDice), int(m.NumDice), int(m.PlusDice))
 }
 
 func (m *Mob) CastSpell(spell string) bool {
@@ -248,19 +260,20 @@ func (m *Mob) CastSpell(spell string) bool {
 }
 
 func (m *Mob) Died() {
-
+	Rooms[m.ParentId].MessageAll(m.Name + "dies.")
+	stringExp := strconv.Itoa(int(m.Experience))
+	for k, _ := range m.ThreatTable {
+		Rooms[m.ParentId].Chars.Search(k, true).Write([]byte(text.Blue + "You earn " + stringExp + " for the defeat of the " + m.Name))
+		Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
+	}
 }
 
 func (m *Mob) Look() string {
 	buildText := "You see a " + m.Name + ", " + config.TextTiers[m.Level] + " level. \n"
 	buildText += m.Description + "\n"
-	/*
-	TODO: Location He is standing a couple steps in front of you.
-	TODO: Hostile He looks hostile!
-	TODO: ThreatTable He looks very angry at you.
-	TODO: Who attacking He is attacking you.
-
-	 */
+	if m.Flags["hostile"] {
+		buildText += "It looks hostile!"
+	}
 	return buildText
 }
 

@@ -38,11 +38,11 @@ Missile Weapons      {{.Missile}}
 		Pole string
 		Missile string
 	}{
-		config.WeaponExpTitle(s.actor.SharpExperience.Value),
-		config.WeaponExpTitle(s.actor.ThrustExperience.Value),
-		config.WeaponExpTitle(s.actor.BluntExperience.Value),
-		config.WeaponExpTitle(s.actor.PoleExperience.Value),
-		config.WeaponExpTitle(s.actor.MissileExperience.Value),
+		config.WeaponExpTitle(s.actor.Skills[0].Value),
+		config.WeaponExpTitle(s.actor.Skills[1].Value),
+		config.WeaponExpTitle(s.actor.Skills[2].Value),
+		config.WeaponExpTitle(s.actor.Skills[3].Value),
+		config.WeaponExpTitle(s.actor.Skills[4].Value),
 	}
 
 	tmpl, _ := template.New("stat_info").Parse(skill_template)

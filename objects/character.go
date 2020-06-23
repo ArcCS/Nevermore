@@ -1,5 +1,6 @@
 package objects
 
+import "C"
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
@@ -80,12 +81,8 @@ type Character struct {
 	ClassProps map[string]interface{}
 
 	Spells []string
+	Skills map[int]Accumulator
 
-	SharpExperience Accumulator
-	ThrustExperience Accumulator
-	BluntExperience Accumulator
-	PoleExperience Accumulator
-	MissileExperience Accumulator
 
 	CharTicker *time.Ticker
 	CharTickerUnload chan bool
@@ -145,11 +142,16 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			charData["played"].(int64),
 			make(map[string]interface{}),
 			strings.Split(charData["spells"].(string), ","),
-			Accumulator{charData["sharpexp"].(int64)},
-			Accumulator{charData["thrustexp"].(int64)},
-			Accumulator{charData["bluntexp"].(int64)},
-			Accumulator{charData["sharpexp"].(int64)},
-			Accumulator{charData["missileexp"].(int64)},
+			// 	0: "sharp",
+			//	1: "thrust",
+			//	2: "blunt",
+			//	3: "pole",
+			//	4: "range",
+			map[int]Accumulator{0: {charData["sharpexp"].(int64)},
+				   1: {charData["thrustexp"].(int64)},
+				   2: {charData["bluntexp"].(int64)},
+				   3: {charData["sharpexp"].(int64)},
+					4: {charData["missileexp"].(int64)}},
 			nil,
 			make(chan bool),
 		}
@@ -232,11 +234,11 @@ func (c *Character) Save(){
 	charData["character_id"] = c.CharId
 	charData["experience"] = c.Experience.Value
 	charData["spells"] = strings.Join(c.Spells, ",")
-	charData["thrustexp"] = c.ThrustExperience.Value
-	charData["bluntexp"] = c.BluntExperience.Value
-	charData["missileexp"] = c.MissileExperience.Value
-	charData["poleexp"] = c.PoleExperience.Value
-	charData["sharpexp"] = c.SharpExperience.Value
+	charData["thrustexp"] = c.Skills[1].Value
+	charData["bluntexp"] = c.Skills[2].Value
+	charData["missileexp"] = c.Skills[4].Value
+	charData["poleexp"] = c.Skills[3].Value
+	charData["sharpexp"] = c.Skills[0].Value
 	charData["bankgold"] = c.BankGold.Value
 	charData["gold"] = c.Gold.Value
 	charData["evals"] = c.Evals
@@ -345,7 +347,11 @@ func (c *Character) Tick(){
 }
 
 func (c *Character) Died() {
-
+	c.Write([]byte(text.Red + "#### OH GODS! YOU DIED!!!! Hahaha just kidding, this is beta. Here's a restore..." + text.Reset))
+	c.Stam.Current = c.Stam.Max
+	c.Vit.Current = c.Vit.Max
+	c.Mana.Current = c.Mana.Max
+	c.Write([]byte(text.Cyan + "## Your vitality, stamina, and mana were restored to max." + text.Reset))
 }
 
 // Drop out the description of this character
@@ -366,26 +372,26 @@ func (c *Character) AddMenu(menuItem string, menuCmd string) {
 	}
 }
 
-func (c *Character) Info() (buildText string ) {
-	buildText = ""
-
-	return
-}
-
 func (c *Character) ApplyEffect(){
 	return
 }
 
-func (c *Character) RemoteEffect(effect string){
+func (c *Character) RemoveEffect(effect string){
 	return
 }
 
 
-func (c *Character) ReceiveDamage(damage int){
-	return
+func (c *Character) ReceiveDamage(damage int) int{
+	finalDamage := math.Ceil(float64(damage) * (1 - (float64(int(c.Equipment.Armor)/config.ArmorReductionPoints)*config.ArmorReduction)))
+	c.Stam.Subtract(int64(finalDamage))
+	return int(finalDamage)
 }
 
 func (c *Character) ReceiveVitalDamage(damage int){
+
+}
+
+func (c *Character) ReceiveMagicDamage(damage int){
 
 }
 
@@ -398,7 +404,7 @@ func (c *Character) HealVital(damage int){
 }
 
 func (c *Character) RestoreMana(damage int){
-
+	c.Mana.Add(int64(damage))
 }
 
 func (c *Character) InflictDamage() (damage int){

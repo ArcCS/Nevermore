@@ -26,6 +26,16 @@ var CombatModifiers = map[string]int {
 	Lethal Strike		Fatal	Attack
  */
 
+// Fighter number of attacks based on...
+/* 1 Extra Attack	15%
+Ups 2nd attack to 30%
+2 Extra Attacks	15%
+Ups 3rd attack to 30%
+3 Extra Attacks	15%
+Ups 4th attack to 30%
+4 Extra Attacks	30%
+*/
+
 // Double Damage is out of 100
 var DoubleDamage = []int{
 	0,
