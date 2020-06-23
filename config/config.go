@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"math/rand"
 	"time"
@@ -102,3 +103,6 @@ func init() {
 		log.Printf("Switching to short log format.")
 	}
 }
+
+var BlockedNames, _ = utils.ReadLines("restricted_names")
+

@@ -61,6 +61,9 @@ func (a *newCharacter) charNameProcess() {
 	case verifyName.Find(a.input) == nil:
 		a.buf.Send(text.Bad, "A character's name must only contain the upper or lower cased letters 'a' through 'z'. \n", text.Reset)
 		a.newCharacterDisplay()
+	case utils.StringInLike(strings.ToLower(string(a.input)), config.BlockedNames):
+		a.buf.Send(text.Bad, "The requested name is unavailable. \n", text.Reset)
+		a.newCharacterDisplay()
 	case data.CharacterExists(string(a.input)):
 		a.buf.Send(text.Bad, "That character already exists in this world. \n", text.Reset)
 		a.newCharacterDisplay()

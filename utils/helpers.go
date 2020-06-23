@@ -1,6 +1,10 @@
 package utils
 
-import "strings"
+import (
+	"bufio"
+	"os"
+	"strings"
+)
 
 func Sum(input []int) int {
 	sum := 0
@@ -27,6 +31,16 @@ func StringIn(a string, list []string) bool {
 	}
 	return false
 }
+
+func StringInLike(a string, list []string) bool {
+	for _, b := range list {
+		if strings.Contains(a, b) {
+			return true
+		}
+	}
+	return false
+}
+
 func StringInLower(a string, list []string) bool {
 	for _, b := range list {
 		if strings.ToLower(b) == strings.ToLower(a) {
@@ -45,7 +59,20 @@ func IndexOf(element string, data []string) int {
 	return -1    //not found.
 }
 
+func ReadLines(path string) ([]string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
 
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	return lines, scanner.Err()
+}
 
 func Btoi(val bool) int {
 	if val{
