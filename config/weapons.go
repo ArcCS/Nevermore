@@ -92,3 +92,30 @@ func WeaponExpTitle(exp int64) string {
 		return WeaponTitles[0]
 	}
 }
+
+func WeaponLevel(exp int64) int {
+	switch {
+	case exp < WeaponExpLevels[0] && exp > 0:
+		return 0
+	case exp < WeaponExpLevels[1]:
+		return 1
+	case exp < WeaponExpLevels[2]:
+		return 2
+	case exp < WeaponExpLevels[3]:
+		return 3
+	case exp < WeaponExpLevels[4]:
+		return 4
+	case exp < WeaponExpLevels[5]:
+		return 5
+	case exp < WeaponExpLevels[6]:
+		return 6
+	case exp < WeaponExpLevels[7]:
+		return 7
+	case exp < WeaponExpLevels[8]:
+		return 8
+	case exp < WeaponExpLevels[9]:
+		return 9
+	default:
+		return 0
+	}
+}

@@ -39,6 +39,18 @@ func (kill) process(s *state) {
 		}
 	}
 
+	// Kill is really the fighters realm for specialty.. lets see if this is a fighter if so, lets try to lethal.
+	if s.actor.Permission.HasAnyFlags(permissions.Fighter) {
+
+	}
+	1 Extra Attack	15%
+		Ups 2nd attack to 30%
+		2 Extra Attacks	15%
+		Ups 3rd attack to 30%
+		3 Extra Attacks	15%
+		Ups 4th attack to 30%
+		4 Extra Attacks	30%
+
 	s.msg.Actor.SendInfo("You focus really hard but...  couldn't muster up an attack on anything...")
 	s.ok = true
 }
