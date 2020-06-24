@@ -93,7 +93,7 @@ func (look) process(s *state) {
 	if whatMob != nil {
 		s.msg.Actor.SendInfo(whatMob.Look())
 		s.msg.Actor.SendInfo("It is standing" + WhereAt(whatMob.Placement, s.actor.Placement))
-		_, err := whatMob.ThreatTable[s.actor.Name]; if err {
+		_, ok := whatMob.ThreatTable[s.actor.Name]; if !ok {
 			s.msg.Actor.SendInfo("It isn't paying attention to you.")
 		}else{
 			s.msg.Actor.SendInfo("It appears very angry at you!")

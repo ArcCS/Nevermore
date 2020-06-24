@@ -11,6 +11,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"sort"
@@ -107,7 +108,12 @@ func (m *start) startProcess() {
 				NewPCharacter(m.frontend)
 				return
 			}else{
-				StartGame(m.frontend, m.powerCharacter)
+				 if stats.ActiveCharacters.Find(m.powerCharacter) == nil {
+					StartGame(m.frontend, m.powerCharacter)
+				}else{
+					m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.", text.Reset)
+				}
+
 			}
 		}else if utils.StringInLower(string(m.input), m.characters){
 			StartGame(m.frontend, string(m.input))
