@@ -46,7 +46,7 @@ func (c *characterStats) Remove(character *objects.Character) {
 	}
 
 	c.Lock()
-
+	log.Println("Acquired locks.. now running through everything")
 
 	for i, p := range c.list {
 		if p == character {
@@ -64,6 +64,7 @@ func (c *characterStats) Remove(character *objects.Character) {
 	}
 
 	c.Unlock()
+	log.Println("Unlocking...")
 }
 
 func (c *characterStats) Find(name string) *objects.Character {

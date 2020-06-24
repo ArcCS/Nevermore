@@ -45,12 +45,9 @@ func (drop) process(s *state) {
 	where := s.where.Items
 
 	s.actor.Inventory.Lock()
-	where.Lock()
 	s.actor.Inventory.Remove(target)
 	where.Add(target)
 	s.actor.Inventory.Unlock()
-	where.Unlock()
-
 
 	s.msg.Actor.SendGood("You drop ", target.Name, ".")
 	s.msg.Observer.SendInfo( s.actor.Name, " drops ", target.Name, ".")
