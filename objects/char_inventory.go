@@ -70,21 +70,27 @@ func (i *CharInventory) Search(alias string, gm bool) *Character {
 	return nil
 }
 
+
 // List the items in this CharInventory
-func (i *CharInventory) List(seeInvisible bool, exclude string, gm bool) []string {
+func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude string, gm bool) []string {
 	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
 	items := make([]string, 0)
 
 	for _, o := range i.Contents {
 		// List all
 		if o.Name != exclude {
-			if seeInvisible && gm{
+			if (seeInvisible && ignoreHidden) || gm {
 				items = append(items, o.Name)
 			// List non-hiddens
-			} else if seeInvisible && !gm {
+			} else if seeInvisible {
 				if o.Flags["hidden"] != true {
 					items = append(items, o.Name)
 				}
+			} else if ignoreHidden {
+				if o.Flags["invisible"] != true {
+					items = append(items, o.Name)
+				}
+			}
 			} else {
 				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
 					items = append(items, o.Name)

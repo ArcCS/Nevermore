@@ -281,6 +281,12 @@ func (r *Room) WanderMob(o *Mob) {
 	o = nil
 }
 
+func (r *Room) ClearMob(o *Mob) {
+	r.Mobs.Remove(o)
+	o.MobTickerUnload <- true
+	o = nil
+}
+
 func (r *Room) Save(){
 	roomData := make(map[string]interface{})
 	roomData["room_id"] = r.RoomId

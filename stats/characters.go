@@ -9,7 +9,6 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"io"
-	"log"
 	"strconv"
 	"sync"
 )
@@ -38,7 +37,7 @@ func (c *characterStats) Add(character *objects.Character, address string) {
 
 // Pass character as a pointer, compare and remove
 func (c *characterStats) Remove(character *objects.Character) {
-	log.Println("trying to let everyone know...")
+	//log.Println("trying to let everyone know...")
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
 		c.MessageGM("### (GM):" + character.Name + " departs the realm.")
 	}else{
@@ -46,7 +45,7 @@ func (c *characterStats) Remove(character *objects.Character) {
 	}
 
 	c.Lock()
-	log.Println("Acquired locks.. now running through everything")
+	//log.Println("Acquired locks.. now running through everything")
 
 	for i, p := range c.list {
 		if p == character {
@@ -64,7 +63,7 @@ func (c *characterStats) Remove(character *objects.Character) {
 	}
 
 	c.Unlock()
-	log.Println("Unlocking...")
+	//log.Println("Unlocking...")
 }
 
 func (c *characterStats) Find(name string) *objects.Character {

@@ -23,18 +23,36 @@ var CombatModifiers = map[string]int {
 	Berserk	6-7 damage per point of Strength added to base damage	5 Bonus Strength	Berserk
 	Touch of Death		50% Halve Hit Points / 50% Fatal	Touch of Death
 	Turn		50% Halve Hit Points / 50% Fatal	Turn
-	Lethal Strike		Fatal	Attack
  */
 
-// Fighter number of attacks based on...
-/* 1 Extra Attack	15%
-Ups 2nd attack to 30%
-2 Extra Attacks	15%
-Ups 3rd attack to 30%
-3 Extra Attacks	15%
-Ups 4th attack to 30%
-4 Extra Attacks	30%
-*/
+// Mob Stuns:
+var ParryStuns = 2
+var CircleStuns = 1
+
+// Double Damage is out of 100
+var Parry = []int{
+	0,
+	2,
+	3,
+	5,
+	6,
+	8,
+	10,
+	14,
+	15,
+	18,
+	20,
+}
+
+func RollParry(skill int) bool {
+	if skill > 0 {
+		dRoll := utils.Roll(100, 1, 0)
+		if dRoll <= Parry[skill] {
+			return true
+		}
+	}
+	return false
+}
 
 // Double Damage is out of 100
 var DoubleDamage = []int{

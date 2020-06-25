@@ -115,8 +115,8 @@ func (kill) process(s *state) {
 			actualDamage := whatMob.ReceiveDamage(int64(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
 			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!")
 			if whatMob.Stam.Current <= 0 {
-				s.msg.Actor.SendInfo("You landed a lethal blow on the " + whatMob.Name)
-				s.msg.Observers.SendInfo(s.actor.Name + " landed a lethal blow on " + whatMob.Name)
+				s.msg.Actor.SendInfo("You killed  " + whatMob.Name)
+				s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name)
 				whatMob.Died()
 				objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
 			}

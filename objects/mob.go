@@ -6,6 +6,7 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"math"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -51,6 +52,7 @@ type Mob struct {
 	EarthResistance int64
 
 	//Threat table attacker -> damage
+	//TODO These are crappy short cuts,  we should use a target shim, or direct object pointers
 	TotalThreatDamage int
 	ThreatTable map[string]int
 	CurrentTarget string
@@ -61,6 +63,8 @@ type Mob struct {
 
 	MobTickerUnload chan bool
 	MobTicker *time.Ticker
+	// An int to hold a stun time.
+	MobStunned int
 }
 
 // Pop the mob data
@@ -110,6 +114,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 		mobData["numwander"].(int64),
 		nil,
 		nil,
+		0,
 	}
 
 	for _, drop := range mobData["drops"].([]interface{}) {
@@ -149,60 +154,112 @@ func (m *Mob) StartTicking(){
 
 // The mob brain is this ticker
 func (m *Mob) Tick(){
-	// We're kind of managing our own state...  set all the locks
-	Rooms[m.ParentId].Chars.Lock()
-	Rooms[m.ParentId].Mobs.Lock()
-	Rooms[m.ParentId].Items.Lock()
+	if m.MobStunned > 0 {
+		m.MobStunned -= 1
+	}else {
+		// We're kind of managing our own state...  set all the locks
+		Rooms[m.ParentId].Chars.Lock()
+		Rooms[m.ParentId].Mobs.Lock()
+		Rooms[m.ParentId].Items.Lock()
 
-	//log.Println(m.Name + " did a tick!")
-	m.TicksAlive++
-	if m.TicksAlive >= m.NumWander && m.CurrentTarget == "" {
-		Rooms[m.ParentId].WanderMob(m)
-	}
-	// Am I hostile?  Should I pick a target?
-	if m.CurrentTarget == "" && !m.Flags["hostile"] {
-		// Randomly choose someone from this room to be hostile towards
-
-	}
-	// todo: Threat table management
-
-	// Perform movement/action/combat/stealing
-	// I have no target and want to move
-	if m.CurrentTarget == "" && m.Placement != 3 {
-		// We aren't fighting, we don't want to fight, and we aren't in the middle of the room.  Lets get there.
-		oldPlacement := m.Placement
-		if m.Placement > 3 {
-			m.Placement--
-		}else{
-			m.Placement++
+		m.TicksAlive++
+		if m.TicksAlive >= m.NumWander && m.CurrentTarget == "" {
+			Rooms[m.ParentId].WanderMob(m)
 		}
-		if !m.Flags["hidden"] {
-			whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
-			Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name + " #" + strconv.Itoa(whichNumber))
+
+		// Make sure the current target is still in the room and didn't flee
+		if !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true,  "", false)){
+			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
+			if len(potentials) > 0 {
+				rand.Seed(time.Now().Unix())
+				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
+				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget)
+			}
 		}
+
+		// Am I hostile?  Should I pick a target?
+		if m.CurrentTarget == "" && m.Flags["hostile"] {
+			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
+			if len(potentials) > 0 {
+				rand.Seed(time.Now().Unix())
+				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
+				Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget)
+			}
+		}
+
+		// Do I want to chang targets? 33% chance if the current target isn't the highest on the threat table
+		if len(m.ThreatTable) > 1 {
+			rankedThreats := utils.RankMapStringInt(m.ThreatTable)
+			if m.CurrentTarget != rankedThreats[0] {
+				if utils.Roll(3, 1, 0) == 1 {
+					m.CurrentTarget = rankedThreats[0]
+					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget)
+				}
+			}
+		}
+
+		// TODO: Do I pick stuff up off the ground?
+
+		// I have no target and want to move
+		if (m.CurrentTarget == "" && m.Placement != 3) ||
+			(m.CurrentTarget != "" && !m.Flags["ranged"] &&
+				m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
+			(m.CurrentTarget != "" && m.Flags["ranged"] &&
+				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1)) {
+			// We aren't fighting, we don't want to fight, and we aren't in the middle of the room.  Lets get there.
+			oldPlacement := m.Placement
+			if m.Placement > 3 {
+				m.Placement--
+			} else {
+				m.Placement++
+			}
+			if !m.Flags["hidden"] {
+				whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
+				Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
+			}
+		// Next to attack
+		} else if m.CurrentTarget != "" && !m.Flags["ranged"] &&
+			m.Placement == Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
+			// Am I against a fighter and they succeed in a parry roll?
+			target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
+			if target.Class == 0 && config.RollParry(int(target.Skills[int(target.Equipment.Main.Type)].Value)) {
+				if target.Tier >= 10 {
+					// It's a riposte
+					actualDamage := m.ReceiveDamage(int64(math.Ceil(float64(target.InflictDamage()))))
+					target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!"))
+					if m.Stam.Current <= 0 {
+						Rooms[m.ParentId].MessageAll(text.Green + s.actor.Name + " killed " + m.Name)
+						m.Died()
+						Rooms[m.ParentId].ClearMob(m)
+					}
+					m.MobStunned = config.ParryStuns
+				}else{
+					target.Write([]byte(text.Green + "You parry the attack from " + m.Name))
+					m.MobStunned = config.ParryStuns
+				}
+			}else{
+				actualDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
+				target.Write([]byte(text.Red + m.Name + " attacks you for " + strconv.Itoa(actualDamage) + " damage!"))
+				if target.Vit.Current == 0 {
+					target.Died()
+				}
+			}
+		}else if m.CurrentTarget != "" && m.Flags["ranged"] &&
+				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1){
+			target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
+			actualDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
+			target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + strconv.Itoa(actualDamage) + " damage!"))
+			if target.Vit.Current == 0 {
+				target.Died()
+			}
+		}
+
+		// TODO: Can I cast spells.
+
+		Rooms[m.ParentId].Chars.Unlock()
+		Rooms[m.ParentId].Mobs.Unlock()
+		Rooms[m.ParentId].Items.Unlock()
 	}
-	// Am I mad at something?
-	//if m.CurrentTarget != "" {
-		// Is that target near enough to me?
-	//	target := Rooms[m.ParentId].Chars.Search()
-	//}
-	  // Can I cast spells or ranged hit?
-	 // Am I in the center of the room?
-
-	// Combat
-	// Am I changing targets because of threat table generation?
-	// Am I in range to attack?
-	  // Spells
-	  // Ranged
-	  // Melee
-
-	// Do I pick stuff up off the ground?
-	  // Yoink!
-
-	// Do I want to wander away?
-	Rooms[m.ParentId].Chars.Unlock()
-	Rooms[m.ParentId].Mobs.Unlock()
-	Rooms[m.ParentId].Items.Unlock()
 }
 
 // On copy to a room calculate the inventory
