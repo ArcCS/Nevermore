@@ -97,10 +97,9 @@ func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude strin
 				}
 			}
 		}
+	return items
 	}
 
-	return items
-}
 
 
 

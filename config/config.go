@@ -24,9 +24,9 @@ var Server = struct {
 	Running	bool
 }{
 	Host:           "127.0.0.1",
-	DBUname:		"USERNAME",
-	DBPword:		"PASSWORD",
-	DBAddress:		"127.0.0.1",
+	DBUname:		"nexus",
+	DBPword:		"blahblah",
+	DBAddress:		"207.192.75.216",
 	Port:           "4001",
 	Greeting:       []byte("Welcome to Aalynor's Nexus."),
 	Motd:			"",

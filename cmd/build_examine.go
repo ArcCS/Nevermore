@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"log"
@@ -119,7 +120,6 @@ description:	{{.Description}}
 
 
 	case "mob":
-
 		if exitRef, ok := s.where.Exits[strings.ToLower(s.words[1])]; ok {
 			exitTemplate := `Examining exit...
 	name={{.ExitName}}		Exit Name
@@ -190,61 +190,89 @@ description:	{{.Description}}
 		}
 
 	case "object":
-		if exitRef, ok := s.where.Exits[strings.ToLower(s.words[1])]; ok {
-			exitTemplate := `Examining exit...
-	name={{.ExitName}}		Exit Name
+		/*
+			`{creator:i.creator,
+			item_id:i.item_id,
+			ndice:i.ndice,
+			weight:i.weight,
+			description:i.description,
+			type:i.type,
+			pdice:i.pdice,
+			armor:i.armor,
+			max_uses:i.max_uses,
+			name:i.name,
+			sdice:i.sdice,
+			value:i.value,
+			flags: {permanent:i.permanent,
+			magic:i.magic,
+			no_take: i.no_take,
+			light: i.light,
+			weightless_chest: i.weightless_chest}
+		 */
+		nameNum := 1
+		if len(s.words) > 2 {
+			// Try to snag a number off the list
+			if val, err := strconv.Atoi(s.words[2]); err == nil {
+				nameNum = val
+			}
+		}
+		if objRef := s.actor.Inventory.Search(s.words[1],  nameNum); ok {
+			exitTemplate := `Examining object...
+	itemId={{.ItemId}}			Database ID of the object
+	name={{.ObjectName}}		Object Name
+    creator={{.Creator}}		Who made this (Or last renamed)
 	description={{.Description}}
-	placement={{.Placement}}		Exit Placement in the room
-	key_id={{.Key_id}}		Key Id that can open this door
+	weight={{.Weight}}		Item weight
+	type={{.Type}			Type of item
+	value={{.Value}}		What will this pawn for?
+	max_uses={{.Uses}}      The number of times this can be used before breaking
+	Combat Item Stats:
+	ndice={{.Ndice}}		Number of Damage Dice
+	sdice={{.Sdice}}		Number of Sides on Damage Dice
+	pdice={{.Pdice}}		Addition to to dice roll value. 
+
+	Combat Values: 
 	Toggle Flags:
-	  closeable={{.Closeable}},		Can the door be closed
-	  closed={{.Closed}},			Is the door closed on start
-	  autoclose={{.Autoclose}},		Does this door close itself
-	  lockable={{.Lockable}},           Can it be locked
-	  unpickable={{.Unpickable}},         Can it be picked
-	  locked={{.Locked}},             Is it locked on start
-	  hidden={{.Hidden}},             Is the exit hidden
-	  invisible={{.Invisible}},	Is the exit invisible
-	  levitate={{.Levitate}},	Does the character have to leviate to access
-	  day_only={{.Day_only}}	Only accessible during the day
-	  night_only={{.Night_only}}		Only accessible during the night
-      placement_dependent={{.Placement_dependent}}		The character must be in the same placement to use it`
+	  permanent={{.Permanent}},		If yes, never respawns. 
+	  magic={{.Magic}},			Is it magic?
+	  no_take={{.NoTake}},		Prevent player from taking
+	  light={{.Light}},           Does it shed light?
+	  weightless_chest={{.WeightLessChest}},         Weight less holding of items`
 
 			data := struct {
-				ExitName string
+				ItemId string
+				ObjectName string
+				Creator string
 				Description string
-				Placement string
-				Key_id string
-				Closeable string
-				Closed string
-				Autoclose string
-				Lockable string
-				Unpickable string
-				Locked string
-				Hidden string
-				Invisible string
-				Levitate string
-				Day_only string
-				Night_only string
-				Placement_dependent string
+				Weight string
+				Type string
+				Value string
+				Uses string
+				Ndice string
+				Sdice string
+				Pdice string
+				Permanent string
+				Magic string
+				NoTake string
+				Light string
+				WeightLessChest string
 			}{
-				exitRef.Name,
-				exitRef.Description,
-				strconv.Itoa(int(exitRef.Placement)),
-				strconv.Itoa(int(exitRef.KeyId)),
-				strconv.FormatBool(exitRef.Flags["closeable"]),
-				strconv.FormatBool(exitRef.Flags["closed"]),
-				strconv.FormatBool(exitRef.Flags["autoclose"]),
-				strconv.FormatBool(exitRef.Flags["lockable"]),
-				strconv.FormatBool(exitRef.Flags["unpickable"]),
-				strconv.FormatBool(exitRef.Flags["locked"]),
-				strconv.FormatBool(exitRef.Flags["hidden"]),
-				strconv.FormatBool(exitRef.Flags["invisible"]),
-				strconv.FormatBool(exitRef.Flags["levitate"]),
-				strconv.FormatBool(exitRef.Flags["day_only"]),
-				strconv.FormatBool(exitRef.Flags["night_only"]),
-				strconv.FormatBool(exitRef.Flags["placement_dependent"]),
-
+				objRef.ItemId
+				objRef.Name,
+				objRef.Creator,
+				objRef.Description,
+				strconv.Itoa(int(objRef.Weight)),
+				config.ItemTypes[int(objRef.Type)],
+				strconv.Itoa(int(objRef.Value)),
+				strconv.Itoa(int(objRef.MaxUses)),
+				strconv.Itoa(int(objRef.NumDice)),
+				strconv.Itoa(int(objRef.SidesDice)),
+				strconv.Itoa(int(objRef.PlusDice)),
+				strconv.FormatBool(objRef.Flags["permanent"]),
+				strconv.FormatBool(objRef.Flags["magic"]),
+				strconv.FormatBool(objRef.Flags["no_take"]),
+				strconv.FormatBool(objRef.Flags["light"]),
+				strconv.FormatBool(objRef.Flags["weightless_chest"]),
 			}
 
 			tmpl, _ := template.New("object_info").Parse(exitTemplate)

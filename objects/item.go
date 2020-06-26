@@ -13,8 +13,8 @@ type Item struct {
 	WeaponSpeed int64
 	Armor int64
 	MaxUses int64
-	Adjustment int64
 	Value int64
+	Spell string
 
 	Storage ItemInventory
 	Weight int64
@@ -44,8 +44,8 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool){
 		itemData["weapon_speed"].(int64),
 		itemData["armor"].(int64),
 		itemData["max_uses"].(int64),
-		itemData["adjustment"].(int64),
 		itemData["value"].(int64),
+		itemData["spell"].(string),
 		ItemInventory{},
 		itemData["weight"].(int64),
 	}
@@ -85,5 +85,6 @@ func (i *Item) ToggleFlag(flagName string) bool {
 }
 
 func (i *Item) Save()  {
+	// TODO: Invoke a static save as a new item
 return
 }

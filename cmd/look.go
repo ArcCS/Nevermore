@@ -30,10 +30,10 @@ func (look) process(s *state) {
 		}
 		// Pick whether it's a GM or a user looking and go for it.
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			others = objects.Rooms[s.actor.ParentId].Chars.List(true, s.actor.Name, true)
+			others = objects.Rooms[s.actor.ParentId].Chars.List(true, true, s.actor.Name, true)
 			mobs = objects.Rooms[s.actor.ParentId].Mobs.List(true, true)
 		}else{
-			others = objects.Rooms[s.actor.ParentId].Chars.List(false, s.actor.Name, false)
+			others = objects.Rooms[s.actor.ParentId].Chars.List(false, false, s.actor.Name, false)
 			mobs = objects.Rooms[s.actor.ParentId].Mobs.List(false, false)
 		}
 		if len(others) == 1 {

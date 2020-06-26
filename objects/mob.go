@@ -228,7 +228,7 @@ func (m *Mob) Tick(){
 					actualDamage := m.ReceiveDamage(int64(math.Ceil(float64(target.InflictDamage()))))
 					target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!"))
 					if m.Stam.Current <= 0 {
-						Rooms[m.ParentId].MessageAll(text.Green + s.actor.Name + " killed " + m.Name)
+						Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
 						m.Died()
 						Rooms[m.ParentId].ClearMob(m)
 					}
