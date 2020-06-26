@@ -34,24 +34,24 @@ func (find) process(s *state) {
 	switch objectType {
 	case "room":
 		if searchType == "name" {
-			results := data.SearchRoomName(searchText, int64(config.Server.SearchResults*searchPage))
+			results := data.SearchRoomName(searchText, config.Server.SearchResults*searchPage)
 			s.msg.Actor.SendGood("===== Search Results =====")
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["room_id"].(int64))) + ")(" + itemData["creator"].(string) + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["room_id"].(int)) + ")(" + itemData["creator"].(string) + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
 			s.actor.AddMenu("more", "find room name "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else if searchType == "desc" {
-			results := data.SearchRoomDesc(searchText, int64(config.Server.SearchResults*searchPage))
+			results := data.SearchRoomDesc(searchText, config.Server.SearchResults*searchPage)
 			s.msg.Actor.SendGood("===== Search Results =====")
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["room_id"].(int64))) + ")(" + itemData["creator"].(string) + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["room_id"].(int)) + ")(" + itemData["creator"].(string) + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
@@ -62,24 +62,24 @@ func (find) process(s *state) {
 		}
 	case "mob":
 		if searchType == "name" {
-			results := data.SearchMobName(searchText, int64(config.Server.SearchResults*searchPage))
+			results := data.SearchMobName(searchText, config.Server.SearchResults*searchPage)
 			s.msg.Actor.SendGood("===== Search Results =====")
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["mob_id"].(int64))) + ")(" + strconv.Itoa(int(itemData["level"].(int64))) + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["mob_id"].(int)) + ")(" + strconv.Itoa(itemData["level"].(int)) + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
 			s.actor.AddMenu("more", "find mob name "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else if searchType == "desc" {
-			results := data.SearchMobDesc(searchText, int64(config.Server.SearchResults*searchPage))
+			results := data.SearchMobDesc(searchText, config.Server.SearchResults*searchPage)
 			s.msg.Actor.SendGood("===== Search Results =====")
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["mob_id"].(int64))) + ")(" + strconv.Itoa(int(itemData["level"].(int64))) + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["mob_id"].(int)) + ")(" + strconv.Itoa(itemData["level"].(int)) + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
@@ -90,24 +90,24 @@ func (find) process(s *state) {
 		}
 	case "item":
 		if searchType == "name" {
-			results := data.SearchItemName(searchText, int64(config.Server.SearchResults*searchPage))
+			results := data.SearchItemName(searchText, config.Server.SearchResults*searchPage)
 			s.msg.Actor.SendGood("===== Search Results =====")
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["item_id"].(int64))) + ")(" + config.ItemTypes[int(itemData["type"].(int64))] + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["item_id"].(int)) + ")(" + config.ItemTypes[itemData["type"].(int)] + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
 			s.actor.AddMenu("more", "find item name "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else if searchType == "desc" {
-				results := data.SearchItemDesc(searchText, int64(config.Server.SearchResults*searchPage))
+				results := data.SearchItemDesc(searchText, config.Server.SearchResults*searchPage)
 				s.msg.Actor.SendGood("===== Search Results =====")
 				for _, item := range results {
 					if item != nil {
 						itemData := item.(map[string]interface{})
-						s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["item_id"].(int64))) + ")(" + config.ItemTypes[int(itemData["type"].(int64))] + ") " + itemData["name"].(string))
+						s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["item_id"].(int)) + ")(" + config.ItemTypes[itemData["type"].(int)] + ") " + itemData["name"].(string))
 					}
 				}
 				s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")

@@ -27,15 +27,15 @@ func (destroy) process(s *state) {
 	switch strings.ToLower(s.input[0]){
 	case "room":
 		objectRef, _ := strconv.Atoi(s.input[1])
-		if int64(objectRef) == s.where.RoomId {
+		if objectRef == s.where.RoomId {
 			s.msg.Actor.SendBad("Don't delete a room while you're standing in it...")
 			return
 		}
-		room, rErr := objects.Rooms[int64(objectRef)]
+		room, rErr := objects.Rooms[objectRef]
 		if rErr {
 			if s.actor.Permission.HasFlag(permissions.Builder) || room.Creator == s.actor.Name {
-				data.DeleteRoom(int64(objectRef))
-				delete(objects.Rooms, int64(objectRef))
+				data.DeleteRoom(objectRef)
+				delete(objects.Rooms, objectRef)
 				s.where.CleanExits()
 				s.msg.Actor.SendGood("Deleted room successfully.")
 			}else{
@@ -51,7 +51,7 @@ func (destroy) process(s *state) {
 		}
 		objectRef := strings.ToLower(exitName)
 		if !utils.StringIn(strings.ToUpper(objectRef), directionals) {
-			for txtE, _ := range s.where.Exits {
+			for txtE := range s.where.Exits {
 				if strings.Contains(txtE, objectRef) {
 					objectRef = txtE
 				}

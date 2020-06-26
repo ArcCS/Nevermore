@@ -7,7 +7,7 @@ import (
 )
 
 type MobInventory struct {
-	ParentId int64
+	ParentId int
 	Contents    []*Mob
 	sync.Mutex
 	Flags map[string]bool
@@ -15,7 +15,7 @@ type MobInventory struct {
 
 
 // New MobInventory returns a new basic MobInventory structure
-func NewMobInventory(ParentID int64, o ...*Mob) *MobInventory {
+func NewMobInventory(ParentID int, o ...*Mob) *MobInventory {
 	i := &MobInventory{
 		ParentId: ParentID,
 		Contents:  make([]*Mob, 0, len(o)),

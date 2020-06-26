@@ -3,12 +3,12 @@ package frontend
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/text"
 	"log"
 	"strconv"
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/text"
 )
 
 // account embeds a frontend instance adding fields and methods specific to

@@ -162,7 +162,7 @@ var ClassTitles = map[string]classTitles{
 	},
 }
 
-func ClassTitle(class int64, gender string, tier int64) string{
+func ClassTitle(class int, gender string, tier int) string{
 	if class == 99 {
 		return "Deity"
 	}

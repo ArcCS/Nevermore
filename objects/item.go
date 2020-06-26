@@ -2,26 +2,26 @@ package objects
 
 type Item struct {
 	Object
-	ParentItemId int64
-	ItemId int64
-	Type int64
-	Flags map[string]bool
-	Creator string
-	NumDice int64
-	PlusDice int64
-	SidesDice int64
-	WeaponSpeed int64
-	Armor int64
-	MaxUses int64
-	Value int64
-	Spell string
+	ParentItemId int
+	ItemId       int
+	Type         int
+	Flags        map[string]bool
+	Creator      string
+	NumDice      int
+	PlusDice     int
+	SidesDice    int
+	WeaponSpeed  int
+	Armor        int
+	MaxUses      int
+	Value        int
+	Spell        string
 
 	Storage ItemInventory
-	Weight int64
+	Weight  int
 }
 
 // Pop the room data
-func LoadItem(itemData map[string]interface{}) (*Item, bool){
+func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 	description := ""
 	var ok bool
 	if description, ok = itemData["description"].(string); !ok {
@@ -34,35 +34,35 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool){
 			Placement:   3,
 		},
 		0,
-		itemData["item_id"].(int64),
-		itemData["type"].(int64),
+		int(itemData["item_id"].(int64)),
+		int(itemData["type"].(int64)),
 		make(map[string]bool),
 		itemData["creator"].(string),
-		itemData["ndice"].(int64),
-		itemData["pdice"].(int64),
-		itemData["sdice"].(int64),
-		itemData["weapon_speed"].(int64),
-		itemData["armor"].(int64),
-		itemData["max_uses"].(int64),
-		itemData["value"].(int64),
+		int(itemData["ndice"].(int64)),
+		int(itemData["pdice"].(int64)),
+		int(itemData["sdice"].(int64)),
+		int(itemData["weapon_speed"].(int64)),
+		int(itemData["armor"].(int64)),
+		int(itemData["max_uses"].(int64)),
+		int(itemData["value"].(int64)),
 		itemData["spell"].(string),
 		ItemInventory{},
-		itemData["weight"].(int64),
+		int(itemData["weight"].(int64)),
 	}
-	for k, v := range itemData["flags"].(map[string]interface{}){
-		if v == nil{
+	for k, v := range itemData["flags"].(map[string]interface{}) {
+		if v == nil {
 			newItem.Flags[k] = false
-		}else {
+		} else {
 			newItem.Flags[k] = v.(int64) != 0
 		}
 	}
 	return newItem, true
 }
 
-func (i *Item) GetWeight() int64{
+func (i *Item) GetWeight() int {
 	if i.Type == 9 && !i.Flags["weightless"] {
 		return i.Weight + i.Storage.TotalWeight
-	}else{
+	} else {
 		return i.Weight
 	}
 }
@@ -71,20 +71,20 @@ func (i *Item) Look() string {
 	return i.Description
 }
 
-func (i *Item) Use(parentId int64, target int64){
+func (i *Item) Use(parentId int, target int) {
 	return
 }
 
 func (i *Item) ToggleFlag(flagName string) bool {
-	if val, exists := i.Flags[flagName]; exists{
+	if val, exists := i.Flags[flagName]; exists {
 		i.Flags[flagName] = !val
 		return true
-	}else{
+	} else {
 		return false
 	}
 }
 
-func (i *Item) Save()  {
+func (i *Item) Save() {
 	// TODO: Invoke a static save as a new item
-return
+	return
 }

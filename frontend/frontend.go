@@ -29,8 +29,8 @@
 package frontend
 
 import (
-	"github.com/ArcCS/Nevermore/objects"
 	"bytes"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"io"
 	"sync"

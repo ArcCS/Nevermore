@@ -15,16 +15,16 @@ type Object struct {
 	Name string
 	Description string
 
-	Placement int64
+	Placement int
 	// Commands and Script
 	// Todo: Commands are a list of bound menu items that dispatch hangs on to
 	// EG. "touch orb"  "damage 50 $player, teleport player 540"
 }
 
-var ObjectCount chan uint64
+var ObjectCount chan uint
 
 func init() {
-	ObjectCount = make(chan uint64)
+	ObjectCount = make(chan uint)
 }
 
 
@@ -36,7 +36,7 @@ func (o *Object) Free() {
 
 }
 
-func (o *Object) ChangePlacement(place int64) bool{
+func (o *Object) ChangePlacement(place int) bool{
 	if place < 5 && place > 0 {
 		o.Placement = place
 		return true

@@ -43,37 +43,37 @@ func (information) process(s *state) {
 		Tier string
 		Race string
 		Title string
-		Str int64
-		Max_str int64
-		Dex	int64
-		Max_dex int64
-		Con int64
-		Max_con int64
-		Int int64
-		Max_int int64
-		Pie int64
-		Max_pie int64
-		Armor_resistance int64
-		Damage_ignore int64
+		Str int
+		Max_str int
+		Dex	int
+		Max_dex int
+		Con int
+		Max_con int
+		Int int
+		Max_int int
+		Pie int
+		Max_pie int
+		Armor_resistance int
+		Damage_ignore int
 		God string
-		Stamina int64
-		Max_stamina int64
-		Health int64
-		Max_health int64
-		Mana int64
-		Max_mana int64
-		Next_level int64
-		Gold int64
+		Stamina int
+		Max_stamina int
+		Health int
+		Max_health int
+		Mana int
+		Max_mana int
+		Next_level int
+		Gold int
 		Dark_vision bool
-		Broadcasts int64
-		Evals int64
-		Hours int64
-		Bonus_points int64
-		Attr_moves int64
+		Broadcasts int
+		Evals int
+		Hours int
+		Bonus_points int
+		Attr_moves int
 		Day string
-		Day_number int64
+		Day_number int
 		Month string
-		Age int64
+		Age int
 	}{
 		s.actor.Name,
 		config.TextTiers[s.actor.Tier],

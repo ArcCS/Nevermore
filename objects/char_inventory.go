@@ -6,7 +6,7 @@ import (
 )
 
 type CharInventory struct {
-	ParentId int64
+	ParentId int
 	Contents    []*Character
 	sync.Mutex
 	Flags map[string]bool
@@ -14,7 +14,7 @@ type CharInventory struct {
 
 
 // New CharInventory returns a new basic CharInventory structure
-func NewCharInventory(roomID int64, o ...*Character) *CharInventory {
+func NewCharInventory(roomID int, o ...*Character) *CharInventory {
 	i := &CharInventory{
 		ParentId: roomID,
 		Contents:  make([]*Character, 0, len(o)),

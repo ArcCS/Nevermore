@@ -1,14 +1,14 @@
 package objects
 
 type Accumulator struct{
-	Value int64
+	Value int
 }
 
-func (a *Accumulator) Add(val int64){
+func (a *Accumulator) Add(val int){
 	a.Value += val
 }
 
-func (a *Accumulator) CanSubtract(val int64) (cansub bool){
+func (a *Accumulator) CanSubtract(val int) (cansub bool){
 	cansub = false
 	if a.Value - val >= 0{
 		cansub = true
@@ -16,11 +16,11 @@ func (a *Accumulator) CanSubtract(val int64) (cansub bool){
 	return
 }
 
-func (a *Accumulator) Subtract(val int64){
+func (a *Accumulator) Subtract(val int){
 	a.Value -= val
 }
 
-func (a *Accumulator) SubIfCan(val int64) (ok bool){
+func (a *Accumulator) SubIfCan(val int) (ok bool){
 	ok = false
 	if a.CanSubtract(val){
 		a.Subtract(val)

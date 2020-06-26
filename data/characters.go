@@ -281,7 +281,7 @@ func DeleteChar(charName string) bool {
 	}
 }
 
-func SearchCharName(searchStr string, skip int64) []interface{} {
+func SearchCharName(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (c:character) WHERE toLower(c.name) CONTAINS toLower({search}) RETURN c ORDER BY c.name SKIP {skip} LIMIT {limit}",
@@ -304,7 +304,7 @@ func SearchCharName(searchStr string, skip int64) []interface{} {
 	return searchList
 }
 
-func SearchCharDesc(searchStr string, skip int64) []interface{} {
+func SearchCharDesc(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (c:character) WHERE toLower(c.description) CONTAINS toLower({search}) RETURN c ORDER BY c.name SKIP {skip} LIMIT {limit}",

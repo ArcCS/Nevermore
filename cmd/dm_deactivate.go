@@ -22,7 +22,7 @@ func (deactivate) process(s *state) {
 		s.msg.Actor.SendGood("Current room deactivated")
 	}else {
 		objectRef, _ := strconv.Atoi(s.input[1])
-		room, rErr := objects.Rooms[int64(objectRef)]
+		room, rErr := objects.Rooms[objectRef]
 		if rErr {
 			room.Flags["active"] = false
 			room.Save()

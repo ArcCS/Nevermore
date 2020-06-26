@@ -22,12 +22,12 @@ func (remspawn) process(s *state) {
 		return
 	}
 
-	var mob_id int64
+	var mob_id int
 	val, err := strconv.Atoi(s.words[0])
 	if err != nil {
 		log.Println(err)
 	}
-	mob_id = int64(val)
+	mob_id = val
 
 	if _, ok := s.where.EncounterTable[mob_id]; ok {
 		delete(s.where.EncounterTable, mob_id)

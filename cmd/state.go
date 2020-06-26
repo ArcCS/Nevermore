@@ -82,7 +82,7 @@ func newState(o *objects.Character, input string) *state {
 	s.tokenizeInput(input)
 	//log.Println("Received command ", input)
 	s.where = objects.Rooms[o.ParentId]
-	s.AddAllLocks(int(s.where.RoomId))
+	s.AddAllLocks(s.where.RoomId)
 
 	return s
 }
@@ -134,7 +134,7 @@ func (s *state) sync() (inSync bool) {
 	s.LockAll()
 	defer s.UnlockAll()
 
-	s.msg.Allocate(int(s.where.RoomId), s.cLocks)
+	s.msg.Allocate(s.where.RoomId, s.cLocks)
 	l := s.TotalLocks()
 
 	dispatchHandler(s)
@@ -212,7 +212,7 @@ func (s *state) messenger() {
 			continue
 		}
 		players := []io.Writer{}
-		for _, c := range objects.Rooms[int64(where)].Chars.Contents {
+		for _, c := range objects.Rooms[where].Chars.Contents {
 			if c != s.actor && c != s.participant {
 				players = append(players, c)
 			}
@@ -235,25 +235,25 @@ func (s *state) TotalLocks() int {
 
 func (s *state) LockAll(){
 	for _, l := range s.cLocks {
-		objects.Rooms[int64(l)].Chars.Lock()
+		objects.Rooms[l].Chars.Lock()
 	}
 	for _, l := range s.mLocks {
-		objects.Rooms[int64(l)].Mobs.Lock()
+		objects.Rooms[l].Mobs.Lock()
 	}
 	for _, l := range s.iLocks {
-		objects.Rooms[int64(l)].Items.Lock()
+		objects.Rooms[l].Items.Lock()
 	}
 }
 
 func (s *state) UnlockAll(){
 	for _, l := range s.cLocks {
-		objects.Rooms[int64(l)].Chars.Unlock()
+		objects.Rooms[l].Chars.Unlock()
 	}
 	for _, l := range s.mLocks {
-		objects.Rooms[int64(l)].Mobs.Unlock()
+		objects.Rooms[l].Mobs.Unlock()
 	}
 	for _, l := range s.iLocks {
-		objects.Rooms[int64(l)].Items.Unlock()
+		objects.Rooms[l].Items.Unlock()
 	}
 }
 
@@ -276,7 +276,7 @@ func (s *state) AddItemLock(i int) {
 		break
 	}
 	// After adding the lock to the context, lock the item
-	objects.Rooms[int64(i)].Items.Lock()
+	objects.Rooms[i].Items.Lock()
 }
 
 func (s *state) AddMobLock(i int) {
@@ -298,7 +298,7 @@ func (s *state) AddMobLock(i int) {
 		break
 	}
 	// After adding the lock to the context, lock the item
-	objects.Rooms[int64(i)].Mobs.Lock()
+	objects.Rooms[i].Mobs.Lock()
 }
 
 func (s *state) AddCharLock(i int) {
@@ -315,7 +315,7 @@ func (s *state) AddCharLock(i int) {
 	}
 
 	// After adding the lock to the context, lock the item
-	objects.Rooms[int64(i)].Chars.Lock()
+	objects.Rooms[i].Chars.Lock()
 
 	for x := 0; x < l; x++ {
 		copy(s.cLocks[x+1:l], s.cLocks[x:l-1])

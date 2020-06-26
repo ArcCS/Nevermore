@@ -24,7 +24,7 @@ func LoadItems() []interface{} {
 	sdice:i.sdice,
 	value:i.value,
 	spell:i.spell,
-	flags: {permanent:i.permanent,
+	flags: {always_crit: i.always_crit, permanent:i.permanent,
 	magic:i.magic,
 	no_take: i.no_take,
 	light: i.light,
@@ -42,7 +42,7 @@ func LoadItems() []interface{} {
 	return itemList
 }
 
-func LoadItem(itemId int64) map[string]interface{} {
+func LoadItem(itemId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	conn, _ := getConn()
 	defer conn.Close()
@@ -61,7 +61,7 @@ func LoadItem(itemId int64) map[string]interface{} {
 	sdice:i.sdice,
 	value:i.value,
 	spell:i.spell,
-	flags: {permanent:i.permanent,
+	flags: {always_crit: i.always_crit,permanent:i.permanent,
 	magic:i.magic,
 	no_take: i.no_take,
 	light: i.light,
@@ -78,7 +78,7 @@ func LoadItem(itemId int64) map[string]interface{} {
 }
 
 // Create Room
-func CreateItem(itemData map[string]interface{}) (int64, bool) {
+func CreateItem(itemData map[string]interface{}) (int, bool) {
 	conn, _ := getConn()
 	defer conn.Close()
 	item_id := nextId("item")
@@ -98,6 +98,7 @@ func CreateItem(itemData map[string]interface{}) (int64, bool) {
 		i.sdice = 1,
 		i.spell = "",
 		i.value = 1,
+		i.always_crit = 0,
 		i.permanent = 0,
 		i.magic = 0,
 		i.no_take = 0,
@@ -142,6 +143,7 @@ func UpdateItem(itemData map[string]interface{})  bool {
 		r.sdice = {sdice},
 		r.value = {value},
 		r.spell = {spell},
+		r.always_crit = {always_crit}
 		r.permanent = {permanent},
 		r.no_take = {no_take},
 		r.light = {light},
@@ -162,6 +164,7 @@ func UpdateItem(itemData map[string]interface{})  bool {
 			"sdice": itemData["sdice"],
 			"value": itemData["value"],
 			"spell": itemData["spell"],
+			"always_crit": itemData["always_crit"],
 			"permanent": itemData["permanent"],
 			"magic": itemData["magic"],
 			"light": itemData["light"],
@@ -183,7 +186,7 @@ func UpdateItem(itemData map[string]interface{})  bool {
 
 
 // Delete Item
-func DeleteItem(roomId int64) bool {
+func DeleteItem(roomId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _ := conn.ExecNeo("MATCH ()-[e:exit]->(r:room)-[e2:exit]->() WHERE r.room_id={room_id} DELETE r, e, e2",
@@ -255,7 +258,7 @@ func UpdateDrop(mobData map[string]interface{}) bool {
 }
 
 // Delete Drop
-func DeleteDrop(mobId string, itemId int64) bool {
+func DeleteDrop(mobId string, itemId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, rtrap := conn.ExecNeo("MATCH (m:mob)-[d:drops]->(i:item) WHERE m.mob_id={mob_id} AND i.item_id={item_id} DELETE d",
@@ -276,7 +279,7 @@ func DeleteDrop(mobId string, itemId int64) bool {
 }
 
 
-func SearchItemName(searchStr string, skip int64) []interface{} {
+func SearchItemName(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (o:item) WHERE toLower(o.name) CONTAINS toLower({search}) RETURN {name:o.name, type:o.type, item_id: o.item_id} ORDER BY o.name  SKIP {skip} LIMIT {limit}",
@@ -299,7 +302,7 @@ func SearchItemName(searchStr string, skip int64) []interface{} {
 	return searchList
 }
 
-func SearchItemDesc(searchStr string, skip int64) []interface{} {
+func SearchItemDesc(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (o:item) WHERE toLower(o.description) CONTAINS toLower({search}) RETURN {name:o.name, type:o.type, item_id: o.item_id} ORDER BY o.name  SKIP {skip} LIMIT {limit}",

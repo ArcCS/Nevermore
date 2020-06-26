@@ -1,8 +1,8 @@
 package config
 
 // Str Mods
-var StrCarryMod = int64(10) // Per Point
-var BaseCarryWeight = int64(40)
+var StrCarryMod = 10 // Per Point
+var BaseCarryWeight = 40
 var StrDamageMod = .01 // Per Point
 
 // Con Mods
@@ -28,7 +28,7 @@ var BaseEvals = 3
 var PieRegenMod = .01 // Regen Mana per tick
 var PieHealMod = .01 // Per point
 
-func MaxWeight(str int64) int64 {
+func MaxWeight(str int) int {
 	return BaseCarryWeight + (str*StrCarryMod)
 }
 

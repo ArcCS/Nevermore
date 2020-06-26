@@ -16,10 +16,10 @@ func init() {
 type listspawn cmd
 
 func (listspawn) process(s *state) {
-	s.msg.Actor.SendInfo("Spawn Rate: ", strconv.Itoa(int(s.where.EncounterRate)) ,"% per encounter tick\nList of Mobs that spawn here \n =================")
+	s.msg.Actor.SendInfo("Spawn Rate: ", strconv.Itoa(s.where.EncounterRate) ,"% per encounter tick\nList of Mobs that spawn here \n =================")
 	for k, v := range s.where.EncounterTable {
 		if _, ok := objects.Mobs[k]; ok {
-			s.msg.Actor.SendInfo("MobId: ", strconv.Itoa(int(k)), " ", objects.Mobs[k].Name, "   Rate: ", strconv.Itoa(int(v)))
+			s.msg.Actor.SendInfo("MobId: ", strconv.Itoa(k), " ", objects.Mobs[k].Name, "   Rate: ", strconv.Itoa(v))
 		}else{
 			delete(s.where.EncounterTable, k)
 		}

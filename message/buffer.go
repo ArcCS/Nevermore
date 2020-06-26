@@ -45,7 +45,7 @@ type Buffer struct {
 // full.
 var pool = make(
 	chan *Buffer,
-	(int)(config.Server.MaxPlayers/128)*4*runtime.GOMAXPROCS(-1),
+	config.Server.MaxPlayers/128*4*runtime.GOMAXPROCS(-1),
 )
 
 // init reports the size of the *Buffer pool.

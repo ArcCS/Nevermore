@@ -7,11 +7,11 @@ type Cooldown struct {
  end   time.Time
 }
 
-func NewCooldown(seconds int64) *Cooldown {
+func NewCooldown(seconds int) *Cooldown {
  return &Cooldown{time.Now(), time.Now().Add(time.Duration(seconds) * time.Second)}
 }
 
-func (s *Cooldown) Reset(t int64) {
+func (s *Cooldown) Reset(t int) {
  s.timeStart = time.Now()
  s.end = time.Now().Add(time.Duration(t) * time.Second)
 }

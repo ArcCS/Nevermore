@@ -60,7 +60,7 @@ func LoadRooms() []interface{} {
 	return roomList
 }
 
-func LoadRoom(roomId int64) map[string]interface{} {
+func LoadRoom(roomId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	conn, _ := getConn()
 	defer conn.Close()
@@ -110,7 +110,7 @@ func LoadRoom(roomId int64) map[string]interface{} {
 	return data[0][0].(map[string]interface{})
 }
 
-func LoadExit(exitName string, roomId int64, toId int64) map[string]interface{} {
+func LoadExit(exitName string, roomId int, toId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	conn, _ := getConn()
 	defer conn.Close()
@@ -132,7 +132,7 @@ func LoadExit(exitName string, roomId int64, toId int64) map[string]interface{} 
 		"exitname": exitName,
 		"fromId":  roomId,
 		"toId":	 toId,
-	},)
+	})
 	if rtrap != nil{
 		log.Println(rtrap)
 		return nil
@@ -141,7 +141,7 @@ func LoadExit(exitName string, roomId int64, toId int64) map[string]interface{} 
 }
 
 // Create Room
-func CreateRoom(roomName string, creator string) (int64, bool) {
+func CreateRoom(roomName string, creator string) (int, bool) {
 	conn, _ := getConn()
 	defer conn.Close()
 	room_id := nextId("room")
@@ -235,7 +235,7 @@ func CreateExit(exitData map[string]interface{}) bool {
 }
 
 // Does this exit exist?
-func ExitExists(exitName string, roomId int64) bool {
+func ExitExists(exitName string, roomId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, _ := conn.QueryNeoAll("MATCH (r:room)-(e:exit)->() WHERE r.room_id={room_id} AND e.name={name} RETURN e",
@@ -252,7 +252,7 @@ func ExitExists(exitName string, roomId int64) bool {
 }
 
 // Delete Room
-func DeleteRoom(roomId int64) bool {
+func DeleteRoom(roomId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _ := conn.ExecNeo("MATCH ()-[e:exit]->(r:room)-[e2:exit]->() WHERE r.room_id={room_id} DELETE r, e, e2",
@@ -344,7 +344,7 @@ func UpdateRoom(roomData map[string]interface{})  bool {
 }
 
 // Rename Exit
-func RenameExit(exitName string, oldName string,  baseRoom int64, toRoom int64) bool {
+func RenameExit(exitName string, oldName string,  baseRoom int, toRoom int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	toExit, etrap := conn.ExecNeo(
@@ -426,7 +426,7 @@ func UpdateExit(exitData map[string]interface{}) bool {
 
 
 // Delete Exit
-func DeleteExit(exitName string, roomId int64) bool {
+func DeleteExit(exitName string, roomId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, rtrap := conn.ExecNeo("MATCH (r:room)-[e:exit]->() WHERE r.room_id={room_id} AND e.name={name} DELETE e",
@@ -446,7 +446,7 @@ func DeleteExit(exitName string, roomId int64) bool {
 	}
 }
 
-func SearchRoomName(searchStr string, skip int64) []interface{} {
+func SearchRoomName(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (r:room) WHERE toLower(r.name) CONTAINS toLower({search}) RETURN {room_id: r.room_id, creator: r.creator, name: r.name} ORDER BY r.name SKIP {skip} LIMIT {limit}",
@@ -469,7 +469,7 @@ func SearchRoomName(searchStr string, skip int64) []interface{} {
 	return roomList
 }
 
-func SearchRoomDesc(searchStr string, skip int64) []interface{} {
+func SearchRoomDesc(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (r:room) WHERE toLower(r.description) CONTAINS toLower({search}) RETURN {room_id: r.room_id, creator: r.creator, name: r.name} ORDER BY r.name SKIP {skip} LIMIT {limit}",

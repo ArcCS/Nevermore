@@ -7,17 +7,17 @@ import (
 
 type Exit struct {
 	Object
-	ParentId int64
-	ToId int64
+	ParentId int
+	ToId int
 	Flags map[string]bool
-	KeyId int64
+	KeyId int
 
 }
 
-func NewExit(room_id int64, exitData map[string]interface{}) *Exit {
-	placement := int64(3)
+func NewExit(room_id int, exitData map[string]interface{}) *Exit {
+	placement := 3
 	if exitData["placement"] == nil{
-		placement = int64(3)
+		placement = 3
 	}
 	ok := false
 	description := ""
@@ -25,7 +25,7 @@ func NewExit(room_id int64, exitData map[string]interface{}) *Exit {
 		description = "A mighty fine exit."
 	}
 	if exitData["key_id"] == nil {
-		exitData["key_id"] = int64(-1)
+		exitData["key_id"] = -1
 	}
 	newExt := &Exit{
 		Object{
@@ -34,15 +34,15 @@ func NewExit(room_id int64, exitData map[string]interface{}) *Exit {
 			placement,
 		},
 		room_id,
-		exitData["dest"].(int64),
+		int(exitData["dest"].(int64)),
 		make(map[string]bool),
-		exitData["key_id"].(int64),
+			int(exitData["key_id"].(int64)),
 	}
 	for k, v := range exitData["flags"].(map[string]interface{}){
 		if v == nil{
 			newExt.Flags[k] = false
 		}else {
-			newExt.Flags[k] = v.(int64) != 0
+			newExt.Flags[k] = int(v.(int64)) != 0
 		}
 	}
 	return newExt

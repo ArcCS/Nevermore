@@ -28,7 +28,7 @@ You sense the following enchantments bound to your lifeforce:
 {{.SpellEffects}}
 `
 	spell_effects := ""
-	for k, _ := range s.actor.Effects {
+	for k := range s.actor.Effects {
 		spell_effects += k + " "
 	}
 

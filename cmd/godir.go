@@ -72,7 +72,7 @@ func (godir) process(s *state) {
 	// Test for partial exit names
 	exitTxt := strings.ToLower(exitName)
 	if !utils.StringIn(strings.ToUpper(exitTxt), directionals) {
-		for txtE, _ := range from.Exits {
+		for txtE := range from.Exits {
 			if strings.Contains(txtE, exitTxt) {
 				exitTxt = txtE
 			}
@@ -82,8 +82,8 @@ func (godir) process(s *state) {
 		// Check that the room ID exists
 		if to, ok := objects.Rooms[toE.ToId]; ok {
 			// Apply a lock
-			if !utils.IntIn(int(toE.ToId), s.cLocks){
-				s.AddCharLock(int(toE.ToId))
+			if !utils.IntIn(toE.ToId, s.cLocks){
+				s.AddCharLock(toE.ToId)
 				return
 			}else{
 				if !toE.Flags["placement_dependent"] {
@@ -95,8 +95,8 @@ func (godir) process(s *state) {
 						s.actor.ParentId = toE.ToId
 						// Broadcast leaving and arrival notifications
 						if s.actor.Flags["invisible"] == false {
-							s.msg.Observers[int(from.RoomId)].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(exitName), ".")
-							s.msg.Observers[int(to.RoomId)].SendInfo(s.actor.Name, " just arrived.")
+							s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(exitName), ".")
+							s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
 						}
 						s.scriptActor("LOOK")
 						s.ok=true

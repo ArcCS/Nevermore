@@ -74,7 +74,7 @@ func (edit) process(s *state) {
 		//}
 		objectRef := strings.ToLower(exitName)
 		if !utils.StringIn(strings.ToUpper(objectRef), directionals) {
-			for txtE, _ := range s.where.Exits {
+			for txtE := range s.where.Exits {
 				if strings.Contains(txtE, objectRef) {
 					objectRef = txtE
 				}
@@ -105,11 +105,11 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendGood("Name changed.")
 				case "key_id":
 					intKey, _ :=  strconv.Atoi(s.words[3])
-					exit.KeyId = int64(intKey)
+					exit.KeyId = intKey
 					s.msg.Actor.SendGood("Change Key Id")
 				case "placement":
 					intKey, _ :=  strconv.Atoi(s.words[3])
-					exit.KeyId = int64(intKey)
+					exit.KeyId = intKey
 					s.msg.Actor.SendGood("Changed placement")
 				default:
 					s.msg.Actor.SendBad("Property not found.")

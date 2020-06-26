@@ -38,7 +38,7 @@ func (g *game) gameInit() {
 	g.buf = nil
 
 	if _, ok := objects.Rooms[g.character.ParentId]; !ok {
-		g.character.ParentId = int64(config.StartingRoom)
+		g.character.ParentId = config.StartingRoom
 	}
 	g.character.Permission.ToggleFlag(g.permissions)
 	objects.Rooms[g.character.ParentId].Chars.Lock()

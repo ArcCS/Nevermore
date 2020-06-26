@@ -1,11 +1,11 @@
 package objects
 
 type Meter struct{
-	Max int64
-	Current int64
+	Max int
+	Current int
 }
 
-func (m *Meter) Add(val int64){
+func (m *Meter) Add(val int){
 	if m.Current+val < m.Max{
 		m.Current += val
 	}else{
@@ -13,7 +13,7 @@ func (m *Meter) Add(val int64){
 	}
 }
 
-func (m *Meter) Subtract(val int64){
+func (m *Meter) Subtract(val int){
 	 if m.Current-val > 0 {
 	 	m.Current -= val
 	 }else{

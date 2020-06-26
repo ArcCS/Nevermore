@@ -1,7 +1,7 @@
 package config
 
 // Leveling Values
-var TierExpLevels = map[int64]int64{
+var TierExpLevels = map[int]int{
 	2: 100,
 	3: 500,
 	4: 1000,

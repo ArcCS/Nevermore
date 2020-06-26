@@ -112,9 +112,9 @@ func (c *characterStats)  GMList() []string {
 
 	for _, character := range c.list {
 		if character.Title != "" {
-			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s, %s, %s", strconv.Itoa(int(character.ParentId)), IpMap[character.Name], character.Name, character.ClassTitle, character.Title))
+			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s, %s, %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, character.ClassTitle, character.Title))
 		}else{
-			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s, %s", strconv.Itoa(int(character.ParentId)), IpMap[character.Name], character.Name, character.ClassTitle))
+			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s, %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, character.ClassTitle))
 		}
 	}
 
@@ -151,7 +151,7 @@ func (c *characterStats) MessageGM(msg string) {
 		}
 	}
 	msgbuf.Deliver(players...)
-
+d
 	c.Unlock()
 	return
 }

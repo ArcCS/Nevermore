@@ -19,7 +19,7 @@ type Character struct {
 	io.Writer
 	PromptStyle
 	Menu map[string]prompt.MenuItem
-	CharId int64
+	CharId int
 	// Our stuff!
 	Equipment Equipment
 	Inventory ItemInventory
@@ -29,12 +29,12 @@ type Character struct {
 	Flags map[string]bool
 	Effects map[string]Effect
 	HiddenEffects map[string]Effect
-	//TODO ??? Modifiers map[string]int64
+	//TODO ??? Modifiers map[string]int
 
 	// Should we count idle time based on last command entry and register the character as absent
 
 	// ParentId is the room id for the room
-	ParentId int64
+	ParentId int
 
 	// Titles for all to see
 	ClassTitle string
@@ -49,8 +49,8 @@ type Character struct {
 	BonusPoints Accumulator
 	Passages Accumulator
 	AttrMoves Accumulator
-	Broadcasts int64
-	Evals int64
+	Broadcasts int
+	Evals int
 	//Char Stats
 	Stam Meter
 	Vit Meter
@@ -63,11 +63,11 @@ type Character struct {
 	Int Meter
 	Pie Meter
 
-	Tier int64
-	Class int64
-	Race int64
+	Tier int
+	Class int
+	Race int
 	Gender string
-	Birthday int64
+	Birthday int
 
 	// Cool Downs
 	Global Cooldown
@@ -75,7 +75,7 @@ type Character struct {
 	Action Cooldown
 
 	// Extra
-	MinutesPlayed int64
+	MinutesPlayed int
 
 	//TODO: Class Properties Heals/Enchants
 	ClassProps map[string]interface{}
@@ -102,44 +102,44 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			writer,
 			StyleNone,
 			make(map[string]prompt.MenuItem),
-			charData["character_id"].(int64),
+			int(charData["character_id"].(int64)),
 			Equipment{},
 			ItemInventory{},
 			0,
 			make(map[string]bool),
 			make(map[string]Effect),
 			make(map[string]Effect),
-			charData["parentid"].(int64),
+			int(charData["parentid"].(int64)),
 			config.ClassTitle(
-				charData["class"].(int64),
+				int(charData["class"].(int64)),
 				charData["gender"].(string),
-				charData["tier"].(int64)),
+				int(charData["tier"].(int64))),
 			charData["title"].(string),
-			Accumulator{charData["bankgold"].(int64)},
-			Accumulator{charData["gold"].(int64)},
-			Accumulator{charData["experience"].(int64)},
-			Accumulator{charData["bonuspoints"].(int64)},
-			Accumulator{charData["passages"].(int64)},
-			Accumulator{charData["attrmoves"].(int64)},
-			charData["broadcasts"].(int64),
-			charData["evals"].(int64),
-			Meter{charData["stammax"].(int64), charData["stamcur"].(int64)},
-			Meter{charData["vitmax"].(int64), charData["vitcur"].(int64)},
-			Meter{charData["manamax"].(int64), charData["manacur"].(int64)},
-			Meter{int64(config.RaceDefs[config.AvailableRaces[charData["race"].(int64)]].StrMax), charData["strcur"].(int64)},
-			Meter{int64(config.RaceDefs[config.AvailableRaces[charData["race"].(int64)]].DexMax), charData["dexcur"].(int64)},
-			Meter{int64(config.RaceDefs[config.AvailableRaces[charData["race"].(int64)]].ConMax), charData["concur"].(int64)},
-			Meter{int64(config.RaceDefs[config.AvailableRaces[charData["race"].(int64)]].IntMax), charData["intcur"].(int64)},
-			Meter{int64(config.RaceDefs[config.AvailableRaces[charData["race"].(int64)]].PieMax), charData["piecur"].(int64)},
-			charData["tier"].(int64),
-			charData["class"].(int64),
-			charData["race"].(int64),
+			Accumulator{int(charData["bankgold"].(int64))},
+			Accumulator{int(charData["gold"].(int64))},
+			Accumulator{int(charData["experience"].(int64))},
+			Accumulator{int(charData["bonuspoints"].(int64))},
+			Accumulator{int(charData["passages"].(int64))},
+			Accumulator{int(charData["attrmoves"].(int64))},
+			int(charData["broadcasts"].(int64)),
+			int(charData["evals"].(int64)),
+			Meter{int(charData["stammax"].(int64)), int(charData["stamcur"].(int64))},
+			Meter{int(charData["vitmax"].(int64)), int(charData["vitcur"].(int64))},
+			Meter{int(charData["manamax"].(int64)), int(charData["manacur"].(int64))},
+			Meter{config.RaceDefs[config.AvailableRaces[int(charData["race"].(int64))]].StrMax, int(charData["strcur"].(int64))},
+			Meter{config.RaceDefs[config.AvailableRaces[int(charData["race"].(int64))]].DexMax, int(charData["dexcur"].(int64))},
+			Meter{config.RaceDefs[config.AvailableRaces[int(charData["race"].(int64))]].ConMax, int(charData["concur"].(int64))},
+			Meter{config.RaceDefs[config.AvailableRaces[int(charData["race"].(int64))]].IntMax, int(charData["intcur"].(int64))},
+			Meter{config.RaceDefs[config.AvailableRaces[int(charData["race"].(int64))]].PieMax, int(charData["piecur"].(int64))},
+			int(charData["tier"].(int64)),
+			int(charData["class"].(int64)),
+			int(charData["race"].(int64)),
 			charData["gender"].(string),
-			charData["birthday"].(int64),
+			int(charData["birthday"].(int64)),
 			Cooldown{},
 			Cooldown{},
 			Cooldown{},
-			charData["played"].(int64),
+			int(charData["played"].(int64)),
 			make(map[string]interface{}),
 			strings.Split(charData["spells"].(string), ","),
 			// 	0: "sharp",
@@ -147,11 +147,11 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			//	2: "blunt",
 			//	3: "pole",
 			//	4: "range",
-			map[int]Accumulator{0: {charData["sharpexp"].(int64)},
-				   1: {charData["thrustexp"].(int64)},
-				   2: {charData["bluntexp"].(int64)},
-				   3: {charData["sharpexp"].(int64)},
-					4: {charData["missileexp"].(int64)}},
+			map[int]Accumulator{0: {int(charData["sharpexp"].(int64))},
+				   1: {int(charData["thrustexp"].(int64))},
+				   2: {int(charData["bluntexp"].(int64))},
+				   3: {int(charData["sharpexp"].(int64))},
+					4: {int(charData["missileexp"].(int64))}},
 			nil,
 			make(chan bool),
 		}
@@ -160,7 +160,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			if v == nil{
 				FilledCharacter.Flags[k] = false
 			}else {
-				FilledCharacter.Flags[k] = v.(int64) != 0
+				FilledCharacter.Flags[k] = int(v.(int64)) != 0
 			}
 		}
 
@@ -277,9 +277,9 @@ func (c *Character) buildPrompt() []byte {
 		return []byte(text.Prompt + " > ")
 	case StyleStat:
 		return []byte(text.Prompt +
-				strconv.Itoa(int(c.Stam.Current)) + "|" +
-				strconv.Itoa(int(c.Vit.Current)) + "|" +
-				strconv.Itoa(int(c.Mana.Current)) +
+				strconv.Itoa(c.Stam.Current) + "|" +
+				strconv.Itoa(c.Vit.Current) + "|" +
+				strconv.Itoa(c.Mana.Current) +
 			" > ")
 	default:
 		return []byte{}
@@ -382,8 +382,8 @@ func (c *Character) RemoveEffect(effect string){
 
 
 func (c *Character) ReceiveDamage(damage int) int{
-	finalDamage := math.Ceil(float64(damage) * (1 - (float64(int(c.Equipment.Armor)/config.ArmorReductionPoints)*config.ArmorReduction)))
-	c.Stam.Subtract(int64(finalDamage))
+	finalDamage := math.Ceil(float64(damage) * (1 - (float64(c.Equipment.Armor/config.ArmorReductionPoints)*config.ArmorReduction)))
+	c.Stam.Subtract(int(finalDamage))
 	return int(finalDamage)
 }
 
@@ -404,7 +404,7 @@ func (c *Character) HealVital(damage int){
 }
 
 func (c *Character) RestoreMana(damage int){
-	c.Mana.Add(int64(damage))
+	c.Mana.Add(damage)
 }
 
 func (c *Character) InflictDamage() (damage int){
@@ -415,11 +415,11 @@ func (c *Character) CastSpell(spell string) bool {
 	return false
 }
 
-func (c *Character) MaxWeight() int64 {
+func (c *Character) MaxWeight() int {
 	return config.MaxWeight(c.Str.Current)
 }
 
-func (c *Character) WriteMovement(previous int64, new int64, subject string) {
+func (c *Character) WriteMovement(previous int, new int, subject string) {
 	mvAmnt := math.Abs(float64(previous - new))
 	color := text.Yellow
 	// Moving backwards

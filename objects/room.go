@@ -17,7 +17,7 @@ import (
 type Room struct {
 	Object
 
-	RoomId int64  //room_id from database
+	RoomId int  //room_id from database
 	Creator string
 	Exits map[string]*Exit
 	Mobs *MobInventory
@@ -26,9 +26,9 @@ type Room struct {
 	Flags map[string]bool
 	Commands map[string]prompt.MenuItem
 	// This is a whole number percentage out of 100
-	EncounterRate int64
+	EncounterRate int
 	// MobID mapped to an encounter percentage
-	EncounterTable map[int64]int64
+	EncounterTable map[int]int
 	roomTicker *time.Ticker
 	roomTickerUnload chan bool
 }
@@ -41,16 +41,16 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool){
 			Description: roomData["description"].(string),
 			Placement:   3,
 		},
-		roomData["room_id"].(int64),
+		int(roomData["room_id"].(int64)),
 		roomData["creator"].(string),
 		make(map[string]*Exit),
-		NewMobInventory(roomData["room_id"].(int64)),
-		NewCharInventory(roomData["room_id"].(int64)),
+		NewMobInventory(int(roomData["room_id"].(int64))),
+		NewCharInventory(int(roomData["room_id"].(int64))),
 		NewItemInventory(),
 		make(map[string]bool),
 		make(map[string]prompt.MenuItem),
-		roomData["encounter_rate"].(int64),
-		make(map[int64]int64),
+		int(roomData["encounter_rate"].(int64)),
+		make(map[int]int),
 		nil,
 		make(chan bool),
 	}
@@ -61,7 +61,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool){
 		if encounter != nil {
 			encData := encounter.(map[string]interface{})
 			if encData["chance"] != nil {
-				newRoom.EncounterTable[encData["mob_id"].(int64)] = encData["chance"].(int64)
+				newRoom.EncounterTable[int(encData["mob_id"].(int64))] = int(encData["chance"].(int64))
 			}
 		}
 	}
@@ -70,7 +70,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool){
 		if exit != nil {
 			exitData := exit.(map[string]interface{})
 			if exitData["dest"] != nil {
-				newRoom.Exits[strings.ToLower(exitData["direction"].(string))] = NewExit(roomData["room_id"].(int64), exitData)
+				newRoom.Exits[strings.ToLower(exitData["direction"].(string))] = NewExit(int(roomData["room_id"].(int64)), exitData)
 			}
 		}
 	}
@@ -79,7 +79,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool){
 		if v == nil{
 			newRoom.Flags[k] = false
 		}else {
-			newRoom.Flags[k] = v.(int64) != 0
+			newRoom.Flags[k] = int(v.(int64)) != 0
 		}
 	}
 	return newRoom, true
@@ -124,7 +124,7 @@ func (r *Room) Look(gm bool) (buildText string) {
 		}
 		return buildText
 	}else{
-		buildText = text.Cyan + r.Name + " [ID:" + strconv.Itoa(int(r.RoomId)) +  "] (" + r.Creator +")\n" + text.Reset
+		buildText = text.Cyan + r.Name + " [ID:" + strconv.Itoa(r.RoomId) +  "] (" + r.Creator +")\n" + text.Reset
 		buildText += text.Yellow + r.Description + "\n"
 		if len(r.Exits) > 0 {
 			buildText += "From here you can go: "
@@ -144,7 +144,7 @@ func (r *Room) Look(gm bool) (buildText string) {
 					if nextRoom.Flags["active"] == false {
 						inactive = "[i]"
 					}
-					buildText += exiti.Name + " " + hidden + invis + inactive + "(" + strconv.Itoa(int(exiti.Placement)) + ")[ID:" + strconv.Itoa(int(exiti.ToId)) + "], "
+					buildText += exiti.Name + " " + hidden + invis + inactive + "(" + strconv.Itoa(exiti.Placement) + ")[ID:" + strconv.Itoa(exiti.ToId) + "], "
 				}
 			}
 
@@ -195,12 +195,12 @@ func (r *Room) FirstPerson() {
 					return
 				case <-r.roomTicker.C:
 					// Is the room crowded?
-					if len(r.Mobs.Contents) < config.Inventory.CrowdSize {
+					if len(r.Mobs.Contents) < 10 {
 						// Roll the dice and see if we get a mob here
-						if int64(utils.Roll(100, 1, 0)) <= r.EncounterRate {
+						if utils.Roll(100, 1, 0) <= r.EncounterRate {
 							// Successful roll:  Roll again to pick the mob
-							mobCalc := int64(0)
-							mobPick := int64(utils.Roll(100, 1, 0))
+							mobCalc := 0
+							mobPick := utils.Roll(100, 1, 0)
 							for mob, chance := range r.EncounterTable {
 								mobCalc += chance
 								if mobPick <= mobCalc {
@@ -257,7 +257,7 @@ func (r *Room) MessageVisible(Message string){
 	}
 }
 
-func (r *Room) MessageMovement(previous int64, new int64, subject string){
+func (r *Room) MessageMovement(previous int, new int, subject string){
 	// Message all the characters in this room
 	for _, chara := range r.Chars.Contents{
 		// Check invisible detection

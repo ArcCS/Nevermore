@@ -8,7 +8,7 @@ import (
 type ItemInventory struct {
 	Contents    []*Item
 	sync.Mutex
-	TotalWeight int64
+	TotalWeight int
 	Flags map[string]bool
 }
 
@@ -51,7 +51,7 @@ func (i *ItemInventory) Remove(o *Item) {
 // Clear all non permanent
 func (i *ItemInventory) RemoveNonPerms() {
 	newContents := make([]*Item, 0, 0)
-	newWeight := int64(0)
+	newWeight := 0
 	for _, item := range i.Contents {
 		if item.Flags["permanent"] == true {
 			newContents = append(newContents, item)

@@ -9,9 +9,9 @@ import (
 
 // Rooms contains all of the world rooms tagged with their room_id
 // This makes it very simple to move people by room_id and retain their connecting exit
-var Rooms = map[int64]*Room{}
-var Mobs = map[int64]*Mob{}
-var Items = map[int64]*Item{}
+var Rooms = map[int]*Room{}
+var Mobs = map[int]*Mob{}
+var Items = map[int]*Item{}
 
 // Load fills the world with love.
 func Load() {
@@ -20,7 +20,7 @@ func Load() {
 	for _, room := range preparse {
 		if room != nil {
 			roomData := room.(map[string]interface{})
-			Rooms[roomData["room_id"].(int64)], _ = LoadRoom(roomData)
+			Rooms[int(roomData["room_id"].(int64))], _ = LoadRoom(roomData)
 		}
 
 	}
@@ -33,7 +33,7 @@ func Load() {
 	for _, mob := range preparse {
 		if mob != nil {
 			mobData := mob.(map[string]interface{})
-			Mobs[mobData["mob_id"].(int64)], _ = LoadMob(mobData)
+			Mobs[int(mobData["mob_id"].(int64))], _ = LoadMob(mobData)
 		}
 
 	}
@@ -45,7 +45,7 @@ func Load() {
 	for _, item := range preparse {
 		if item != nil {
 			itemData := item.(map[string]interface{})
-			Items[itemData["item_id"].(int64)], _ = LoadItem(itemData)
+			Items[int(itemData["item_id"].(int64))], _ = LoadItem(itemData)
 		}
 
 	}

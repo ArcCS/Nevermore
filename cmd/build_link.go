@@ -24,7 +24,7 @@ func (link) process(s *state) {
 	}
 
 	objectRef, _ := strconv.Atoi(s.input[1])
-	roomRef := int64(objectRef)
+	roomRef := objectRef
 	// Check that the room exists.
 	if room, ok := objects.Rooms[roomRef]; !ok {
 		s.msg.Actor.SendBad("That room ID doesn't appear to exist.")

@@ -176,7 +176,7 @@ func DeleteAcct(acctName string) bool {
 	}
 }
 
-func SearchAccountName(searchStr string, skip int64) []interface{} {
+func SearchAccountName(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (a:account) WHERE toLower(a.name) CONTAINS toLower({search}) ORDER BY a.name LIMIT 15 SKIP {skip} ",

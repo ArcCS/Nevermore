@@ -185,7 +185,7 @@ func fixDEL(in *[]byte) {
 			}
 			if l > 1 {
 				combi = unicode.In(bytes.Runes((*in)[i-l : i])[0], unicode.Mn, unicode.Me)
-				copy((*in)[i-l:i], []byte("\x00\x00\x00\x00"))
+				copy((*in)[i-l:i], "\x00\x00\x00\x00")
 			}
 			i = i - l
 		}

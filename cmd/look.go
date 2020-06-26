@@ -128,7 +128,7 @@ func (look) process(s *state) {
 	}
 }
 
-func WhereAt(subLoc int64, charLoc int64) string {
+func WhereAt(subLoc int, charLoc int) string {
 	// Moving backwards
 	if subLoc == charLoc {
 		return " next to you."

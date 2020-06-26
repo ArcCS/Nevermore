@@ -23,18 +23,18 @@ func (addspawn) process(s *state) {
 		return
 	}
 
-	var mob_id, mob_rate int64
+	var mob_id, mob_rate int
 	val, err := strconv.Atoi(s.words[0])
 	if err != nil {
 		log.Println(err)
 	}
-	mob_id = int64(val)
+	mob_id = val
 
 	val2, err2 := strconv.Atoi(s.words[1])
 	if err != nil {
 		log.Println(err2)
 	}
-	mob_rate = int64(val2)
+	mob_rate = val2
 
 	if _, ok := objects.Mobs[mob_id]; ok {
 		curSpawn := data.SumEncounters(s.where.RoomId)
@@ -42,7 +42,7 @@ func (addspawn) process(s *state) {
 			data.CreateEncounter(map[string]interface{}{
 				"mobId":  mob_id,
 				"roomId": s.actor.ParentId,
-				"chance": mob_rate,})
+				"chance": mob_rate})
 			s.where.EncounterTable[mob_id] = mob_rate
 			s.msg.Actor.SendGood("Mob added to this room's encounter table.")
 		}else{

@@ -55,7 +55,7 @@ func LoadMobs() []interface{} {
 	return mobList
 }
 
-func LoadMob(mobId int64) map[string]interface{} {
+func LoadMob(mobId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	conn, _ := getConn()
 	defer conn.Close()
@@ -104,7 +104,7 @@ func LoadMob(mobId int64) map[string]interface{} {
 }
 
 // Create Room
-func CreateMob(mobName string, creator string) (int64, bool) {
+func CreateMob(mobName string, creator string) (int, bool) {
 	conn, _ := getConn()
 	defer conn.Close()
 	mob_id := nextId("mob")
@@ -270,7 +270,7 @@ func CreateEncounter(encounterData map[string]interface{}) bool {
 }
 
 // Does a room already have too many encounters?
-func SumEncounters(roomId int64) int64 {
+func SumEncounters(roomId int) int {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, _ := conn.QueryNeoAll("MATCH (r:room)-[s:spawns]->() WHERE r.room_id={room_id} RETURN {rate_sum: sum(s.chance)}",
@@ -279,11 +279,11 @@ func SumEncounters(roomId int64) int64 {
 		},
 	)
 	datum := data[0][0].(map[string]interface{})
-	return datum["rate_sum"].(int64)
+	return datum["rate_sum"].(int)
 }
 
 // Delete Mob
-func DeleteMob(mobId int64) bool {
+func DeleteMob(mobId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _ := conn.ExecNeo("MATCH ()-[s:spawns]->(m:mob)-[d:drops]->() WHERE m.mob_id={mob_id} DELETE s, m, d",
@@ -327,7 +327,7 @@ func UpdateEncounter(mobData map[string]interface{}) bool {
 }
 
 // Delete encounter
-func DeleteEncounter(mobId int64, roomId int64) bool {
+func DeleteEncounter(mobId int, roomId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, rtrap := conn.ExecNeo("MATCH (r:room)-[s:spawns]->(m:mob) WHERE r.room_id={room_id} AND s.mob_id={mob_id} DELETE s",
@@ -348,7 +348,7 @@ func DeleteEncounter(mobId int64, roomId int64) bool {
 }
 
 // Search mobs
-func SearchMobName(searchStr string, skip int64) []interface{} {
+func SearchMobName(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (m:mob) WHERE toLower(m.name) CONTAINS toLower({search}) RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.name SKIP {skip} LIMIT {limit}",
@@ -371,7 +371,7 @@ func SearchMobName(searchStr string, skip int64) []interface{} {
 	return searchList
 }
 
-func SearchMobDesc(searchStr string, skip int64) []interface{} {
+func SearchMobDesc(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (m:mob) WHERE toLower(m.description) CONTAINS toLower({search}) RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.name SKIP {skip} LIMIT {limit}",

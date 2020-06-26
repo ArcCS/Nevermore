@@ -20,12 +20,12 @@ func (stat) process(s *state) {
 	stat_template := "You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.\n"
 
 	data := struct {
-		Stamina int64
-		Max_stamina int64
-		Health int64
-		Max_health int64
-		Mana int64
-		Max_mana int64
+		Stamina int
+		Max_stamina int
+		Health int
+		Max_health int
+		Mana int
+		Max_mana int
 	}{
 		s.actor.Stam.Current,
 		s.actor.Stam.Max,

@@ -31,31 +31,31 @@ func (modspawn) process(s *state) {
 		if val2 > 100 {
 			val2 = 100
 		}
-		s.where.EncounterRate = int64(val2)
+		s.where.EncounterRate = val2
 		s.msg.Actor.SendGood("Mob encounter rates for this room set to a " + strconv.Itoa(val2) + "% chance every 8 seconds.")
 		s.where.Save()
 		return
 	}
 
-	var mob_id, mob_rate int64
+	var mob_id, mob_rate int
 	val, err := strconv.Atoi(s.words[0])
 	if err != nil {
 		log.Println(err)
 	}
-	mob_id = int64(val)
+	mob_id = val
 
 	val2, err2 := strconv.Atoi(s.words[1])
 	if err2 != nil {
 		log.Println(err2)
 	}
-	mob_rate = int64(val2)
+	mob_rate = val2
 
 
 
 	if _, ok := s.where.EncounterTable[mob_id]; ok {
 		previousRate := s.where.EncounterTable[mob_id]
 		s.where.EncounterTable[mob_id] = mob_rate
-		var sumVals int64
+		var sumVals int
 		for _, v := range s.where.EncounterTable {
 			sumVals += v
 		}
@@ -66,7 +66,7 @@ func (modspawn) process(s *state) {
 			data.UpdateEncounter(map[string]interface{}{
 				"mobId": mob_id,
 				"roomId":  s.where.RoomId,
-				"chance": mob_rate,})
+				"chance": mob_rate})
 			s.msg.Actor.SendGood("Mob spawn rate updated")
 		}
 

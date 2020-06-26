@@ -38,13 +38,13 @@ func (spawn) process(s *state) {
 		}
 		//log.Println("Copying mob")
 		newMob := objects.Mob{}
-		copier.Copy(&newMob, objects.Mobs[int64(mob_id)])
+		copier.Copy(&newMob, objects.Mobs[mob_id])
 		s.where.Mobs.Add(&newMob)
-	// Handle Exits
-	case "object":
+		newMob.StartTicking()
+	case "item":
 		return
 	default:
-		s.msg.Actor.SendBad("Not an object that can be edited, or WIP")
+		s.msg.Actor.SendBad("Not an object that can be spawned")
 	}
 
 	s.ok = true

@@ -32,7 +32,7 @@ var MaxWeaponDamage = map[int]int{
 }
 
 // Exp to level weapon classes
-var WeaponExpLevels = map[int64]int64{
+var WeaponExpLevels = map[int]int{
 	2: 1000,
 	3: 10000,
 	4: 100000,
@@ -66,7 +66,7 @@ var WeaponTitles = []string{
 	"Grandmaster",
 }
 
-func WeaponExpTitle(exp int64) string {
+func WeaponExpTitle(exp int) string {
 	switch {
 	case exp < WeaponExpLevels[0] && exp > 0:
 		return WeaponTitles[0]
@@ -93,7 +93,7 @@ func WeaponExpTitle(exp int64) string {
 	}
 }
 
-func WeaponLevel(exp int64) int {
+func WeaponLevel(exp int) int {
 	switch {
 	case exp < WeaponExpLevels[0] && exp > 0:
 		return 0

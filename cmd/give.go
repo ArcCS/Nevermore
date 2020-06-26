@@ -40,7 +40,8 @@ func (give) process(s *state) {
 
 	// We're going to process a money transaction.
 	if strings.HasPrefix("$", targetStr) {
-		if amount, err := strconv.ParseInt(strings.Trim(targetStr, "$"), 10, 64); err==nil{
+		if amount64, err := strconv.ParseInt(strings.Trim(targetStr, "$"), 10, 64); err==nil{
+			amount := int(amount64)
 			if s.actor.Gold.CanSubtract(amount){
 				s.actor.Gold.SubIfCan(amount)
 				who.Gold.Add(amount)

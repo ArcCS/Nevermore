@@ -27,9 +27,9 @@ func (teleport) process(s *state) {
 		return
 	}
 	roomId, _ := strconv.Atoi(s.words[0])
-	if to, ok := objects.Rooms[int64(roomId)]; ok {
-		if !utils.IntIn(int(to.RoomId), s.cLocks){
-			s.AddCharLock(int(to.RoomId))
+	if to, ok := objects.Rooms[roomId]; ok {
+		if !utils.IntIn(to.RoomId, s.cLocks){
+			s.AddCharLock(to.RoomId)
 			return
 		}else{
 			s.where.Chars.Remove(s.actor)

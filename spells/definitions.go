@@ -284,7 +284,7 @@ var Spells = map[string]Spell{
  Description: "the protection spell causes a portion of the target's natural aura to physically manifest around them, acting as a sort of armour. while under the effects of this spell, the target is more difficult to hit, as the aura slows and stops incoming attacks. casting this spell, the caster gestures as if placing a helm upon the target while speaking the spellchant. ",
  Cost: 10, 
  Effect: "protection", 
- Classes: map[string]int64{ "cleric": 5, "mage": 1, "bard": 5,} ,
+ Classes: map[string]int64{ "cleric": 5, "mage": 1, "bard": 5} ,
 },
 	"invisibility": { 
  Name: "invisibility",

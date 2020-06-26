@@ -8,7 +8,7 @@ func AddSpell(newSpell Spell) {
 	return
 }
 
-func(* Spells) spellsByName(){
+func spellsByName(){
 	return
 }
 

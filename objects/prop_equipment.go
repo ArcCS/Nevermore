@@ -2,9 +2,9 @@ package objects
 
 type Equipment struct{
 	// Status
-	Armor int64
-	Weight int64
-	DamageIgnore int64
+	Armor int
+	Weight int
+	DamageIgnore int
 	// TODO: Eventually create an effect system for equipment
 
 	Head *Item

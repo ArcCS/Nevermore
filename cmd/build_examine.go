@@ -28,13 +28,15 @@ func (examine) process(s *state) {
 
 	typeE := strings.ToLower(s.words[0])
 
+	nameNum := 1
+
 	switch typeE {
 	case "room":
 		roomRef := s.where
 		if len(s.words) > 1 {
 			roomNumber, ok := strconv.Atoi(s.words[1])
 			if ok == nil{
-				roomRef = objects.Rooms[int64(roomNumber)]
+				roomRef = objects.Rooms[roomNumber]
 			}
 		}
 
@@ -120,60 +122,97 @@ description:	{{.Description}}
 
 
 	case "mob":
-		if exitRef, ok := s.where.Exits[strings.ToLower(s.words[1])]; ok {
-			exitTemplate := `Examining exit...
-	name={{.ExitName}}		Exit Name
+		if len(s.words) > 2 {
+			// Try to snag a number off the list
+			if val, err := strconv.Atoi(s.words[2]); err == nil {
+				nameNum = val
+			}
+		}
+		mobRef := s.where.Mobs.Search(s.words[1], nameNum, true)
+		if mobRef != nil {
+			exitTemplate := `Examining mob...
+    mob_id={{.MobId}}		Database Mob Id
+	name={{.MobName}}		Mob Name
 	description={{.Description}}
-	placement={{.Placement}}		Exit Placement in the room
-	key_id={{.Key_id}}		Key Id that can open this door
+	level={{.Level}}
+	experience={{.Experience}}
+	gold={{.Gold}}
+
+	## Stats ##
+	Con: {{.Con}}
+	Str: {{.Str}}
+	Int: {{.Int}}
+	Dex: {{.Dex}}
+	Pie: {{.Pie}}
+	Mana:        {{.ManaMax}}
+    Hit Points:  {{.HPMax}}
+
+	Combat:
+	ndice={{.Ndice}}		Number of Damage Dice
+	sdice={{.Sdice}}		Number of Sides on Damage Dice
+	pdice={{.Pdice}}		Addition to to dice roll value. 
+	casting_probability={{.CastingProb}}  % Chance of casting a spell
+	armor={{.Armor}}	Amount of armor
+
+	Wander={{.NumWander}}   How many ticks before they wander away while not in combat
+	Wimpy={{.WimpyValue}}  Amount of damage in a single hit before it tries to flee
+
 	Toggle Flags:
-	  closeable={{.Closeable}},		Can the door be closed
-	  closed={{.Closed}},			Is the door closed on start
-	  autoclose={{.Autoclose}},		Does this door close itself
-	  lockable={{.Lockable}},           Can it be locked
-	  unpickable={{.Unpickable}},         Can it be picked
-	  locked={{.Locked}},             Is it locked on start
-	  hidden={{.Hidden}},             Is the exit hidden
-	  invisible={{.Invisible}},	Is the exit invisible
-	  levitate={{.Levitate}},	Does the character have to leviate to access
-	  day_only={{.Day_only}}	Only accessible during the day
-	  night_only={{.Night_only}}		Only accessible during the night
-      placement_dependent={{.Placement_dependent}}		The character must be in the same placement to use it`
+	  hide_encounter={{.Hide_Encounter}},		Is it hidden when it shows up?
+	  invisible={{.Invisible}},			Invisible
+	  permament={{.Permanent}},		Does not despawn
+	  hostile={{.Hostile}},           Hostile to players`
 
 			data := struct {
-				ExitName string
+				MobId string
+				MobName string
 				Description string
-				Placement string
-				Key_id string
-				Closeable string
-				Closed string
-				Autoclose string
-				Lockable string
-				Unpickable string
-				Locked string
-				Hidden string
+				Level string
+				Experience string
+				Gold string
+				Con string
+				Str string
+				Int string
+				Dex string
+				Pie string
+				ManaMax string
+				HPMax string
+				Ndice string
+				Sdice string
+				Pdice string
+				CastingProb string
+				Armor string
+				NumWander string
+				WimpyValue string
+				Hide_Encounter string
 				Invisible string
-				Levitate string
-				Day_only string
-				Night_only string
-				Placement_dependent string
+				Permanent string
+				Hostile string
 			}{
-				exitRef.Name,
-				exitRef.Description,
-				strconv.Itoa(int(exitRef.Placement)),
-				strconv.Itoa(int(exitRef.KeyId)),
-				strconv.FormatBool(exitRef.Flags["closeable"]),
-				strconv.FormatBool(exitRef.Flags["closed"]),
-				strconv.FormatBool(exitRef.Flags["autoclose"]),
-				strconv.FormatBool(exitRef.Flags["lockable"]),
-				strconv.FormatBool(exitRef.Flags["unpickable"]),
-				strconv.FormatBool(exitRef.Flags["locked"]),
-				strconv.FormatBool(exitRef.Flags["hidden"]),
-				strconv.FormatBool(exitRef.Flags["invisible"]),
-				strconv.FormatBool(exitRef.Flags["levitate"]),
-				strconv.FormatBool(exitRef.Flags["day_only"]),
-				strconv.FormatBool(exitRef.Flags["night_only"]),
-				strconv.FormatBool(exitRef.Flags["placement_dependent"]),
+				strconv.Itoa(mobRef.MobId),
+				mobRef.Name,
+				mobRef.Description,
+				strconv.Itoa(mobRef.Level),
+				strconv.Itoa(mobRef.Experience),
+				strconv.Itoa(mobRef.Experience),
+				strconv.Itoa(mobRef.Con.Max),
+				strconv.Itoa(mobRef.Str.Max),
+				strconv.Itoa(mobRef.Int.Max),
+				strconv.Itoa(mobRef.Dex.Max),
+				strconv.Itoa(mobRef.Pie.Max),
+				strconv.Itoa(mobRef.Mana.Max),
+				strconv.Itoa(mobRef.Stam.Max),
+				strconv.Itoa(mobRef.NumDice),
+				strconv.Itoa(mobRef.SidesDice),
+				strconv.Itoa(mobRef.PlusDice),
+				strconv.Itoa(mobRef.ChanceCast),
+				strconv.Itoa(mobRef.Armor),
+				strconv.Itoa(mobRef.NumWander),
+				strconv.Itoa(mobRef.WimpyValue),
+				strconv.FormatBool(mobRef.Flags["hide_encounter"]),
+				strconv.FormatBool(mobRef.Flags["invisible"]),
+				strconv.FormatBool(mobRef.Flags["permanent"]),
+				strconv.FormatBool(mobRef.Flags["hostile"]),
 
 			}
 
@@ -190,25 +229,6 @@ description:	{{.Description}}
 		}
 
 	case "object":
-		/*
-			`{creator:i.creator,
-			item_id:i.item_id,
-			ndice:i.ndice,
-			weight:i.weight,
-			description:i.description,
-			type:i.type,
-			pdice:i.pdice,
-			armor:i.armor,
-			max_uses:i.max_uses,
-			name:i.name,
-			sdice:i.sdice,
-			value:i.value,
-			flags: {permanent:i.permanent,
-			magic:i.magic,
-			no_take: i.no_take,
-			light: i.light,
-			weightless_chest: i.weightless_chest}
-		 */
 		nameNum := 1
 		if len(s.words) > 2 {
 			// Try to snag a number off the list
@@ -216,7 +236,8 @@ description:	{{.Description}}
 				nameNum = val
 			}
 		}
-		if objRef := s.actor.Inventory.Search(s.words[1],  nameNum); ok {
+		objRef := s.actor.Inventory.Search(s.words[1],  nameNum)
+		if objRef != nil {
 			exitTemplate := `Examining object...
 	itemId={{.ItemId}}			Database ID of the object
 	name={{.ObjectName}}		Object Name
@@ -230,9 +251,10 @@ description:	{{.Description}}
 	ndice={{.Ndice}}		Number of Damage Dice
 	sdice={{.Sdice}}		Number of Sides on Damage Dice
 	pdice={{.Pdice}}		Addition to to dice roll value. 
-
+	
 	Combat Values: 
 	Toggle Flags:
+	  always_crit={{.AlwaysCrit}}  If yes, criticals every hit. 
 	  permanent={{.Permanent}},		If yes, never respawns. 
 	  magic={{.Magic}},			Is it magic?
 	  no_take={{.NoTake}},		Prevent player from taking
@@ -251,23 +273,25 @@ description:	{{.Description}}
 				Ndice string
 				Sdice string
 				Pdice string
+				AlwaysCrit string
 				Permanent string
 				Magic string
 				NoTake string
 				Light string
 				WeightLessChest string
 			}{
-				objRef.ItemId
+				strconv.Itoa(objRef.ItemId),
 				objRef.Name,
 				objRef.Creator,
 				objRef.Description,
-				strconv.Itoa(int(objRef.Weight)),
-				config.ItemTypes[int(objRef.Type)],
-				strconv.Itoa(int(objRef.Value)),
-				strconv.Itoa(int(objRef.MaxUses)),
-				strconv.Itoa(int(objRef.NumDice)),
-				strconv.Itoa(int(objRef.SidesDice)),
-				strconv.Itoa(int(objRef.PlusDice)),
+				strconv.Itoa(objRef.Weight),
+				config.ItemTypes[objRef.Type],
+				strconv.Itoa(objRef.Value),
+				strconv.Itoa(objRef.MaxUses),
+				strconv.Itoa(objRef.NumDice),
+				strconv.Itoa(objRef.SidesDice),
+				strconv.Itoa(objRef.PlusDice),
+				strconv.FormatBool(objRef.Flags["always_crit"]),
 				strconv.FormatBool(objRef.Flags["permanent"]),
 				strconv.FormatBool(objRef.Flags["magic"]),
 				strconv.FormatBool(objRef.Flags["no_take"]),
@@ -287,6 +311,7 @@ description:	{{.Description}}
 			s.msg.Actor.SendBad("Couldn't find the object in the current room.")
 		}
 
+		//noinspection ALL
 	case "exit":
 		if exitRef, ok := s.where.Exits[strings.ToLower(s.words[1])]; ok {
 			exitTemplate := `Examining exit...
@@ -328,8 +353,8 @@ description:	{{.Description}}
 			}{
 				exitRef.Name,
 				exitRef.Description,
-				strconv.Itoa(int(exitRef.Placement)),
-				strconv.Itoa(int(exitRef.KeyId)),
+				strconv.Itoa(exitRef.Placement),
+				strconv.Itoa(exitRef.KeyId),
 				strconv.FormatBool(exitRef.Flags["closeable"]),
 				strconv.FormatBool(exitRef.Flags["closed"]),
 				strconv.FormatBool(exitRef.Flags["autoclose"]),
