@@ -222,7 +222,7 @@ func (m *Mob) Tick(){
 			m.Placement == Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
 			// Am I against a fighter and they succeed in a parry roll?
 			target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
-			if target.Class == 0 && config.RollParry(target.Skills[target.Equipment.Main.Type].Value) {
+			if target.Class == 0 && config.RollParry(target.Skills[target.Equipment.Main.ItemType].Value) {
 				if target.Tier >= 10 {
 					// It's a riposte
 					actualDamage := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))

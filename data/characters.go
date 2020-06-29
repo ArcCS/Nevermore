@@ -326,3 +326,127 @@ func SearchCharDesc(searchStr string, skip int) []interface{} {
 	}
 	return searchList
 }
+
+// Get an inventory_id
+func NextInventoryId(characterName string) int {
+conn, _ := getConn()
+defer conn.Close()
+	data, _, _, _ := conn.QueryNeoAll("MATCH (c:character)-[h:has]->(item)"+
+	"WHERE c.name={characterName}" +
+"WITH COLLECT(h.has_id) as has_ids" +
+"WITH MAX(has_ids)+1 AS new_id" +
+"RETURN new_id",
+		map[string]interface {}{
+			"characterName":  characterName,
+		},
+	)
+return data[0][0].(int)
+}
+
+// Create Inventory Item
+func CreateInventory(inventoryData map[string]interface{}) bool {
+	conn, _ := getConn()
+	defer conn.Close()
+	hasInventory, rtrap := conn.ExecNeo(
+		"MATCH (c:character), (i:item) WHERE " +
+			"c.character_id = {characterName} AND i.item_id = {itemId} " +
+			`CREATE (c)-[h:has]->(i) SET
+				h.has_id={hasId},
+				h.name={itemName},
+				h.uses={uses},
+				h.magic={magic},
+				h.spell={spell},
+				h.armor={armor},
+				h.equipped={equipped}`,
+		map[string]interface {}{
+			"characterName":        inventoryData["characterName"],
+			"itemId":       inventoryData["itemId"],
+			"hasId":		NextInventoryId(inventoryData["characterName"].(string)),
+			"itemName":		inventoryData["itemName"],
+			"uses": 		inventoryData["uses"],
+			"magic":		inventoryData["magic"],
+			"spell":		inventoryData["spell"],
+			"armor":		inventoryData["armor"],
+			"equipped":		inventoryData["equipped"],
+		},
+	)
+	if rtrap != nil{
+		log.Println(rtrap)
+	}
+
+	numResult, _ := hasInventory.RowsAffected()
+	if numResult > 0 {
+		return false
+	}else {
+		return true
+	}
+}
+
+// Delete inventory
+func DeleteInventoryItem(characterName string, hasId int) bool {
+	conn, _ := getConn()
+	defer conn.Close()
+	toExit, rtrap := conn.ExecNeo(
+		"MATCH (c:character)-[h:has_id]->(item) WHERE " +
+			"c.name = {characterName} AND h.has_id = {hasId} " +
+			`DELETE (c)-[s:spawns]->(m) SET 
+	s.chance={chance}`,
+		map[string]interface {}{
+			"hasId":        hasId,
+			"characterName":       characterName,
+		},
+	)
+	if rtrap != nil{
+		log.Println(rtrap)
+	}
+
+	numResult, _ := toExit.RowsAffected()
+	if numResult > 0 {
+		return false
+	}else {
+		return true
+	}
+}
+
+func ClearAllInventory(characterName string){
+
+}
+
+// Create Inventory Item
+func UpdateInventory(inventoryData map[string]interface{}) bool {
+	conn, _ := getConn()
+	defer conn.Close()
+	hasInventory, rtrap := conn.ExecNeo(
+		"MATCH (c:character)-[h:has]->(i:item) WHERE " +
+			"c.character_id = {characterName} AND i.item_id = {itemId} and h.has_id =  {hasId} " +
+			`CREATE (c)-[h:has]->(i) SET
+				h.has_id={hasId},
+				h.name={itemName},
+				h.uses={uses},
+				h.magic={magic},
+				h.spell={spell},
+				h.armor={armor},
+				h.equipped={equipped}`,
+		map[string]interface {}{
+			"characterName":        inventoryData["characterName"],
+			"itemId":       inventoryData["itemId"],
+			"hasId":		inventoryData["hasId"],
+			"itemName":		inventoryData["itemName"],
+			"uses": 		inventoryData["uses"],
+			"magic":		inventoryData["magic"],
+			"spell":		inventoryData["spell"],
+			"armor":		inventoryData["armor"],
+			"equipped":		inventoryData["equipped"],
+		},
+	)
+	if rtrap != nil{
+		log.Println(rtrap)
+	}
+
+	numResult, _ := hasInventory.RowsAffected()
+	if numResult > 0 {
+		return false
+	}else {
+		return true
+	}
+}

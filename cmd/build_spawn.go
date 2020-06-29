@@ -31,18 +31,27 @@ func (spawn) process(s *state) {
 	// Handle Rooms
 	case "mob":
 		//log.Println("Trying to do a spawn...")
-		mob_id, err := strconv.Atoi(s.words[1])
+		mobId, err := strconv.Atoi(s.words[1])
 		if err != nil {
 			s.msg.Actor.SendBad("What mob ID do you want to spawn?")
 			return
 		}
 		//log.Println("Copying mob")
 		newMob := objects.Mob{}
-		copier.Copy(&newMob, objects.Mobs[mob_id])
+		copier.Copy(&newMob, objects.Mobs[mobId])
 		s.where.Mobs.Add(&newMob)
 		newMob.StartTicking()
 	case "item":
-		return
+		itemId, err := strconv.Atoi(s.words[1])
+		if err != nil {
+			s.msg.Actor.SendBad("What item ID do you want to spawn?")
+			return
+		}
+		//log.Println("Copying mob")
+		newItem := objects.Item{}
+		copier.Copy(&newItem, objects.Items[itemId])
+		s.actor.Inventory.Add(&newItem)
+		s.msg.Actor.SendGood(newItem.Name + " added to your inventory.")
 	default:
 		s.msg.Actor.SendBad("Not an object that can be spawned")
 	}

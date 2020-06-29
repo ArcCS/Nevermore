@@ -11,6 +11,7 @@ import (
 	"io"
 	"strconv"
 	"sync"
+	"time"
 )
 
 // Currently active characters
@@ -21,6 +22,8 @@ type characterStats struct {
 
 var ActiveCharacters = &characterStats{}
 var IpMap = make(map[string]string)
+// TODO: Update command execution times
+var LastActMap = make(map[string]time.Time)
 
 // Add adds the specified character to the list of characters.
 func (c *characterStats) Add(character *objects.Character, address string) {
@@ -151,7 +154,7 @@ func (c *characterStats) MessageGM(msg string) {
 		}
 	}
 	msgbuf.Deliver(players...)
-d
+
 	c.Unlock()
 	return
 }

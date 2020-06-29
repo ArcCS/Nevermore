@@ -22,7 +22,7 @@ func NewExit(room_id int, exitData map[string]interface{}) *Exit {
 	ok := false
 	description := ""
 	if description, ok = exitData["description"].(string); !ok {
-		description = "A mighty fine exit."
+		description = ""
 	}
 	if exitData["key_id"] == nil {
 		exitData["key_id"] = -1

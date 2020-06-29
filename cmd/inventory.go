@@ -26,7 +26,7 @@ func (inventory) process(s *state) {
 	if len(inv) == 0 {
 		s.msg.Actor.Send("  No items")
 	}else {
-		s.msg.Actor.Send("  ", strings.Join(s.actor.Inventory.List(), ","))
+		s.msg.Actor.Send("  ", strings.Join(s.actor.Inventory.List(), ", "))
 	}
 	s.ok = true
 	return

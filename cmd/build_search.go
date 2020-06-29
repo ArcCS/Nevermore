@@ -39,7 +39,7 @@ func (find) process(s *state) {
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["room_id"].(int)) + ")(" + itemData["creator"].(string) + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["room_id"].(int64))) + ")(" + itemData["creator"].(string) + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
@@ -51,7 +51,7 @@ func (find) process(s *state) {
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["room_id"].(int)) + ")(" + itemData["creator"].(string) + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["room_id"].(int64))) + ")(" + itemData["creator"].(string) + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
@@ -67,7 +67,7 @@ func (find) process(s *state) {
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["mob_id"].(int)) + ")(" + strconv.Itoa(itemData["level"].(int)) + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["mob_id"].(int64))) + ")(" + strconv.Itoa(int(itemData["level"].(int64))) + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
@@ -79,7 +79,7 @@ func (find) process(s *state) {
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["mob_id"].(int)) + ")(" + strconv.Itoa(itemData["level"].(int)) + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["mob_id"].(int64))) + ")(" + strconv.Itoa(int(itemData["level"].(int64))) + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
@@ -95,7 +95,7 @@ func (find) process(s *state) {
 			for _, item := range results {
 				if item != nil {
 					itemData := item.(map[string]interface{})
-					s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["item_id"].(int)) + ")(" + config.ItemTypes[itemData["type"].(int)] + ") " + itemData["name"].(string))
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["item_id"].(int64))) + ")(" + config.ItemTypes[int(itemData["type"].(int64))] + ") " + itemData["name"].(string))
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
@@ -107,7 +107,7 @@ func (find) process(s *state) {
 				for _, item := range results {
 					if item != nil {
 						itemData := item.(map[string]interface{})
-						s.msg.Actor.SendGood("(" + strconv.Itoa(itemData["item_id"].(int)) + ")(" + config.ItemTypes[itemData["type"].(int)] + ") " + itemData["name"].(string))
+						s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["item_id"].(int64))) + ")(" + config.ItemTypes[int(itemData["type"].(int64))] + ") " + itemData["name"].(string))
 					}
 				}
 				s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")

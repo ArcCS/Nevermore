@@ -52,7 +52,7 @@ func (kill) process(s *state) {
 		}
 
 		// Shortcut target not being in the right location, check if it's a missile weapon, or that they are placed right.
-		if s.actor.Equipment.Main.Type != 4 && (s.actor.Placement != whatMob.Placement) {
+		if s.actor.Equipment.Main.ItemType != 4 && (s.actor.Placement != whatMob.Placement) {
 			s.msg.Actor.SendBad("You are too far away to attack.")
 			return
 		}
@@ -62,7 +62,7 @@ func (kill) process(s *state) {
 			1.0,
 		}
 
-		skillLevel := config.WeaponLevel(s.actor.Equipment.Main.Type)
+		skillLevel := config.WeaponLevel(s.actor.Equipment.Main.ItemType)
 
 		// Kill is really the fighters realm for specialty..
 		if s.actor.Permission.HasAnyFlags(permissions.Fighter) {

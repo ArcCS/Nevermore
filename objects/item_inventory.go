@@ -73,7 +73,7 @@ func (i *ItemInventory) Search(alias string, num int) *Item {
 
 	pass := 1
 	for _, c := range i.Contents {
-		if strings.Contains(c.Name, alias){
+		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)){
 			if pass == num {
 				return c
 			}else{
@@ -85,13 +85,9 @@ func (i *ItemInventory) Search(alias string, num int) *Item {
 	return nil
 }
 
-func (i *ItemInventory) Serialize() map[string]interface{}{
-	return map[string]interface{}{}
-}
-
 // List the items in this ItemInventory
 func (i *ItemInventory) List() []string {
-	items := make([]string, len(i.Contents))
+	items := make([]string, 0)
 
 	switch len(i.Contents){
 	case 0:

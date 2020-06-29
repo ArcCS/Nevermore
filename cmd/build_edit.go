@@ -109,8 +109,12 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendGood("Change Key Id")
 				case "placement":
 					intKey, _ :=  strconv.Atoi(s.words[3])
-					exit.KeyId = intKey
-					s.msg.Actor.SendGood("Changed placement")
+					if intKey >= 1 && intKey <= 5 {
+						exit.KeyId = intKey
+						s.msg.Actor.SendGood("Changed placement")
+					}else{
+						s.msg.Actor.SendBad("Placement Id not valid. ")
+					}
 				default:
 					s.msg.Actor.SendBad("Property not found.")
 				}

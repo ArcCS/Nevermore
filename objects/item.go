@@ -4,7 +4,7 @@ type Item struct {
 	Object
 	ParentItemId int
 	ItemId       int
-	Type         int
+	ItemType         int
 	Flags        map[string]bool
 	Creator      string
 	NumDice      int
@@ -18,6 +18,7 @@ type Item struct {
 
 	Storage ItemInventory
 	Weight  int
+	LinkId int
 }
 
 // Pop the room data
@@ -48,6 +49,7 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 		itemData["spell"].(string),
 		ItemInventory{},
 		int(itemData["weight"].(int64)),
+		0,
 	}
 	for k, v := range itemData["flags"].(map[string]interface{}) {
 		if v == nil {
@@ -60,7 +62,7 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 }
 
 func (i *Item) GetWeight() int {
-	if i.Type == 9 && !i.Flags["weightless"] {
+	if i.ItemType == 9 && !i.Flags["weightless"] {
 		return i.Weight + i.Storage.TotalWeight
 	} else {
 		return i.Weight

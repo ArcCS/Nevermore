@@ -21,8 +21,8 @@ type Character struct {
 	Menu map[string]prompt.MenuItem
 	CharId int
 	// Our stuff!
-	Equipment Equipment
-	Inventory ItemInventory
+	Equipment *Equipment
+	Inventory *ItemInventory
 	Permission permissions.Permissions
 
 
@@ -30,8 +30,6 @@ type Character struct {
 	Effects map[string]Effect
 	HiddenEffects map[string]Effect
 	//TODO ??? Modifiers map[string]int
-
-	// Should we count idle time based on last command entry and register the character as absent
 
 	// ParentId is the room id for the room
 	ParentId int
@@ -103,8 +101,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			StyleNone,
 			make(map[string]prompt.MenuItem),
 			int(charData["character_id"].(int64)),
-			Equipment{},
-			ItemInventory{},
+			&Equipment{},
+			&ItemInventory{},
 			0,
 			make(map[string]bool),
 			make(map[string]Effect),
@@ -257,10 +255,18 @@ func (c *Character) Save(){
 	charData["manamax"] = c.Mana.Max
 	charData["vitmax"] = c.Vit.Max
 	charData["stammax"] = c.Stam.Max
-	//TODO Flags?
 	data.SaveChar(charData)
 
-	//TODO Process Equipment
+	// Save Equipment
+	for _, item := range c.Equipment.List() {
+		if item.LinkId != 0 {
+
+		}else{
+
+		}
+	}
+	// Save Inventory
+
 	//TODO Process Effects
 }
 
@@ -297,16 +303,6 @@ func (c *Character) Write(b []byte) (n int, err error) {
 		n, err = c.Writer.Write(b)
 	}
 	return
-}
-
-// Free makes sure references are nil'ed when the Character attribute is freed.
-func (c *Character) Free() {
-	c.EmptyMenu()
-	//TODO: Clear Effect Timers
-
-	if c != nil {
-		c.Writer = nil
-	}
 }
 
 type PromptStyle int

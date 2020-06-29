@@ -1,11 +1,16 @@
 package cmd
 
 import (
+	"bytes"
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/text"
+	"log"
 	"math"
 	"strconv"
 	"strings"
+	"text/template"
 )
 
 // Overloaded Look object for all of your looking pleasure
@@ -22,6 +27,7 @@ type look cmd
 func (look) process(s *state) {
 	var others []string
 	var mobs []string
+	var items []string
 	if len(s.input) == 0 {
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(true))
@@ -47,6 +53,12 @@ func (look) process(s *state) {
 		} else if len(mobs) > 1{
 			s.msg.Actor.SendInfo("You see: " + strings.Join(mobs, ", "))
 		}
+		items = objects.Rooms[s.actor.ParentId].Items.List()
+		if len(items) == 1 {
+			s.msg.Actor.SendInfo("On the ground you see: " + strings.Join(items, ", "))
+		} else if len(mobs) > 1{
+			s.msg.Actor.SendInfo("On the ground you see: " + strings.Join(items, ", "))
+		}
 		return
 	}
 
@@ -70,6 +82,63 @@ func (look) process(s *state) {
 	// It was a person!
 	if whatChar != nil {
 		s.msg.Actor.SendInfo(whatChar.Look())
+		equip_template := " {{.Sub_pronoun}} is currently wearing..." +
+			" {{if .Chest}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Chest}} about {{.Pos_pronoun}} body{{end}}" +
+			" {{if .Neck}}\n{{.Sub_pronoun}} {{.Isare}} a {{.Neck}} around {{.Pos_pronoun}} neck.{{end}}" +
+			" {{if .Main}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Main}} in {{.Pos_pronoun}} main hand.{{end}}" +
+			" {{if .Offhand}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Offhand}} in {{.Pos_pronoun}} off hand.{{end}}" +
+			" {{if .Arms}}\n{{.Sub_pronoun}} {{.Isare}} wearing some {{.Arms}} on {{.Pos_pronoun}} arms.{{end}}" +
+			" {{if .Finger1}}\n{{.Sub_pronoun}} {{.HasHave}} a {{.Finger1}} on {{.Pos_pronoun}} finger.{{end}}" +
+			" {{if .Finger2}}\n{{.Sub_pronoun}} {{.HasHave}} a {{.Finger2}} on {{.Pos_pronoun}} finger.{{end}}" +
+			" {{if .Legs}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Legs}} on {{.Pos_pronoun}} legs.{{end}}" +
+			" {{if .Feet}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Feet}} on {{.Pos_pronoun}} feet.{{end}}" +
+			" {{if .Head}}\n{{.Sub_pronoun}} {{.Isare}} wearing a {{.Head}}.{{end}}" +
+			text.Reset
+
+		data := struct {
+			Sub_pronoun string
+			Pos_pronoun string
+			Isare string
+			HasHave string
+			Chest string
+			Neck string
+			Main string
+			Offhand	string
+			Arms string
+			Finger1 string
+			Finger2 string
+			Legs string
+			Feet string
+			Head string
+		}{
+			strings.Title(config.TextSubPronoun[whatChar.Gender]),
+			config.TextPosPronoun[whatChar.Gender],
+			"is",
+			"has",
+			s.actor.Equipment.GetText("chest"),
+			s.actor.Equipment.GetText("neck"),
+			s.actor.Equipment.GetText("main"),
+			s.actor.Equipment.GetText("off"),
+			s.actor.Equipment.GetText("arms"),
+			s.actor.Equipment.GetText("ring1"),
+			s.actor.Equipment.GetText("ring2"),
+			s.actor.Equipment.GetText("legs"),
+			s.actor.Equipment.GetText("feet"),
+			s.actor.Equipment.GetText("head"),
+		}
+
+		tmpl, _ := template.New("char_info").Parse(equip_template)
+
+		var output bytes.Buffer
+		err := tmpl.Execute(&output, data)
+		if err != nil {
+			log.Println(err)
+		}else{
+			s.msg.Actor.SendGood(output.String())
+		}
+
+		s.ok = true
+
 		return
 	}
 
@@ -78,7 +147,11 @@ func (look) process(s *state) {
 
 	// Nice, looking at an exit.
 	if whatExit != nil {
-		s.msg.Actor.SendInfo(whatExit.Look())
+		if whatExit.Description == "" {
+			s.msg.Actor.SendInfo(objects.Rooms[whatExit.ParentId].Look(false))
+		}else {
+			s.msg.Actor.SendInfo(whatExit.Look())
+		}
 		return
 	}
 
@@ -120,6 +193,7 @@ func (look) process(s *state) {
 
 	// It was on you the whole time
 	if what != nil {
+		s.msg.Actor.SendInfo("You examine " + what.Name)
 		s.msg.Actor.SendInfo(what.Look())
 		return
 	}else{
