@@ -101,8 +101,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			StyleNone,
 			make(map[string]prompt.MenuItem),
 			int(charData["character_id"].(int64)),
-			&Equipment{},
-			&ItemInventory{},
+			RestoreEquipment(charData["equipment"].(string)),
+			RestoreInventory(charData["inventory"].(string)),
 			0,
 			make(map[string]bool),
 			make(map[string]Effect),
@@ -140,11 +140,6 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			int(charData["played"].(int64)),
 			make(map[string]interface{}),
 			strings.Split(charData["spells"].(string), ","),
-			// 	0: "sharp",
-			//	1: "thrust",
-			//	2: "blunt",
-			//	3: "pole",
-			//	4: "range",
 			map[int]Accumulator{0: {int(charData["sharpexp"].(int64))},
 				   1: {int(charData["thrustexp"].(int64))},
 				   2: {int(charData["bluntexp"].(int64))},
@@ -255,17 +250,9 @@ func (c *Character) Save(){
 	charData["manamax"] = c.Mana.Max
 	charData["vitmax"] = c.Vit.Max
 	charData["stammax"] = c.Stam.Max
+	charData["equipment"] = c.Equipment.Jsonify()
+	charData["inventory"] = c.Inventory.Jsonify()
 	data.SaveChar(charData)
-
-	// Save Equipment
-	for _, item := range c.Equipment.List() {
-		if item.LinkId != 0 {
-
-		}else{
-
-		}
-	}
-	// Save Inventory
 
 	//TODO Process Effects
 }

@@ -1,5 +1,7 @@
 package objects
 
+import "github.com/ArcCS/Nevermore/utils"
+
 type Item struct {
 	Object
 	ParentItemId int
@@ -16,9 +18,8 @@ type Item struct {
 	Value        int
 	Spell        string
 
-	Storage ItemInventory
+	Storage *ItemInventory
 	Weight  int
-	LinkId int
 }
 
 // Pop the room data
@@ -47,9 +48,8 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 		int(itemData["max_uses"].(int64)),
 		int(itemData["value"].(int64)),
 		itemData["spell"].(string),
-		ItemInventory{},
+		&ItemInventory{},
 		int(itemData["weight"].(int64)),
-		0,
 	}
 	for k, v := range itemData["flags"].(map[string]interface{}) {
 		if v == nil {
@@ -89,4 +89,20 @@ func (i *Item) ToggleFlag(flagName string) bool {
 func (i *Item) Save() {
 	// TODO: Invoke a static save as a new item
 	return
+}
+
+// Function to return only the modifiable properties
+func ReturnItemInstanceProps(item *Item) map[string]interface{} {
+	serialList := map[string]interface{}{
+		"itemId": item.ItemId,
+		"name": item.Name,
+		"uses": item.MaxUses,
+		"magic": utils.Btoi(item.Flags["magic"]),
+		"spell": item.Spell,
+		"armor": item.Armor,
+	}
+	if item.ItemType == 9 {
+		serialList["contents"] = item.Storage.Jsonify()
+	}
+	return serialList
 }

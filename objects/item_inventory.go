@@ -1,6 +1,8 @@
 package objects
 
 import (
+	"encoding/json"
+	"github.com/jinzhu/copier"
 	"strings"
 	"sync"
 )
@@ -101,8 +103,6 @@ func (i *ItemInventory) List() []string {
 	return items
 }
 
-
-
 // Free recursively calls Free on all of it's content when the ItemInventory
 // attribute is freed.
 func (i *ItemInventory) Free() {
@@ -113,4 +113,47 @@ func (i *ItemInventory) Free() {
 		i.Contents[x] = nil
 		t.Free()
 	}
+}
+
+func (i *ItemInventory) Jsonify() string {
+	itemList := make([]map[string]interface{}, 0)
+
+	switch len(i.Contents){
+	case 0:
+		return "[]"
+	}
+
+	for _, o := range i.Contents {
+		itemList = append(itemList, ReturnItemInstanceProps(o))
+	}
+
+	data, err := json.Marshal(itemList)
+	if err != nil {
+		return "[]"
+	} else {
+		return string(data)
+	}
+}
+
+func RestoreInventory(jsonString string) *ItemInventory {
+	var obj interface{}
+	NewInventory := &ItemInventory{}
+	err := json.Unmarshal([]byte(jsonString), &obj)
+	if err != nil {
+		return NewInventory
+	}
+	for _, item := range obj.([]map[string]interface{}) {
+		newItem := Item{}
+		copier.Copy(&newItem, Items[item["itemId"].(int)])
+		newItem.Name = item["name"].(string)
+		newItem.MaxUses	= item["uses"].(int)
+		newItem.Flags["magic"] = item["magic"].(int) != 0
+		newItem.Spell = item["spell"].(string)
+		newItem.Armor =	item["armor"].(int)
+		if newItem.ItemType == 9 {
+			newItem.Storage = RestoreInventory(item["contents"].(string))
+		}
+		NewInventory.Add(&newItem)
+	}
+	return NewInventory
 }

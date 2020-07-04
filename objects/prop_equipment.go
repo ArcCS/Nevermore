@@ -1,6 +1,10 @@
 package objects
 
-import "strings"
+import (
+	"encoding/json"
+	"github.com/jinzhu/copier"
+	"strings"
+)
 
 type Equipment struct{
 	// Status
@@ -122,4 +126,47 @@ func (e *Equipment) Unequip(alias string) (ok bool, item *Item){
 		e.Weight -= item.Weight
 	}
 	return ok, item
+}
+
+func (e *Equipment) Jsonify() string {
+	itemList := make([]map[string]interface{}, 0)
+
+	if e.Head != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Head)) }
+	if e.Chest != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Chest)) }
+	if e.Neck != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Neck)) }
+	if e.Legs != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Legs)) }
+	if e.Feet != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Feet)) }
+	if e.Arms != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Arms)) }
+	if e.Hands != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Hands)) }
+	if e.Ring1 != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Ring1)) }
+	if e.Ring2 != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Ring2)) }
+	if e.Main != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Main)) }
+	if e.Off != nil { itemList = append(itemList, ReturnItemInstanceProps(e.Off)) }
+
+	data, err := json.Marshal(itemList)
+	if err != nil {
+		return "[]"
+	} else {
+		return string(data)
+	}
+}
+
+func RestoreEquipment(jsonString string) *Equipment{
+	var obj interface{}
+	NewEquipment := &Equipment{}
+	err := json.Unmarshal([]byte(jsonString), &obj)
+	if err != nil {
+		return NewEquipment
+	}
+	for _, item := range obj.([]map[string]interface{}) {
+		newItem := Item{}
+		copier.Copy(&newItem, Items[item["itemId"].(int)])
+		newItem.Name = item["name"].(string)
+		newItem.MaxUses	= item["uses"].(int)
+		newItem.Flags["magic"] = item["magic"].(int) != 0
+		newItem.Spell = item["spell"].(string)
+		newItem.Armor =	item["armor"].(int)
+		NewEquipment.Equip(&newItem)
+	}
+	return NewEquipment
 }

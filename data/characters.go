@@ -55,7 +55,10 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"poleexp: a.poleexp, " +
 		"missileexp: a.missileexp, " +
 		"spells: a.spells, " +
+		"equipment: a.equipment, " +
+		"inventory: a.inventory, " +
 		"flags:{invisible: a.invisible, darkvision: a.darkvision, hidden: a.hidden}}",
+
 		map[string]interface {}{
 			"charName": charName,
 		},
@@ -68,17 +71,6 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 	}
 }
 
-/*
-	Object{
-		Name:        charData["name"].(string),
-		Description: charData["description"].(string),
-		Placement:   3,
-	},f
-	Equipment{},
-	ItemInventory{},
-
-
- */
 // New character
 func CreateChar(charData map[string]interface{}) bool {
 	conn, _ := getConn()
@@ -126,6 +118,8 @@ func CreateChar(charData map[string]interface{}) bool {
 		"a.thrustexp = 0," +
 		"a.missileexp = 0," +
 		"a.spells = ''," +
+		"a.equipment = []," +
+		"a.inventory = []," +
 		"a.experience = 0, " +
 		"a.invisible = 0, " +
 		"a.darkvision = 0, " +
@@ -205,6 +199,8 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.thrustexp = {thrustexp}," +
 			"a.missileexp = {missileexp}," +
 			"a.spells = {spells}," +
+			"a.equipment = {equipment}," +
+			"a.inventory = {inventory}," +
 			"a.experience = {experience}",
 		map[string]interface {}{
 			"characterid": charData["character_id"],
@@ -236,6 +232,8 @@ func SaveChar(charData map[string]interface{}) bool {
 			"max_mana":	charData["manamax"],
 			"max_vit":		charData["vitmax"],
 			"max_stam":	charData["stammax"],
+			"equipment": charData["equipment"],
+			"inventory": charData["inventory"],
 		},
 	)
 
@@ -327,6 +325,7 @@ func SearchCharDesc(searchStr string, skip int) []interface{} {
 	return searchList
 }
 
+/*
 // Get an inventory_id
 func NextInventoryId(characterName string) int {
 conn, _ := getConn()
@@ -450,3 +449,5 @@ func UpdateInventory(inventoryData map[string]interface{}) bool {
 		return true
 	}
 }
+
+ */
