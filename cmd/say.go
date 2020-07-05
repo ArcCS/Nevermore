@@ -8,7 +8,7 @@ import (
 // Syntax: SAY <message> | " <message>
 func init() {
 	addHandler(say{},
-           "Usage:  say [character] \n \n Say something out loud!",
+           "Usage:  say \n \n Say something out loud!",
            permissions.Player,
            "SAY")
 }
@@ -36,14 +36,14 @@ func (say) process(s *state) {
 	msg := strings.Join(s.input, " ")
 
 	if msg[len(msg)-1:] == "?" {
-		s.msg.Actor.SendGood("You ask: ", msg)
-		s.msg.Observer.SendInfo(who, " asks: ", msg)
+		s.msg.Actor.SendGood("You ask, ", msg)
+		s.msg.Observers.SendInfo(who, " asks, ", msg)
 	}else if msg[len(msg)-1:] == "!" {
-		s.msg.Actor.SendGood("You exclaim: ", msg)
-		s.msg.Observer.SendInfo(who, " exclaims: ", msg)
+		s.msg.Actor.SendGood("You exclaim, ", msg)
+		s.msg.Observers.SendInfo(who, " exclaims, ", msg)
 	}else {
-		s.msg.Actor.SendGood("You say: ", msg)
-		s.msg.Observer.SendInfo(who, " says: ", msg)
+		s.msg.Actor.SendGood("You say, ", msg)
+		s.msg.Observers.SendInfo(who, " says,  ", msg)
 	}
 
 	// We need to calculate nearby locations in order to do this.

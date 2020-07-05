@@ -50,7 +50,7 @@ func (drop) process(s *state) {
 	s.actor.Inventory.Unlock()
 
 	s.msg.Actor.SendGood("You drop ", target.Name, ".")
-	s.msg.Observer.SendInfo( s.actor.Name, " drops ", target.Name, ".")
+	s.msg.Observers.SendInfo( s.actor.Name, " drops ", target.Name, ".")
 
 	s.ok = true
 }

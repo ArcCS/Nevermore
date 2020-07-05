@@ -51,7 +51,7 @@ func (closeExit) process(s *state) {
 	if s.actor.Flags["invisible"] == false {
 		who := s.actor.Name
 		s.msg.Actor.SendGood("You close ", name, ".")
-		s.msg.Observer.SendInfo(who, " closes ", name, ".")
+		s.msg.Observers.SendInfo(who, " closes ", name, ".")
 	}else{
 		s.msg.Actor.SendGood("You close ", name, ".")
 	}

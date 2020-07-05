@@ -252,7 +252,7 @@ func (r *Room) MessageVisible(Message string){
 			continue
 		}
 		if visDetect || chara.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
-			chara.Write([]byte(Message))
+			chara.Write([]byte(Message + "\n"))
 		}
 	}
 }

@@ -29,6 +29,6 @@ func (roll) process(s *state) {
 	dVal := utils.Roll(rollSides, rollDice, 0)
 
 	s.msg.Actor.SendGood("You rolled: " + strconv.Itoa(dVal))
-	s.msg.Observer.SendGood(s.actor.Name + " rolled: " + strconv.Itoa(dVal))
+	s.msg.Observers.SendGood(s.actor.Name + " rolled: " + strconv.Itoa(dVal))
 	s.ok = true
 }

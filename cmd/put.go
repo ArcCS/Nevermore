@@ -89,7 +89,7 @@ func (put) process(s *state) {
 
 
 	s.msg.Actor.SendGood("You put ", target.Name, " into ", where.Name, ".")
-	s.msg.Observer.SendInfo("You see ", s.actor.Name, " put ", target.Name, " into ", where.Name, ".")
+	s.msg.Observers.SendInfo("You see ", s.actor.Name, " put ", target.Name, " into ", where.Name, ".")
 
 	s.ok = true
 }

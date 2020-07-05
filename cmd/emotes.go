@@ -32,7 +32,7 @@ func (act) process(s *state) {
 	who := s.actor.Name
 
 	s.msg.Actor.SendInfo("You ", action)
-	s.msg.Observer.SendInfo(who, " ", action)
+	s.msg.Observers.SendInfo(who, " ", action)
 
 	s.ok = true
 }

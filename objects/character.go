@@ -70,9 +70,7 @@ type Character struct {
 	Birthday int
 
 	// Cool Downs
-	Global Cooldown
-	Use Cooldown
-	Action Cooldown
+	Timers map[string]time.Time
 
 	// Extra
 	MinutesPlayed int
@@ -136,9 +134,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			int(charData["race"].(int64)),
 			charData["gender"].(string),
 			int(charData["birthday"].(int64)),
-			Cooldown{},
-			Cooldown{},
-			Cooldown{},
+			map[string]time.Time{"global": time.Now(), "use": time.Now(), "combat": time.Now()},
 			int(charData["played"].(int64)),
 			make(map[string]interface{}),
 			strings.Split(charData["spells"].(string), ","),
@@ -181,7 +177,22 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 	}
 }
 
+func (c *Character) SetTimer(timer string, seconds int) {
+	c.Timers[timer] = time.Now().Add(time.Duration(seconds) * time.Second)
+}
 
+func (c *Character) TimerReady(timer string) (bool, string) {
+	// Always check Global:
+	remaining := int(c.Timers["global"].Sub(time.Now())/time.Second)
+	if remaining <= 0 {
+		remaining = int(c.Timers[timer].Sub(time.Now())/time.Second)
+		if remaining <= 0 {
+			return true, ""
+		}
+	}
+	return false, "You have " + strconv.Itoa(remaining) + " seconds before you can perform this action."
+
+}
 // TODO:  A hooking system
 // Extend the anon scripts to bind from items and add hooks to characters
 // Rooms should take the hook system as well and invoke onActions.
@@ -472,21 +483,21 @@ func (c *Character) WriteMovement(previous int, new int, subject string) {
 	color := text.Yellow
 	// Moving backwards
 	if (previous > new) && (mvAmnt == 1) && (new > c.Placement) {
-		c.Write([]byte(color + subject + " moves backwards, towards you." + text.Reset))
+		c.Write([]byte(color + subject + " moves backwards, towards you." + text.Reset + "\n"))
 	}else if (previous > new) && (mvAmnt == 1) && (new == c.Placement) {
-		c.Write([]byte(color + subject + " moves backwards, next to you." + text.Reset))
+		c.Write([]byte(color + subject + " moves backwards, next to you." + text.Reset + "\n"))
 	}else if (previous > new) && (mvAmnt == 2) && (new > c.Placement) {
-		c.Write([]byte(color + subject + " sprints backwards, towards you." + text.Reset))
+		c.Write([]byte(color + subject + " sprints backwards, towards you." + text.Reset + "\n"))
 	}else if (previous > new) && (mvAmnt == 2) && (new == c.Placement) {
-		c.Write([]byte(color + subject + " sprints backwards, next to you." + text.Reset))
+		c.Write([]byte(color + subject + " sprints backwards, next to you." + text.Reset + "\n"))
 	// Moving forwards
 	}else if (previous < new) && (mvAmnt == 1) && (new < c.Placement) {
-		c.Write([]byte(color + subject + " moves forwards, towards you." + text.Reset))
+		c.Write([]byte(color + subject + " moves forwards, towards you." + text.Reset + "\n"))
 	}else if (previous < new) && (mvAmnt == 1) && (new == c.Placement) {
-		c.Write([]byte(color + subject + " moves forwards, next to you." + text.Reset))
+		c.Write([]byte(color + subject + " moves forwards, next to you." + text.Reset + "\n"))
 	}else if (previous < new) && (mvAmnt == 2) && (new < c.Placement) {
-		c.Write([]byte(color + subject + " sprints forwards, towards you." + text.Reset))
+		c.Write([]byte(color + subject + " sprints forwards, towards you." + text.Reset + "\n"))
 	}else if (previous < new) && (mvAmnt == 2) && (new == c.Placement) {
-		c.Write([]byte(color + subject + " sprints forwards, next to you." + text.Reset))
+		c.Write([]byte(color + subject + " sprints forwards, next to you." + text.Reset + "\n"))
 	}
 }

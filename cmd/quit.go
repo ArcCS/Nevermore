@@ -23,7 +23,7 @@ func (quit) process(s *state) {
 
 	s.actor.SetPromptStyle(objects.StyleNone)
 	if s.actor.Flags["invisible"] == false && s.actor.Flags["hidden"] == false {
-		s.msg.Observer.SendInfo(who, " vanishes in a puff of smoke.")
+		s.msg.Observers.SendInfo(who, " vanishes in a puff of smoke.")
 	}
 	s.where.Chars.Remove(s.actor)
 	s.msg.Actor.SendGood("You leave this world behind.")

@@ -20,7 +20,7 @@ func (roomall) process(s *state) {
 	}
 
 	s.msg.Actor.SendInfo(strings.Join(s.input, " "))
-	s.msg.Observer.SendInfo(strings.Join(s.input, " "))
+	s.msg.Observers.SendInfo(strings.Join(s.input, " "))
 	s.ok = true
 	return
 }

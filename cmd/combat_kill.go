@@ -75,9 +75,17 @@ func (kill) process(s *state) {
 				// Sure did.  Kill this fool and bail.
 				s.msg.Actor.SendInfo("You landed a lethal blow on the " + whatMob.Name)
 				s.msg.Observers.SendInfo(s.actor.Name + " landed a lethal blow on " + whatMob.Name)
-				whatMob.Died()
+				// Mob died
+				//TODO Calculate experience
+				stringExp := strconv.Itoa(whatMob.Experience)
+				for k := range whatMob.ThreatTable {
+					s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+					s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
+				}
+				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
 				objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
 				whatMob = nil
+				s.actor.SetTimer("combat", 8)
 				return
 			}
 
@@ -122,11 +130,20 @@ func (kill) process(s *state) {
 			if whatMob.Stam.Current <= 0 {
 				s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
 				s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
-				whatMob.Died()
+				// Mob died
+				//TODO Calculate experience
+				stringExp := strconv.Itoa(whatMob.Experience)
+				for k := range whatMob.ThreatTable {
+					s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+					s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
+				}
+				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
 				objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
+				whatMob = nil
 			}
-			return
 		}
+		s.actor.SetTimer("combat", 8)
+		return
 
 	}
 

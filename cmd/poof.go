@@ -21,7 +21,7 @@ func (poof) process(s *state) {
 
 	name := s.actor.Name
 	if s.actor.Flags["invisible"] == false && s.actor.Flags["hidden"] == false {
-		s.msg.Observer.SendGood("", name, " appears in a puff of smoke.")
+		s.msg.Observers.SendGood("", name, " appears in a puff of smoke.")
 	}
 
 	s.scriptActor("LOOK")

@@ -195,7 +195,7 @@ func (m *Mob) Tick(){
 			if m.CurrentTarget != rankedThreats[0] {
 				if utils.Roll(3, 1, 0) == 1 {
 					m.CurrentTarget = rankedThreats[0]
-					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset)
+					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + "\n" + text.Reset)
 				}
 			}
 		}
@@ -228,20 +228,25 @@ func (m *Mob) Tick(){
 				if target.Tier >= 10 {
 					// It's a riposte
 					actualDamage := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
-					target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!"))
+					target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))
 					if m.Stam.Current <= 0 {
 						Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
-						m.Died()
+						stringExp := strconv.Itoa(m.Experience)
+						for k := range m.ThreatTable {
+							Rooms[m.ParentId].Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " for the defeat of the " + m.Name + "\n" + text.Reset))
+							Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
+						}
+						Rooms[m.ParentId].MessageAll(m.Name + " dies.")
 						Rooms[m.ParentId].ClearMob(m)
+						return
 					}
 					m.MobStunned = config.ParryStuns
 				}else{
-					target.Write([]byte(text.Green + "You parry the attack from " + m.Name))
+					target.Write([]byte(text.Green + "You parry the attack from " + m.Name + "\n" + text.Reset))
 					m.MobStunned = config.ParryStuns
 				}
 			}else{
 				stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
-				log.Println(strconv.Itoa(stamDamage) + " Stam Damage " + strconv.Itoa(vitDamage) + " Vit damage")
 				buildString := ""
 				if stamDamage != 0 {
 					buildString += strconv.Itoa(stamDamage) + " stamina"
@@ -253,9 +258,9 @@ func (m *Mob) Tick(){
 					buildString += strconv.Itoa(vitDamage) + " vitality"
 				}
 				if stamDamage == 0 && vitDamage == 0 {
-					target.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!"))
+					target.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset))
 				}else {
-					target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!"))
+					target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 				}
 				if target.Vit.Current == 0 {
 					target.Died()
@@ -275,7 +280,7 @@ func (m *Mob) Tick(){
 			if vitDamage != 0 {
 				buildString += strconv.Itoa(vitDamage) + " vitality"
 			}
-			target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!"))
+			target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 			if target.Vit.Current == 0 {
 				target.Died()
 			}
@@ -344,15 +349,6 @@ func (m *Mob) InflictDamage() int {
 func (m *Mob) CastSpell(spell string) bool {
 	return true
 }
-
-func (m *Mob) Died() {
-	Rooms[m.ParentId].MessageAll(m.Name + " dies.")
-	stringExp := strconv.Itoa(m.Experience)
-	for k := range m.ThreatTable {
-		Rooms[m.ParentId].Chars.Search(k, true).Write([]byte(text.Blue + "You earn " + stringExp + " for the defeat of the " + m.Name))
-		Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
-	}
-}f
 
 func (m *Mob) Look() string {
 	buildText := "You see a " + m.Name + ", " + config.TextTiers[m.Level] + " level. \n"

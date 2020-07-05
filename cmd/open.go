@@ -50,7 +50,7 @@ func (open) process(s *state) {
 	if s.actor.Flags["invisible"] == false {
 		who := s.actor.Name
 		s.msg.Actor.SendGood("You open ", name, ".")
-		s.msg.Observer.SendInfo(who, " opens ", name, ".")
+		s.msg.Observers.SendInfo(who, " opens ", name, ".")
 	}else{
 		s.msg.Actor.SendGood("You open ", name, ".")
 	}

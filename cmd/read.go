@@ -39,7 +39,7 @@ func (read) process(s *state) {
 	s.msg.Actor.Send("You study ", name, " and learn ")
 
 	who := s.actor.Name
-	s.msg.Observer.SendInfo("You see ", who, " read ", name, ".")
+	s.msg.Observers.SendInfo("You see ", who, " read ", name, ".")
 
 	s.ok = true
 }

@@ -25,7 +25,7 @@ func (act) process(s *state) {
 	action := strings.Join(s.input, " ")
 
 	s.msg.Actor.SendInfo(s.actor.Name, " ", action)
-	s.msg.Observer.SendInfo(s.actor.Name, " ", action)
+	s.msg.Observers.SendInfo(s.actor.Name, " ", action)
 
 	s.ok = true
 }

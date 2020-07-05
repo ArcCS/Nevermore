@@ -88,7 +88,7 @@ func (get) process(s *state) {
 		}
 
 		s.msg.Actor.SendGood("You get ", target.Name, " from ", where.Name, ".")
-		s.msg.Observer.SendInfo("You see ", s.actor.Name, " put ", target.Name, " into ", where.Name, ".")
+		s.msg.Observers.SendInfo("You see ", s.actor.Name, " put ", target.Name, " into ", where.Name, ".")
 	}else {
 		where := s.where
 
@@ -106,7 +106,7 @@ func (get) process(s *state) {
 
 
 		s.msg.Actor.SendGood("You take ", target.Name, ".")
-		s.msg.Observer.SendInfo("You see ", s.actor.Name, " take ", target.Name, ".")
+		s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", target.Name, ".")
 	}
 
 	s.ok = true

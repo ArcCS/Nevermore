@@ -10,6 +10,7 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"io"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -72,7 +73,7 @@ func (c *characterStats) Remove(character *objects.Character) {
 func (c *characterStats) Find(name string) *objects.Character {
 	c.Lock()
 	for _, p := range c.list {
-		if p.Name == name {
+		if strings.ToLower(p.Name) == strings.ToLower(name) {
 			c.Unlock()
 			return p
 		}

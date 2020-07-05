@@ -44,6 +44,8 @@ func CanWield(tier int, class int, max int) bool {
 
 // Exp to level weapon classes
 var WeaponExpLevels = map[int]int{
+	0: 0,
+	1: 500,
 	2: 1000,
 	3: 10000,
 	4: 100000,
@@ -79,26 +81,30 @@ var WeaponTitles = []string{
 
 func WeaponExpTitle(exp int) string {
 	switch {
-	case exp < WeaponExpLevels[0] && exp > 0:
+	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
 		return WeaponTitles[0]
-	case exp < WeaponExpLevels[1]:
+	case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
 		return WeaponTitles[1]
-	case exp < WeaponExpLevels[2]:
+	case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
 		return WeaponTitles[2]
-	case exp < WeaponExpLevels[3]:
+	case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
 		return WeaponTitles[3]
-	case exp < WeaponExpLevels[4]:
+	case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
 		return WeaponTitles[4]
-	case exp < WeaponExpLevels[5]:
+	case exp > WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
 		return WeaponTitles[5]
-	case exp < WeaponExpLevels[6]:
+	case exp > WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
 		return WeaponTitles[6]
-	case exp < WeaponExpLevels[7]:
+	case exp > WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
 		return WeaponTitles[7]
-	case exp < WeaponExpLevels[8]:
+	case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
 		return WeaponTitles[8]
-	case exp < WeaponExpLevels[9]:
+	case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
 		return WeaponTitles[9]
+	case exp > WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
+		return WeaponTitles[10]
+	case exp >= WeaponExpLevels[11]:
+		return WeaponTitles[11]
 	default:
 		return WeaponTitles[0]
 	}
@@ -106,26 +112,30 @@ func WeaponExpTitle(exp int) string {
 
 func WeaponLevel(exp int) int {
 	switch {
-	case exp < WeaponExpLevels[0] && exp > 0:
+	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
 		return 0
-	case exp < WeaponExpLevels[1]:
+	case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
 		return 1
-	case exp < WeaponExpLevels[2]:
+	case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
 		return 2
-	case exp < WeaponExpLevels[3]:
+	case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
 		return 3
-	case exp < WeaponExpLevels[4]:
+	case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
 		return 4
-	case exp < WeaponExpLevels[5]:
+	case exp > WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
 		return 5
-	case exp < WeaponExpLevels[6]:
+	case exp > WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
 		return 6
-	case exp < WeaponExpLevels[7]:
+	case exp > WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
 		return 7
-	case exp < WeaponExpLevels[8]:
+	case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
 		return 8
-	case exp < WeaponExpLevels[9]:
+	case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
 		return 9
+	case exp > WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
+		return 10
+	case exp >= WeaponExpLevels[11]:
+		return 11
 	default:
 		return 0
 	}

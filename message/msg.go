@@ -47,7 +47,7 @@ func (m *Msg) Allocate(where int, obsRooms []int) {
 			m.Observers[l] = AcquireBuffer()
 		}
 	}
-	m.Observer = m.Observers[where]
+
 }
 
 // Deallocate releases the references to message buffers for the actor,

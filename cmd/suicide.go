@@ -20,7 +20,7 @@ func (suicide) process(s *state) {
 	return
 	// Notify observers in same location
 	who := s.actor.Name
-	s.msg.Observer.SendInfo(who, " falls to the ground dead and vanishes complete.")
+	s.msg.Observers.SendInfo(who, " falls to the ground dead and vanishes complete.")
 
 
 	s.ok = true

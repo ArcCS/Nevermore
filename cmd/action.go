@@ -44,7 +44,7 @@ if !oa.Found() {
 if s.actor.UID() != what.UID() {
 	s.msg.Actor.SendInfo(oa.ActionText())
 }
-s.msg.Observer.SendInfo(oa.ActionText())
+s.msg.Observers.SendInfo(oa.ActionText())
 items.FindAction(what).Action()
 
 s.ok = true

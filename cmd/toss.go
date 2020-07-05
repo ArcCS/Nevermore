@@ -58,6 +58,6 @@ func (j toss) process(s *state) {
 	who := s.actor.Name
 
 	s.msg.Actor.SendGood("You toss away ", name, ".")
-	s.msg.Observer.SendInfo("You see ", who, " toss away ", name, ".")
+	s.msg.Observers.SendInfo("You see ", who, " toss away ", name, ".")
 	s.ok = true
 }

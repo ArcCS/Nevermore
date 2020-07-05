@@ -46,7 +46,7 @@ func (equip) process(s *state) {
 		s.actor.Inventory.Remove(what)
 		s.actor.Inventory.Unlock()
 		s.msg.Actor.SendGood("You equip " + what.Name)
-		s.msg.Observer.SendInfo(s.actor.Name + " equips " + what.Name)
+		s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.Name)
 		s.ok = true
 		return
 	}

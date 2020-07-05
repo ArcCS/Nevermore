@@ -17,7 +17,7 @@ func (bonus) process(s *state) {
 		return
 	}
 
-	s.msg.Observer.SendInfo("WIP")
+	s.msg.Actor.SendInfo("WIP")
 	s.ok = true
 	return
 }
