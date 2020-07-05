@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"math"
 	"math/rand"
 	"strconv"
@@ -167,23 +168,24 @@ func (m *Mob) Tick(){
 			Rooms[m.ParentId].WanderMob(m)
 		}
 
-		// Make sure the current target is still in the room and didn't flee
-		if !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true,  "", false)){
-			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
-			if len(potentials) > 0 {
-				rand.Seed(time.Now().Unix())
-				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget)
-			}
-		}
-
 		// Am I hostile?  Should I pick a target?
 		if m.CurrentTarget == "" && m.Flags["hostile"] {
 			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
 			if len(potentials) > 0 {
 				rand.Seed(time.Now().Unix())
 				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-				Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget)
+				m.AddThreatDamage(1, m.CurrentTarget)
+				Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset)
+			}
+		}
+
+		// Make sure the current target is still in the room and didn't flee
+		if !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true,  "", false)){
+			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
+			if len(potentials) > 0 {
+				rand.Seed(time.Now().Unix())
+				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
+				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset)
 			}
 		}
 
@@ -193,7 +195,7 @@ func (m *Mob) Tick(){
 			if m.CurrentTarget != rankedThreats[0] {
 				if utils.Roll(3, 1, 0) == 1 {
 					m.CurrentTarget = rankedThreats[0]
-					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget)
+					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset)
 				}
 			}
 		}
@@ -238,8 +240,23 @@ func (m *Mob) Tick(){
 					m.MobStunned = config.ParryStuns
 				}
 			}else{
-				actualDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
-				target.Write([]byte(text.Red + m.Name + " attacks you for " + strconv.Itoa(actualDamage) + " damage!"))
+				stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
+				log.Println(strconv.Itoa(stamDamage) + " Stam Damage " + strconv.Itoa(vitDamage) + " Vit damage")
+				buildString := ""
+				if stamDamage != 0 {
+					buildString += strconv.Itoa(stamDamage) + " stamina"
+				}
+				if stamDamage != 0 && vitDamage != 0 {
+					buildString += " and "
+				}
+				if vitDamage != 0 {
+					buildString += strconv.Itoa(vitDamage) + " vitality"
+				}
+				if stamDamage == 0 && vitDamage == 0 {
+					target.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!"))
+				}else {
+					target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!"))
+				}
 				if target.Vit.Current == 0 {
 					target.Died()
 				}
@@ -247,8 +264,18 @@ func (m *Mob) Tick(){
 		}else if m.CurrentTarget != "" && m.Flags["ranged"] &&
 				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1){
 			target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
-			actualDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
-			target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + strconv.Itoa(actualDamage) + " damage!"))
+			stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
+			buildString := ""
+			if stamDamage != 0 {
+				buildString += strconv.Itoa(stamDamage) + " stamina"
+			}
+			if stamDamage != 0 && vitDamage != 0 {
+				buildString += " and "
+			}
+			if vitDamage != 0 {
+				buildString += strconv.Itoa(vitDamage) + " vitality"
+			}
+			target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!"))
 			if target.Vit.Current == 0 {
 				target.Died()
 			}
@@ -309,7 +336,9 @@ func (m *Mob) RestoreMana(damage int){
 }
 
 func (m *Mob) InflictDamage() int {
-	return utils.Roll(m.SidesDice, m.NumDice, m.PlusDice)
+	damage := utils.Roll(m.SidesDice, m.NumDice, m.PlusDice)
+	log.Println(damage)
+	return damage
 }
 
 func (m *Mob) CastSpell(spell string) bool {
@@ -317,13 +346,13 @@ func (m *Mob) CastSpell(spell string) bool {
 }
 
 func (m *Mob) Died() {
-	Rooms[m.ParentId].MessageAll(m.Name + "dies.")
+	Rooms[m.ParentId].MessageAll(m.Name + " dies.")
 	stringExp := strconv.Itoa(m.Experience)
 	for k := range m.ThreatTable {
 		Rooms[m.ParentId].Chars.Search(k, true).Write([]byte(text.Blue + "You earn " + stringExp + " for the defeat of the " + m.Name))
 		Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
 	}
-}
+}f
 
 func (m *Mob) Look() string {
 	buildText := "You see a " + m.Name + ", " + config.TextTiers[m.Level] + " level. \n"

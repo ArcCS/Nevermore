@@ -4,7 +4,7 @@ import "github.com/ArcCS/Nevermore/permissions"
 
 // Syntax: WHO
 func init() {
-	addHandler(who{},
+	addHandler(save{},
            "Usage:  Commit your current character state to the db.",
            permissions.Player,
            "SAVE")

@@ -118,8 +118,8 @@ func CreateChar(charData map[string]interface{}) bool {
 		"a.thrustexp = 0," +
 		"a.missileexp = 0," +
 		"a.spells = ''," +
-		"a.equipment = []," +
-		"a.inventory = []," +
+		"a.equipment = '[]'," +
+		"a.inventory = '[]'," +
 		"a.experience = 0, " +
 		"a.invisible = 0, " +
 		"a.darkvision = 0, " +

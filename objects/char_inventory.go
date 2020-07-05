@@ -78,10 +78,10 @@ func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude strin
 
 	for _, o := range i.Contents {
 		// List all
-		if o.Name != exclude {
+		if strings.ToLower(o.Name) != strings.ToLower(exclude) {
 			if (seeInvisible && ignoreHidden) || gm {
 				items = append(items, o.Name)
-			// List non-hiddens
+				// List non-hiddens
 			} else if seeInvisible {
 				if o.Flags["hidden"] != true {
 					items = append(items, o.Name)
@@ -90,13 +90,13 @@ func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude strin
 				if o.Flags["invisible"] != true {
 					items = append(items, o.Name)
 				}
-			}
 			} else {
 				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
 					items = append(items, o.Name)
 				}
 			}
 		}
+	}
 	return items
 	}
 

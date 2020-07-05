@@ -19,6 +19,11 @@ func init() {
 type kill cmd
 
 func (kill) process(s *state) {
+	if len(s.input) < 1 {
+		s.msg.Actor.SendBad("Attack what exactly?")
+		return
+	}
+
 	name := s.input[0]
 	nameNum := 1
 
@@ -41,14 +46,13 @@ func (kill) process(s *state) {
 		}
 
 		// Shortcut a missing weapon:
-		if s.actor.Equipment.Main == nil && s.actor.Class != 7 {
+		if s.actor.Equipment.Main == nil && s.actor.Class != 0 {
 			s.msg.Actor.SendBad("You have no weapon to attack with.")
 			return
 		}
 
 		if _, err := whatMob.ThreatTable[s.actor.Name]; err {
 			s.msg.Actor.Send(text.White + "You engaged " + whatMob.Name + " #" + strconv.Itoa(s.where.Mobs.GetNumber(whatMob)) + " in combat.")
-			whatMob.AddThreatDamage(0, s.actor.Name)
 		}
 
 		// Shortcut target not being in the right location, check if it's a missile weapon, or that they are placed right.
@@ -62,7 +66,7 @@ func (kill) process(s *state) {
 			1.0,
 		}
 
-		skillLevel := config.WeaponLevel(s.actor.Equipment.Main.ItemType)
+		skillLevel := config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value)
 
 		// Kill is really the fighters realm for specialty..
 		if s.actor.Permission.HasAnyFlags(permissions.Fighter) {
@@ -106,20 +110,22 @@ func (kill) process(s *state) {
 			//TODO: Parry/Miss?
 			if config.RollCritical(skillLevel) {
 				mult *= float64(config.CombatModifiers["critical"])
-				s.msg.Actor.SendGood("Crital Strike!")
+				s.msg.Actor.SendGood("Critical Strike!")
 				// TODO: Something something shattered weapons something or other
 			}else if config.RollDouble(skillLevel) {
 				mult *= float64(config.CombatModifiers["double"])
 				s.msg.Actor.SendGood("Double Damage!")
 			}
 			actualDamage := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
-			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!")
+			whatMob.AddThreatDamage(actualDamage, s.actor.Name)
+			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			if whatMob.Stam.Current <= 0 {
-				s.msg.Actor.SendInfo("You killed  " + whatMob.Name)
-				s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name)
+				s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
+				s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
 				whatMob.Died()
 				objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
 			}
+			return
 		}
 
 	}

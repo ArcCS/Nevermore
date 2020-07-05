@@ -248,7 +248,7 @@ func (r *Room) MessageVisible(Message string){
 	// Message all the characters in this room
 	for _, chara := range r.Chars.Contents{
 		// Check invisible detection
-		visDetect, err := chara.Flags["detect_invisible"]; if err {
+		visDetect, err := chara.Flags["detect_invisible"]; if !err {
 			continue
 		}
 		if visDetect || chara.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
@@ -260,13 +260,7 @@ func (r *Room) MessageVisible(Message string){
 func (r *Room) MessageMovement(previous int, new int, subject string){
 	// Message all the characters in this room
 	for _, chara := range r.Chars.Contents{
-		// Check invisible detection
-		visDetect, err := chara.Flags["detect_invisible"]; if err {
-			continue
-		}
-		if visDetect || chara.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			chara.WriteMovement(previous, new, subject)
-		}
+		chara.WriteMovement(previous, new, subject)
 	}
 }
 

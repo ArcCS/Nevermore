@@ -90,6 +90,7 @@ func (e *Equipment) Equip(item *Item) (ok bool){
 	if item.ItemType == 23 && e.Off == nil { e.Off = item; ok=true }  //shield",
 	if item.ItemType == 24 && (e.Ring1 == nil || e.Ring2 == nil) { if e.Ring1 == nil { e.Ring1 = item } else { e.Ring2 = item}; ok=true }  //finger",
 	if item.ItemType == 25 && e.Head == nil { e.Head = item; ok=true }  //head",
+	if item.ItemType == 26 && e.Hands == nil { e.Hands = item; ok=true }  //hands",
 	if item.ItemType == 0 && e.Main == nil { e.Main = item; ok=true }  //sharp",
 	if item.ItemType == 1 && e.Main == nil { e.Main = item; ok=true }  //thrust",
 	if item.ItemType == 2 && e.Main == nil { e.Main = item; ok=true }  //blunt",
@@ -152,20 +153,20 @@ func (e *Equipment) Jsonify() string {
 }
 
 func RestoreEquipment(jsonString string) *Equipment{
-	var obj interface{}
+	obj := make([]map[string]interface{}, 0)
 	NewEquipment := &Equipment{}
 	err := json.Unmarshal([]byte(jsonString), &obj)
 	if err != nil {
 		return NewEquipment
 	}
-	for _, item := range obj.([]map[string]interface{}) {
+	for _, item := range obj {
 		newItem := Item{}
-		copier.Copy(&newItem, Items[item["itemId"].(int)])
+		copier.Copy(&newItem, Items[int(item["itemId"].(float64))])
 		newItem.Name = item["name"].(string)
-		newItem.MaxUses	= item["uses"].(int)
-		newItem.Flags["magic"] = item["magic"].(int) != 0
+		newItem.MaxUses	= int(item["uses"].(float64))
+		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
 		newItem.Spell = item["spell"].(string)
-		newItem.Armor =	item["armor"].(int)
+		newItem.Armor =	int(item["armor"].(float64))
 		NewEquipment.Equip(&newItem)
 	}
 	return NewEquipment

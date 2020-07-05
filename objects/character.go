@@ -7,7 +7,9 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
 	"io"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -301,8 +303,8 @@ const (
 
 func (c *Character) Tick(){
 	//_,_ = c.Write([]byte(text.Good + "Your Ticker Executed Here!"))
-	// The tick is affected by all things around the character and any currently applied effects
-	if Rooms[c.ParentId].Flags["heal_fast"] {
+	// TODO: Fix Tick, The tick is affected by all things around the character and any currently applied effects
+	/* if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Stam.Add(c.Con.Current * 2)
 		c.Vit.Add(c.Con.Current * 2)
 		c.Mana.Add(c.Pie.Current * 2)
@@ -310,7 +312,7 @@ func (c *Character) Tick(){
 		c.Stam.Add(c.Con.Current)
 		c.Mana.Add(c.Pie.Current)
 	}
-
+	*/
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
 		// Process Removing the effect
@@ -363,27 +365,84 @@ func (c *Character) RemoveEffect(effect string){
 	return
 }
 
-
-func (c *Character) ReceiveDamage(damage int) int{
-	finalDamage := math.Ceil(float64(damage) * (1 - (float64(c.Equipment.Armor/config.ArmorReductionPoints)*config.ArmorReduction)))
-	c.Stam.Subtract(int(finalDamage))
-	return int(finalDamage)
+// Return stam and vital damage
+func (c *Character) ReceiveDamage(damage int) (int, int){
+	stamDamage, vitalDamage := 0, 0
+	//log.Println("Incoming damage: " + strconv.Itoa(damage))
+	resist := int(math.Ceil(float64(damage) * (float64(c.Equipment.Armor/config.ArmorReductionPoints)*config.ArmorReduction)))
+	//log.Println("Resisting: " + strconv.Itoa(resist))
+	finalDamage := damage - resist
+	log.Println(finalDamage)
+	if finalDamage > c.Stam.Current {
+		stamDamage = c.Stam.Current
+		vitalDamage = finalDamage - stamDamage
+		c.Stam.Current = 0
+		if vitalDamage > c.Vit.Current {
+			vitalDamage = c.Vit.Current
+			c.Vit.Current = 0
+		}
+	}else {
+		c.Stam.Subtract(finalDamage)
+		stamDamage = finalDamage
+		vitalDamage = 0
+	}
+	return stamDamage, vitalDamage
 }
 
-func (c *Character) ReceiveVitalDamage(damage int){
-
+func (c *Character) ReceiveVitalDamage(damage int) int{
+	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(c.Equipment.Armor/config.ArmorReductionPoints)*config.ArmorReduction))))
+	if finalDamage > c.Vit.Current {
+		finalDamage = c.Vit.Current
+		c.Vit.Current = 0
+	}else {
+		c.Vit.Subtract(finalDamage)
+	}
+	return finalDamage
 }
 
-func (c *Character) ReceiveMagicDamage(damage int){
-
+func (c *Character) ReceiveMagicDamage(damage int) (int, int){
+	//TODO Calculate some magic resistance damage
+	return c.ReceiveDamage(damage)
 }
 
-func (c *Character) Heal(damage int){
-	return
+func (c *Character) Heal(damage int) (int,int){
+	stamHeal, vitalHeal := 0, 0
+	if damage > (c.Vit.Max - c.Vit.Current) {
+		vitalHeal = c.Vit.Max - c.Vit.Current
+		c.Vit.Current = c.Vit.Max
+		stamHeal = damage - vitalHeal
+		if stamHeal > (c.Stam.Max - c.Stam.Current) {
+			stamHeal = c.Stam.Max - c.Stam.Current
+			c.Stam.Current = c.Stam.Max
+		}else{
+			c.Stam.Add(stamHeal)
+		}
+	}else {
+		c.Vit.Add(damage)
+	}
+	return stamHeal, vitalHeal
 }
 
-func (c *Character) HealVital(damage int){
+func (c *Character) HealVital(damage int) int{
+	vitalHeal := 0
+	if damage > (c.Vit.Max - c.Vit.Current) {
+		vitalHeal = c.Vit.Max - c.Vit.Current
+		c.Vit.Current = c.Vit.Max
+	}else {
+		c.Vit.Add(damage)
+	}
+	return vitalHeal
+}
 
+func (c *Character) HealStam(damage int) int{
+	stamHeal := 0
+	if damage > (c.Stam.Max - c.Stam.Current) {
+		stamHeal = c.Stam.Max - c.Stam.Current
+		c.Stam.Current = c.Stam.Max
+	}else {
+		c.Stam.Add(damage)
+	}
+	return stamHeal
 }
 
 func (c *Character) RestoreMana(damage int){
@@ -391,7 +450,13 @@ func (c *Character) RestoreMana(damage int){
 }
 
 func (c *Character) InflictDamage() (damage int){
-	return 0
+	//TODO: Monks need to not worry about weapons
+	damage = utils.Roll(c.Equipment.Main.SidesDice,
+						c.Equipment.Main.NumDice,
+						c.Equipment.Main.PlusDice)
+
+	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod*float64(c.Str.Current))))
+	return damage
 }
 
 func (c *Character) CastSpell(spell string) bool {

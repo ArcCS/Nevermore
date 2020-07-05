@@ -10,6 +10,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/message"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/stats"
 )
 
@@ -40,7 +41,13 @@ func (g *game) gameInit() {
 	if _, ok := objects.Rooms[g.character.ParentId]; !ok {
 		g.character.ParentId = config.StartingRoom
 	}
-	g.character.Permission.ToggleFlag(g.permissions)
+	if g.character.Class == 100 {
+		g.character.Permission.ToggleFlag(g.permissions)
+	}else{
+		g.character.Permission.ToggleFlag(permissions.Anyone)
+		g.character.Permission.ToggleFlag(permissions.Player)
+		g.character.Permission.ToggleFlag(config.ClassPerms[g.character.Class])
+	}
 	objects.Rooms[g.character.ParentId].Chars.Lock()
 	objects.Rooms[g.character.ParentId].Chars.Add(g.character)
 	stats.ActiveCharacters.Add(g.character, g.remoteAddr)

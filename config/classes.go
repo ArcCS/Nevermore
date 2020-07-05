@@ -1,9 +1,22 @@
 package config
 
+import "github.com/ArcCS/Nevermore/permissions"
+
 var AvailableClasses = make([]string, 9)
+var ClassPerms = make([]permissions.Permissions, 9)
 
 func init(){
 	AvailableClasses[0] = "fighter"
+	//AvailableClasses[1] = "barbarian"
+	//AvailableClasses[2] = "thief"
+	//AvailableClasses[3] = "ranger"
+	//AvailableClasses[4] = "mage"
+	//AvailableClasses[5] = "cleric"
+	//AvailableClasses[6] = "paladin"
+	//AvailableClasses[7] = "monk"
+	//AvailableClasses[8] = "bard"
+
+	ClassPerms[0] = permissions.Fighter
 	//AvailableClasses[1] = "barbarian"
 	//AvailableClasses[2] = "thief"
 	//AvailableClasses[3] = "ranger"

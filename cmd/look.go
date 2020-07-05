@@ -115,16 +115,16 @@ func (look) process(s *state) {
 			config.TextPosPronoun[whatChar.Gender],
 			"is",
 			"has",
-			s.actor.Equipment.GetText("chest"),
-			s.actor.Equipment.GetText("neck"),
-			s.actor.Equipment.GetText("main"),
-			s.actor.Equipment.GetText("off"),
-			s.actor.Equipment.GetText("arms"),
-			s.actor.Equipment.GetText("ring1"),
-			s.actor.Equipment.GetText("ring2"),
-			s.actor.Equipment.GetText("legs"),
-			s.actor.Equipment.GetText("feet"),
-			s.actor.Equipment.GetText("head"),
+			whatChar.Equipment.GetText("chest"),
+			whatChar.Equipment.GetText("neck"),
+			whatChar.Equipment.GetText("main"),
+			whatChar.Equipment.GetText("off"),
+			whatChar.Equipment.GetText("arms"),
+			whatChar.Equipment.GetText("ring1"),
+			whatChar.Equipment.GetText("ring2"),
+			whatChar.Equipment.GetText("legs"),
+			whatChar.Equipment.GetText("feet"),
+			whatChar.Equipment.GetText("head"),
 		}
 
 		tmpl, _ := template.New("char_info").Parse(equip_template)
@@ -194,6 +194,15 @@ func (look) process(s *state) {
 	// It was on you the whole time
 	if what != nil {
 		s.msg.Actor.SendInfo("You examine " + what.Name)
+		s.msg.Actor.SendInfo(what.Look())
+		return
+	}
+
+	what = s.actor.Equipment.Search(name)
+
+	// Check your equipment
+	if what != nil {
+		s.msg.Actor.SendInfo("You examine your equipped " + what.Name)
 		s.msg.Actor.SendInfo(what.Look())
 		return
 	}else{

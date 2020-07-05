@@ -22,6 +22,7 @@ var Server = struct {
 	MaxCharacters  int			// Maximum number of characters
 	SearchResults int		// Max search results
 	Running	bool
+	CreateChars bool
 }{
 	Host:           "127.0.0.1",
 	DBUname:		"USERNAME",
@@ -36,6 +37,7 @@ var Server = struct {
 	MaxCharacters:  20,
 	SearchResults: 15,
 	Running: true,
+	CreateChars: true,
 }
 
 // Stats default configuration

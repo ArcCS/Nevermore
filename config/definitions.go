@@ -27,4 +27,5 @@ var ItemTypes = map[int]string{
 	23: "shield",
 	24: "finger",
 	25: "head",
+	26: "hands",
 }

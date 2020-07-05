@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 )
 
@@ -32,11 +34,18 @@ func (equip) process(s *state) {
 
 	what := s.actor.Inventory.Search(name, nameNum)
 	if what != nil {
+		if utils.IntIn(what.ItemType, []int{0, 1, 2, 3, 4}) &&
+			!s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			if !config.CanWield(s.actor.Tier, s.actor.Class, utils.RollMax(what.SidesDice, what.NumDice, what.PlusDice)) {
+				s.msg.Actor.SendBad("You are not well enough trained to wield " + what.Name)
+				return
+			}
+		}
 		s.actor.Inventory.Lock()
 		s.actor.Equipment.Equip(what)
 		s.actor.Inventory.Remove(what)
 		s.actor.Inventory.Unlock()
-		s.msg.Actor.SendGood("You put on " + what.Name)
+		s.msg.Actor.SendGood("You equip " + what.Name)
 		s.msg.Observer.SendInfo(s.actor.Name + " equips " + what.Name)
 		s.ok = true
 		return

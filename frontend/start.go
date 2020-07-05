@@ -45,6 +45,11 @@ func (m *start) startDisplay() {
 	m.powerCharacter, _ = data.ListPowerChar(m.account)
 	var output strings.Builder
 	m.optionEnd = 2
+	charOption := ` X. Make a new character `
+	if config.Server.CreateChars {
+		charOption = ` 1. Make a new character `
+	}
+
 	output.WriteString(text.White + `
  Message of the Day: 
 ` + config.Server.Motd + text.Good +`
@@ -52,9 +57,8 @@ func (m *start) startDisplay() {
 =========
  Choose an action:
  ---------
- 0. Quit
- X. Make a new character
- 2. Change account password
+ 0. Quit` + "\n" + charOption + "\n" +
+` 2. Change account password
 `)
 	if m.permissions.HasFlag(permissions.Gamemaster) {
 		if m.powerCharacter == "" {
@@ -95,8 +99,11 @@ func (m *start) startProcess() {
 	case "":
 		return
 	case "1":
-		m.buf.Send(text.Bad, "New character creation is disabled at this time.", text.Reset)
-		//NewCharacter(m.frontend)
+		if config.Server.CreateChars {
+			NewCharacter(m.frontend)
+		} else{
+			m.buf.Send(text.Bad, "New character creation is disabled at this time.", text.Reset)
+		}
 	case "0":
 		m.Close()
 	case "2":

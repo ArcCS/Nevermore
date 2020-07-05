@@ -3,32 +3,43 @@ package config
 
 // Max Damage
 var MaxWeaponDamage = map[int]int{
-	1: 5,
-	2: 10,
-	3: 15,
-	4: 20,
-	5: 25,
-	6: 30,
-	7: 35,
-	8: 40,
-	9: 45,
-	10: 50,
-	11: 55,
-	12: 60,
-	13: 65,
-	14: 70,
-	15: 75,
-	16: 80,
-	17: 85,
-	18: 90,
-	19: 95,
-	20: 100,
-	21: 105,
-	22: 110,
-	23: 115,
-	24: 120,
-	25: 125,
-	26: 130,
+	1: 15,
+	2: 20,
+	3: 25,
+	4: 30,
+	5: 35,
+	6: 40,
+	7: 45,
+	8: 50,
+	9: 55,
+	10: 60,
+	11: 65,
+	12: 70,
+	13: 75,
+	14: 80,
+	15: 85,
+	16: 90,
+	17: 95,
+	18: 100,
+	19: 105,
+	20: 110,
+	21: 115,
+	22: 120,
+	23: 125,
+	24: 130,
+	25: 135,
+	26: 140,
+}
+
+// Quick Function to check if character can wield
+func CanWield(tier int, class int, max int) bool {
+	if class==0 {
+		tier += 1
+	}
+	if max < MaxWeaponDamage[tier] {
+		return true
+	}
+	return false
 }
 
 // Exp to level weapon classes

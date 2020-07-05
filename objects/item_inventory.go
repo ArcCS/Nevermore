@@ -136,20 +136,20 @@ func (i *ItemInventory) Jsonify() string {
 }
 
 func RestoreInventory(jsonString string) *ItemInventory {
-	var obj interface{}
+	obj := make([]map[string]interface{}, 0)
 	NewInventory := &ItemInventory{}
 	err := json.Unmarshal([]byte(jsonString), &obj)
 	if err != nil {
 		return NewInventory
 	}
-	for _, item := range obj.([]map[string]interface{}) {
+	for _, item := range obj {
 		newItem := Item{}
-		copier.Copy(&newItem, Items[item["itemId"].(int)])
+		copier.Copy(&newItem, Items[int(item["itemId"].(float64))])
 		newItem.Name = item["name"].(string)
-		newItem.MaxUses	= item["uses"].(int)
-		newItem.Flags["magic"] = item["magic"].(int) != 0
+		newItem.MaxUses	= int(item["uses"].(float64))
+		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
 		newItem.Spell = item["spell"].(string)
-		newItem.Armor =	item["armor"].(int)
+		newItem.Armor =	int(item["armor"].(float64))
 		if newItem.ItemType == 9 {
 			newItem.Storage = RestoreInventory(item["contents"].(string))
 		}
