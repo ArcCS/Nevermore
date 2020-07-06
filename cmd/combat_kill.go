@@ -24,6 +24,12 @@ func (kill) process(s *state) {
 		return
 	}
 
+	// Check some timers
+	ready, msg := s.actor.TimerReady("combat")
+	if !ready {
+		s.msg.Actor.SendBad(msg)
+		return
+	}
 	name := s.input[0]
 	nameNum := 1
 
@@ -51,8 +57,9 @@ func (kill) process(s *state) {
 			return
 		}
 
-		if _, err := whatMob.ThreatTable[s.actor.Name]; err {
+		if _, err := whatMob.ThreatTable[s.actor.Name]; !err {
 			s.msg.Actor.Send(text.White + "You engaged " + whatMob.Name + " #" + strconv.Itoa(s.where.Mobs.GetNumber(whatMob)) + " in combat.")
+			whatMob.AddThreatDamage(0, s.actor.Name)
 		}
 
 		// Shortcut target not being in the right location, check if it's a missile weapon, or that they are placed right.
@@ -79,7 +86,7 @@ func (kill) process(s *state) {
 				//TODO Calculate experience
 				stringExp := strconv.Itoa(whatMob.Experience)
 				for k := range whatMob.ThreatTable {
-					s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+					s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
 					s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
 				}
 				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
@@ -130,11 +137,10 @@ func (kill) process(s *state) {
 			if whatMob.Stam.Current <= 0 {
 				s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
 				s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
-				// Mob died
 				//TODO Calculate experience
 				stringExp := strconv.Itoa(whatMob.Experience)
 				for k := range whatMob.ThreatTable {
-					s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+					s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
 					s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
 				}
 				s.msg.Observers.SendInfo(whatMob.Name + " dies.")

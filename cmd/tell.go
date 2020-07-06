@@ -11,7 +11,7 @@ func init() {
 	addHandler(tell{},
            "Usage:  send character_name \n \n Send a telepathic message to another player",
            permissions.Player,
-           "TELL")
+           "TELL", "SEND")
 }
 
 type tell cmd
@@ -22,7 +22,7 @@ func (tell) process(s *state) {
 		return
 	}
 	whoStr := s.words[0]
-	message := strings.Join(s.words[1:], " ")
+	message := strings.Join(s.input[1:], " ")
 	who := stats.ActiveCharacters.Find(whoStr)
 	if who != nil {
 		stats.ActiveCharacters.Lock()

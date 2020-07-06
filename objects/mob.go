@@ -175,7 +175,7 @@ func (m *Mob) Tick(){
 				rand.Seed(time.Now().Unix())
 				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
 				m.AddThreatDamage(1, m.CurrentTarget)
-				Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset)
+				Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
 			}
 		}
 
@@ -185,7 +185,7 @@ func (m *Mob) Tick(){
 			if len(potentials) > 0 {
 				rand.Seed(time.Now().Unix())
 				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset)
+				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
 			}
 		}
 
@@ -233,7 +233,7 @@ func (m *Mob) Tick(){
 						Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
 						stringExp := strconv.Itoa(m.Experience)
 						for k := range m.ThreatTable {
-							Rooms[m.ParentId].Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " for the defeat of the " + m.Name + "\n" + text.Reset))
+							Rooms[m.ParentId].Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
 							Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
 						}
 						Rooms[m.ParentId].MessageAll(m.Name + " dies.")
