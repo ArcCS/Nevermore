@@ -29,7 +29,7 @@ func (equipment) process(s *state) {
 	" {{if .Finger2}}\n{{.Sub_pronoun}} {{.HasHave}} a {{.Finger2}} on {{.Pos_pronoun}} finger.{{end}}" +
 	" {{if .Legs}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Legs}} on {{.Pos_pronoun}} legs.{{end}}" +
 	" {{if .Feet}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Feet}} on {{.Pos_pronoun}} feet.{{end}}" +
- " {{if .Head}}\n{{.Sub_pronoun}} {{.Isare}} wearing a {{.Head}}.{{end}}" +
+ " {{if .Head}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Head}}.{{end}}" +
 	text.Reset
 
 	data := struct {

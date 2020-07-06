@@ -42,11 +42,16 @@ func (equip) process(s *state) {
 			}
 		}
 		s.actor.Inventory.Lock()
-		s.actor.Equipment.Equip(what)
-		s.actor.Inventory.Remove(what)
+		if s.actor.Equipment.Equip(what) {
+			s.msg.Actor.SendGood("You equip " + what.Name)
+			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.Name)
+			s.actor.Inventory.Remove(what)
+		}else{
+			s.msg.Actor.SendBad("You already have something equipped there.")
+		}
+
 		s.actor.Inventory.Unlock()
-		s.msg.Actor.SendGood("You equip " + what.Name)
-		s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.Name)
+
 		s.ok = true
 		return
 	}

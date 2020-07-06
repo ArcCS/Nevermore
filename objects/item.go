@@ -1,6 +1,9 @@
 package objects
 
-import "github.com/ArcCS/Nevermore/utils"
+import (
+	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/utils"
+)
 
 type Item struct {
 	Object
@@ -12,7 +15,6 @@ type Item struct {
 	NumDice      int
 	PlusDice     int
 	SidesDice    int
-	WeaponSpeed  int
 	Armor        int
 	MaxUses      int
 	Value        int
@@ -43,7 +45,6 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 		int(itemData["ndice"].(int64)),
 		int(itemData["pdice"].(int64)),
 		int(itemData["sdice"].(int64)),
-		int(itemData["weapon_speed"].(int64)),
 		int(itemData["armor"].(int64)),
 		int(itemData["max_uses"].(int64)),
 		int(itemData["value"].(int64)),
@@ -87,7 +88,26 @@ func (i *Item) ToggleFlag(flagName string) bool {
 }
 
 func (i *Item) Save() {
-	// TODO: Invoke a static save as a new item
+	itemData := make(map[string]interface{})
+	itemData["item_id"] = i.ItemId
+	itemData["ndice"] = i.NumDice
+	itemData["weight"] = i.Weight
+	itemData["description"] = i.Description
+	itemData["type"] = i.ItemType
+	itemData["pdice"] = i.PlusDice
+	itemData["armor"] = i.Armor
+	itemData["max_uses"] = i.MaxUses
+	itemData["name"] = i.Name
+	itemData["sdice"]  = i.SidesDice
+	itemData["value"] = i.Value
+	itemData["spell"] = i.Spell
+	itemData["always_crit"] = utils.Btoi(i.Flags["always_crit"])
+	itemData["permanent"] = utils.Btoi(i.Flags["permanent"])
+	itemData["magic"] = utils.Btoi(i.Flags["magic"])
+	itemData["light"] = utils.Btoi(i.Flags["light"])
+	itemData["no_take"] = utils.Btoi(i.Flags["no_take"])
+	itemData["weightless_chest"] = utils.Btoi(i.Flags["weightless_chest"])
+	data.UpdateItem(itemData)
 	return
 }
 

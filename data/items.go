@@ -46,7 +46,7 @@ func LoadItem(itemId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	conn, _ := getConn()
 	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (i:item} WHERE i.item_id={itemId} RETURN " +
+	data, _, _, rtrap := conn.QueryNeoAll("MATCH (i:item) WHERE i.item_id={itemId} RETURN " +
 	`{creator:i.creator,
 	item_id:i.item_id,
 	ndice:i.ndice,
@@ -129,28 +129,25 @@ func UpdateItem(itemData map[string]interface{})  bool {
 	defer conn.Close()
 	result, rtrap := conn.ExecNeo(
 		"MATCH (i:item) WHERE i.item_id={item_id} SET " +
-		`r.creator = {creator},
-		r.item_id = {item_id},
-		r.ndice = {ndice},
-		r.weight = {weight},
-		r.description = {description},
-		r.weapon_speed = {weapon_speed},
-		r.type = {type},
-		r.pdice = {pdice},
-		r.armor = {armor},
-		r.max_uses = {max_uses},
-		r.name = {name},
-		r.sdice = {sdice},
-		r.value = {value},
-		r.spell = {spell},
-		r.always_crit = {always_crit}
-		r.permanent = {permanent},
-		r.no_take = {no_take},
-		r.light = {light},
-		r.weightless_chest = {weightless_chest},
-		r.magic = {magic}`,
+		`i.ndice = {ndice},
+		i.weight = {weight},
+		i.description = {description},
+		i.weapon_speed = {weapon_speed},
+		i.type = {type},
+		i.pdice = {pdice},
+		i.armor = {armor},
+		i.max_uses = {max_uses},
+		i.name = {name},
+		i.sdice = {sdice},
+		i.value = {value},
+		i.spell = {spell},
+		i.always_crit = {always_crit},
+		i.permanent = {permanent},
+		i.no_take = {no_take},
+		i.light = {light},
+		i.weightless_chest = {weightless_chest},
+		i.magic = {magic}`,
 		map[string]interface {}{
-			"creator": itemData["creator"],
 			"item_id": itemData["item_id"],
 			"ndice": itemData["ndice"],
 			"weight": itemData["weight"],

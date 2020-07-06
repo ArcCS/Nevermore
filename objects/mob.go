@@ -318,6 +318,14 @@ func (m *Mob) RemoveEffect(effect string){
 	return
 }
 
+func (m *Mob) ToggleFlag(flagName string) bool {
+	if val, exists := m.Flags[flagName]; exists {
+		m.Flags[flagName] = !val
+		return true
+	} else {
+		return false
+	}
+}
 
 func (m *Mob) ReceiveDamage(damage int) int {
 	//TODO: Review the numbers for armor here

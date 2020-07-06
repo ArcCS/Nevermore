@@ -122,6 +122,201 @@ func (edit) process(s *state) {
 		}
 
 		return
+
+	// Handle Items
+	case "item":
+		// Toggle Flags
+		itemName := s.input[2]
+		item := s.actor.Inventory.Search(itemName, 1)
+
+		if item != nil {
+			if strings.ToLower(s.input[1]) == "toggle" {
+				for _, flag := range s.input[3:] {
+					if item.ToggleFlag(strings.ToLower(flag)) {
+						s.msg.Actor.SendGood("Toggled " + flag)
+					} else {
+						s.msg.Actor.SendBad("Failed to toggle " + flag + ".  Is it an actual flag?")
+					}
+				}
+
+				// Set a variable
+			} else {
+				switch strings.ToLower(s.input[1]) {
+				case "description":
+					item.Description = strings.Join(s.input[3:], " ")
+					s.msg.Actor.SendGood("Description changed.")
+				case "name":
+					item.Name = strings.Join(s.input[3:], " ")
+					s.msg.Actor.SendGood("Name changed.")
+				case "spell":
+					item.Name = s.input[3]
+					s.msg.Actor.SendGood("Spell changed.")
+				case "weight":
+					weight, _ :=  strconv.Atoi(s.words[3])
+					item.Weight = weight
+					s.msg.Actor.SendGood("Change weight")
+				case "type":
+					types, err :=  strconv.Atoi(s.words[3])
+					if err != nil {
+						s.msg.Actor.SendBad("Type must be an integer, use command 'types' to print types.")
+						return
+					}
+					item.ItemType = types
+					s.msg.Actor.SendGood("Changed types.")
+				case "value":
+					value, _ :=  strconv.Atoi(s.words[3])
+					item.Value = value
+					s.msg.Actor.SendGood("Changed value")
+				case "ndice":
+					value, _ :=  strconv.Atoi(s.words[3])
+					item.NumDice = value
+					s.msg.Actor.SendGood("Changed number of dice")
+				case "armor":
+					value, _ :=  strconv.Atoi(s.words[3])
+					item.Armor = value
+					s.msg.Actor.SendGood("Changed armor value")
+				case "pdice":
+					value, _ :=  strconv.Atoi(s.words[3])
+					item.PlusDice = value
+					s.msg.Actor.SendGood("Changed plus dice")
+				case "sdice":
+					value, _ :=  strconv.Atoi(s.words[3])
+					item.SidesDice	 = value
+					s.msg.Actor.SendGood("Changed sides of dice")
+				case "max_uses":
+					value, _ :=  strconv.Atoi(s.words[3])
+					item.MaxUses = value
+					s.msg.Actor.SendGood("Changed max_uses")
+				/*case "placement":
+					intKey, _ :=  strconv.Atoi(s.words[3])
+					if intKey >= 1 && intKey <= 5 {
+						exit.KeyId = intKey
+						s.msg.Actor.SendGood("Changed placement")
+					}else{
+						s.msg.Actor.SendBad("Placement Id not valid. ")
+					}*/
+				default:
+					s.msg.Actor.SendBad("Property not found.")
+				}
+			}
+			item.Save()
+		} else {
+			s.msg.Actor.SendBad("Exit not found.")
+		}
+
+		return
+
+	// Handle Mobs
+	case "mob":
+		// Toggle Flags
+		mobName := s.input[2]
+		mob := s.where.Mobs.Search(mobName, 1, true)
+
+		if mob != nil {
+			if strings.ToLower(s.input[1]) == "toggle" {
+				for _, flag := range s.input[3:] {
+					if mob.ToggleFlag(strings.ToLower(flag)) {
+						s.msg.Actor.SendGood("Toggled " + flag)
+					} else {
+						s.msg.Actor.SendBad("Failed to toggle " + flag + ".  Is it an actual flag?")
+					}
+				}
+
+				// Set a variable
+			} else {
+				switch strings.ToLower(s.input[1]) {
+				case "description":
+					mob.Description = strings.Join(s.input[3:], " ")
+					s.msg.Actor.SendGood("Description changed.")
+				case "name":
+					mob.Name = strings.Join(s.input[3:], " ")
+					s.msg.Actor.SendGood("Name changed.")
+				case "level":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Level = value
+					s.msg.Actor.SendGood("Change level")
+				case "experience":
+					types, _ :=  strconv.Atoi(s.words[3])
+					mob.Experience = types
+					s.msg.Actor.SendGood("Changed experience value.")
+				case "gold":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Gold = value
+					s.msg.Actor.SendGood("Changed amount of gold dropped.")
+				case "con":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Con.Current = value
+					s.msg.Actor.SendGood("Changed constitution")
+				case "int":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Int.Current = value
+					s.msg.Actor.SendGood("Changed intelligence")
+				case "str":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Str.Current = value
+					s.msg.Actor.SendGood("Changed strength")
+				case "dex":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Dex.Current = value
+					s.msg.Actor.SendGood("Changed dexterity")
+				case "pie":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Pie.Current = value
+					s.msg.Actor.SendGood("Changed piety")
+				case "mana":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Mana.Max = value
+					s.msg.Actor.SendGood("Changed mana")
+				case "stam":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Mana.Max = value
+					s.msg.Actor.SendGood("Changed stam")
+				case "ndice":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.NumDice = value
+					s.msg.Actor.SendGood("Changed number of dice")
+				case "armor":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.Armor = value
+					s.msg.Actor.SendGood("Changed armor value")
+				case "pdice":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.PlusDice = value
+					s.msg.Actor.SendGood("Changed plus dice")
+				case "sdice":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.SidesDice	 = value
+					s.msg.Actor.SendGood("Changed sides of dice")
+				case "chancecast":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.ChanceCast = value
+					s.msg.Actor.SendGood("Changed chance to cast")
+				case "numwander":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.NumWander = value
+					s.msg.Actor.SendGood("Changed amount of ticks to wander")
+				case "wimpyvalue":
+					value, _ :=  strconv.Atoi(s.words[3])
+					mob.WimpyValue = value
+					s.msg.Actor.SendGood("Changed value that mob tries to flee")
+				/*case "placement":
+				intKey, _ :=  strconv.Atoi(s.words[3])
+				if intKey >= 1 && intKey <= 5 {
+					exit.KeyId = intKey
+					s.msg.Actor.SendGood("Changed placement")
+				}else{
+					s.msg.Actor.SendBad("Placement Id not valid. ")
+				}*/
+				default:
+					s.msg.Actor.SendBad("Property not found.")
+				}
+			}
+			mob.Save()
+		} else {
+			s.msg.Actor.SendBad("Exit not found.")
+		}
+
+		return
 	default:
 		s.msg.Actor.SendBad("Not an object that can be edited, or WIP")
 	}
