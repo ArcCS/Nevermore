@@ -13,7 +13,7 @@ func init() {
 	addHandler(kill{},
            "Usage:  kill target # \n\n Try to attack something! Can also use attack, or shorthand k",
            permissions.Player,
-           "kill")
+           "kill", "k")
 }
 
 type kill cmd

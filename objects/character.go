@@ -185,10 +185,15 @@ func (c *Character) TimerReady(timer string) (bool, string) {
 	// Always check Global:
 	remaining := int(c.Timers["global"].Sub(time.Now())/time.Second)
 	if remaining <= 0 {
-		remaining = int(c.Timers[timer].Sub(time.Now())/time.Second)
-		if remaining <= 0 {
+		if curTimer, ok := c.Timers[timer]; ok {
+			remaining = int(curTimer.Sub(time.Now()) / time.Second)
+			if remaining <= 0 {
+				return true, ""
+			}
+		}else{
 			return true, ""
 		}
+
 	}
 	return false, "You have " + strconv.Itoa(remaining) + " seconds before you can perform this action."
 
@@ -347,7 +352,7 @@ func (c *Character) Died() {
 	c.Stam.Current = c.Stam.Max
 	c.Vit.Current = c.Vit.Max
 	c.Mana.Current = c.Mana.Max
-	c.Write([]byte(text.Cyan + "## Your vitality, stamina, and mana were restored to max." + text.Reset))
+	c.Write([]byte(text.Cyan + "## Your vitality, stamina, and mana were restored to max." + text.Reset + "\n"))
 }
 
 // Drop out the description of this character

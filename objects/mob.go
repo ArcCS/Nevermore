@@ -186,6 +186,8 @@ func (m *Mob) Tick(){
 				rand.Seed(time.Now().Unix())
 				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
 				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
+			}else{
+				m.CurrentTarget = ""
 			}
 		}
 

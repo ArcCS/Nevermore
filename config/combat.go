@@ -25,9 +25,13 @@ var CombatModifiers = map[string]int {
 	Turn		50% Halve Hit Points / 50% Fatal	Turn
  */
 
+var CombatCooldown = 8
+
+
 // Mob Stuns:
 var ParryStuns = 2
 var CircleStuns = 1
+var CircleTimer = 30
 
 // Double Damage is out of 100
 var Parry = []int{
