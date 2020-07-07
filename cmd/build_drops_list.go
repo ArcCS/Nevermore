@@ -26,7 +26,7 @@ func (listdrops) process(s *state) {
 		s.msg.Actor.SendInfo("List of items dropped by " + mob.Name + "\n =================")
 		for k, v := range mob.ItemList {
 			if _, ok := objects.Items[k]; ok {
-				s.msg.Actor.SendInfo("ItemId: ", strconv.Itoa(k), " ", objects.Mobs[k].Name, "   Rate: ", strconv.Itoa(v))
+				s.msg.Actor.SendInfo("ItemId: ", strconv.Itoa(k), " ", objects.Items[k].Name, "   Rate: ", strconv.Itoa(v))
 			} else {
 				delete(s.where.EncounterTable, k)
 			}

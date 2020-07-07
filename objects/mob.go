@@ -122,7 +122,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 	for _, drop := range mobData["drops"].([]interface{}) {
 		if drop != nil {
 			dropData := drop.(map[string]interface{})
-			if dropData["dest"] != nil {
+			if dropData["chance"] != nil {
 				newMob.ItemList[int(dropData["item_id"].(int64))] = int(dropData["chance"].(int64))
 			}
 		}
@@ -241,6 +241,7 @@ func (m *Mob) Tick(){
 							Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
 						}
 						Rooms[m.ParentId].MessageAll(m.Name + " dies.")
+						m.DropInventory()
 						Rooms[m.ParentId].ClearMob(m)
 						return
 					}
@@ -300,8 +301,10 @@ func (m *Mob) Tick(){
 
 // On copy to a room calculate the inventory
 func (m *Mob) CalculateInventory(){
+	log.Println("Attempting to add some inventory...")
 	for k, v := range m.ItemList{
 		if utils.Roll(100, 1, 0) <= v {
+			log.Println("Adding inventory!!")
 			// Successful roll!  Add this item to the inventory!
 				newItem := Item{}
 				copier.Copy(&newItem, Items[k])
@@ -309,6 +312,13 @@ func (m *Mob) CalculateInventory(){
 				}
 			}
 		}
+
+func (m *Mob) DropInventory(){
+	for _, item := range m.Inventory.Contents{
+		m.Inventory.Remove(item)
+		Rooms[m.ParentId].Items.Add(item)
+	}
+}
 
 // On death calculate and distribute experience
 func (m *Mob) CalculateExperience(attackerName string) {

@@ -90,6 +90,7 @@ func (kill) process(s *state) {
 					s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
 				}
 				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
+				whatMob.DropInventory()
 				objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
 				whatMob = nil
 				s.actor.SetTimer("combat", 8)
@@ -144,6 +145,7 @@ func (kill) process(s *state) {
 					s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
 				}
 				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
+				whatMob.DropInventory()
 				objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
 				whatMob = nil
 			}
