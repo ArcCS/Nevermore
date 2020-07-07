@@ -11,7 +11,7 @@ func init() {
 	addHandler(inventory{},
            "Usage:  inventory \n \n Display the current items in your inventory.",
            permissions.Player,
-           "INV")
+           "inv", "inventory")
 }
 
 type inventory cmd

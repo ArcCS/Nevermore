@@ -201,18 +201,18 @@ func DeleteItem(roomId int) bool {
 }
 
 // Create Drop
-func CreateDrop(encounterData map[string]interface{}) bool {
+func CreateDrop(dropData map[string]interface{}) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	toExit, rtrap := conn.ExecNeo(
-		"MATCH (r:room), (m:mob) WHERE " +
-			"r.room_id = {roomId} AND m.mob_id = {mobId} " +
-			`CREATE (r)-[s:spawns]->(m) SET 
+		"MATCH (m:mob), (i:item) WHERE " +
+			"i.item_id = {itemId} AND m.mob_id = {mobId} " +
+			`CREATE (m)-[d:drops]->(i) SET 
 	s.chance={chance}`,
 		map[string]interface {}{
-			"mobId":        encounterData["mobId"],
-			"roomId":       encounterData["roomId"],
-			"chance":		encounterData["chance"],
+			"mobId":        dropData["mobId"],
+			"itemId":       dropData["itemId"],
+			"chance":		dropData["chance"],
 		},
 	)
 	if rtrap != nil{
@@ -226,7 +226,6 @@ func CreateDrop(encounterData map[string]interface{}) bool {
 		return true
 	}
 }
-
 
 // Update Drop
 func UpdateDrop(mobData map[string]interface{}) bool {
@@ -255,7 +254,7 @@ func UpdateDrop(mobData map[string]interface{}) bool {
 }
 
 // Delete Drop
-func DeleteDrop(mobId string, itemId int) bool {
+func DeleteDrop(mobId int, itemId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, rtrap := conn.ExecNeo("MATCH (m:mob)-[d:drops]->(i:item) WHERE m.mob_id={mob_id} AND i.item_id={item_id} DELETE d",

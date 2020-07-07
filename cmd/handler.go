@@ -60,7 +60,7 @@ func dispatchHandler(s *state) {
 
 		switch handler, valid := handlers[s.cmd]; {
 		case valid:
-			if s.actor.Permission.HasFlag(handlerPermission[s.cmd]) {
+			if s.actor.Permission.HasFlag(handlerPermission[s.cmd]) || s.actor.Permission.HasAnyFlags(permissions.Dungeonmaster, permissions.Gamemaster) {
 				handler.process(s)
 			}else {
 				s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")

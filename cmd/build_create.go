@@ -10,7 +10,7 @@ import (
 
 func init() {
 	addHandler(create{},
-	"Usage:  create name \n \n Create a brand new item with a name. \n Note:  Use the modify command to add modify traits of the object.",
+	"Usage:  create (mob|item) name \n \n Create a brand new item with a name. \n Note:  Use the modify command to add modify traits of the object.",
 	permissions.Builder,
 	"create", "new")
 }
@@ -18,25 +18,43 @@ func init() {
 type create cmd
 
 func (create) process(s *state) {
-	if len(s.words) == 0 {
+	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("Create what?")
 		return
 	}
 
-	itemId, err := data.CreateItem(map[string]interface{}{
-		"name":    strings.Join(s.input, " "),
-		"creator": s.actor.Name,
-		"type":    13,
-	})
+	switch strings.ToLower(s.input[0]) {
+	case "item":
+		itemId, err := data.CreateItem(map[string]interface{}{
+			"name":    strings.Join(s.input[1:], " "),
+			"creator": s.actor.Name,
+			"type":    13,
+		})
 
-	if err {
-		s.msg.Actor.SendBad ("Failed to create item.")
-	}else{
-		objects.Items[itemId], _ = objects.LoadItem(data.LoadItem(itemId))
-		newItem := objects.Item{}
-		copier.Copy(&newItem, objects.Items[itemId])
-		s.actor.Inventory.Add(&newItem)
-		s.msg.Actor.SendGood(newItem.Name + " added to your inventory.")
+		if err {
+			s.msg.Actor.SendBad("Failed to create item.")
+		} else {
+			objects.Items[itemId], _ = objects.LoadItem(data.LoadItem(itemId))
+			newItem := objects.Item{}
+			copier.Copy(&newItem, objects.Items[itemId])
+			s.actor.Inventory.Add(&newItem)
+			s.msg.Actor.SendGood(newItem.Name + " added to your inventory.")
+		}
+	case "mob":
+		mobId, err := data.CreateMob(strings.Join(s.input[1:], " "), s.actor.Name)
+
+		if err {
+			s.msg.Actor.SendBad("Failed to create mob.")
+		} else {
+			objects.Mobs[mobId], _ = objects.LoadMob(data.LoadItem(mobId))
+			newMob := objects.Mob{}
+			copier.Copy(&newMob, objects.Mobs[mobId])
+			s.where.Mobs.Add(&newMob)
+			newMob.StartTicking()
+			s.msg.Actor.SendGood(newMob.Name + " added to the room.")
+		}
+	default:
+		s.msg.Actor.SendBad("What do you want to create?")
 	}
 
 	s.ok = true

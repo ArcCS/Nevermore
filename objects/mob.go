@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"github.com/jinzhu/copier"
 	"log"
 	"math"
 	"math/rand"
@@ -138,6 +139,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 }
 
 func (m *Mob) StartTicking(){
+	m.CalculateInventory()
 	m.MobTickerUnload = make(chan bool)
 	//TODO Modify this ticker if the mob is especially fast moving
 	m.MobTicker = time.NewTicker(8 * time.Second)
@@ -298,11 +300,18 @@ func (m *Mob) Tick(){
 
 // On copy to a room calculate the inventory
 func (m *Mob) CalculateInventory(){
-	return
-}
+	for k, v := range m.ItemList{
+		if utils.Roll(100, 1, 0) <= v {
+			// Successful roll!  Add this item to the inventory!
+				newItem := Item{}
+				copier.Copy(&newItem, Items[k])
+				m.Inventory.Add(&newItem)
+				}
+			}
+		}
 
 // On death calculate and distribute experience
-func (m *Mob) CalculateExperience(attackerName string){
+func (m *Mob) CalculateExperience(attackerName string) {
 	return
 }
 
