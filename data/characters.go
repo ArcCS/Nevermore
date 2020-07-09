@@ -20,7 +20,6 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"class: a.class, " +
 		"race: a.race, " +
 		"passages: a.passages, " +
-		"attrmoves: a.attrmoves, " +
 		"bonuspoints: a.bonuspoints, " +
 		"title: a.title, " +
 		"tier: a.tier, " +
@@ -84,7 +83,6 @@ func CreateChar(charData map[string]interface{}) bool {
 		"a.race = {race}, " +
 		"a.active = true, " +
 		"a.passages = 0," +
-		"a.attrmoves = 0," +
 		"a.bonuspoints = 0," +
 		"a.title = '', " +
 		"a.tier = 1, " +
@@ -171,7 +169,6 @@ func SaveChar(charData map[string]interface{}) bool {
 		"MATCH (a:character) WHERE a.character_id={characterid} SET " +
 			"a.name = {name}, " +
 			"a.passages = 0," +
-			"a.attrmoves = 0," +
 			"a.bonuspoints = 0," +
 			"a.title = {title}, " +
 			"a.tier = {tier},  " +

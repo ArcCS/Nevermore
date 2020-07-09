@@ -105,7 +105,6 @@ func (information) process(s *state) {
 		s.actor.Evals,
 		0,
 		s.actor.BonusPoints.Value,
-		s.actor.AttrMoves.Value,
 		"Day",
 		0,
 		"Month",

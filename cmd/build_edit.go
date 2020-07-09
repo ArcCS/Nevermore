@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"strconv"
@@ -316,6 +317,87 @@ func (edit) process(s *state) {
 			s.msg.Actor.SendBad("Exit not found.")
 		}
 
+		return
+		// Handle Mobs
+	case "char":
+		// Toggle Flags
+		charName := s.input[2]
+
+		stats.ActiveCharacters.Lock()
+		character := stats.ActiveCharacters.Find(charName)
+		
+		if character != nil {
+			if strings.ToLower(s.input[1]) == "toggle" {
+				for _, flag := range s.input[3:] {
+					if character.ToggleFlag(strings.ToLower(flag)) {
+						s.msg.Actor.SendGood("Toggled " + flag)
+					} else {
+						s.msg.Actor.SendBad("Failed to toggle " + flag + ".  Is it an actual flag?")
+					}
+				}
+
+				// Set a variable
+			} else {
+				switch strings.ToLower(s.input[1]) {
+				case "description":
+					character.Description = strings.Join(s.input[3:], " ")
+					s.msg.Actor.SendGood("Description changed.")
+				case "name":
+					character.Name = strings.Join(s.input[3:], " ")
+					s.msg.Actor.SendGood("Name changed.")
+				case "level":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Tier	 = value
+					s.msg.Actor.SendGood("Changed Tier")
+				case "experience":
+					types, _ :=  strconv.Atoi(s.words[3])
+					character.Experience = types
+					s.msg.Actor.SendGood("Changed amount of experience.")
+				case "gold":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Gold.Value = value
+					s.msg.Actor.SendGood("Changed amount of gold on character")
+				case "bank gold":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.BankGold.Value = value
+					s.msg.Actor.SendGood("Changed amount of gold in bank.")
+				case "con":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Con.Current = value
+					s.msg.Actor.SendGood("Changed constitution")
+				case "int":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Int.Current = value
+					s.msg.Actor.SendGood("Changed intelligence")
+				case "str":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Str.Current = value
+					s.msg.Actor.SendGood("Changed strength")
+				case "dex":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Dex.Current = value
+					s.msg.Actor.SendGood("Changed dexterity")
+				case "pie":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Pie.Current = value
+					s.msg.Actor.SendGood("Changed piety")
+				case "mana":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Mana.Max = value
+					s.msg.Actor.SendGood("Changed mana")
+				case "stam":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Mana.Max = value
+					s.msg.Actor.SendGood("Changed stam")
+				default:
+					s.msg.Actor.SendBad("Property not found.")
+				}
+			}
+			mob.Save()
+		} else {
+			s.msg.Actor.SendBad("Exit not found.")
+		}
+		stats.ActiveCharacters.Unlock()
 		return
 	default:
 		s.msg.Actor.SendBad("Not an object that can be edited, or WIP")

@@ -48,7 +48,6 @@ type Character struct {
 	Experience Accumulator
 	BonusPoints Accumulator
 	Passages Accumulator
-	AttrMoves Accumulator
 	Broadcasts int
 	Evals int
 	//Char Stats
@@ -118,7 +117,6 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			Accumulator{int(charData["experience"].(int64))},
 			Accumulator{int(charData["bonuspoints"].(int64))},
 			Accumulator{int(charData["passages"].(int64))},
-			Accumulator{int(charData["attrmoves"].(int64))},
 			int(charData["broadcasts"].(int64)),
 			int(charData["evals"].(int64)),
 			Meter{int(charData["stammax"].(int64)), int(charData["stamcur"].(int64))},
@@ -141,7 +139,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			map[int]Accumulator{0: {int(charData["sharpexp"].(int64))},
 				   1: {int(charData["thrustexp"].(int64))},
 				   2: {int(charData["bluntexp"].(int64))},
-				   3: {int(charData["sharpexp"].(int64))},
+				   3: {int(charData["poleexp"].(int64))},
 					4: {int(charData["missileexp"].(int64))}},
 			nil,
 			make(chan bool),

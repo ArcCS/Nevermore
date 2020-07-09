@@ -2,17 +2,21 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/prompt"
+	"github.com/ArcCS/Nevermore/stats"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func init() {
 	addHandler(examine{},
-		"Usage:  examine (room|mob|object|exit) (name|#####) \n\n  Examine will display the item and all of it's modifiable properties",
+		"Usage:  examine (room|mob|object|exit|character) (name|#####) \n\n  Examine will display the subject and all of it's modifiable properties",
 		permissions.Builder,
 		"examine")
 }
@@ -168,7 +172,7 @@ func (examine) process(s *state) {
 			t.AppendHeader(table.Row{"Type", "Variable Name", "Value", "Description"})
 			t.AppendRows([]table.Row{
 				{"V", "name", exitRef.Name, "Name of the exit"},
-				{"V", "description", exitRef.Description, "Peers into next room if empty."},
+				{"V", "description", text.WrapSoft(exitRef.Description, rowLength/5), "Peers into next room if empty."},
 				{"V", "placement", strconv.Itoa(exitRef.Placement), "Where the exit is in the room. \n5 is front, 1 is back."},
 				{"V", "key_id", strconv.Itoa(exitRef.KeyId), "Id of key that can unlock exit."},
 				{"T", "closeable", strconv.FormatBool(exitRef.Flags["closeable"]), "The exit can be closed."},
@@ -190,6 +194,96 @@ func (examine) process(s *state) {
 		} else {
 			s.msg.Actor.SendBad("Couldn't find the exit in the current room.")
 		}
+
+	case "character":
+		charName := s.words[1]
+		stats.ActiveCharacters.Lock()
+		character := stats.ActiveCharacters.Find(charName)
+		t := table.NewWriter()
+		t.SetAllowedRowLength(rowLength)
+		t.Style().Options.SeparateRows = true
+		t.AppendHeader(table.Row{"Type", "Variable Name", "Value", "Description"})
+		if character == nil {
+			stats.ActiveCharacters.Unlock()
+			charData, err := data.LoadChar(charName)
+			if err {
+				s.msg.Actor.SendBad("Could not load the character from the database.")
+				return
+			}
+			t.AppendRows([]table.Row{
+				{"V", "name", charData["name"].(string), "Characters Name"},
+				{"V", "description", text.WrapSoft(charData["description"].(string), rowLength/5), "Description"},
+				{"X", "character_id", charData["character_id"].(int64), "DB Char ID"},
+				{"V", "parentid", charData["parentid"].(int64), "Room ID that the character is in."},
+				{"V", "title", charData["title"].(string), "Character Titles"},
+				{"V", "bankgold", charData["bankgold"].(int64), "Amount of gold in the bank"},
+				{"V", "gold", charData["gold"].(int64), "Amount of gold on character"},
+				{"V", "experience", charData["experience"].(int64), "Character amount of experience."},
+				{"V", "bonuspoints", charData["bonuspoints"].(int64), "Bonus points for character"},
+				{"V", "passages", charData["passages"].(int64), "Passages"},
+				{"V", "broadcasts", charData["broadcasts"].(int64), "Broadcasts (refreshes daily)"},
+				{"V", "evals", charData["evals"].(int64), "Evaluates (refreshes daily)"},
+				{"V", "stamcur", charData["stammax"].(int64), "Max Stamina"},
+				{"V", "stamcur", charData["stamcur"].(int64), "Current Stamina"},
+				{"V", "vitmax", charData["vitmax"].(int64), "Maximum Vitality"},
+				{"V", "vitcur", charData["vitcur"].(int64), "Current Vitality"},
+				{"V", "manamax", charData["manamax"].(int64), "Maximum Mana"},
+				{"V", "manacur", charData["manacur"].(int64), "Current Mana"},
+				{"V", "strcur", charData["strcur"].(int64), "Current Strength"},
+				{"V", "dexcur", charData["dexcur"].(int64), "Current Dex"},
+				{"V", "concur", charData["concur"].(int64), "Current Con"},
+				{"V", "intcur", charData["intcur"].(int64), "Current Int"},
+				{"V", "piecur", charData["piecur"].(int64), "Current Piety"},
+				{"V", "tier", charData["tier"].(int64), "Character Tier"},
+				{"V", "sharpexp", charData["sharpexp"].(int64), "Sharp Skill Experience"},
+				{"V", "thrustexp", charData["thrustexp"].(int64), "Thrust Skill Experience"},
+				{"V", "bluntexp", charData["bluntexp"].(int64), "Blunt Skill Experience"},
+				{"V", "poleexp", charData["poleexp"].(int64), "Pole Skill Experience"},
+				{"V", "missileexp", charData["missileexp"].(int64), "Missile Skill Experience"},
+				{"T", "darkvission", strconv.FormatBool(charData["flags"].(map[string]interface{})["darkvision"].(int64) != 0), "Permanent Dark Vision"},
+			})
+,				t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
+				s.msg.Actor.SendGood(t.Render())
+		}else {
+			t.AppendRows([]table.Row{
+				{"V", "name", character.Name, "Characters Name"},
+				{"V", "description", text.WrapSoft(character.Description, rowLength/5), "Description"},
+				{"X", "character_id", character.CharId, "DB Char ID"},
+				{"V", "parentid", character.ParentId, "Room ID that the character is in."},
+				{"V", "title", character.Title, "Character Titles"},
+				{"V", "bankgold", character.BankGold, "Amount of gold in the bank"},
+				{"V", "gold", character.Gold, "Amount of gold on character"},
+				{"V", "experience", character.Experience, "Character amount of experience."},
+				{"V", "bonuspoints", character.BonusPoints, "Bonus points for character"},
+				{"V", "passages", character.Passages, "Passages"},
+				{"V", "broadcasts", character.Broadcasts, "Broadcasts (refreshes daily)"},
+				{"V", "evals", character.Evals, "Evaluates (refreshes daily)"},
+				{"V", "stammax", character.Stam.Max, "Max Stamina"},
+				{"V", "stamcur", character.Stam.Current, "Current Stamina"},
+				{"V", "vitmax", character.Vit.Max, "Maximum Vitality"},
+				{"V", "vitcur", character.Vit.Current, "Current Vitality"},
+				{"V", "manamax", character.Mana.Max, "Maximum Mana"},
+				{"V", "manacur", character.Mana.Current, "Current Mana"},
+				{"V", "strcur", character.Str.Current, "Current Strength"},
+				{"V", "dexcur", character.Dex.Current, "Current Dex"},
+				{"V", "concur", character.Con.Current, "Current Con"},
+				{"V", "intcur", character.Int.Current, "Current Int"},
+				{"V", "piecur", character.Pie.Current, "Current Piety"},
+				{"V", "tier", character.Tier, "Character Tier"},
+				{"V", "sharpexp", character.Skills[0], "Sharp Skill Experience"},
+				{"V", "thrustexp", character.Skills[1], "Thrust Skill Experience"},
+				{"V", "bluntexp", character.Skills[2], "Blunt Skill Experience"},
+				{"V", "poleexp", character.Skills[3], "Pole Skill Experience"},
+				{"V", "missileexp", character.Skills[4], "Missile Skill Experience"},
+				{"T", "darkvission", strconv.FormatBool(character.Flags["darkvision"]), "Permanent Dark Vision"},
+			})
+			})
+			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
+			s.msg.Actor.SendGood(t.Render())
+		} else {
+			s.msg.Actor.SendBad("Couldn't edit the character.")
+		}
+
 	default:
 		s.msg.Actor.SendBad("Couldn't figure out what to examine.")
 	}
