@@ -351,7 +351,7 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendGood("Changed Tier")
 				case "experience":
 					types, _ :=  strconv.Atoi(s.words[3])
-					character.Experience = types
+					character.Experience.Value = types
 					s.msg.Actor.SendGood("Changed amount of experience.")
 				case "gold":
 					value, _ :=  strconv.Atoi(s.words[3])
@@ -393,7 +393,7 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendBad("Property not found.")
 				}
 			}
-			mob.Save()
+			character.Save()
 		} else {
 			s.msg.Actor.SendBad("Exit not found.")
 		}

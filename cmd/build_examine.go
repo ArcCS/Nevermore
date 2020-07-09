@@ -5,13 +5,11 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/stats"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func init() {
@@ -242,7 +240,7 @@ func (examine) process(s *state) {
 				{"V", "missileexp", charData["missileexp"].(int64), "Missile Skill Experience"},
 				{"T", "darkvission", strconv.FormatBool(charData["flags"].(map[string]interface{})["darkvision"].(int64) != 0), "Permanent Dark Vision"},
 			})
-,				t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
+				t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 				s.msg.Actor.SendGood(t.Render())
 		}else {
 			t.AppendRows([]table.Row{
@@ -277,11 +275,8 @@ func (examine) process(s *state) {
 				{"V", "missileexp", character.Skills[4], "Missile Skill Experience"},
 				{"T", "darkvission", strconv.FormatBool(character.Flags["darkvision"]), "Permanent Dark Vision"},
 			})
-			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 			s.msg.Actor.SendGood(t.Render())
-		} else {
-			s.msg.Actor.SendBad("Couldn't edit the character.")
 		}
 
 	default:

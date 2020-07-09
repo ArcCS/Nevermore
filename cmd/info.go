@@ -33,7 +33,6 @@ func (information) process(s *state) {
 	"You have {{.Evals}} evaluates remaining today.\n"+
 	"You have logged {{.Hours}} hours with this character.\n"+
 	"You have {{.Bonus_points}} role-play bonus points.\n"+
-	"You may move {{.Attr_moves}} attribute point.\n"+
 	"You were born on {{.Day}}, the {{.Day_number}} of the month of {{.Month}}\n"+
 	"You are {{.Age}} years old.\n\n"
 
@@ -69,7 +68,6 @@ func (information) process(s *state) {
 		Evals int
 		Hours int
 		Bonus_points int
-		Attr_moves int
 		Day string
 		Day_number int
 		Month string
