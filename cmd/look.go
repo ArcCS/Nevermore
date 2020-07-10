@@ -185,7 +185,7 @@ func (look) process(s *state) {
 	// Item in the room?
 	if what != nil {
 		s.msg.Actor.SendInfo(what.Look())
-		s.msg.Actor.SendInfo("It is on the ground " + WhereAt(whatMob.Placement, s.actor.Placement))
+		s.msg.Actor.SendInfo("It is on the ground " + WhereAt(what.Placement, s.actor.Placement))
 		return
 	}
 

@@ -25,7 +25,7 @@ func (rename) process(s *state) {
 	item := s.actor.Inventory.Search(itemName, 1)
 
 	if item != nil {
-		item.Name = strings.Join(s.input[1:], "")
+		item.Name = strings.Join(s.input[1:], " ")
 		s.msg.Actor.SendGood("Item name changed to " + item.Name)
 	}else{
 		s.msg.Actor.SendBad("Not an object that can be edited.")
