@@ -21,7 +21,7 @@ func (activate) process(s *state) {
 		s.where.Save()
 		s.msg.Actor.SendGood("Current room activated")
 	}else {
-		objectRef, _ := strconv.Atoi(s.input[1])
+		objectRef, _ := strconv.Atoi(s.input[0])
 		room, rErr := objects.Rooms[objectRef]
 		if rErr {
 			room.Flags["active"] = true

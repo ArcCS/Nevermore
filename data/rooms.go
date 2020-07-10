@@ -26,7 +26,7 @@ func LoadRooms() []interface{} {
 	levitate: e.levitate,
 	day_only: e.day_only,
 	night_only: e.night_only,
-	placement_dependent: e.placement_dependent}}), flags:{active: r.active, repair: r.repair,
+	placement_dependent: e.placement_dependent}}), flags:{train: r.train, active: r.active, repair: r.repair,
 	mana_drain: r.mana_drain,
 	no_summon: r.no_summon,
 	heal_fast:  r.heal_fast,
@@ -78,7 +78,7 @@ func LoadRoom(roomId int) map[string]interface{} {
 	levitate: e.levitate,
 	day_only: e.day_only,
 	night_only: e.night_only,
-	placement_dependent: e.placement_dependent}}), flags:{active: r.active, repair: r.repair,
+	placement_dependent: e.placement_dependent}}), flags:{train: r.train, active: r.active, repair: r.repair,
 	mana_drain: r.mana_drain,
 	no_summon: r.no_summon,
 	heal_fast:  r.heal_fast,
@@ -174,6 +174,7 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 			"r.hilevel = 0, " +
 			"r.earth = 0, " +
 			"r.active = 0, " +
+			"r.train = 0, " +
 			"r.wind = 0",
 		map[string]interface {}{
 			"roomId": room_id,
@@ -300,6 +301,7 @@ func UpdateRoom(roomData map[string]interface{})  bool {
 			"r.hilevel = {hilevel}, " +
 			"r.earth = {earth}, " +
 			"r.active = {active}, " +
+			"r.train = {train}," +
 			"r.wind = {wind}",
 		map[string]interface {}{
 			"room_id": 		  roomData["room_id"],
@@ -329,6 +331,7 @@ func UpdateRoom(roomData map[string]interface{})  bool {
 			"earth": roomData["earth"],
 			"wind": roomData["wind"],
 			"active": roomData["active"],
+			"train": roomData["train"],
 		},
 	)
 

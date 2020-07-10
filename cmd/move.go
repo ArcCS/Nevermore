@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
-	"strconv"
 )
 
 func init() {
@@ -20,12 +19,15 @@ func (move) process(s *state) {
 		s.msg.Actor.SendInfo("You wanted to move where?")
 	}
 
+	// Check some timers
+	ready, msg := s.actor.TimerReady("combat")
+	if !ready {
+		s.msg.Actor.SendBad(msg)
+		return
+	}
 
-
-	spaces := 1
 	previous := s.actor.Placement
 	if s.cmd == "SPRINT" || s.cmd == "SPR"{
-		spaces = 2
 		direction := string(s.words[0][0])
 		if direction == "F" {
 			if 5 - s.actor.Placement >= 2 {
@@ -66,8 +68,7 @@ func (move) process(s *state) {
 				s.msg.Actor.SendBad("There's not enough room to sprint backward")
 			}
 		}
-		s.msg.Actor.SendInfo("You wanted to move: ", strconv.Itoa(spaces))
-	}else if s.cmd == "F" || s.cmd == "FORWARD" || string(s.words[1][0]) == "F" {
+	}else if s.cmd == "F" || s.cmd == "FORWARD" || (len(s.words) > 0 && string(s.words[0][0]) == "F") {
 		if 5 - s.actor.Placement >= 1 {
 			s.actor.Placement += 1
 			s.actor.SetTimer("global", 4)
@@ -86,7 +87,7 @@ func (move) process(s *state) {
 		}else{
 			s.msg.Actor.SendBad("There's not enough room to sprint forward")
 		}
-	}else if s.cmd == "B" || s.cmd == "BACK" || string(s.words[1][0]) == "B" {
+	}else if s.cmd == "B" || s.cmd == "BACK" || (len(s.words) > 0 && string(s.words[0][0]) == "B") {
 		if s.actor.Placement-1 >= 1 {
 			s.actor.Placement -= 1
 			s.actor.SetTimer("global", 4)

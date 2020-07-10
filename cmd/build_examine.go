@@ -70,6 +70,8 @@ func (examine) process(s *state) {
 			{"T", "water", strconv.FormatBool(roomRef.Flags["water"]), "Room causes and amplifies water."},
 			{"T", "earth", strconv.FormatBool(roomRef.Flags["earth"]), "Room causes and amplifies earth."},
 			{"T", "wind", strconv.FormatBool(roomRef.Flags["wind"]), "Room causes and amplifies wind."},
+			{"T", "active", strconv.FormatBool(roomRef.Flags["active"]), "The room is activated."},
+			{"T", "train", strconv.FormatBool(roomRef.Flags["train"]), "Characters can train here."},
 		})
 		t.SetCaption("Light is evaluated with dark_always first, then light_always, then natural light.\nX = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 		s.msg.Actor.SendGood(t.Render())
@@ -194,7 +196,7 @@ func (examine) process(s *state) {
 			s.msg.Actor.SendBad("Couldn't find the exit in the current room.")
 		}
 
-	case "character":
+	case "char":
 		log.Println("Starting search...")
 		charName := s.words[1]
 		character := stats.ActiveCharacters.Find(charName)
@@ -203,8 +205,6 @@ func (examine) process(s *state) {
 		t.Style().Options.SeparateRows = true
 		t.AppendHeader(table.Row{"Type", "Variable Name", "Value", "Description"})
 		if character == nil {
-			log.Println("Character not found.....")
-			log.Println("Try to load character.....")
 			charData, err := data.LoadChar(charName)
 			if err {
 				s.msg.Actor.SendBad("Could not load the character from the database.")

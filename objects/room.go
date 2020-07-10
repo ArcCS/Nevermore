@@ -310,6 +310,7 @@ func (r *Room) Save(){
 	roomData["earth"] =  utils.Btoi(r.Flags["earth"])
 	roomData["wind"] =  utils.Btoi(r.Flags["wind"])
 	roomData["active"] = utils.Btoi(r.Flags["active"])
+	roomData["train"] = utils.Btoi(r.Flags["train"])
 	data.UpdateRoom(roomData)
 
 	// TODO: Save permanent items
