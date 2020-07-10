@@ -23,6 +23,7 @@ var Server = struct {
 	SearchResults int		// Max search results
 	Running	bool
 	CreateChars bool
+	PermissionDefault int
 }{
 	Host:           "127.0.0.1",
 	DBUname:		"USERNAME",
@@ -38,6 +39,7 @@ var Server = struct {
 	SearchResults: 15,
 	Running: true,
 	CreateChars: true,
+	PermissionDefault: 15,
 }
 
 // Stats default configuration

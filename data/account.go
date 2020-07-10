@@ -4,6 +4,7 @@ package data
 
 import (
 	"fmt"
+	"github.com/ArcCS/Nevermore/config"
 	"log"
 )
 
@@ -14,13 +15,14 @@ func NewAcct(acctData map[string]interface{}) bool {
 	result, _ := conn.ExecNeo("CREATE (a:account) SET " +
 		"a.account_id = {acctId}, " +
 		"a.name = {acctName}, " +
-		"a.permissions = 3,  " +
+		"a.permissions = {permissions},  " +
 		"a.password = {acctPass}, " +
 		"a.active = true",
 		map[string]interface{}{
 			"acctId": nextId("account"),
 			"acctName": acctData["name"],
 			"acctPass": acctData["password"],
+			"permissions": config.Server.PermissionDefault,
 		},
 	)
 	numResult, _ := result.RowsAffected()

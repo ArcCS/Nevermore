@@ -279,7 +279,7 @@ func SumEncounters(roomId int) int {
 		},
 	)
 	datum := data[0][0].(map[string]interface{})
-	return datum["rate_sum"].(int)
+	return int(datum["rate_sum"].(int64))
 }
 
 // Delete Mob
