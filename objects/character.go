@@ -78,7 +78,7 @@ type Character struct {
 	ClassProps map[string]interface{}
 
 	Spells []string
-	Skills map[int]Accumulator
+	Skills map[int]*Accumulator
 
 
 	CharTicker *time.Ticker
@@ -92,7 +92,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 	}else{
 		FilledCharacter := &Character{
 			Object{
-				Name:        charData["name"].(string),
+				Name:        strings.Title(charData["name"].(string)),
 				Description: charData["description"].(string),
 				Placement:   3,
 			},
@@ -136,7 +136,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			int(charData["played"].(int64)),
 			make(map[string]interface{}),
 			strings.Split(charData["spells"].(string), ","),
-			map[int]Accumulator{0: {int(charData["sharpexp"].(int64))},
+			map[int]*Accumulator{0: {int(charData["sharpexp"].(int64))},
 				   1: {int(charData["thrustexp"].(int64))},
 				   2: {int(charData["bluntexp"].(int64))},
 				   3: {int(charData["poleexp"].(int64))},

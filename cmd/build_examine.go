@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/stats"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -194,15 +195,16 @@ func (examine) process(s *state) {
 		}
 
 	case "character":
+		log.Println("Starting search...")
 		charName := s.words[1]
-		stats.ActiveCharacters.Lock()
 		character := stats.ActiveCharacters.Find(charName)
 		t := table.NewWriter()
 		t.SetAllowedRowLength(rowLength)
 		t.Style().Options.SeparateRows = true
 		t.AppendHeader(table.Row{"Type", "Variable Name", "Value", "Description"})
 		if character == nil {
-			stats.ActiveCharacters.Unlock()
+			log.Println("Character not found.....")
+			log.Println("Try to load character.....")
 			charData, err := data.LoadChar(charName)
 			if err {
 				s.msg.Actor.SendBad("Could not load the character from the database.")
@@ -243,17 +245,18 @@ func (examine) process(s *state) {
 				t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 				s.msg.Actor.SendGood(t.Render())
 		}else {
+			stats.ActiveCharacters.Lock()
 			t.AppendRows([]table.Row{
 				{"V", "name", character.Name, "Characters Name"},
 				{"V", "description", text.WrapSoft(character.Description, rowLength/5), "Description"},
 				{"X", "character_id", character.CharId, "DB Char ID"},
 				{"V", "parentid", character.ParentId, "Room ID that the character is in."},
 				{"V", "title", character.Title, "Character Titles"},
-				{"V", "bankgold", character.BankGold, "Amount of gold in the bank"},
-				{"V", "gold", character.Gold, "Amount of gold on character"},
-				{"V", "experience", character.Experience, "Character amount of experience."},
-				{"V", "bonuspoints", character.BonusPoints, "Bonus points for character"},
-				{"V", "passages", character.Passages, "Passages"},
+				{"V", "bankgold", character.BankGold.Value, "Amount of gold in the bank"},
+				{"V", "gold", character.Gold.Value, "Amount of gold on character"},
+				{"V", "experience", character.Experience.Value, "Character amount of experience."},
+				{"V", "bonuspoints", character.BonusPoints.Value, "Bonus points for character"},
+				{"V", "passages", character.Passages.Value, "Passages"},
 				{"V", "broadcasts", character.Broadcasts, "Broadcasts (refreshes daily)"},
 				{"V", "evals", character.Evals, "Evaluates (refreshes daily)"},
 				{"V", "stammax", character.Stam.Max, "Max Stamina"},
@@ -268,17 +271,20 @@ func (examine) process(s *state) {
 				{"V", "intcur", character.Int.Current, "Current Int"},
 				{"V", "piecur", character.Pie.Current, "Current Piety"},
 				{"V", "tier", character.Tier, "Character Tier"},
-				{"V", "sharpexp", character.Skills[0], "Sharp Skill Experience"},
-				{"V", "thrustexp", character.Skills[1], "Thrust Skill Experience"},
-				{"V", "bluntexp", character.Skills[2], "Blunt Skill Experience"},
-				{"V", "poleexp", character.Skills[3], "Pole Skill Experience"},
-				{"V", "missileexp", character.Skills[4], "Missile Skill Experience"},
-				{"T", "darkvission", strconv.FormatBool(character.Flags["darkvision"]), "Permanent Dark Vision"},
+				{"V", "sharpexp", character.Skills[0].Value, "Sharp Skill Experience"},
+				{"V", "thrustexp", character.Skills[1].Value, "Thrust Skill Experience"},
+				{"V", "bluntexp", character.Skills[2].Value, "Blunt Skill Experience"},
+				{"V", "poleexp", character.Skills[3].Value, "Pole Skill Experience"},
+				{"V", "missileexp", character.Skills[4].Value, "Missile Skill Experience"},
+				{"T", "darkvision", strconv.FormatBool(character.Flags["invisible"]), "Permanent Dark Vision"},
+				{"T", "darkvision", strconv.FormatBool(character.Flags["darkvision"]), "Permanent Dark Vision"},
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 			s.msg.Actor.SendGood(t.Render())
+			stats.ActiveCharacters.Unlock()
+			return
 		}
-
+		return
 	default:
 		s.msg.Actor.SendBad("Couldn't figure out what to examine.")
 	}

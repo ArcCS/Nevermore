@@ -270,7 +270,7 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendGood("Changed mana")
 				case "stam":
 					value, _ :=  strconv.Atoi(s.words[3])
-					mob.Mana.Max = value
+					mob.Stam.Max = value
 					s.msg.Actor.SendGood("Changed stam")
 				case "ndice":
 					value, _ :=  strconv.Atoi(s.words[3])
@@ -323,10 +323,10 @@ func (edit) process(s *state) {
 		// Toggle Flags
 		charName := s.input[2]
 
-		stats.ActiveCharacters.Lock()
 		character := stats.ActiveCharacters.Find(charName)
 		
 		if character != nil {
+			stats.ActiveCharacters.Lock()
 			if strings.ToLower(s.input[1]) == "toggle" {
 				for _, flag := range s.input[3:] {
 					if character.ToggleFlag(strings.ToLower(flag)) {
@@ -345,7 +345,10 @@ func (edit) process(s *state) {
 				case "name":
 					character.Name = strings.Join(s.input[3:], " ")
 					s.msg.Actor.SendGood("Name changed.")
-				case "level":
+				case "title":
+					character.Title = strings.Join(s.input[3:], " ")
+					s.msg.Actor.SendGood("Title changed.")
+				case "tier":
 					value, _ :=  strconv.Atoi(s.words[3])
 					character.Tier	 = value
 					s.msg.Actor.SendGood("Changed Tier")
@@ -357,50 +360,220 @@ func (edit) process(s *state) {
 					value, _ :=  strconv.Atoi(s.words[3])
 					character.Gold.Value = value
 					s.msg.Actor.SendGood("Changed amount of gold on character")
-				case "bank gold":
+				case "bankgold":
 					value, _ :=  strconv.Atoi(s.words[3])
 					character.BankGold.Value = value
 					s.msg.Actor.SendGood("Changed amount of gold in bank.")
-				case "con":
+				case "passages":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Passages.Value = value
+					s.msg.Actor.SendGood("Changed number of passages")
+				case "bonuspoints":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.BonusPoints.Value = value
+					s.msg.Actor.SendGood("Changed number of bonus points")
+				case "broadcasts":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Broadcasts = value
+					s.msg.Actor.SendGood("Changed broadcasts.")
+				case "evals":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Broadcasts = value
+					s.msg.Actor.SendGood("Changed evals")
+				case "concur":
 					value, _ :=  strconv.Atoi(s.words[3])
 					character.Con.Current = value
 					s.msg.Actor.SendGood("Changed constitution")
-				case "int":
+				case "intcur":
 					value, _ :=  strconv.Atoi(s.words[3])
 					character.Int.Current = value
 					s.msg.Actor.SendGood("Changed intelligence")
-				case "str":
+				case "strcur":
 					value, _ :=  strconv.Atoi(s.words[3])
 					character.Str.Current = value
 					s.msg.Actor.SendGood("Changed strength")
-				case "dex":
+				case "dexcur":
 					value, _ :=  strconv.Atoi(s.words[3])
 					character.Dex.Current = value
 					s.msg.Actor.SendGood("Changed dexterity")
-				case "pie":
+				case "piecur":
 					value, _ :=  strconv.Atoi(s.words[3])
 					character.Pie.Current = value
 					s.msg.Actor.SendGood("Changed piety")
-				case "mana":
+				case "stamcur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Stam.Current = value
+					s.msg.Actor.SendGood("Changed current stamina")
+				case "stammax":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Stam.Max = value
+					s.msg.Actor.SendGood("Changed stamina maximum")
+				case "manamax":
 					value, _ :=  strconv.Atoi(s.words[3])
 					character.Mana.Max = value
-					s.msg.Actor.SendGood("Changed mana")
-				case "stam":
+					s.msg.Actor.SendGood("Changed mana maximum")
+				case "manacur":
 					value, _ :=  strconv.Atoi(s.words[3])
-					character.Mana.Max = value
-					s.msg.Actor.SendGood("Changed stam")
+					character.Mana.Current = value
+					s.msg.Actor.SendGood("Changed mana current")
+				case "vitmax":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Vit.Max = value
+					s.msg.Actor.SendGood("Changed vitality max")
+				case "vitcur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Vit.Current = value
+					s.msg.Actor.SendGood("Changed vit current")
+				case "sharpexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Skills[0].Value = value
+					s.msg.Actor.SendGood("Changed sharp exp")
+				case "thrustexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Skills[1].Value= value
+					s.msg.Actor.SendGood("Changed thrust exp")
+				case "bluntexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Skills[2].Value = value
+					s.msg.Actor.SendGood("Changed blunt exp")
+				case "poleexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Skills[3].Value = value
+					s.msg.Actor.SendGood("Changed pole exp")
+				case "missileexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Skills[4].Value = value
+					s.msg.Actor.SendGood("Changed missile exp")
+
 				default:
 					s.msg.Actor.SendBad("Property not found.")
 				}
 			}
 			character.Save()
+			stats.ActiveCharacters.Unlock()
 		} else {
-			s.msg.Actor.SendBad("Exit not found.")
+			if strings.ToLower(s.input[1]) == "toggle" {
+				s.msg.Actor.SendBad("Cannot toggle offline character.")
+			} else {
+				switch strings.ToLower(s.input[1]) {
+				case "description":
+					data.SaveCharField(charName, "description", strings.Join(s.input[3:], " "))
+					s.msg.Actor.SendGood("Description changed.")
+				case "name":
+					data.SaveCharField(charName, "name", strings.Join(s.input[3:], " "))
+					s.msg.Actor.SendGood("Name changed.")
+				case "title":
+					data.SaveCharField(charName, "title", strings.Join(s.input[3:], " "))
+					s.msg.Actor.SendGood("Title changed.")
+				case "tier":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "tier", value)
+					s.msg.Actor.SendGood("Changed Tier")
+				case "experience":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "experience", value)
+					s.msg.Actor.SendGood("Changed amount of experience.")
+				case "gold":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "gold", value)
+					s.msg.Actor.SendGood("Changed amount of gold on character")
+				case "bankgold":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "bankgold", value)
+					s.msg.Actor.SendGood("Changed amount of gold in bank.")
+				case "passages":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "passages", value)
+					s.msg.Actor.SendGood("Changed number of passages")
+				case "bonuspoints":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "bonuspoints", value)
+					s.msg.Actor.SendGood("Changed number of bonus points")
+				case "broadcasts":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "broadcasts", value)
+					s.msg.Actor.SendGood("Changed broadcasts.")
+				case "evals":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "evals", value)
+					s.msg.Actor.SendGood("Changed evals")
+				case "concur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "concur", value)
+					s.msg.Actor.SendGood("Changed constitution")
+				case "intcur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "intcur", value)
+					s.msg.Actor.SendGood("Changed intelligence")
+				case "strcur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "strcur", value)
+					s.msg.Actor.SendGood("Changed strength")
+				case "dexcur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "dexcur", value)
+					s.msg.Actor.SendGood("Changed dexterity")
+				case "piecur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "piecur", value)
+					s.msg.Actor.SendGood("Changed piety")
+				case "stamcur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "curr_stam", value)
+					s.msg.Actor.SendGood("Changed current stamina")
+				case "stammax":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "max_stam", value)
+					s.msg.Actor.SendGood("Changed stamina maximum")
+				case "manamax":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "max_mana", value)
+					s.msg.Actor.SendGood("Changed mana maximum")
+				case "manacur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "curr_Mana", value)
+					s.msg.Actor.SendGood("Changed mana current")
+				case "vitmax":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "max_vit", value)
+					s.msg.Actor.SendGood("Changed vitality max")
+				case "vitcur":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "curr_vit", value)
+					s.msg.Actor.SendGood("Changed vit current")
+				case "sharpexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "sharpexp", value)
+					s.msg.Actor.SendGood("Changed sharp exp")
+				case "thrustexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "thrustexp", value)
+					s.msg.Actor.SendGood("Changed thrust exp")
+				case "bluntexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "bluntexp", value)
+					s.msg.Actor.SendGood("Changed blunt exp")
+				case "poleexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					data.SaveCharField(charName, "poleexp", value)
+					s.msg.Actor.SendGood("Changed pole exp")
+				case "missileexp":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Skills[4].Value = value
+					s.msg.Actor.SendGood("Changed missile exp")
+				case "parent_id":
+					value, _ :=  strconv.Atoi(s.words[3])
+					character.Skills[4].Value = value
+					s.msg.Actor.SendGood("Changed room")
+				default:
+					s.msg.Actor.SendBad("Property not found.")
+				}
+			}
 		}
-		stats.ActiveCharacters.Unlock()
+
 		return
 	default:
-		s.msg.Actor.SendBad("Not an object that can be edited, or WIP")
+		s.msg.Actor.SendBad("Not an object that can be edited.")
 	}
 
 	s.ok = true

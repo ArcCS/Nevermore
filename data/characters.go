@@ -244,6 +244,29 @@ func SaveChar(charData map[string]interface{}) bool {
 	}
 }
 
+// Update character
+func SaveCharField(charName string, field string, fieldVal interface{}) bool {
+	conn, _ := getConn()
+	defer conn.Close()
+	result, rtrap := conn.ExecNeo(
+		"MATCH (a:character) WHERE toLower(a.name)=toLower({charName}) SET " +
+			fmt.Sprintf("a.%[1]s", strings.ToLower(field)) + " = {field_val}",
+		map[string]interface {}{
+			"charName": charName,
+			"field_val": fieldVal,
+
+		},
+	)
+
+	fmt.Println(rtrap)
+	numResult, _ := result.RowsAffected()
+	if numResult > 0 {
+		return false
+	}else {
+		return true
+	}
+}
+
 func CharacterExists(charName string) bool {
 	conn, _ := getConn()
 	defer conn.Close()
