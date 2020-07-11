@@ -13,8 +13,8 @@ func init(){
 	//AvailableClasses[4] = "mage"
 	//AvailableClasses[5] = "cleric"
 	//AvailableClasses[6] = "paladin"
-	//AvailableClasses[7] = "monk"
-	//AvailableClasses[8] = "bard"
+	//AvailableClasses[7] = "bard"
+	//AvailableClasses[8] = "monk"
 
 	ClassPerms[0] = permissions.Fighter
 	//AvailableClasses[1] = "barbarian"
@@ -23,8 +23,8 @@ func init(){
 	//AvailableClasses[4] = "mage"
 	//AvailableClasses[5] = "cleric"
 	//AvailableClasses[6] = "paladin"
-	//AvailableClasses[7] = "monk"
-	//AvailableClasses[8] = "bard"
+	//AvailableClasses[7] = "Bard"
+	//AvailableClasses[8] = "monk"
 }
 
 type classDef struct {
