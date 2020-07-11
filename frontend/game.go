@@ -12,6 +12,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/stats"
+	"github.com/jinzhu/copier"
 )
 
 // game embeds a frontend instance adding fields and methods specific to
@@ -25,6 +26,20 @@ type game struct {
 func StartGame(f *frontend, charName string) (g *game) {
 	g = &game{frontend: f}
 	g.character, _ = objects.LoadCharacter(charName, f.output)
+	g.gameInit()
+	return
+}
+
+// NewGame returns a game with the specified frontend embedded. The returned
+// game can be used for processing communication to the actual game.
+func FirstTimeStartGame(f *frontend, charName string) (g *game) {
+	g = &game{frontend: f}
+	g.character, _ = objects.LoadCharacter(charName, f.output)
+	for _, item_id := range config.StartingGear[g.character.Class]{
+		newItem := objects.Item{}
+		copier.Copy(&newItem, objects.Items[item_id])
+		g.character.Inventory.Add(&newItem)
+	}
 	g.gameInit()
 	return
 }

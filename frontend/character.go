@@ -559,7 +559,7 @@ func (a *newCharacter) completeBuilder() {
 	charData["pie"] = a.pie
 	if !data.CreateChar(charData) {
 		a.buf.Send(text.Info, "# New character created,  entering Altin. \n", text.Reset)
-		StartGame(a.frontend, a.name)
+		FirstTimeStartGame(a.frontend, a.name)
 	}else {
 		a.buf.SendBad(text.Info, "Error, try again later. \n", text.Reset)
 		NewStart(a.frontend)

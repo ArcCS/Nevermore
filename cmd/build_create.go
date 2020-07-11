@@ -46,7 +46,7 @@ func (create) process(s *state) {
 		if err {
 			s.msg.Actor.SendBad("Failed to create mob.")
 		} else {
-			objects.Mobs[mobId], _ = objects.LoadMob(data.LoadItem(mobId))
+			objects.Mobs[mobId], _ = objects.LoadMob(data.LoadMob(mobId))
 			newMob := objects.Mob{}
 			copier.Copy(&newMob, objects.Mobs[mobId])
 			s.where.Mobs.Add(&newMob)

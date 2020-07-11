@@ -161,109 +161,130 @@ func (m *Mob) Tick(){
 		m.MobStunned -= 1
 	}else {
 		// We're kind of managing our own state...  set all the locks
-		Rooms[m.ParentId].Chars.Lock()
-		Rooms[m.ParentId].Mobs.Lock()
-		Rooms[m.ParentId].Items.Lock()
-
 		m.TicksAlive++
 		if m.TicksAlive >= m.NumWander && m.CurrentTarget == "" {
-			Rooms[m.ParentId].WanderMob(m)
-		}
-
-		// Am I hostile?  Should I pick a target?
-		if m.CurrentTarget == "" && m.Flags["hostile"] {
-			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
-			if len(potentials) > 0 {
-				rand.Seed(time.Now().Unix())
-				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-				m.AddThreatDamage(1, m.CurrentTarget)
-				Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
-			}
-		}
-
-		if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true,  "", false)){
-			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
-			if len(potentials) > 0 {
-				rand.Seed(time.Now().Unix())
-				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
-			}else{
-				delete(m.ThreatTable, m.CurrentTarget)
-				m.CurrentTarget = ""
-			}
-		}
-
-
-		// Make sure the current target is still in the room and didn't flee
-		if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true,  "", false)){
-			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
-			if len(potentials) > 0 {
-				rand.Seed(time.Now().Unix())
-				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
-			}else{
-				delete(m.ThreatTable, m.CurrentTarget)
-				m.CurrentTarget = ""
-			}
-		}
-
-		// Do I want to chang targets? 33% chance if the current target isn't the highest on the threat table
-		if len(m.ThreatTable) > 1 {
-			rankedThreats := utils.RankMapStringInt(m.ThreatTable)
-			if m.CurrentTarget != rankedThreats[0] {
-				if utils.Roll(3, 1, 0) == 1 {
-					m.CurrentTarget = rankedThreats[0]
-					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + "\n" + text.Reset)
+			go Rooms[m.ParentId].WanderMob(m)
+			return
+		} else {
+			Rooms[m.ParentId].Chars.Lock()
+			Rooms[m.ParentId].Mobs.Lock()
+			Rooms[m.ParentId].Items.Lock()
+			// Am I hostile?  Should I pick a target?
+			if m.CurrentTarget == "" && m.Flags["hostile"] {
+				potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false, "", false)
+				if len(potentials) > 0 {
+					rand.Seed(time.Now().Unix())
+					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
+					m.AddThreatDamage(1, m.CurrentTarget)
+					Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
 				}
 			}
-		}
 
-		// TODO: Do I pick stuff up off the ground?
+			if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true, "", false)) {
+				potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false, "", false)
+				if len(potentials) > 0 {
+					rand.Seed(time.Now().Unix())
+					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
+					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
+				} else {
+					delete(m.ThreatTable, m.CurrentTarget)
+					m.CurrentTarget = ""
+				}
+			}
 
-		// I have no target and want to move
-		if (m.CurrentTarget == "" && m.Placement != 3) ||
-			(m.CurrentTarget != "" && !m.Flags["ranged"] &&
-				m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
-			(m.CurrentTarget != "" && m.Flags["ranged"] &&
-				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1)) {
-			oldPlacement := m.Placement
-			if m.Placement > 3 {
-				m.Placement--
-			} else {
-				m.Placement++
+			// Make sure the current target is still in the room and didn't flee
+			if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true, "", false)) {
+				potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false, "", false)
+				if len(potentials) > 0 {
+					rand.Seed(time.Now().Unix())
+					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
+					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
+				} else {
+					delete(m.ThreatTable, m.CurrentTarget)
+					m.CurrentTarget = ""
+				}
 			}
-			if !m.Flags["hidden"] {
-				whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
-				Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
-			}
-		// Next to attack
-		} else if m.CurrentTarget != "" && !m.Flags["ranged"] &&
-			m.Placement == Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
-			// Am I against a fighter and they succeed in a parry roll?
-			target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
-			if target.Class == 0 && config.RollParry(target.Skills[target.Equipment.Main.ItemType].Value) {
-				if target.Tier >= 10 {
-					// It's a riposte
-					actualDamage := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
-					target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))
-					if m.Stam.Current <= 0 {
-						Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
-						stringExp := strconv.Itoa(m.Experience)
-						for k := range m.ThreatTable {
-							Rooms[m.ParentId].Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
-							Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
-						}
-						Rooms[m.ParentId].MessageAll(m.Name + " dies.")
-						m.DropInventory()
-						Rooms[m.ParentId].ClearMob(m)
-						return
+
+			// Do I want to chang targets? 33% chance if the current target isn't the highest on the threat table
+			if len(m.ThreatTable) > 1 {
+				rankedThreats := utils.RankMapStringInt(m.ThreatTable)
+				if m.CurrentTarget != rankedThreats[0] {
+					if utils.Roll(3, 1, 0) == 1 {
+						m.CurrentTarget = rankedThreats[0]
+						Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + "\n" + text.Reset)
 					}
-					m.MobStunned = config.ParryStuns
-				}else{
-					target.Write([]byte(text.Green + "You parry the attack from " + m.Name + "\n" + text.Reset))
-					m.MobStunned = config.ParryStuns
 				}
-			}else{
+			}
+
+			// TODO: Do I pick stuff up off the ground?
+
+			// I have no target and want to move
+			if (m.CurrentTarget == "" && m.Placement != 3) ||
+				(m.CurrentTarget != "" && !m.Flags["ranged"] &&
+					m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
+				(m.CurrentTarget != "" && m.Flags["ranged"] &&
+					(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1)) {
+				oldPlacement := m.Placement
+				if m.Placement > 3 {
+					m.Placement--
+				} else {
+					m.Placement++
+				}
+				if !m.Flags["hidden"] {
+					whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
+					Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
+				}
+				// Next to attack
+			} else if m.CurrentTarget != "" && !m.Flags["ranged"] &&
+				m.Placement == Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
+				// Am I against a fighter and they succeed in a parry roll?
+				target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
+				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(target.Skills[target.Equipment.Main.ItemType].Value) {
+					if target.Tier >= 10 {
+						// It's a riposte
+						actualDamage := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
+						target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))
+						if m.Stam.Current <= 0 {
+							Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
+							stringExp := strconv.Itoa(m.Experience)
+							for k := range m.ThreatTable {
+								Rooms[m.ParentId].Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
+								Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
+							}
+							Rooms[m.ParentId].MessageAll(m.Name + " dies.")
+							m.DropInventory()
+							go Rooms[m.ParentId].ClearMob(m)
+							return
+						}
+						m.MobStunned = config.ParryStuns
+					} else {
+						target.Write([]byte(text.Green + "You parry the attack from " + m.Name + "\n" + text.Reset))
+						m.MobStunned = config.ParryStuns
+					}
+				} else {
+					stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
+					buildString := ""
+					if stamDamage != 0 {
+						buildString += strconv.Itoa(stamDamage) + " stamina"
+					}
+					if stamDamage != 0 && vitDamage != 0 {
+						buildString += " and "
+					}
+					if vitDamage != 0 {
+						buildString += strconv.Itoa(vitDamage) + " vitality"
+					}
+					if stamDamage == 0 && vitDamage == 0 {
+						target.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset))
+					} else {
+						target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
+					}
+					if target.Vit.Current == 0 {
+						target.Died()
+					}
+				}
+			} else if m.CurrentTarget != "" && m.Flags["ranged"] &&
+				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1) {
+				target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
 				stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
 				buildString := ""
 				if stamDamage != 0 {
@@ -275,40 +296,18 @@ func (m *Mob) Tick(){
 				if vitDamage != 0 {
 					buildString += strconv.Itoa(vitDamage) + " vitality"
 				}
-				if stamDamage == 0 && vitDamage == 0 {
-					target.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset))
-				}else {
-					target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
-				}
+				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 				if target.Vit.Current == 0 {
 					target.Died()
 				}
 			}
-		}else if m.CurrentTarget != "" && m.Flags["ranged"] &&
-				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1){
-			target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
-			stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
-			buildString := ""
-			if stamDamage != 0 {
-				buildString += strconv.Itoa(stamDamage) + " stamina"
-			}
-			if stamDamage != 0 && vitDamage != 0 {
-				buildString += " and "
-			}
-			if vitDamage != 0 {
-				buildString += strconv.Itoa(vitDamage) + " vitality"
-			}
-			target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
-			if target.Vit.Current == 0 {
-				target.Died()
-			}
+
+			// TODO: Can I cast spells.
+
+			Rooms[m.ParentId].Chars.Unlock()
+			Rooms[m.ParentId].Mobs.Unlock()
+			Rooms[m.ParentId].Items.Unlock()
 		}
-
-		// TODO: Can I cast spells.
-
-		Rooms[m.ParentId].Chars.Unlock()
-		Rooms[m.ParentId].Mobs.Unlock()
-		Rooms[m.ParentId].Items.Unlock()
 	}
 }
 
@@ -387,7 +386,6 @@ func (m *Mob) RestoreMana(damage int){
 
 func (m *Mob) InflictDamage() int {
 	damage := utils.Roll(m.SidesDice, m.NumDice, m.PlusDice)
-	log.Println(damage)
 	return damage
 }
 

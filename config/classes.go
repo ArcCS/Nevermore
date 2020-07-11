@@ -4,6 +4,7 @@ import "github.com/ArcCS/Nevermore/permissions"
 
 var AvailableClasses = make([]string, 9)
 var ClassPerms = make([]permissions.Permissions, 9)
+var StartingGear = make(map[int][]int, 9)
 
 func init(){
 	AvailableClasses[0] = "fighter"
@@ -25,6 +26,8 @@ func init(){
 	//AvailableClasses[6] = "paladin"
 	//AvailableClasses[7] = "Bard"
 	//AvailableClasses[8] = "monk"
+
+	StartingGear[0] = []int{2628}
 }
 
 type classDef struct {
