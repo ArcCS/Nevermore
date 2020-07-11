@@ -182,13 +182,14 @@ func (m *Mob) Tick(){
 		}
 
 		// Make sure the current target is still in the room and didn't flee
-		if !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true,  "", false)){
+		if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true,  "", false)){
 			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
 			if len(potentials) > 0 {
 				rand.Seed(time.Now().Unix())
 				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
 				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
 			}else{
+				delete(m.ThreatTable, m.CurrentTarget)
 				m.CurrentTarget = ""
 			}
 		}
@@ -381,9 +382,9 @@ func (m *Mob) CastSpell(spell string) bool {
 
 func (m *Mob) Look() string {
 	buildText := "You see a " + m.Name + ", " + config.TextTiers[m.Level] + " level. \n"
-	buildText += m.Description + "\n"
+	buildText += m.Description
 	if m.Flags["hostile"] {
-		buildText += "It looks hostile!"
+		buildText += "\n It looks hostile!"
 	}
 	return buildText
 }
