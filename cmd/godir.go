@@ -92,6 +92,7 @@ func (godir) process(s *state) {
 					if !objects.Rooms[toE.ToId].Crowded() {
 						from.Chars.Remove(s.actor)
 						to.Chars.Add(s.actor)
+						s.actor.Placement = 3
 						s.actor.ParentId = toE.ToId
 						// Broadcast leaving and arrival notifications
 						if s.actor.Flags["invisible"] == false {

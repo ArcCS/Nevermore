@@ -181,6 +181,19 @@ func (m *Mob) Tick(){
 			}
 		}
 
+		if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true,  "", false)){
+			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
+			if len(potentials) > 0 {
+				rand.Seed(time.Now().Unix())
+				m.CurrentTarget = potentials[rand.Intn(len(potentials))]
+				Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
+			}else{
+				delete(m.ThreatTable, m.CurrentTarget)
+				m.CurrentTarget = ""
+			}
+		}
+
+
 		// Make sure the current target is still in the room and didn't flee
 		if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true,  "", false)){
 			potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false,"", false)
@@ -213,7 +226,6 @@ func (m *Mob) Tick(){
 				m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
 			(m.CurrentTarget != "" && m.Flags["ranged"] &&
 				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1)) {
-			// We aren't fighting, we don't want to fight, and we aren't in the middle of the room.  Lets get there.
 			oldPlacement := m.Placement
 			if m.Placement > 3 {
 				m.Placement--
@@ -302,7 +314,7 @@ func (m *Mob) Tick(){
 
 // On copy to a room calculate the inventory
 func (m *Mob) CalculateInventory(){
-	log.Println("Attempting to add some inventory...")
+	//log.Println("Attempting to add some inventory...")
 	for k, v := range m.ItemList{
 		if utils.Roll(100, 1, 0) <= v {
 			log.Println("Adding inventory!!")
@@ -328,6 +340,9 @@ func (m *Mob) CalculateExperience(attackerName string) {
 
 func (m *Mob) AddThreatDamage(damage int, attackerName string){
 	m.ThreatTable[attackerName] += damage
+	if m.CurrentTarget == "" {
+		m.CurrentTarget = attackerName
+	}
 }
 
 func (m *Mob) ApplyEffect(){

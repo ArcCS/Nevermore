@@ -148,7 +148,7 @@ func (look) process(s *state) {
 	// Nice, looking at an exit.
 	if whatExit != nil {
 		if whatExit.Description == "" {
-			s.msg.Actor.SendInfo(objects.Rooms[whatExit.ParentId].Look(false))
+			s.msg.Actor.SendInfo(objects.Rooms[whatExit.ToId].Look(false))
 		}else {
 			s.msg.Actor.SendInfo(whatExit.Look())
 		}

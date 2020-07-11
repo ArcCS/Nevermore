@@ -485,19 +485,27 @@ func (c *Character) WriteMovement(previous int, new int, subject string) {
 	// Moving backwards
 	if (previous > new) && (mvAmnt == 1) && (new > c.Placement) {
 		c.Write([]byte(color + subject + " moves backwards, towards you." + text.Reset + "\n"))
+	}else if (previous > new) && (mvAmnt == 1) && (new < c.Placement) {
+		c.Write([]byte(color + subject + " moves backwards, away from you." + text.Reset + "\n"))
 	}else if (previous > new) && (mvAmnt == 1) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " moves backwards, next to you." + text.Reset + "\n"))
 	}else if (previous > new) && (mvAmnt == 2) && (new > c.Placement) {
 		c.Write([]byte(color + subject + " sprints backwards, towards you." + text.Reset + "\n"))
+	}else if (previous > new) && (mvAmnt == 2) && (new < c.Placement) {
+		c.Write([]byte(color + subject + " sprints backwards, away from you." + text.Reset + "\n"))
 	}else if (previous > new) && (mvAmnt == 2) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " sprints backwards, next to you." + text.Reset + "\n"))
 	// Moving forwards
 	}else if (previous < new) && (mvAmnt == 1) && (new < c.Placement) {
 		c.Write([]byte(color + subject + " moves forwards, towards you." + text.Reset + "\n"))
+	}else if (previous < new) && (mvAmnt == 1) && (new > c.Placement) {
+		c.Write([]byte(color + subject + " moves forwards, away from you." + text.Reset + "\n"))
 	}else if (previous < new) && (mvAmnt == 1) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " moves forwards, next to you." + text.Reset + "\n"))
 	}else if (previous < new) && (mvAmnt == 2) && (new < c.Placement) {
 		c.Write([]byte(color + subject + " sprints forwards, towards you." + text.Reset + "\n"))
+	}else if (previous < new) && (mvAmnt == 2) && (new > c.Placement) {
+		c.Write([]byte(color + subject + " sprints forwards, away from you." + text.Reset + "\n"))
 	}else if (previous < new) && (mvAmnt == 2) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " sprints forwards, next to you." + text.Reset + "\n"))
 	}
