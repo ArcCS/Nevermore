@@ -101,7 +101,7 @@ func (r *Room) Look(gm bool) (buildText string) {
 	if !gm {
 		buildText += r.Description + "\n"
 		if len(r.Exits) > 0 {
-			exitText := ""
+			exitText := make([]string, 0)
 			for _, exiti := range r.Exits {
 				// Clean up just in case a delete didn't get cleaned up...
 				if nextRoom, ok := Rooms[exiti.ToId]; !ok{
@@ -110,12 +110,12 @@ func (r *Room) Look(gm bool) (buildText string) {
 					if exiti.Flags["invisible"] != true &&
 						exiti.Flags["hidden"] != true &&
 						nextRoom.Flags["active"] == true {
-						exitText += exiti.Name + " "
+						exitText = append(exitText, exiti.Name)
 					}
 				}
 			}
-			if exitText != ""{
-				buildText += "From here you can go: " + exitText
+			if len(exitText) > 0 {
+				buildText += "From here you can go: " + strings.Join(exitText, ", ")
 			}else{
 				buildText += "You see no apparent exits."
 			}

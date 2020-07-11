@@ -9,7 +9,6 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"io"
-	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -346,7 +345,7 @@ func (c *Character) Tick(){
 }
 
 func (c *Character) Died() {
-	c.Write([]byte(text.Red + "#### OH GODS! YOU DIED!!!! Hahaha just kidding, this is beta. Here's a restore..." + text.Reset))
+	c.Write([]byte(text.Red + "#### OH GODS! YOU DIED!!!! Hahaha just kidding, this is beta. Here's a restore...\n" + text.Reset))
 	c.Stam.Current = c.Stam.Max
 	c.Vit.Current = c.Vit.Max
 	c.Mana.Current = c.Mana.Max
@@ -382,11 +381,8 @@ func (c *Character) RemoveEffect(effect string){
 // Return stam and vital damage
 func (c *Character) ReceiveDamage(damage int) (int, int){
 	stamDamage, vitalDamage := 0, 0
-	//log.Println("Incoming damage: " + strconv.Itoa(damage))
 	resist := int(math.Ceil(float64(damage) * (float64(c.Equipment.Armor/config.ArmorReductionPoints)*config.ArmorReduction)))
-	//log.Println("Resisting: " + strconv.Itoa(resist))
 	finalDamage := damage - resist
-	log.Println(finalDamage)
 	if finalDamage > c.Stam.Current {
 		stamDamage = c.Stam.Current
 		vitalDamage = finalDamage - stamDamage
@@ -394,6 +390,8 @@ func (c *Character) ReceiveDamage(damage int) (int, int){
 		if vitalDamage > c.Vit.Current {
 			vitalDamage = c.Vit.Current
 			c.Vit.Current = 0
+		}else{
+			c.Vit.Subtract(vitalDamage)
 		}
 	}else {
 		c.Stam.Subtract(finalDamage)
