@@ -43,7 +43,7 @@ func (c *characterStats) Add(character *objects.Character, address string) {
 func (c *characterStats) Remove(character *objects.Character) {
 	//log.Println("trying to let everyone know...")
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
-		c.MessageGM("### (GM):" + character.Name + " departs the realm.")
+		c.MessageGM("###:" + character.Name + " departs the realm.")
 	}else{
 		c.MessageAll("###: " + character.Name + " departs the realm.")
 	}

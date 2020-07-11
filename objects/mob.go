@@ -385,7 +385,10 @@ func (m *Mob) RestoreMana(damage int){
 }
 
 func (m *Mob) InflictDamage() int {
-	damage := utils.Roll(m.SidesDice, m.NumDice, m.PlusDice)
+	damage := 0
+	if m.NumDice > 0 && m.SidesDice > 0 {
+		damage = utils.Roll(m.SidesDice, m.NumDice, m.PlusDice)
+	}
 	return damage
 }
 
