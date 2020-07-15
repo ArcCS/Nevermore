@@ -27,9 +27,11 @@ func (get) process(s *state) {
 	whereStr := ""
 	whereNum := 1
 
-	if val, err := strconv.Atoi(s.words[1]); err == nil {
-		targetNum = val
-		argParse += 1
+	if len(s.words) > 1 {
+		if val, err := strconv.Atoi(s.words[1]); err == nil {
+			targetNum = val
+			argParse += 1
+		}
 	}
 
 	if len(s.words) > 2 {

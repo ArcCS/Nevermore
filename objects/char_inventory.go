@@ -81,8 +81,7 @@ func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude strin
 		if strings.ToLower(o.Name) != strings.ToLower(exclude) {
 			if gm {
 				items = append(items, o.Name)
-			}
-			if (seeInvisible && ignoreHidden) || gm {
+			}else if seeInvisible && !ignoreHidden {
 				items = append(items, o.Name)
 				// List non-hiddens
 			} else if seeInvisible {

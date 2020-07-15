@@ -181,16 +181,8 @@ func (m *Mob) Tick(){
 				}
 			}
 
-
-			// Make sure the current target is still in the room and didn't flee
-			if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], true)) {
-				potentials := Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], false)
-				if len(potentials) > 0 {
-					rand.Seed(time.Now().Unix())
-					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
-				} else {
-					delete(m.ThreatTable, m.CurrentTarget)
+			if m.CurrentTarget != "" {
+				if !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], true)) {
 					m.CurrentTarget = ""
 				}
 			}
