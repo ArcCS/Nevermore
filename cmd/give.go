@@ -82,7 +82,7 @@ func (give) process(s *state) {
 	}
 
 	s.msg.Actor.SendGood("You give ", target.Name, " to ", who.Name, ".")
-	s.msg.Participant.SendGood(s.actor.Name + " gives you " + targetStr)
+	s.msg.Participant.SendGood(s.actor.Name + " gives you " + target.Name)
 	s.msg.Observers.SendInfo("You see ", s.actor.Name, " give ", target.Name, " to ", who.Name, ".")
 
 	s.ok = true

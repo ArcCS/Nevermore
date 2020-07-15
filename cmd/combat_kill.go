@@ -132,7 +132,7 @@ func (kill) process(s *state) {
 				mult *= float64(config.CombatModifiers["double"])
 				s.msg.Actor.SendGood("Double Damage!")
 			}
-			actualDamage := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
+			actualDamage,_ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
 			whatMob.AddThreatDamage(actualDamage, s.actor.Name)
 			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			if whatMob.Stam.Current <= 0 {

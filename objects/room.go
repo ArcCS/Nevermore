@@ -267,9 +267,9 @@ func (r *Room) MessageMovement(previous int, new int, subject string){
 func (r *Room) WanderMob(o *Mob) {
 	r.Mobs.Lock()
 	if o.Flags["invisible"] {
-		r.MessageVisible(o.Name + " wanders away.")
+		r.MessageVisible(o.Name + " wanders away. \n" + text.Reset)
 	}else if !o.Flags["hidden"] {
-		r.MessageAll(o.Name + " wanders away.")
+		r.MessageAll(o.Name + " wanders away. \n" + text.Reset)
 	}
 	r.Mobs.Remove(o)
 	o = nil
