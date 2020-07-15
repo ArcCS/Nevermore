@@ -145,11 +145,11 @@ func (a *newCharacter) selectGenderProcess() {
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
-	case inputVal == "m":
+	case strings.Contains("male", strings.ToLower(inputVal)):
 		a.buf.Send(text.Info, "Your character is male. \n", text.Reset)
 		a.gender = "m"
 		a.selectRaceDisplay()
-	case inputVal == "f":
+	case strings.Contains("female", strings.ToLower(inputVal)):
 		a.buf.Send(text.Info, "Your character is female. \n", text.Reset)
 		a.gender = "f"
 		a.selectRaceDisplay()
@@ -253,7 +253,7 @@ func (a *newCharacter) selectClassProcess() {
 		a.selectStatsDisplay()
 	default:
 		a.buf.Send(text.Info, "Unrecognized input, please try again. \n", text.Reset)
-		a.nextFunc = a.selectRaceProcess
+		a.nextFunc = a.selectClassProcess
 	}
 }
 
@@ -319,7 +319,7 @@ func (a *newCharacter) selectStatsProcess() {
 		a.confirmSelections()
 	default:
 		a.buf.Send(text.Info, "Unrecognized input, please try again. \n", text.Reset)
-		a.nextFunc = a.selectRaceProcess
+		a.nextFunc = a.selectStatsProcess
 	}
 }
 

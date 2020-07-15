@@ -35,6 +35,12 @@ func (destroy) process(s *state) {
 		if rErr {
 			if s.actor.Permission.HasFlag(permissions.Builder) || room.Creator == s.actor.Name {
 				data.DeleteRoom(objectRef)
+				for _, item := range objects.Rooms[objectRef].Items.Contents {
+					objects.Rooms[objectRef].Items.Remove(item)
+				}
+				for _, mob := range objects.Rooms[objectRef].Mobs.Contents {
+					objects.Rooms[objectRef].ClearMob(mob)
+				}
 				delete(objects.Rooms, objectRef)
 				s.where.CleanExits()
 				s.msg.Actor.SendGood("Deleted room successfully.")

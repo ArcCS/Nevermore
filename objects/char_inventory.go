@@ -79,6 +79,9 @@ func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude strin
 	for _, o := range i.Contents {
 		// List all
 		if strings.ToLower(o.Name) != strings.ToLower(exclude) {
+			if gm {
+				items = append(items, o.Name)
+			}
 			if (seeInvisible && ignoreHidden) || gm {
 				items = append(items, o.Name)
 				// List non-hiddens
@@ -100,6 +103,36 @@ func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude strin
 	return items
 	}
 
+// List the items in this CharInventory
+func (i *CharInventory) MobList(seeInvisible bool, ignoreHidden bool) []string {
+	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	items := make([]string, 0)
+
+	for _, o := range i.Contents {
+		// List all
+		if o.Class == 100 {
+			continue
+		}else{
+			if seeInvisible && !ignoreHidden {
+				items = append(items, o.Name)
+				// List non-hiddens
+			} else if seeInvisible {
+				if o.Flags["hidden"] != true {
+					items = append(items, o.Name)
+				}
+			} else if ignoreHidden {
+				if o.Flags["invisible"] != true {
+					items = append(items, o.Name)
+				}
+			} else {
+				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
+					items = append(items, o.Name)
+				}
+			}
+		}
+	}
+	return items
+}
 
 
 

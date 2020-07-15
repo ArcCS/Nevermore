@@ -109,7 +109,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 		int(mobData["fire_resistance"].(int64)),
 		int(mobData["earth_resistance"].(int64)),
 		0,
-		make(map[string]int),
+		nil,
 		"",
 		int(mobData["wimpyvalue"].(int64)),
 		0,
@@ -140,6 +140,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 
 func (m *Mob) StartTicking(){
 	m.CalculateInventory()
+	m.ThreatTable = make(map[string]int)
 	m.MobTickerUnload = make(chan bool)
 	//TODO Modify this ticker if the mob is especially fast moving
 	m.MobTicker = time.NewTicker(8 * time.Second)
@@ -171,7 +172,7 @@ func (m *Mob) Tick(){
 			Rooms[m.ParentId].Items.Lock()
 			// Am I hostile?  Should I pick a target?
 			if m.CurrentTarget == "" && m.Flags["hostile"] {
-				potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false, "", false)
+				potentials := Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], false)
 				if len(potentials) > 0 {
 					rand.Seed(time.Now().Unix())
 					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
@@ -180,21 +181,10 @@ func (m *Mob) Tick(){
 				}
 			}
 
-			if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true, "", false)) {
-				potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false, "", false)
-				if len(potentials) > 0 {
-					rand.Seed(time.Now().Unix())
-					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-					Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + text.Reset + "\n")
-				} else {
-					delete(m.ThreatTable, m.CurrentTarget)
-					m.CurrentTarget = ""
-				}
-			}
 
 			// Make sure the current target is still in the room and didn't flee
-			if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], true, "", false)) {
-				potentials := Rooms[m.ParentId].Chars.List(m.Flags["detect_invisible"], false, "", false)
+			if m.CurrentTarget != "" && m.Flags["hostile"] && !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], true)) {
+				potentials := Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], false)
 				if len(potentials) > 0 {
 					rand.Seed(time.Now().Unix())
 					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
@@ -205,13 +195,15 @@ func (m *Mob) Tick(){
 				}
 			}
 
-			// Do I want to chang targets? 33% chance if the current target isn't the highest on the threat table
+			// Do I want to change targets? 33% chance if the current target isn't the highest on the threat table
 			if len(m.ThreatTable) > 1 {
 				rankedThreats := utils.RankMapStringInt(m.ThreatTable)
 				if m.CurrentTarget != rankedThreats[0] {
 					if utils.Roll(3, 1, 0) == 1 {
-						m.CurrentTarget = rankedThreats[0]
-						Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + "\n" + text.Reset)
+						if !utils.StringIn(rankedThreats[0], Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], true)) {
+							m.CurrentTarget = rankedThreats[0]
+							Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + "\n" + text.Reset)
+						}
 					}
 				}
 			}
@@ -242,7 +234,7 @@ func (m *Mob) Tick(){
 				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(target.Skills[target.Equipment.Main.ItemType].Value) {
 					if target.Tier >= 10 {
 						// It's a riposte
-						actualDamage := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
+						actualDamage,_ := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
 						target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))
 						if m.Stam.Current <= 0 {
 							Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
@@ -344,7 +336,7 @@ func (m *Mob) AddThreatDamage(damage int, attackerName string){
 	}
 }
 
-func (m *Mob) ApplyEffect(){
+func (m *Mob) ApplyEffect(effect string){
 	return
 }
 
@@ -361,18 +353,24 @@ func (m *Mob) ToggleFlag(flagName string) bool {
 	}
 }
 
-func (m *Mob) ReceiveDamage(damage int) int {
+func (m *Mob) ReceiveDamage(damage int) (int, int) {
 	//TODO: Review the numbers for armor here
 	finalDamage := math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints)*config.MobArmorReduction)))
 	m.Stam.Subtract(int(finalDamage))
-	return int(finalDamage)
+	return int(finalDamage), 0
 }
 
-func (m *Mob) ReceiveVitalDamage(damage int){
-	m.ReceiveDamage(damage)
+func (m *Mob) ReceiveVitalDamage(damage int) int{
+	damageMod, _ := m.ReceiveDamage(damage)
+	return damageMod
 }
 
-func (m *Mob) Heal(damage int){
+func (m *Mob) Heal(damage int) (int, int){
+	m.Stam.Add(damage)
+	return damage, 0
+}
+
+func (m *Mob) HealStam(damage int){
 	m.Stam.Add(damage)
 }
 

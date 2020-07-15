@@ -7,6 +7,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 	"strings"
 )
 
@@ -39,7 +40,7 @@ func addHandler(h handler, helpString string, permission permissions.Permissions
 func dispatchHandler(s *state) {
 
 	if len(s.cmd) > 0 {
-		//log.Println("received",  s.cmd, s.actor.Permission)
+		log.Println(s.actor.Name + " sent " + s.cmd + " with + " + strings.Join(s.input, " "))
 		if s.cmd[0] == '$' && !s.scripting {
 			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (2)")
 			return

@@ -370,7 +370,7 @@ func (c *Character) AddMenu(menuItem string, menuCmd string) {
 	}
 }
 
-func (c *Character) ApplyEffect(){
+func (c *Character) ApplyEffect(effect string){
 	return
 }
 
@@ -435,26 +435,12 @@ func (c *Character) Heal(damage int) (int,int){
 	return stamHeal, vitalHeal
 }
 
-func (c *Character) HealVital(damage int) int{
-	vitalHeal := 0
-	if damage > (c.Vit.Max - c.Vit.Current) {
-		vitalHeal = c.Vit.Max - c.Vit.Current
-		c.Vit.Current = c.Vit.Max
-	}else {
+func (c *Character) HealVital(damage int){
 		c.Vit.Add(damage)
-	}
-	return vitalHeal
 }
 
-func (c *Character) HealStam(damage int) int{
-	stamHeal := 0
-	if damage > (c.Stam.Max - c.Stam.Current) {
-		stamHeal = c.Stam.Max - c.Stam.Current
-		c.Stam.Current = c.Stam.Max
-	}else {
+func (c *Character) HealStam(damage int){
 		c.Stam.Add(damage)
-	}
-	return stamHeal
 }
 
 func (c *Character) RestoreMana(damage int){

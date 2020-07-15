@@ -10,15 +10,15 @@ import (
 
 // Syntax: spells
 func init() {
-	addHandler(spells{},
+	addHandler(spell{},
            "Usage:  spells \n \n List the spells currently bound to your character, and your spellbook",
            permissions.Player,
            "SPELLS")
 }
 
-type spells cmd
+type spell cmd
 
-func (spells) process(s *state) {
+func (spell) process(s *state) {
 spell_template := `Your spellbook contains the following spell incantations:
 ----------------------------------------------------------------------
 {{.Spells}}

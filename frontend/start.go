@@ -40,7 +40,9 @@ func NewStart(f *frontend) (m *start){
 // into the system.
 func (m *start) startDisplay() {
 	// Load Characters
-	m.characters, _ = data.ListChars(m.account)
+	for _, name := range data.ListChars(m.account) {
+		m.characters = append(m.characters, name)
+	}
 	sort.Strings(m.characters)
 	m.powerCharacter, _ = data.ListPowerChar(m.account)
 	var output strings.Builder
@@ -163,9 +165,9 @@ func (m *start) changePw(){
 
 func (m *start) characterList() string {
 	var charList strings.Builder
-	for _, charn := range m.characters {
-		charList.Write([]byte(" " + charn))
-	}
+	charList.WriteString("-----------------------------\n  ")
+	charList.Write([]byte(strings.Join(m.characters, ", ")))
+
 	/*
 		// Width of gutter between columns
 	const gutter = 4

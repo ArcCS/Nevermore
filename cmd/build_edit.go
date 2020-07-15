@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	addHandler(edit{},"Usage:  edit (room|mob|item|exit) (Name) (commands) \n \n Use this command and the sub commands to make modifications to world objects: \n" +
+	addHandler(edit{},"Usage:  edit (room|mob|item|exit|char) (Property|Toggle) (SubjectName) (Values) \n \n Use this command and the sub commands to make modifications to world objects: \n" +
 		"Rooms: you must be in the room you wish to edit name not required\n" +
 		"Exits:  it must be already created in the room you are standing in \n" +
 		"Items: You must edit the item in your inventory.\n" +
@@ -314,7 +314,7 @@ func (edit) process(s *state) {
 			}
 			mob.Save()
 		} else {
-			s.msg.Actor.SendBad("Exit not found.")
+			s.msg.Actor.SendBad("Mob not found.")
 		}
 
 		return

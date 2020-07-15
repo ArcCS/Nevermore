@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/ArcCS/Nevermore/config"
 	"log"
+	"strings"
 )
 
 // New account
@@ -67,7 +68,7 @@ func AccountExists(acctName string) bool {
 }
 
 // Retrieve account characters
-func ListChars(acctName string) ([]string, bool){
+func ListChars(acctName string) []string {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, _ := conn.QueryNeoAll("MATCH (a:account)-[o:owns]->(c:character) WHERE toLower(a.name)=toLower({acctName}) and " +
@@ -77,13 +78,16 @@ func ListChars(acctName string) ([]string, bool){
 		},
 	)
 	if len(data) < 1 {
-		return nil, true
+		return nil
 	}else {
-		charList := make([]string, len(data))
-		for _, k := range data[0] {
-			charList = append(charList, k.(string))
+		searchList := make([]string, 0)
+		for _, row := range data {
+			datum := row[0].(string)
+			if strings.TrimSpace(datum) != "" {
+				searchList = append(searchList, datum)
+			}
 		}
-		return charList, false
+		return searchList
 	}
 }
 
