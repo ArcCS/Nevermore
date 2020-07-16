@@ -218,7 +218,7 @@ func (m *Mob) Tick(){
 				(m.CurrentTarget != "" && m.Flags["ranged"] &&
 					(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1)) {
 				oldPlacement := m.Placement
-				if m.Placement > m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
+				if m.Placement > Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
 					m.Placement--
 				} else {
 					m.Placement++
