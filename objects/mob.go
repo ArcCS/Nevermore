@@ -192,7 +192,7 @@ func (m *Mob) Tick(){
 				rankedThreats := utils.RankMapStringInt(m.ThreatTable)
 				if m.CurrentTarget != rankedThreats[0] {
 					if utils.Roll(3, 1, 0) == 1 {
-						if !utils.StringIn(rankedThreats[0], Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], true)) {
+						if utils.StringIn(rankedThreats[0], Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], true)) {
 							m.CurrentTarget = rankedThreats[0]
 							Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + "\n" + text.Reset)
 						}
