@@ -201,8 +201,7 @@ func (m *Mob) Tick(){
 			}
 
 			// TODO: Do I pick stuff up off the ground?
-
-			// I have no target and want to move
+			log.Println(m.Name + "My target is: :" + m.CurrentTarget )
 			if (m.CurrentTarget == "" && m.Placement != 3) ||
 				(m.CurrentTarget != "" && !m.Flags["ranged"] &&
 					m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
@@ -296,18 +295,20 @@ func (m *Mob) Tick(){
 }
 
 // On copy to a room calculate the inventory
-func (m *Mob) CalculateInventory(){
+func (m *Mob) CalculateInventory() {
 	//log.Println("Attempting to add some inventory...")
-	for k, v := range m.ItemList{
-		if utils.Roll(100, 1, 0) <= v {
-			log.Println("Adding inventory!!")
-			// Successful roll!  Add this item to the inventory!
+	if len(m.ItemList) > 0 {
+		for k, v := range m.ItemList {
+			if utils.Roll(100, 1, 0) <= v {
+				log.Println("Adding inventory!!")
+				// Successful roll!  Add this item to the inventory!
 				newItem := Item{}
 				copier.Copy(&newItem, Items[k])
 				m.Inventory.Add(&newItem)
-				}
 			}
 		}
+	}
+}
 
 func (m *Mob) DropInventory(){
 	for _, item := range m.Inventory.Contents{

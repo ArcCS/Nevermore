@@ -96,7 +96,7 @@ func (godir) process(s *state) {
 						s.actor.ParentId = toE.ToId
 						// Broadcast leaving and arrival notifications
 						if s.actor.Flags["invisible"] == false {
-							s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(exitName), ".")
+							s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(to.Name), ".")
 							s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
 						}
 						s.scriptActor("LOOK")
