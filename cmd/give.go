@@ -40,7 +40,7 @@ func (give) process(s *state) {
 	s.participant = who
 
 	// We're going to process a money transaction.
-	if strings.HasPrefix("$", targetStr) {
+	if strings.HasPrefix(targetStr, "$") {
 		if amount64, err := strconv.ParseInt(strings.Trim(targetStr, "$"), 10, 64); err==nil{
 			amount := int(amount64)
 			if s.actor.Gold.CanSubtract(amount){

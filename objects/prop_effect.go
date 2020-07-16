@@ -11,11 +11,11 @@ type Effect struct{
 	lastTrigger time.Time
 	interval time.Duration
 
-	effect string
-	effectOff string
+	effect func()
+	effectOff func()
 }
 
-func NewEffect(t time.Duration, length string, interval string,  effect string, effectOff string) *Effect {
+func NewEffect(length string, interval string,  effect func(), effectOff func()) *Effect {
 	parseLength,_ := time.ParseDuration(length)
 	parseInterval, _ := time.ParseDuration(interval)
 	return &Effect{time.Now(),
@@ -23,7 +23,7 @@ func NewEffect(t time.Duration, length string, interval string,  effect string, 
 		time.Now(),
 		parseInterval,
 		effect,
-		effectOff }
+		effectOff}
 }
 
 func (s *Effect) Reset(t time.Duration) {
@@ -33,5 +33,10 @@ func (s *Effect) Reset(t time.Duration) {
 
 func (s *Effect) TimeRemaining() float64 {
 	calc := s.length - (time.Now().Sub(s.startTime))
+	return calc.Minutes()
+}
+
+func (s *Effect) LastTriggerInterval() float64 {
+	calc := s.interval - (time.Now().Sub(s.lastTrigger))
 	return calc.Minutes()
 }

@@ -352,7 +352,7 @@ func RenameExit(exitName string, oldName string,  baseRoom int, toRoom int) bool
 	defer conn.Close()
 	toExit, etrap := conn.ExecNeo(
 		"MATCH (r:room)-[e:exit]->(r2:room) WHERE " +
-			"r.room_id={baseRoom} AND r.room_id={toRoom} AND e.name={oldexit} SET " +
+			"r.room_id={baseRoom} AND r2.room_id={toRoom} AND e.name={oldexit} SET " +
 			`e.name={exitname}`,
 		map[string]interface {}{
 			"exitname":      exitName,
@@ -378,9 +378,8 @@ func UpdateExit(exitData map[string]interface{}) bool {
 	defer conn.Close()
 	toExit, etrap := conn.ExecNeo(
 		"MATCH (r:room)-[e:exit]->(r2:room) WHERE " +
-			"r.room_id={baseRoom} AND r.room_id={toRoom} SET " +
-			`e.name={exitname}, 
-	e.placement={placement}, 
+			"r.room_id={baseRoom} AND r2.room_id={toRoom} AND e.name={exitname} SET " +
+			`e.placement={placement}, 
 	e.description={description},
 	e.key_id={key_id}, 
 	e.closeable={closeable},

@@ -33,6 +33,10 @@ func (cast) process(s *state) {
 		}
 	}
 
+	ready, msg := s.actor.TimerReady("combat"); if !ready {
+		s.msg.Actor.SendBad(msg)
+	}
+
 	spellInstance, ok := spells.Spells[strings.ToLower(s.input[0])]; if !ok {
 		s.msg.Actor.SendBad("What spell do you want to cast?")
 		return
@@ -47,8 +51,13 @@ func (cast) process(s *state) {
 	}
 	// It was a mob!
 	if whatMob != nil {
-		spells.Effects[spellInstance.Effect](s.actor, whatMob, spellInstance.Magnitude)
-		return
+		if s.actor.Mana.Current > spellInstance.Cost {
+			msg := spells.Effects[spellInstance.Effect](s.actor, whatMob, spellInstance.Magnitude)
+			s.msg.Actor.SendGood(msg)
+			return
+		}else{
+			s.msg.Actor.SendBad("You do not have enough mana to cast this spell.")
+		}
 	}
 
 	// Are we casting on a character
@@ -69,6 +78,6 @@ func (cast) process(s *state) {
 	}
 
 
-	s.msg.Actor.SendInfo("")
+	s.msg.Actor.SendInfo("Cast on who?")
 	s.ok = true
 }

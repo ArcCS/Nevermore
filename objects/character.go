@@ -28,8 +28,8 @@ type Character struct {
 
 
 	Flags map[string]bool
-	Effects map[string]Effect
-	HiddenEffects map[string]Effect
+	Effects map[string]*Effect
+	HiddenEffects map[string]*Effect
 	//TODO ??? Modifiers map[string]int
 
 	// ParentId is the room id for the room
@@ -103,8 +103,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			RestoreInventory(charData["inventory"].(string)),
 			0,
 			make(map[string]bool),
-			make(map[string]Effect),
-			make(map[string]Effect),
+			make(map[string]*Effect),
+			make(map[string]*Effect),
 			int(charData["parentid"].(int64)),
 			config.ClassTitle(
 				int(charData["class"].(int64)),
@@ -234,6 +234,14 @@ func (c *Character) ToggleFlag(flagName string) bool {
 	}
 }
 
+func (c *Character) ToggleFlagAndMsg(flagName string, msg string) {
+	if val, exists := c.Flags[flagName]; exists{
+		c.Flags[flagName] = !val
+	}else{
+		c.Flags[flagName] = true
+	}
+}
+
 func (c *Character) Save(){
 	charData := make(map[string]interface{})
 	charData["title"] = c.Title
@@ -329,16 +337,15 @@ func (c *Character) Tick(){
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
 		// Process Removing the effect
-		if effect.TimeRemaining() <= 0 {
-			//TODO: Execute the spell to turn this off, but for now, just toggles
-			if effect.effectOff == "toggle"{
-				c.ToggleFlag(name)
+		if effect.interval > 0 {
+			if effect.LastTriggerInterval() <= 0 {
+				effect.effect()
 			}
-			delete(c.Effects, name)
+		}
+		if effect.TimeRemaining() <= 0 {
+			c.RemoveEffect(name)
 			continue
 		}
-
-		//TODO:  Process an interval execution of the effect
 	}
 
 
@@ -370,12 +377,14 @@ func (c *Character) AddMenu(menuItem string, menuCmd string) {
 	}
 }
 
-func (c *Character) ApplyEffect(effect string){
-	return
+func (c *Character) ApplyEffect(effectName string, length string, interval string,  effect func(), effectOff func()){
+	c.Effects[effectName] = NewEffect(length, interval,  effect , effectOff)
+	effect()
 }
 
-func (c *Character) RemoveEffect(effect string){
-	return
+func (c *Character) RemoveEffect(effectName string){
+	c.Effects[effectName].effectOff()
+	delete(c.Effects, effectName)
 }
 
 // Return stam and vital damage

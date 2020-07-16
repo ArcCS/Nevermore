@@ -21,7 +21,7 @@ type Mob struct {
 	Inventory *ItemInventory
 	ItemList map[int]int
 	Flags map[string]bool
-	Effects map[string]Effect
+	Effects map[string]*Effect
 
 	// ParentId is the room id for the room
 	ParentId int
@@ -86,7 +86,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 		NewItemInventory(),
 		make(map[int]int),
 		make(map[string]bool),
-		make(map[string]Effect),
+		make(map[string]*Effect),
 		-1,
 		int(mobData["gold"].(int64)),
 		int(mobData["experience"].(int64)),
@@ -358,12 +358,13 @@ func (m *Mob) AddThreatDamage(damage int, attackerName string){
 	}
 }
 
-func (m *Mob) ApplyEffect(effect string){
-	return
+func (m *Mob) ApplyEffect(effectName string, length string, interval string,  effect func(), effectOff func()){
+	m.Effects[effectName] = NewEffect(length, interval,  effect , effectOff)
+	effect()
 }
 
-func (m *Mob) RemoveEffect(effect string){
-	return
+func (m *Mob) RemoveEffect(effectName string){
+	delete(m.Effects, effectName)
 }
 
 func (m *Mob) ToggleFlag(flagName string) bool {
