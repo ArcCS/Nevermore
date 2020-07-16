@@ -27,7 +27,6 @@ type look cmd
 func (look) process(s *state) {
 	var others []string
 	var mobs []string
-	var items []string
 	if len(s.input) == 0 {
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(true))
@@ -53,10 +52,10 @@ func (look) process(s *state) {
 		} else if len(mobs) > 1{
 			s.msg.Actor.SendInfo("You see: " + strings.Join(mobs, ", "))
 		}
-		items = objects.Rooms[s.actor.ParentId].Items.List()
+		items := objects.Rooms[s.actor.ParentId].Items.List()
 		if len(items) == 1 {
 			s.msg.Actor.SendInfo("On the ground you see: " + strings.Join(items, ", "))
-		} else if len(mobs) > 1{
+		} else if len(items) > 1{
 			s.msg.Actor.SendInfo("On the ground you see: " + strings.Join(items, ", "))
 		}
 		return

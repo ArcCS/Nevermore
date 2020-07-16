@@ -45,7 +45,7 @@ func (i *ItemInventory) Remove(o *Item) {
 		}
 	}
 	if len(i.Contents) == 0 {
-		i.Contents = make([]*Item, 0, 10)
+		i.Contents = make([]*Item, 0, 0)
 	}
 	i.TotalWeight -= o.GetWeight()
 }
@@ -97,7 +97,9 @@ func (i *ItemInventory) List() []string {
 	}
 
 	for _, o := range i.Contents {
-		items = append(items, o.Name)
+		if strings.TrimSpace(o.Name) != "" {
+			items = append(items, o.Name)
+		}
 	}
 
 	return items

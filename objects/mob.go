@@ -201,7 +201,7 @@ func (m *Mob) Tick(){
 			}
 
 			// TODO: Do I pick stuff up off the ground?
-			log.Println(m.Name + "My target is: :" + m.CurrentTarget )
+			//log.Println(m.Name + "My target is: :" + m.CurrentTarget )
 			if (m.CurrentTarget == "" && m.Placement != 3) ||
 				(m.CurrentTarget != "" && !m.Flags["ranged"] &&
 					m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
@@ -235,7 +235,7 @@ func (m *Mob) Tick(){
 								Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
 							}
 							Rooms[m.ParentId].MessageAll(m.Name + " dies.")
-							m.DropInventory()
+							target.Write([]byte(text.White + m.DropInventory()))
 							go Rooms[m.ParentId].ClearMob(m)
 							return
 						}
@@ -310,10 +310,29 @@ func (m *Mob) CalculateInventory() {
 	}
 }
 
-func (m *Mob) DropInventory(){
-	for _, item := range m.Inventory.Contents{
-		m.Inventory.Remove(item)
-		Rooms[m.ParentId].Items.Add(item)
+func (m *Mob) DropInventory() string {
+	var drops []string
+	if len(m.Inventory.Contents) > 0 {
+		for _, item := range m.Inventory.Contents {
+			m.Inventory.Remove(item)
+			if item.Name != "" {
+				Rooms[m.ParentId].Items.Add(item)
+				drops = append(drops, item.Name)
+			}
+		}
+	}
+	if m.Gold > 0 {
+		newGold := Item{}
+		copier.Copy(&newGold, Items[3456])
+		newGold.Name = strconv.Itoa(m.Gold) + " gold pieces"
+		newGold.Value = m.Gold
+		Rooms[m.ParentId].Items.Add(&newGold)
+		drops = append(drops, newGold.Name)
+	}
+	if len(drops) == 0 {
+		return "The " + m.Name + " was carrying:\n Nothing"
+	}else{
+		return "The " + m.Name + " was carrying:\n " + strings.Join(drops, ", ")
 	}
 }
 

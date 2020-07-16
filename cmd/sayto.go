@@ -50,17 +50,17 @@ func (sayto) process(s *state) {
 	msg := strings.Join(s.input[1:], " ")
 
 	if msg[len(msg)-1:] == "?" {
-		s.msg.Actor.SendGood("You ask " + who.Name + ": " + msg)
-		s.msg.Participant.SendInfo(whoSays, " asks you: " + msg)
-		s.msg.Observers.SendInfo(whoSays, " asks " + who.Name + ": " + msg)
+		s.msg.Actor.SendGood("You ask " + who.Name + ": \"", msg, "\"")
+		s.msg.Participant.SendInfo(whoSays, " asks you: \"", msg, "\"")
+		s.msg.Observers.SendInfo(whoSays, " asks " + who.Name + ": \"", msg, "\"")
 	}else if msg[len(msg)-1:] == "!" {
-		s.msg.Actor.SendGood("You exclaim to " + who.Name + ": ", msg)
-		s.msg.Participant.SendInfo(whoSays, " exclaims to you: " + msg)
-		s.msg.Observers.SendInfo(whoSays, " exclaims to " + who.Name + ": ", msg)
+		s.msg.Actor.SendGood("You exclaim to " + who.Name + ": \"", msg, "\"")
+		s.msg.Participant.SendInfo(whoSays, " exclaims to you: \"", msg, "\"")
+		s.msg.Observers.SendInfo(whoSays, " exclaims to " + who.Name + ": \"", msg, "\"")
 	}else {
-		s.msg.Actor.SendGood("You say to " + who.Name + ": ", msg)
-		s.msg.Participant.SendInfo(whoSays, " says to you: " + msg)
-		s.msg.Observers.SendInfo(whoSays, " says to " + who.Name + ": ", msg)
+		s.msg.Actor.SendGood("You say to " + who.Name + ": \"", msg, "\"")
+		s.msg.Participant.SendInfo(whoSays, " says to you: \"", msg, "\"")
+		s.msg.Observers.SendInfo(whoSays, " says to " + who.Name + ": \"", msg, "\"")
 	}
 
 	// We need to calculate nearby locations in order to do this.

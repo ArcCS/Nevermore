@@ -27,7 +27,7 @@ func DiceRoll(dieSides int, numDice int, mod int, drop int, total bool) []int {
 	r1 := rand.New(s1)
 
     for i := range rolls {
-		rolls[i] = (r1.Intn(dieSides)+1)+mod
+		rolls[i] = r1.Intn(dieSides)+1
 	}
 
     if drop > 0 {

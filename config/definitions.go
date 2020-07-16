@@ -12,7 +12,7 @@ var ItemTypes = map[int]string{
 	7: "scroll",
 	8: "wand",
 	9: "chest",
-	10: "money",
+	10: "gold",
 	11: "key",
 	12: "light",
 	13: "object",
