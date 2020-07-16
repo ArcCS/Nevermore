@@ -202,13 +202,23 @@ func (m *Mob) Tick(){
 
 			// TODO: Do I pick stuff up off the ground?
 			//log.Println(m.Name + "My target is: :" + m.CurrentTarget )
-			if (m.CurrentTarget == "" && m.Placement != 3) ||
-				(m.CurrentTarget != "" && !m.Flags["ranged"] &&
+			if m.CurrentTarget == "" && m.Placement != 3 {
+				oldPlacement := m.Placement
+				if m.Placement > 3 {
+					m.Placement--
+				} else {
+					m.Placement++
+				}
+				if !m.Flags["hidden"] {
+					whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
+					Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
+				}
+			}else if (m.CurrentTarget != "" && !m.Flags["ranged"] &&
 					m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
 				(m.CurrentTarget != "" && m.Flags["ranged"] &&
 					(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1)) {
 				oldPlacement := m.Placement
-				if m.Placement > 3 {
+				if m.Placement > m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
 					m.Placement--
 				} else {
 					m.Placement++

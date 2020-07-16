@@ -2,7 +2,7 @@ package config
 
 var AvailableRaces = make([]string, 14)
 
-var AllRaces = []string{"human", "half-giant", "troll", "ogre", "dwarf", "elf", "dark-elf", "half-elf", "half-orc", "orc", "hobbit", "gnome", "sprite", "reni", "god"}
+var AllRaces = []string{"human", "half-giant", "troll", "ogre", "dwarf", "elf", "dark-elf", "half-elf", "half-orc", "orc", "hobbit", "gnome", "sprite", "renis", "god"}
 
 
 func init(){
@@ -19,7 +19,7 @@ func init(){
 	AvailableRaces[10] = "hobbit"
 	AvailableRaces[11] = "gnome"
 	AvailableRaces[12] = "sprite"
-	AvailableRaces[13] = "reni"
+	AvailableRaces[13] = "renis"
 }
 
 type raceDef struct{

@@ -181,8 +181,8 @@ func (a *newCharacter) selectRaceProcess() {
 	case l == 0:
 		a.buf.Send(text.Info, "No input given. Please try again. \n", text.Reset)
 		a.nextFunc = a.selectRaceProcess
-	case strings.HasPrefix("help", inputVal):
-		if strings.Contains(" ", inputVal) {
+	case strings.Contains(inputVal, "help"):
+		if strings.Contains( inputVal, " ") {
 			topic := strings.Split(inputVal, " ")[1]
 			a.helpDisplay(topic)
 		}else{
@@ -230,8 +230,8 @@ func (a *newCharacter) selectClassProcess() {
 	case l == 0:
 		a.buf.Send(text.Info, "No input given. Please try again. \n", text.Reset)
 		a.nextFunc = a.selectClassProcess
-	case strings.HasPrefix("help", inputVal):
-		if strings.Contains(" ", inputVal) {
+	case strings.Contains(inputVal, "help"):
+		if strings.Contains( inputVal, " ") {
 			topic := strings.Split(inputVal, " ")[1]
 			a.helpDisplay(topic)
 		}else{
@@ -418,6 +418,14 @@ func (a *newCharacter) fastStep1Process() {
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
+	case strings.Contains(inputVal, "help"):
+		if strings.Contains( inputVal, " ") {
+			topic := strings.Split(inputVal, " ")[1]
+			a.helpDisplay(topic)
+		}else{
+			a.helpDisplay("classes")
+		}
+		a.nextFunc = a.fastStep1Process
 	case validateFastStep(inputVal):
 		items := strings.Split(inputVal, " ")
 		a.buf.SendInfo(fmt.Sprintf("Gender: %[1]s, Race: %[2]s, Class: %[3]s", items[0],items[1],items[2]))
@@ -576,7 +584,7 @@ func (a *newCharacter) helpDisplay(subject string) {
 		a.buf.Send("Available classes: \n")
 		a.buf.Send(strings.Join(config.AvailableClasses, ", "))
 	}else if utils.StringIn(subject, config.AvailableRaces){
-		outLine := fmt.Sprintf("Race: %[1]s" +
+		outLine := fmt.Sprintf("Race: %[1]s \n" +
 			"Desc: %[2]s \n" +
 			"Attribute: Min/Max \n" +
 			"Strength: %[3]s/%[4]s, \n" +
