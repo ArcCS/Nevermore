@@ -26,7 +26,8 @@ type look cmd
 
 func (look) process(s *state) {
 	var others []string
-	var mobs []string
+	var mobs string
+	var mobAttacking string
 	if len(s.input) == 0 {
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(true))
@@ -36,27 +37,27 @@ func (look) process(s *state) {
 		// Pick whether it's a GM or a user looking and go for it.
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			others = objects.Rooms[s.actor.ParentId].Chars.List(true, true, s.actor.Name, true)
-			mobs = objects.Rooms[s.actor.ParentId].Mobs.List(true, true)
+			mobs = objects.Rooms[s.actor.ParentId].Mobs.ReducedList(true, true)
+			mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(true,true )
 		}else{
 			others = objects.Rooms[s.actor.ParentId].Chars.List(false, false, s.actor.Name, false)
-			mobs = objects.Rooms[s.actor.ParentId].Mobs.List(false, false)
+			mobs = objects.Rooms[s.actor.ParentId].Mobs.ReducedList(false, false)
+			mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(false, false )
 		}
 		if len(others) == 1 {
 			s.msg.Actor.SendInfo(strings.Join(others, ", "), " is also here.")
 		} else if len(others) > 1{
 			s.msg.Actor.SendInfo(strings.Join(others, ", "), " are also here.")
 		}
-		//log.Println("Mobs here:" + strconv.Itoa(len(mobs)))
-		if len(mobs) == 1 {
-			s.msg.Actor.SendInfo("You see: " + strings.Join(mobs, ", "))
-		} else if len(mobs) > 1{
-			s.msg.Actor.SendInfo("You see: " + strings.Join(mobs, ", "))
+		if len(mobs) > 0 {
+			s.msg.Actor.SendInfo("You see " + mobs)
 		}
-		items := objects.Rooms[s.actor.ParentId].Items.List()
-		if len(items) == 1 {
-			s.msg.Actor.SendInfo("On the ground you see: " + strings.Join(items, ", "))
-		} else if len(items) > 1{
-			s.msg.Actor.SendInfo("On the ground you see: " + strings.Join(items, ", "))
+		items := s.where.Items.ReducedList()
+		if len(items) > 0 {
+			s.msg.Actor.SendInfo("On the ground you see " + items)
+		}
+		if len(mobAttacking) > 0 {
+			s.msg.Actor.SendInfo(mobAttacking)
 		}
 		return
 	}
@@ -81,7 +82,7 @@ func (look) process(s *state) {
 	// It was a person!
 	if whatChar != nil {
 		s.msg.Actor.SendInfo(whatChar.Look())
-		equip_template := " {{.Sub_pronoun}} is currently wearing..." +
+		equip_template := "{{.Sub_pronoun}} is currently wearing..." +
 			" {{if .Chest}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Chest}} about {{.Pos_pronoun}} body{{end}}" +
 			" {{if .Neck}}\n{{.Sub_pronoun}} {{.Isare}} a {{.Neck}} around {{.Pos_pronoun}} neck.{{end}}" +
 			" {{if .Main}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Main}} in {{.Pos_pronoun}} main hand.{{end}}" +

@@ -30,7 +30,7 @@ type Character struct {
 	Flags map[string]bool
 	Effects map[string]*Effect
 	HiddenEffects map[string]*Effect
-	//TODO ??? Modifiers map[string]int
+	Modifiers map[string]int
 
 	// ParentId is the room id for the room
 	ParentId int
@@ -105,6 +105,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			make(map[string]bool),
 			make(map[string]*Effect),
 			make(map[string]*Effect),
+			make(map[string]int),
 			int(charData["parentid"].(int64)),
 			config.ClassTitle(
 				int(charData["class"].(int64)),
@@ -240,6 +241,7 @@ func (c *Character) ToggleFlagAndMsg(flagName string, msg string) {
 	}else{
 		c.Flags[flagName] = true
 	}
+	c.Write([]byte(msg))
 }
 
 func (c *Character) Save(){
@@ -275,6 +277,12 @@ func (c *Character) Save(){
 	charData["stammax"] = c.Stam.Max
 	charData["equipment"] = c.Equipment.Jsonify()
 	charData["inventory"] = c.Inventory.Jsonify()
+
+	berz, ok := c.Flags["berserk"]; if ok {
+		if berz {
+			charData["str"] = c.Str.Current -5
+		}
+	}
 	data.SaveChar(charData)
 
 	//TODO Process Effects
@@ -463,6 +471,14 @@ func (c *Character) InflictDamage() (damage int){
 						c.Equipment.Main.PlusDice)
 
 	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod*float64(c.Str.Current))))
+	// Add any modified base damage
+	baseDamage, ok := c.Modifiers["base_damage"]; if !ok {
+		baseDamage = 0
+	}
+	damage += baseDamage
+	if damage < 0 {
+		damage = 0
+	}
 	return damage
 }
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/text"
 	"log"
 	"text/template"
 )
@@ -19,13 +20,17 @@ func init() {
 type information cmd
 
 func (information) process(s *state) {
+	berz, ok := s.actor.Flags["berserk"]; if !ok {
+		berz = false
+	}
 
 	char_template := "{{.Charname}}, the {{.Tier}} tier {{.Race}} {{.Title}}\n" +
 "----------------------------------------------------------------------\n" +
 "Str: {{.Str}}/{{.Max_str}}, Dex: {{.Dex}}/{{.Max_dex}}, Con: {{.Con}}/{{.Max_con}}, Int: {{.Int}}/{{.Max_int}}, Piety: {{.Pie}}/{{.Max_pie}}.\n"+
 "You have an armor resistance of {{.Armor_resistance}} with a damage ignore of {{.Damage_ignore}}.\n"+
 "{{if .God}} You bear the mark of a devotee of {{.God}}.\n{{end}}"+
-	"You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.\n"+
+	"{{if .Berz}}" + text.Red + "The red rage grips you!" + text.Good +
+	"{{else}}You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.{{end}}\n"+
 	"You require {{.Next_level}} additional experience pts for your next tier.\n"+
 	"You are carrying {{.Gold}} gold marks in your coin purse.\n"+
 	"{{if .Dark_vision}} You can see in the dark naturally. \n{{end}}"+
@@ -72,6 +77,7 @@ func (information) process(s *state) {
 		Day_number int
 		Month string
 		Age int
+		Berz bool
 	}{
 		s.actor.Name,
 		config.TextTiers[s.actor.Tier],
@@ -107,6 +113,7 @@ func (information) process(s *state) {
 		0,
 		"Month",
 		0,
+		berz,
 	}
 
 	tmpl, _ := template.New("char_info").Parse(char_template)

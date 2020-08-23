@@ -10,7 +10,7 @@ import (
 func init() {
 	addHandler(circle{},
            "Usage:  circle target # \n\n Try to circle a mob to apply a short duration stun and generate threat",
-           permissions.Fighter, //TODO: Add Barbarian here
+           permissions.Fighter & permissions.Barbarian,
            "circle", "cir")
 }
 
@@ -50,13 +50,19 @@ func (circle) process(s *state) {
 	if whatMob != nil {
 
 		// Shortcut a missing weapon:
-		if s.actor.Equipment.Main == nil && s.actor.Class != 0 {
+		if s.actor.Equipment.Main == nil  {
 			s.msg.Actor.SendBad("You have no weapon to attack with.")
 			return
 		}
 
+		// Shortcut Missile weapon:
+		if s.actor.Equipment.Main.ItemType == 4 {
+			s.msg.Actor.SendBad("You cannot circle with a ranged weapon.")
+			return
+		}
+
 		// Shortcut target not being in the right location, check if it's a missile weapon, or that they are placed right.
-		if s.actor.Equipment.Main.ItemType != 4 && (s.actor.Placement != whatMob.Placement) {
+		if s.actor.Placement != whatMob.Placement {
 			s.msg.Actor.SendBad("You are too far away to circle them.")
 			return
 		}

@@ -48,7 +48,7 @@ const (
 	Paladin
 	Cleric
 	Ranger
-	Berserker
+	Barbarian
 	Bard
 	Monk
 )

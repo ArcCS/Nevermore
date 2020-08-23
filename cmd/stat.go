@@ -16,6 +16,12 @@ func init() {
 type stat cmd
 
 func (stat) process(s *state) {
+	berz, ok := s.actor.Flags["berserk"]; if ok {
+		if berz {
+			s.msg.Actor.SendBad("You are within the grip of the red rage!")
+			return
+		}
+	}
 
 	stat_template := "You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.\n"
 

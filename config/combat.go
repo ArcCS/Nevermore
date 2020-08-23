@@ -12,6 +12,9 @@ var CombatModifiers = map[string]int {
 	"crushing": 10,
 	"thwomp":	2,
 
+	// Amount of damage per strength point
+	"berserk": 5,
+
 	// Sneaky Types
 	"backstab":	8,
 	"snipe":	8,
@@ -32,6 +35,12 @@ var CombatCooldown = 8
 var ParryStuns = 2
 var CircleStuns = 1
 var CircleTimer = 30
+var BashStuns = 15
+var BashTimer = 180
+var ThumpRoll = 10
+var ThwompRoll = 50
+var CrushingRoll = 500
+var ThunkRoll = 1000
 
 // Double Damage is out of 100
 var Parry = []int{

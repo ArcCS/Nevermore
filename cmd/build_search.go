@@ -11,7 +11,7 @@ import (
 func init() {
 	addHandler(find{},
            "Usage:  find (room|mob|item) name|desc (text) (page #) \n \n Use this command to search the database and find a list of matching items",
-           permissions.Builder,
+           permissions.Player,
            "find")
 }
 

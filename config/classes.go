@@ -8,7 +8,7 @@ var StartingGear = make(map[int][]int, 9)
 
 func init(){
 	AvailableClasses[0] = "fighter"
-	//AvailableClasses[1] = "barbarian"
+	AvailableClasses[1] = "barbarian"
 	//AvailableClasses[2] = "thief"
 	//AvailableClasses[3] = "ranger"
 	//AvailableClasses[4] = "mage"
@@ -18,7 +18,7 @@ func init(){
 	//AvailableClasses[8] = "monk"
 
 	ClassPerms[0] = permissions.Fighter
-	//AvailableClasses[1] = "barbarian"
+	ClassPerms[1] = permissions.Barbarian
 	//AvailableClasses[2] = "thief"
 	//AvailableClasses[3] = "ranger"
 	//AvailableClasses[4] = "mage"
@@ -27,7 +27,8 @@ func init(){
 	//AvailableClasses[7] = "Bard"
 	//AvailableClasses[8] = "monk"
 
-	StartingGear[0] = []int{2628}
+	StartingGear[0] = []int{2628, 1088}
+	StartingGear[1] = []int{2628, 1088}
 }
 
 type classDef struct {
@@ -209,3 +210,4 @@ func ClassTitle(class int, gender string, tier int) string{
 var TextGender = map[string]string{"m": "male", "f": "female"}
 var TextSubPronoun = map[string]string{"m": "he", "f": "she"}
 var TextPosPronoun = map[string]string{"m": "his", "f": "her"}
+var TextDescPronoun = map[string]string{"m": "him", "f": "her"}

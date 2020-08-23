@@ -1,9 +1,11 @@
 package spells
 
-type MobNPCSpells interface {
+import "strconv"
+
+type mobnpcspells interface {
 	ChangePlacement(place int) bool
-	ApplyEffect(effectName string, length string, interval string,  effect func(), effectOff func())
-	RemoveEffect(effectName string)
+	ApplyEffect(effectname string, length string, interval string,  effect func(), effectoff func())
+	RemoveEffect(effectname string)
 	ReceiveDamage(damage int) (int, int)
 	ReceiveVitalDamage(damage int) int
 	Heal(damage int) (int, int)
@@ -12,133 +14,232 @@ type MobNPCSpells interface {
 	RestoreMana(damage int)
 }
 
-var Effects = map[string]func(caller MobNPCSpells, target MobNPCSpells, modifier int) string {
-	"HealStam": HealStam,
-	"HealVit": HealVit,
-	"HealBoth": HealBoth,
-	"HealAll": HealAll,
-	"FireDamage": FireDamage,
-	"EarthDamage": EarthDamage,
-	"AirDamage": AirDamage,
-	"WaterDamage": WaterDamage,
-	"Light": Light,
-	"CurePoison": CurePoison,
-	"Bless": Bless,
-	"Protection": Protection,
-	"Invisibility": Invisibility,
-	"DetectInvisible": DetectInvisible,
-	"Teleport": Teleport,
-	"Stun": Stun,
-	"Enchant": Enchant,
-	"Recall": Recall,
-	"Summon": Summon,
-	"WizardWalk": WizardWalk,
-	"Levitate": Levitate,
-	"ResistFire": ResistFire,
-	"ResistMagic": ResistMagic,
-	"RemoveCurse": RemoveCurse,
-	"ResistAir": ResistAir,
-	"ResistWater": ResistWater,
-	"ResistEarth": ResistEarth,
-	"Clairvoyance": Clairvoyance,
-	"RemoveDisease": RemoveDisease,
-	"CureBlindness": CureBlindness,
-	"Polymorph": Polymorph,
-	"Attraction": Attraction,
-	"InertialBarrier": InertialBarrier,
-	"Surge": Surge,
-	"ResistPoison": ResistPoison,
-	"ResilientAura": ResilientAura,
-	"ResistDisease": ResistDisease,
-	"DisruptMagic": DisruptMagic,
-	"Reflection": Reflection,
-	"Dodge": Dodge,
-	"ResistAcid": ResistAcid,
-	"Embolden": Embolden,
+var Effects = map[string]func(caller mobnpcspells, target mobnpcspells, modifier int) string {
+	"heal-stam": healstam,
+	"heal-vit": healvit,
+	"heal": heal,
+	"heal-all": healall,
+	"fire-damage": firedamage,
+	"earth-damage": earthdamage,
+	"air-damage": airdamage,
+	"water-damage": waterdamage,
+	"light": light,
+	"curepoison": curepoison,
+	"bless": bless,
+	"protection": protection,
+	"invisibility": invisibility,
+	"detect-invisible": detectinvisible,
+	"teleport": teleport,
+	"stun": stun,
+	"enchant": enchant,
+	"recall": recall,
+	"summon": summon,
+	"wizard-walk": wizardwalk,
+	"levitate": levitate,
+	"resist-fire": resistfire,
+	"resist-magic": resistmagic,
+	"remove-curse": removecurse,
+	"resist-air": resistair,
+	"resist-water": resistwater,
+	"resist-earth": resistearth,
+	"clairvoyance": clairvoyance,
+	"remove-disease": removedisease,
+	"cure-blindness": cureblindness,
+	"polymorph": polymorph,
+	"attraction": attraction,
+	"inertial-barrier": inertialbarrier,
+	"surge": surge,
+	"resist-poison": resistpoison,
+	"resilient-aura": resilientaura,
+	"resist-disease": resistdisease,
+	"disrupt-magic": disruptmagic,
+	"reflection": reflection,
+	"dodge": dodge,
+	"resist-acid": resistacid,
+	"embolden": embolden,
 }
 
-func HealStam(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func healstam(caller mobnpcspells, target mobnpcspells, modifier int) string{
+	/*vigor devices seemed to be very low 4-10?
+	mend-wounds devices were around 5-15.
+	detraum devices seemed around 38-50.
+	renew devices seemed around 60-80 (less sure on this)
+	casting vigor with a l14 int 25 priest was around 45-49, whilst casting vigor with a l14 int 30 wiz was around 20ish
+	casting detraum with l14 priest was  80-100ish
+	casting renewal with l14 priest was approx 150
+	casting detraum with bard was around 45?
+	casting renewal with bard was approx 60-80? */
+	target.HealStam(10)
+	return "You restored 10 stamina"
+}
 
-func HealVit(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func healvit(caller mobnpcspells, target mobnpcspells, modifier int) string{
+	target.HealVital(10)
+	return "You restored 10 vitality"
+}
 
-func HealBoth(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func heal(caller mobnpcspells, target mobnpcspells, modifier int) string{
+	if modifier == 1 {
+		target.Heal(50)
+		return "you healed for 50 damage"
+	}else{
+		target.Heal(100)
+		return "You healed for 100 damage"
+	}
 
-func HealAll(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+}
 
-func FireDamage(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func healall(caller mobnpcspells, target mobnpcspells, modifier int) string{
+	target.Heal(50000)
+	return "You healed all of their damage"
+}
 
-func EarthDamage(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func firedamage(caller mobnpcspells, target mobnpcspells, modifier int) string{
+	damage := 0
+	if modifier == 1 {
+		damage = 10
+	}else if modifier == 2 {
+		damage = 30
+	}else if modifier == 3 {
+		damage = 60
+	}else if modifier == 4 {
+		damage = 120
+	}else if modifier == 5 {
+		damage = 250
+	}else if modifier == 6 {
+		damage = 400
+	}else if modifier == 7 {
+		damage = 600
+	}
+	//todo: get magical strength to do a x2 or x4 for spells or other modifiers as necessary
+	target.ReceiveDamage(damage)
+	return "Your spell struck for " + strconv.Itoa(damage)
+}
 
-func AirDamage(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func earthdamage(caller mobnpcspells, target mobnpcspells, modifier int) string{ 	damage := 0
+	if modifier == 1 {
+		damage = 10
+	}else if modifier == 2 {
+		damage = 30
+	}else if modifier == 3 {
+		damage = 60
+	}else if modifier == 4 {
+		damage = 120
+	}else if modifier == 5 {
+		damage = 250
+	}else if modifier == 6 {
+		damage = 400
+	}else if modifier == 7 {
+		damage = 600
+	}
+	//todo: get magical strength to do a x2 or x4 for spells or other modifiers as necessary
+	target.ReceiveDamage(damage)
+	return "Your spell struck for " + strconv.Itoa(damage) }
 
-func WaterDamage(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func airdamage(caller mobnpcspells, target mobnpcspells, modifier int) string{ 	damage := 0
+	if modifier == 1 {
+		damage = 10
+	}else if modifier == 2 {
+		damage = 30
+	}else if modifier == 3 {
+		damage = 60
+	}else if modifier == 4 {
+		damage = 120
+	}else if modifier == 5 {
+		damage = 250
+	}else if modifier == 6 {
+		damage = 400
+	}else if modifier == 7 {
+		damage = 600
+	}
+	//todo: get magical strength to do a x2 or x4 for spells or other modifiers as necessary
+	target.ReceiveDamage(damage)
+	return "Your spell struck for " + strconv.Itoa(damage) }
 
-func Light(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func waterdamage(caller mobnpcspells, target mobnpcspells, modifier int) string{ 	damage := 0
+	if modifier == 1 {
+		damage = 10
+	}else if modifier == 2 {
+		damage = 30
+	}else if modifier == 3 {
+		damage = 60
+	}else if modifier == 4 {
+		damage = 120
+	}else if modifier == 5 {
+		damage = 250
+	}else if modifier == 6 {
+		damage = 400
+	}else if modifier == 7 {
+		damage = 600
+	}
+	//todo: get magical strength to do a x2 or x4 for spells or other modifiers as necessary
+	target.ReceiveDamage(damage)
+	return "Your spell struck for " + strconv.Itoa(damage) }
 
-func CurePoison(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func light(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Bless(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func curepoison(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Protection(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func bless(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Invisibility(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func protection(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func DetectInvisible(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func invisibility(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Teleport(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func detectinvisible(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Stun(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func teleport(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Enchant(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func stun(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Recall(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func enchant(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Summon(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func recall(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func WizardWalk(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func summon(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Levitate(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func wizardwalk(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func ResistFire(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func levitate(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func ResistMagic(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func resistfire(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func RemoveCurse(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func resistmagic(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func ResistAir(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func removecurse(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func ResistWater(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func resistair(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func ResistEarth(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func resistwater(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Clairvoyance(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func resistearth(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func RemoveDisease(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func clairvoyance(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func CureBlindness(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func removedisease(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Polymorph(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func cureblindness(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Attraction(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func polymorph(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func InertialBarrier(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func attraction(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Surge(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func inertialbarrier(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func ResistPoison(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func surge(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func ResilientAura(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func resistpoison(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func ResistDisease(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func resilientaura(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func DisruptMagic(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func resistdisease(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Reflection(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func disruptmagic(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Dodge(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func reflection(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func ResistAcid(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func dodge(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-func Embolden(caller MobNPCSpells, target MobNPCSpells, modifier int) string{ return "" }
+func resistacid(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }
 
-
+func embolden(caller mobnpcspells, target mobnpcspells, modifier int) string{ return "" }

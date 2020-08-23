@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"strconv"
 	"time"
 )
 
@@ -16,7 +17,8 @@ type Effect struct{
 }
 
 func NewEffect(length string, interval string,  effect func(), effectOff func()) *Effect {
-	parseLength,_ := time.ParseDuration(length)
+	lengthTime, _ := strconv.Atoi(length)
+	parseLength := time.Duration(lengthTime) * time.Second
 	parseInterval, _ := time.ParseDuration(interval)
 	return &Effect{time.Now(),
 		parseLength,

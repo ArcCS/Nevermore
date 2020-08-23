@@ -2,6 +2,7 @@ package objects
 
 import (
 	"encoding/json"
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/jinzhu/copier"
 	"strings"
 	"sync"
@@ -135,6 +136,32 @@ func (i *ItemInventory) Jsonify() string {
 	} else {
 		return string(data)
 	}
+}
+
+// List the items in this MobInventory
+func (i *ItemInventory) ReducedList() string {
+	items := make(map[string]int, 0)
+
+	for _, o := range i.Contents {
+		// List all
+		_, inMap := items[o.Name]
+			if inMap {
+				items[o.Name]++
+			}else {
+				items[o.Name] = 1
+			}
+	}
+
+	stringify := make([]string, 0)
+	for k, v := range items {
+		if v == 1 {
+			stringify = append(stringify, "a "+k)
+		}else {
+			stringify = append(stringify, config.TextNumbers[v]+" "+k+"s")
+		}
+	}
+
+	return strings.Join(stringify, ", ")
 }
 
 func RestoreInventory(jsonString string) *ItemInventory {

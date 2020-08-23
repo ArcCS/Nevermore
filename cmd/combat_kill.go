@@ -150,7 +150,7 @@ func (kill) process(s *state) {
 				whatMob = nil
 			}
 		}
-		s.actor.SetTimer("combat", 8)
+		s.actor.SetTimer("combat", config.CombatCooldown)
 		return
 
 	}

@@ -493,3 +493,55 @@ func SearchRoomDesc(searchStr string, skip int) []interface{} {
 	}
 	return roomList
 }
+
+func CreateNarrative(narrData map[string]interface{}) bool {
+	conn, _ := getConn()
+	defer conn.Close()
+	toNarr, rtrap := conn.ExecNeo(
+		"MATCH (r:room) WHERE " +
+			"r.room_id = {roomId} " +
+			`CREATE (r)-[nar:narr]->(n:narrative) SET 
+	n.text={narrText}, n.title={narrTitle}`,
+		map[string]interface {}{
+			"roomId":        narrData["roomId"],
+			"narrTitle":       narrData["narrTitle"],
+			"narrText":		narrData["narrText"],
+		},
+	)
+	if rtrap != nil{
+		log.Println(rtrap)
+	}
+
+	numResult, _ := toNarr.RowsAffected()
+	if numResult > 0 {
+		return false
+	}else {
+		return true
+	}
+}
+
+func UpdateNarrative(narrData map[string]interface{}) bool {
+	conn, _ := getConn()
+	defer conn.Close()
+	toNarr, rtrap := conn.ExecNeo(
+		"MATCH (r:room)-[nar:narr]-> WHERE " +
+			"r.room_id = {roomId} " +
+			`CREATE (r)-[nar:narr]->(n:narrative) SET 
+	n.text={narrText}, n.title={narrTitle}`,
+		map[string]interface {}{
+			"roomId":        narrData["roomId"],
+			"narrTitle":       narrData["narrTitle"],
+			"narrText":		narrData["narrText"],
+		},
+	)
+	if rtrap != nil{
+		log.Println(rtrap)
+	}
+
+	numResult, _ := toNarr.RowsAffected()
+	if numResult > 0 {
+		return false
+	}else {
+		return true
+	}
+}

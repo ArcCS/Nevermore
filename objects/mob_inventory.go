@@ -1,7 +1,9 @@
 package objects
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/text"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -129,6 +131,77 @@ func (i *MobInventory) List(seeInvisible bool, gm bool) []string {
 	return items
 }
 
+// List the items in this MobInventory
+func (i *MobInventory) ListAttackers(seeInvisible bool, gm bool) string {
+	items := ""
+
+	for _, o := range i.Contents {
+		if o.CurrentTarget != "" {
+			// List all
+			if seeInvisible && gm {
+				items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + o.CurrentTarget + "!\n"
+				// List non-hiddens invis
+			} else if seeInvisible && !gm {
+				if o.Flags["hidden"] != true {
+					items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + o.CurrentTarget + "!\n"
+				}
+				// List non-hiddens
+			} else {
+				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
+					items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + o.CurrentTarget + "!\n"
+				}
+			}
+		}
+	}
+
+	return items
+}
+
+// List the items in this MobInventory
+func (i *MobInventory) ReducedList(seeInvisible bool, gm bool) string {
+	items := make(map[string]int, 0)
+
+	for _, o := range i.Contents {
+		// List all
+		_, inMap := items[o.Name]
+		if seeInvisible && gm{
+			if inMap {
+				items[o.Name]++
+			}else {
+				items[o.Name] = 1
+			}
+			// List non-hiddens invis
+		}else if seeInvisible && !gm {
+			if o.Flags["hidden"] != true {
+				if inMap {
+					items[o.Name]++
+				}else {
+					items[o.Name] = 1
+				}
+			}
+			// List non-hiddens
+		} else {
+			if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
+				if inMap {
+					items[o.Name]++
+				}else {
+					items[o.Name] = 1
+				}
+			}
+		}
+	}
+
+	stringify := make([]string, 0)
+	for k, v := range items {
+		if v == 1 {
+			stringify = append(stringify, "a "+k)
+		}else {
+			stringify = append(stringify, config.TextNumbers[v]+" "+k+"s")
+		}
+	}
+
+	return strings.Join(stringify, ", ")
+}
 
 // Free recursively calls Free on all of it's content when the MobInventory
 // attribute is freed.

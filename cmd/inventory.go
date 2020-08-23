@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
-	"strings"
 )
 
 // Syntax: ( INVENTORY | INV )
@@ -26,7 +25,7 @@ func (inventory) process(s *state) {
 	if len(inv) == 0 {
 		s.msg.Actor.Send("  No items")
 	}else {
-		s.msg.Actor.Send("  ", strings.Join(s.actor.Inventory.List(), ", "))
+		s.msg.Actor.Send("  ", s.actor.Inventory.ReducedList())
 	}
 	s.ok = true
 	return
