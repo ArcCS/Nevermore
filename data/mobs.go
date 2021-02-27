@@ -244,31 +244,6 @@ func UpdateMob(mobData map[string]interface{})  bool {
 
 
 // Create Encounter
-func CreateEncounter(encounterData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	toExit, rtrap := conn.ExecNeo(
-		"MATCH (r:room), (m:mob) WHERE " +
-			"r.room_id = {roomId} AND m.mob_id = {mobId} " +
-			`CREATE (r)-[s:spawns]->(m) SET 
-	s.chance={chance}`,
-		map[string]interface {}{
-			"mobId":        encounterData["mobId"],
-			"roomId":       encounterData["roomId"],
-			"chance":		encounterData["chance"],
-		},
-	)
-	if rtrap != nil{
-		log.Println(rtrap)
-	}
-
-	numResult, _ := toExit.RowsAffected()
-	if numResult > 0 {
-		return false
-	}else {
-		return true
-	}
-}
 
 // Does a room already have too many encounters?
 func SumEncounters(roomId int) int {

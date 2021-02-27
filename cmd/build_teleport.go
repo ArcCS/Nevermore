@@ -35,7 +35,7 @@ func (teleport) process(s *state) {
 			s.where.Chars.Remove(s.actor)
 			to.Chars.Add(s.actor)
 			s.actor.ParentId = to.RoomId
-
+			s.scriptActor("LOOK")
 
 			s.ok=true
 			return

@@ -19,13 +19,13 @@ func init(){
 
 	ClassPerms[0] = permissions.Fighter
 	ClassPerms[1] = permissions.Barbarian
-	//AvailableClasses[2] = "thief"
-	//AvailableClasses[3] = "ranger"
-	//AvailableClasses[4] = "mage"
-	//AvailableClasses[5] = "cleric"
-	//AvailableClasses[6] = "paladin"
-	//AvailableClasses[7] = "Bard"
-	//AvailableClasses[8] = "monk"
+	//ClassPerms[2] = "thief"
+	//ClassPerms[3] = "ranger"
+	//ClassPerms[4] = "mage"
+	//ClassPerms[5] = "cleric"
+	//ClassPerms[6] = "paladin"
+	//ClassPerms[7] = "bard"
+	//ClassPerms[8] = "monk"
 
 	StartingGear[0] = []int{2628, 1088}
 	StartingGear[1] = []int{2628, 1088}

@@ -56,7 +56,7 @@ func (hamstring) process(s *state) {
 
 		//skillLevel := config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value)
 
-		//TODO: Parry/Miss/Resist being circled?
+		//TODO: Parry/Miss/Resist being hamstringed
 		whatMob.AddThreatDamage(whatMob.Stam.Max/2, s.actor.Name)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		s.msg.Actor.SendInfo("You hamstring " + whatMob.Name)

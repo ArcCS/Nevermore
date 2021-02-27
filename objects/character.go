@@ -331,7 +331,6 @@ const (
 )
 
 func (c *Character) Tick(){
-	//_,_ = c.Write([]byte(text.Good + "Your Ticker Executed Here!"))
 	// TODO: Fix Tick, The tick is affected by all things around the character and any currently applied effects
 	/* if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Stam.Add(c.Con.Current * 2)
