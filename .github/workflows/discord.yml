@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [ubuntu-latest]
 
     steps:
     - uses: actions/setup-ruby@v1
@@ -21,6 +21,6 @@ jobs:
         HOOK_OS_NAME: ${{ runner.os }}
         WORKFLOW_NAME: ${{ github.workflow }}
       run: |
-        git clone https://github.com/ArcCS/Nevermore.git webhook
-        bash ci/discord_hook/send.sh $JOB_STATUS $WEBHOOK_URL
+        git clone https://github.com/ArcCS/Nevermore.git
+        bash Nevermore/ci/discord_hook/send.sh $JOB_STATUS $WEBHOOK_URL
       shell: bash
