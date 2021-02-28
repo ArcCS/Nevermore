@@ -11,6 +11,7 @@ func init() {
 }
 
 type autostat cmd
+//TODO: DISABLE THIS,  do not go into production
 
 func (autostat) process(s *state) {
 		if len(s.words) < 5 {

@@ -11,7 +11,7 @@ func init() {
 }
 
 type autolevel cmd
-
+//TODO: DISABLE THIS,  do not go into production
 func (autolevel) process(s *state) {
 		if len(s.words) < 1 {
 			s.msg.Actor.SendBad("You must enter the level that you want")

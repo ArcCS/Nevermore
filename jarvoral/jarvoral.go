@@ -67,7 +67,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if len(players) > 1 {
 			message  = "There are currently " + strconv.Itoa(len(players)) + " players in the realms. \n"
 		}else {
-			message = "There is currently " + strconv.Itoa(len(players)) + "player in the realms. \n"
+			message = "There is currently " + strconv.Itoa(len(players)) + " player in the realms. \n"
 		}
 
 		//TODO: Add some more information to the output list AFK? Currently hunting?  RP only?
