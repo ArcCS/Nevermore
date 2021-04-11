@@ -2,14 +2,14 @@ package config
 
 // Leveling Values
 var TierExpLevels = map[int]int{
-	2: 100,
-	3: 500,
-	4: 1000,
-	5: 5000,
-	6: 10000,
-	7: 50000,
-	8: 100000,
-	9: 500000,
+	2:  100,
+	3:  500,
+	4:  1000,
+	5:  5000,
+	6:  10000,
+	7:  50000,
+	8:  100000,
+	9:  500000,
 	10: 1000000,
 	11: 1500000,
 	12: 2000000,
@@ -81,7 +81,6 @@ var TextTiers = []string{
 	"forty-ninth",
 	"fiftieth",
 }
-
 
 var TextNumbers = []string{
 	"zero",

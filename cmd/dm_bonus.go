@@ -4,9 +4,9 @@ import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
 	addHandler(bonus{},
-           "Usage:  bonus player/all ## Bonus a player or use bonus all to bonus the entire room",
-           permissions.Dungeonmaster,
-           "bonus")
+		"Usage:  bonus player/all ## Bonus a player or use bonus all to bonus the entire room",
+		permissions.Dungeonmaster,
+		"bonus")
 }
 
 type bonus cmd

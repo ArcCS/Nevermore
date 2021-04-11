@@ -22,15 +22,15 @@ import (
 // the main menu.
 type start struct {
 	*frontend
-	optionEnd int
+	optionEnd      int
 	powerCharacter string
-	characters []string
-	pwChange [16]byte
+	characters     []string
+	pwChange       [16]byte
 }
 
 // NewMenu returns a menu with the specified frontend embedded. The returned
 // menu can be used for processing the main menu and it's options.
-func NewStart(f *frontend) (m *start){
+func NewStart(f *frontend) (m *start) {
 	m = &start{frontend: f}
 	m.startDisplay()
 	return
@@ -54,13 +54,13 @@ func (m *start) startDisplay() {
 
 	output.WriteString(text.White + `
  Message of the Day: 
-` + config.Server.Motd + text.Good +`
+` + config.Server.Motd + text.Good + `
  
 =========
  Choose an action:
  ---------
  0. Quit` + "\n" + charOption + "\n" +
-` 2. Change account password
+		` 2. Change account password
 `)
 	if m.permissions.HasFlag(permissions.Gamemaster) {
 		if m.powerCharacter == "" {
@@ -68,21 +68,21 @@ func (m *start) startDisplay() {
 		} else {
 			output.WriteString(" 3. Load gamemaster account:" + m.powerCharacter + "\r\n")
 		}
-	}else if m.permissions.HasFlag(permissions.Builder) {
+	} else if m.permissions.HasFlag(permissions.Builder) {
 		if m.powerCharacter == "" {
 			output.WriteString(" 3. Create a builder account.\r\n")
-		}else{
+		} else {
 			output.WriteString(" 3. Load builder account:" + m.powerCharacter + "\r\n")
 		}
 		m.optionEnd = 3
-	}else if m.permissions.HasFlag(permissions.Dungeonmaster) {
+	} else if m.permissions.HasFlag(permissions.Dungeonmaster) {
 		if m.powerCharacter == "" {
 			output.WriteString(" 3. Create a dungeon master account.\r\n")
 		} else {
 			output.WriteString(" 3. Load dungeonmaster account:" + m.powerCharacter + "\r\n")
 		}
 		m.optionEnd = 3
-	}else{
+	} else {
 		m.optionEnd = 2
 	}
 	output.WriteString("\n==== Your Character List ====\n")
@@ -103,7 +103,7 @@ func (m *start) startProcess() {
 	case "1":
 		if config.Server.CreateChars {
 			NewCharacter(m.frontend)
-		} else{
+		} else {
 			m.buf.Send(text.Bad, "New character creation is disabled at this time.", text.Reset)
 		}
 	case "0":
@@ -112,26 +112,26 @@ func (m *start) startProcess() {
 		m.buf.Send(text.Info, "Enter your new password:")
 		m.nextFunc = m.verifyPw
 	default:
-		if m.permissions.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) && string(m.input) == "3"{
-			if m.powerCharacter == ""{
+		if m.permissions.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) && string(m.input) == "3" {
+			if m.powerCharacter == "" {
 				NewPCharacter(m.frontend)
 				return
-			}else{
-				 if stats.ActiveCharacters.Find(m.powerCharacter) == nil {
+			} else {
+				if stats.ActiveCharacters.Find(m.powerCharacter) == nil {
 					StartGame(m.frontend, m.powerCharacter)
-				}else{
+				} else {
 					m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.", text.Reset)
 				}
 
 			}
-		}else if utils.StringInLower(string(m.input), m.characters){
+		} else if utils.StringInLower(string(m.input), m.characters) {
 			StartGame(m.frontend, string(m.input))
 		}
 		m.buf.Send(text.Bad, "Invalid option selected. Please try again.", text.Reset)
 	}
 }
 
-func (m *start) verifyPw(){
+func (m *start) verifyPw() {
 	switch l := len(m.input); {
 	case l == 0:
 		m.buf.Send(text.Bad, "No text sent, returning to menu.", text.Reset)
@@ -144,7 +144,7 @@ func (m *start) verifyPw(){
 	return
 }
 
-func (m *start) changePw(){
+func (m *start) changePw() {
 	switch l := len(m.input); {
 	case l == 0:
 		m.buf.Send(text.Info, "Password change cancelled.\n", text.Reset)
@@ -153,8 +153,8 @@ func (m *start) changePw(){
 		if md5.Sum(m.input) != m.pwChange {
 			m.buf.Send(text.Bad, "Passwords do not match, please try again. Or enter nothing to cancel\n", text.Reset)
 			m.nextFunc = m.changePw
-		}else{
-			data.UpdatePassword(m.account,hex.EncodeToString(m.pwChange[:]))
+		} else {
+			data.UpdatePassword(m.account, hex.EncodeToString(m.pwChange[:]))
 			m.buf.Send(text.Good, "Password changed!\n")
 			m.startDisplay()
 		}
@@ -169,42 +169,42 @@ func (m *start) characterList() string {
 	charList.Write([]byte(strings.Join(m.characters, ", ")))
 
 	/*
-		// Width of gutter between columns
-	const gutter = 4
+			// Width of gutter between columns
+		const gutter = 4
 
-	// Find longest key extracted
-	maxWidth := 0
-	for _, cmd:= range m.characters {
-		if l := len(cmd)+4; l > maxWidth {
-			maxWidth = l
-		}
-	}
-
-	var (
-		columnWidth = maxWidth + gutter
-		columnCount = 80 / columnWidth
-		rowCount    = len(m.characters) / columnCount
-	)
-
-	// If we have a partial row we need to account for it
-	if len(m.characters) > rowCount*columnCount {
-		rowCount++
-	}
-
-	// NOTE: cell is not (row * columnCount) + column as we are pivoting the
-	// table so that the commands are alphabetical DOWN the rows not across the
-	// columns.
-	for row := 0; row < rowCount; row++ {
-		line := []byte{}
-		for column := 0; column < columnCount; column++ {
-			cell := (column * rowCount) + row
-			if cell < len(m.characters) {
-				line = append(line, m.characters[cell]...)
-				line = append(line, strings.Repeat(" ", columnWidth-len(m.characters[cell]))...)
+		// Find longest key extracted
+		maxWidth := 0
+		for _, cmd:= range m.characters {
+			if l := len(cmd)+4; l > maxWidth {
+				maxWidth = l
 			}
 		}
-		charList.Write(line)
-	}
+
+		var (
+			columnWidth = maxWidth + gutter
+			columnCount = 80 / columnWidth
+			rowCount    = len(m.characters) / columnCount
+		)
+
+		// If we have a partial row we need to account for it
+		if len(m.characters) > rowCount*columnCount {
+			rowCount++
+		}
+
+		// NOTE: cell is not (row * columnCount) + column as we are pivoting the
+		// table so that the commands are alphabetical DOWN the rows not across the
+		// columns.
+		for row := 0; row < rowCount; row++ {
+			line := []byte{}
+			for column := 0; column < columnCount; column++ {
+				cell := (column * rowCount) + row
+				if cell < len(m.characters) {
+					line = append(line, m.characters[cell]...)
+					line = append(line, strings.Repeat(" ", columnWidth-len(m.characters[cell]))...)
+				}
+			}
+			charList.Write(line)
+		}
 	*/
 	return charList.String()
 

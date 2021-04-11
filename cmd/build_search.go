@@ -10,9 +10,9 @@ import (
 
 func init() {
 	addHandler(find{},
-           "Usage:  find (room|mob|item) name|desc (text) (page #) \n \n Use this command to search the database and find a list of matching items",
-           permissions.Player,
-           "find")
+		"Usage:  find (room|mob|item) name|desc (text) (page #) \n \n Use this command to search the database and find a list of matching items",
+		permissions.Player,
+		"find")
 }
 
 type find cmd
@@ -102,22 +102,22 @@ func (find) process(s *state) {
 			s.actor.AddMenu("more", "find item name "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else if searchType == "desc" {
-				results := data.SearchItemDesc(searchText, config.Server.SearchResults*searchPage)
-				s.msg.Actor.SendGood("===== Search Results =====")
-				for _, item := range results {
-					if item != nil {
-						itemData := item.(map[string]interface{})
-						s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["item_id"].(int64))) + ")(" + config.ItemTypes[int(itemData["type"].(int64))] + ") " + itemData["name"].(string))
-					}
+			results := data.SearchItemDesc(searchText, config.Server.SearchResults*searchPage)
+			s.msg.Actor.SendGood("===== Search Results =====")
+			for _, item := range results {
+				if item != nil {
+					itemData := item.(map[string]interface{})
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["item_id"].(int64))) + ")(" + config.ItemTypes[int(itemData["type"].(int64))] + ") " + itemData["name"].(string))
 				}
-				s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
-				s.actor.AddMenu("more", "find item desc "+searchText+" "+strconv.Itoa(searchPage+1))
-				return
-			} else {
-				s.msg.Actor.SendBad("Search which field?")
 			}
-
+			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
+			s.actor.AddMenu("more", "find item desc "+searchText+" "+strconv.Itoa(searchPage+1))
+			return
+		} else {
+			s.msg.Actor.SendBad("Search which field?")
 		}
-		s.ok = true
-		return
+
 	}
+	s.ok = true
+	return
+}

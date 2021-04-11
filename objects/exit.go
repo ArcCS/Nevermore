@@ -8,15 +8,14 @@ import (
 type Exit struct {
 	Object
 	ParentId int
-	ToId int
-	Flags map[string]bool
-	KeyId int
-
+	ToId     int
+	Flags    map[string]bool
+	KeyId    int
 }
 
 func NewExit(room_id int, exitData map[string]interface{}) *Exit {
 	placement := 3
-	if exitData["placement"] == nil{
+	if exitData["placement"] == nil {
 		placement = 3
 	}
 	ok := false
@@ -36,19 +35,19 @@ func NewExit(room_id int, exitData map[string]interface{}) *Exit {
 		room_id,
 		int(exitData["dest"].(int64)),
 		make(map[string]bool),
-			int(exitData["key_id"].(int64)),
+		int(exitData["key_id"].(int64)),
 	}
-	for k, v := range exitData["flags"].(map[string]interface{}){
-		if v == nil{
+	for k, v := range exitData["flags"].(map[string]interface{}) {
+		if v == nil {
 			newExt.Flags[k] = false
-		}else {
+		} else {
 			newExt.Flags[k] = int(v.(int64)) != 0
 		}
 	}
 	return newExt
 }
 
-func (e *Exit) Look() string{
+func (e *Exit) Look() string {
 	return e.Description
 }
 
@@ -70,10 +69,10 @@ func (e *Exit) Open() bool {
 	return false
 }
 func (e *Exit) ToggleFlag(flagName string) bool {
-	if val, exists := e.Flags[flagName]; exists{
+	if val, exists := e.Flags[flagName]; exists {
 		e.Flags[flagName] = !val
 		return true
-	}else{
+	} else {
 		return false
 	}
 }

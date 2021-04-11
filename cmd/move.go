@@ -7,7 +7,7 @@ import (
 func init() {
 	addHandler(move{},
 		"Usage:  move|sprint forward|backwards # \n \n Change combat stance in the room's 5 space grid.  Sprint will move 2, move will move 1",
-	 	permissions.Player,
+		permissions.Player,
 		"SPRINT", "MOVE", "MV", "SPR", "F", "FORWARD", "BACK", "B")
 }
 
@@ -27,16 +27,16 @@ func (move) process(s *state) {
 	}
 
 	previous := s.actor.Placement
-	if s.cmd == "SPRINT" || s.cmd == "SPR"{
+	if s.cmd == "SPRINT" || s.cmd == "SPR" {
 		direction := string(s.words[0][0])
 		if direction == "F" {
-			if 5 - s.actor.Placement >= 2 {
+			if 5-s.actor.Placement >= 2 {
 				s.actor.Placement += 2
 				s.actor.SetTimer("global", 8)
 				if s.actor.Placement == 5 {
 					s.msg.Actor.SendGood("You sprint forward, to the front of the room.")
-				}else{
-					s.msg.Actor.SendGood ("You sprint forward.")
+				} else {
+					s.msg.Actor.SendGood("You sprint forward.")
 				}
 				if s.actor.Flags["hidden"] != true && s.actor.Flags["invisible"] != true {
 					for _, char := range s.where.Chars.Contents {
@@ -45,17 +45,17 @@ func (move) process(s *state) {
 						}
 					}
 				}
-			}else{
+			} else {
 				s.msg.Actor.SendBad("There's not enough room to sprint forward")
 			}
-		}else if direction[0:] == "B" {
+		} else if direction[0:] == "B" {
 			if s.actor.Placement-1 >= 2 {
 				s.actor.Placement -= 2
 				s.actor.SetTimer("global", 8)
 				if s.actor.Placement == 1 {
 					s.msg.Actor.SendGood("You sprint back, to the back of the room.")
-				}else{
-					s.msg.Actor.SendGood ("You sprint backward.")
+				} else {
+					s.msg.Actor.SendGood("You sprint backward.")
 				}
 				if s.actor.Flags["hidden"] != true && s.actor.Flags["invisible"] != true {
 					for _, char := range s.where.Chars.Contents {
@@ -64,18 +64,18 @@ func (move) process(s *state) {
 						}
 					}
 				}
-			}else{
+			} else {
 				s.msg.Actor.SendBad("There's not enough room to sprint backward")
 			}
 		}
-	}else if s.cmd == "F" || s.cmd == "FORWARD" || (len(s.words) > 0 && string(s.words[0][0]) == "F") {
-		if 5 - s.actor.Placement >= 1 {
+	} else if s.cmd == "F" || s.cmd == "FORWARD" || (len(s.words) > 0 && string(s.words[0][0]) == "F") {
+		if 5-s.actor.Placement >= 1 {
 			s.actor.Placement += 1
 			s.actor.SetTimer("global", 4)
 			if s.actor.Placement == 5 {
 				s.msg.Actor.SendGood("You move forward, to the front of the room.")
-			}else{
-				s.msg.Actor.SendGood ("You move forward.")
+			} else {
+				s.msg.Actor.SendGood("You move forward.")
 			}
 			if s.actor.Flags["hidden"] != true && s.actor.Flags["invisible"] != true {
 				for _, char := range s.where.Chars.Contents {
@@ -84,10 +84,10 @@ func (move) process(s *state) {
 					}
 				}
 			}
-		}else{
+		} else {
 			s.msg.Actor.SendBad("There's not enough room to sprint forward")
 		}
-	}else if s.cmd == "B" || s.cmd == "BACK" || (len(s.words) > 0 && string(s.words[0][0]) == "B") {
+	} else if s.cmd == "B" || s.cmd == "BACK" || (len(s.words) > 0 && string(s.words[0][0]) == "B") {
 		if s.actor.Placement-1 >= 1 {
 			s.actor.Placement -= 1
 			s.actor.SetTimer("global", 4)

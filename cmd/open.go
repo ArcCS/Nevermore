@@ -7,9 +7,9 @@ import (
 
 func init() {
 	addHandler(open{},
-           "Usage:  open exit_name \n \n Open the specified exit.",
-           permissions.Player,
-           "OPEN")
+		"Usage:  open exit_name \n \n Open the specified exit.",
+		permissions.Player,
+		"OPEN")
 }
 
 type open cmd
@@ -36,7 +36,7 @@ func (open) process(s *state) {
 
 	// Is item a door that can be close
 	if !what.Flags["closeable"] {
-		s.msg.Actor.SendBad( name, " is already open.")
+		s.msg.Actor.SendBad(name, " is already open.")
 		return
 	}
 
@@ -51,7 +51,7 @@ func (open) process(s *state) {
 		who := s.actor.Name
 		s.msg.Actor.SendGood("You open ", name, ".")
 		s.msg.Observers.SendInfo(who, " opens ", name, ".")
-	}else{
+	} else {
 		s.msg.Actor.SendGood("You open ", name, ".")
 	}
 

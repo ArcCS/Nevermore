@@ -12,12 +12,11 @@ func init() {
 		"act", "emote")
 }
 
-
 /*
 TODO: Eat, drink, laugh, nod, shrug, bow, sneeze, cough, dance, wave, shake head, whistle,
 thumbs up/down, cross fingers/arms, wink, blink, frown, smile, taunt, cook, lean, snap,
 clap/applaud, love, angry, confused, jump, glare, Hiccup, Stare, Tickle, Poke, Slap, Kick, Burp, side-eye
- */
+*/
 type act cmd
 
 func (act) process(s *state) {

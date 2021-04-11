@@ -9,9 +9,9 @@ import (
 // Syntax: COMANDS
 func init() {
 	addHandler(help{},
-	"",
-	permissions.Player,
-	"HELP", "COMMANDS", "CMDS")
+		"",
+		permissions.Player,
+		"HELP", "COMMANDS", "CMDS")
 }
 
 // Width of gutter between columns
@@ -82,7 +82,7 @@ func (help) process(s *state) {
 		}
 
 		s.ok = true
-	}else{
+	} else {
 		// Here we return the help text
 		subject := s.words[0]
 		if s.actor.Permission.HasFlag(handlerPermission[strings.ToUpper(subject)]) {

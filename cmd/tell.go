@@ -9,9 +9,9 @@ import (
 
 func init() {
 	addHandler(tell{},
-           "Usage:  send character_name \n \n Send a telepathic message to another player",
-           permissions.Player,
-           "TELL", "SEND")
+		"Usage:  send character_name \n \n Send a telepathic message to another player",
+		permissions.Player,
+		"TELL", "SEND")
 }
 
 type tell cmd
@@ -30,13 +30,13 @@ func (tell) process(s *state) {
 		stats.ActiveCharacters.Unlock()
 		if !who.Flags["invisible"] {
 			s.msg.Actor.SendGood("You sent#, " + message + ", to " + who.Name)
-		}else{
+		} else {
 			s.msg.Actor.SendBad("Send what to who?")
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("Send what to who?")
 	}
 
-	s.ok=true
+	s.ok = true
 	return
 }

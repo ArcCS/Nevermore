@@ -7,6 +7,7 @@ package comms
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/jarvoral"
 	"log"
 	"net"
 	"runtime"
@@ -14,7 +15,7 @@ import (
 
 var (
 	ServerListener *net.TCPListener
-	ServerErr error
+	ServerErr      error
 )
 
 // Listen sets up a socket to listen for client connections. When a client
@@ -61,6 +62,6 @@ func Listen(host, port string) {
 	}
 
 	log.Println("Shutting down the server...")
-	// TODO: Clean up actions?
+	jarvoral.StopJarvoral()
 
 }

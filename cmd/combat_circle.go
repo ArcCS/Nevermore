@@ -9,9 +9,9 @@ import (
 
 func init() {
 	addHandler(circle{},
-           "Usage:  circle target # \n\n Try to circle a mob to apply a short duration stun and generate threat",
-           permissions.Fighter & permissions.Barbarian,
-           "circle", "cir")
+		"Usage:  circle target # \n\n Try to circle a mob to apply a short duration stun and generate threat",
+		permissions.Fighter&permissions.Barbarian,
+		"circle", "cir")
 }
 
 type circle cmd
@@ -34,7 +34,6 @@ func (circle) process(s *state) {
 		return
 	}
 
-
 	name := s.input[0]
 	nameNum := 1
 
@@ -46,11 +45,11 @@ func (circle) process(s *state) {
 	}
 
 	var whatMob *objects.Mob
-	whatMob = s.where.Mobs.Search(name, nameNum,true)
+	whatMob = s.where.Mobs.Search(name, nameNum, true)
 	if whatMob != nil {
 
 		// Shortcut a missing weapon:
-		if s.actor.Equipment.Main == nil  {
+		if s.actor.Equipment.Main == nil {
 			s.msg.Actor.SendBad("You have no weapon to attack with.")
 			return
 		}
@@ -69,14 +68,13 @@ func (circle) process(s *state) {
 
 		//skillLevel := config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value)
 
-
 		//TODO: Parry/Miss/Resist being circled?
 		whatMob.MobStunned = config.CircleStuns
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor.Name)
 		s.actor.SetTimer("combat_circle", config.CircleTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		s.msg.Actor.SendInfo("You circled " + whatMob.Name)
-		s.msg.Observers.SendInfo(s.actor.Name + " circles " + whatMob.Name )
+		s.msg.Observers.SendInfo(s.actor.Name + " circles " + whatMob.Name)
 		return
 
 	}

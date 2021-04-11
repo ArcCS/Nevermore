@@ -35,7 +35,7 @@ func StartGame(f *frontend, charName string) (g *game) {
 func FirstTimeStartGame(f *frontend, charName string) (g *game) {
 	g = &game{frontend: f}
 	g.character, _ = objects.LoadCharacter(charName, f.output)
-	for _, item_id := range config.StartingGear[g.character.Class]{
+	for _, item_id := range config.StartingGear[g.character.Class] {
 		newItem := objects.Item{}
 		copier.Copy(&newItem, objects.Items[item_id])
 		g.character.Inventory.Add(&newItem)
@@ -58,7 +58,7 @@ func (g *game) gameInit() {
 	}
 	if g.character.Class == 100 {
 		g.character.Permission.ToggleFlag(g.permissions)
-	}else{
+	} else {
 		g.character.Permission.ToggleFlag(permissions.Anyone)
 		g.character.Permission.ToggleFlag(permissions.Player)
 		g.character.Permission.ToggleFlag(config.ClassPerms[g.character.Class])

@@ -10,7 +10,7 @@ import (
 
 func init() {
 	addHandler(remdrop{},
-		"Usage:  remdrop mob_id item_id \n \n Remove a spawn from the encounter table \n" ,
+		"Usage:  remdrop mob_id item_id \n \n Remove a spawn from the encounter table \n",
 		permissions.Builder,
 		"remdrop")
 }
@@ -18,7 +18,7 @@ func init() {
 type remdrop cmd
 
 func (remdrop) process(s *state) {
-	if len(s.words) < 1{
+	if len(s.words) < 1 {
 		s.msg.Actor.SendInfo("Remove what?")
 		return
 	}
@@ -39,7 +39,7 @@ func (remdrop) process(s *state) {
 			data.DeleteDrop(mob_id, item_id)
 			s.msg.Actor.SendGood("Item removed from this mobs encounter table.")
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That mob ID doesn't exist.")
 		return
 	}

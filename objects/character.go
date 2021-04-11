@@ -19,39 +19,38 @@ type Character struct {
 	Object
 	io.Writer
 	PromptStyle
-	Menu map[string]prompt.MenuItem
+	Menu   map[string]prompt.MenuItem
 	CharId int
 	// Our stuff!
-	Equipment *Equipment
-	Inventory *ItemInventory
+	Equipment  *Equipment
+	Inventory  *ItemInventory
 	Permission permissions.Permissions
 
-
-	Flags map[string]bool
-	Effects map[string]*Effect
+	Flags         map[string]bool
+	Effects       map[string]*Effect
 	HiddenEffects map[string]*Effect
-	Modifiers map[string]int
+	Modifiers     map[string]int
 
 	// ParentId is the room id for the room
 	ParentId int
 
 	// Titles for all to see
 	ClassTitle string
-	Title string
+	Title      string
 
 	// Gold
 	BankGold Accumulator
-	Gold Accumulator
+	Gold     Accumulator
 
 	// Exp
-	Experience Accumulator
+	Experience  Accumulator
 	BonusPoints Accumulator
-	Passages Accumulator
-	Broadcasts int
-	Evals int
+	Passages    Accumulator
+	Broadcasts  int
+	Evals       int
 	//Char Stats
 	Stam Meter
-	Vit Meter
+	Vit  Meter
 	Mana Meter
 
 	// Attributes
@@ -61,10 +60,10 @@ type Character struct {
 	Int Meter
 	Pie Meter
 
-	Tier int
-	Class int
-	Race int
-	Gender string
+	Tier     int
+	Class    int
+	Race     int
+	Gender   string
 	Birthday int
 
 	// Cool Downs
@@ -79,16 +78,15 @@ type Character struct {
 	Spells []string
 	Skills map[int]*Accumulator
 
-
-	CharTicker *time.Ticker
+	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
 }
 
-func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
+func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 	charData, err := data.LoadChar(charName)
 	if err {
 		return nil, true
-	}else{
+	} else {
 		FilledCharacter := &Character{
 			Object{
 				Name:        strings.Title(charData["name"].(string)),
@@ -137,18 +135,18 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool){
 			make(map[string]interface{}),
 			strings.Split(charData["spells"].(string), ","),
 			map[int]*Accumulator{0: {int(charData["sharpexp"].(int64))},
-				   1: {int(charData["thrustexp"].(int64))},
-				   2: {int(charData["bluntexp"].(int64))},
-				   3: {int(charData["poleexp"].(int64))},
-					4: {int(charData["missileexp"].(int64))}},
+				1: {int(charData["thrustexp"].(int64))},
+				2: {int(charData["bluntexp"].(int64))},
+				3: {int(charData["poleexp"].(int64))},
+				4: {int(charData["missileexp"].(int64))}},
 			nil,
 			make(chan bool),
 		}
 
-		for k, v := range charData["flags"].(map[string]interface{}){
-			if v == nil{
+		for k, v := range charData["flags"].(map[string]interface{}) {
+			if v == nil {
 				FilledCharacter.Flags[k] = false
-			}else {
+			} else {
 				FilledCharacter.Flags[k] = int(v.(int64)) != 0
 			}
 		}
@@ -181,14 +179,14 @@ func (c *Character) SetTimer(timer string, seconds int) {
 
 func (c *Character) TimerReady(timer string) (bool, string) {
 	// Always check Global:
-	remaining := int(c.Timers["global"].Sub(time.Now())/time.Second)
+	remaining := int(c.Timers["global"].Sub(time.Now()) / time.Second)
 	if remaining <= 0 {
 		if curTimer, ok := c.Timers[timer]; ok {
 			remaining = int(curTimer.Sub(time.Now()) / time.Second)
 			if remaining <= 0 {
 				return true, ""
 			}
-		}else{
+		} else {
 			return true, ""
 		}
 
@@ -196,6 +194,7 @@ func (c *Character) TimerReady(timer string) (bool, string) {
 	return false, "You have " + strconv.Itoa(remaining) + " seconds before you can perform this action."
 
 }
+
 // TODO:  A hooking system
 // Extend the anon scripts to bind from items and add hooks to characters
 // Rooms should take the hook system as well and invoke onActions.
@@ -215,36 +214,36 @@ hook [list]
  oncleanup
 veto*/
 
-func (c *Character) Unload(){
+func (c *Character) Unload() {
 	c.CharTicker.Stop()
-	c.CharTickerUnload<-true
+	c.CharTickerUnload <- true
 }
 
-func (c *Character) OnAction(act string){
+func (c *Character) OnAction(act string) {
 	//TODO: Loop the actions based on the act sent
 	// Invoke functions tied to the act
 	return
 }
 
 func (c *Character) ToggleFlag(flagName string) bool {
-	if val, exists := c.Flags[flagName]; exists{
+	if val, exists := c.Flags[flagName]; exists {
 		c.Flags[flagName] = !val
 		return true
-	}else{
+	} else {
 		return false
 	}
 }
 
 func (c *Character) ToggleFlagAndMsg(flagName string, msg string) {
-	if val, exists := c.Flags[flagName]; exists{
+	if val, exists := c.Flags[flagName]; exists {
 		c.Flags[flagName] = !val
-	}else{
+	} else {
 		c.Flags[flagName] = true
 	}
 	c.Write([]byte(msg))
 }
 
-func (c *Character) Save(){
+func (c *Character) Save() {
 	charData := make(map[string]interface{})
 	charData["title"] = c.Title
 	charData["name"] = c.Name
@@ -278,9 +277,10 @@ func (c *Character) Save(){
 	charData["equipment"] = c.Equipment.Jsonify()
 	charData["inventory"] = c.Inventory.Jsonify()
 
-	berz, ok := c.Flags["berserk"]; if ok {
+	berz, ok := c.Flags["berserk"]
+	if ok {
 		if berz {
-			charData["str"] = c.Str.Current -5
+			charData["str"] = c.Str.Current - 5
 		}
 	}
 	data.SaveChar(charData)
@@ -301,9 +301,9 @@ func (c *Character) buildPrompt() []byte {
 		return []byte(text.Prompt + " > ")
 	case StyleStat:
 		return []byte(text.Prompt +
-				strconv.Itoa(c.Stam.Current) + "|" +
-				strconv.Itoa(c.Vit.Current) + "|" +
-				strconv.Itoa(c.Mana.Current) +
+			strconv.Itoa(c.Stam.Current) + "|" +
+			strconv.Itoa(c.Vit.Current) + "|" +
+			strconv.Itoa(c.Mana.Current) +
 			" > ")
 	default:
 		return []byte{}
@@ -330,7 +330,7 @@ const (
 	StyleStat
 )
 
-func (c *Character) Tick(){
+func (c *Character) Tick() {
 	// TODO: Fix Tick, The tick is affected by all things around the character and any currently applied effects
 	/* if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Stam.Add(c.Con.Current * 2)
@@ -355,7 +355,6 @@ func (c *Character) Tick(){
 		}
 	}
 
-
 }
 
 func (c *Character) Died() {
@@ -368,11 +367,11 @@ func (c *Character) Died() {
 
 // Drop out the description of this character
 func (c *Character) Look() (buildText string) {
-	buildText = "You see " + c.Name + ", the young, " + config.TextGender[c.Gender]  + ", " + config.AvailableRaces[c.Race] + " " + c.ClassTitle  +"."
+	buildText = "You see " + c.Name + ", the young, " + config.TextGender[c.Gender] + ", " + config.AvailableRaces[c.Race] + " " + c.ClassTitle + "."
 	return buildText
 }
 
-func (c *Character) EmptyMenu () {
+func (c *Character) EmptyMenu() {
 	for k := range c.Menu {
 		delete(c.Menu, k)
 	}
@@ -384,20 +383,20 @@ func (c *Character) AddMenu(menuItem string, menuCmd string) {
 	}
 }
 
-func (c *Character) ApplyEffect(effectName string, length string, interval string,  effect func(), effectOff func()){
-	c.Effects[effectName] = NewEffect(length, interval,  effect , effectOff)
+func (c *Character) ApplyEffect(effectName string, length string, interval string, effect func(), effectOff func()) {
+	c.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
 	effect()
 }
 
-func (c *Character) RemoveEffect(effectName string){
+func (c *Character) RemoveEffect(effectName string) {
 	c.Effects[effectName].effectOff()
 	delete(c.Effects, effectName)
 }
 
 // Return stam and vital damage
-func (c *Character) ReceiveDamage(damage int) (int, int){
+func (c *Character) ReceiveDamage(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
-	resist := int(math.Ceil(float64(damage) * (float64(c.Equipment.Armor/config.ArmorReductionPoints)*config.ArmorReduction)))
+	resist := int(math.Ceil(float64(damage) * (float64(c.Equipment.Armor/config.ArmorReductionPoints) * config.ArmorReduction)))
 	finalDamage := damage - resist
 	if finalDamage > c.Stam.Current {
 		stamDamage = c.Stam.Current
@@ -406,10 +405,10 @@ func (c *Character) ReceiveDamage(damage int) (int, int){
 		if vitalDamage > c.Vit.Current {
 			vitalDamage = c.Vit.Current
 			c.Vit.Current = 0
-		}else{
+		} else {
 			c.Vit.Subtract(vitalDamage)
 		}
-	}else {
+	} else {
 		c.Stam.Subtract(finalDamage)
 		stamDamage = finalDamage
 		vitalDamage = 0
@@ -417,23 +416,23 @@ func (c *Character) ReceiveDamage(damage int) (int, int){
 	return stamDamage, vitalDamage
 }
 
-func (c *Character) ReceiveVitalDamage(damage int) int{
-	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(c.Equipment.Armor/config.ArmorReductionPoints)*config.ArmorReduction))))
+func (c *Character) ReceiveVitalDamage(damage int) int {
+	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(c.Equipment.Armor/config.ArmorReductionPoints) * config.ArmorReduction))))
 	if finalDamage > c.Vit.Current {
 		finalDamage = c.Vit.Current
 		c.Vit.Current = 0
-	}else {
+	} else {
 		c.Vit.Subtract(finalDamage)
 	}
 	return finalDamage
 }
 
-func (c *Character) ReceiveMagicDamage(damage int) (int, int){
+func (c *Character) ReceiveMagicDamage(damage int) (int, int) {
 	//TODO Calculate some magic resistance damage
 	return c.ReceiveDamage(damage)
 }
 
-func (c *Character) Heal(damage int) (int,int){
+func (c *Character) Heal(damage int) (int, int) {
 	stamHeal, vitalHeal := 0, 0
 	if damage > (c.Vit.Max - c.Vit.Current) {
 		vitalHeal = c.Vit.Max - c.Vit.Current
@@ -442,36 +441,37 @@ func (c *Character) Heal(damage int) (int,int){
 		if stamHeal > (c.Stam.Max - c.Stam.Current) {
 			stamHeal = c.Stam.Max - c.Stam.Current
 			c.Stam.Current = c.Stam.Max
-		}else{
+		} else {
 			c.Stam.Add(stamHeal)
 		}
-	}else {
+	} else {
 		c.Vit.Add(damage)
 	}
 	return stamHeal, vitalHeal
 }
 
-func (c *Character) HealVital(damage int){
-		c.Vit.Add(damage)
+func (c *Character) HealVital(damage int) {
+	c.Vit.Add(damage)
 }
 
-func (c *Character) HealStam(damage int){
-		c.Stam.Add(damage)
+func (c *Character) HealStam(damage int) {
+	c.Stam.Add(damage)
 }
 
-func (c *Character) RestoreMana(damage int){
+func (c *Character) RestoreMana(damage int) {
 	c.Mana.Add(damage)
 }
 
-func (c *Character) InflictDamage() (damage int){
+func (c *Character) InflictDamage() (damage int) {
 	//TODO: Monks need to not worry about weapons
 	damage = utils.Roll(c.Equipment.Main.SidesDice,
-						c.Equipment.Main.NumDice,
-						c.Equipment.Main.PlusDice)
+		c.Equipment.Main.NumDice,
+		c.Equipment.Main.PlusDice)
 
-	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod*float64(c.Str.Current))))
+	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod * float64(c.Str.Current))))
 	// Add any modified base damage
-	baseDamage, ok := c.Modifiers["base_damage"]; if !ok {
+	baseDamage, ok := c.Modifiers["base_damage"]
+	if !ok {
 		baseDamage = 0
 	}
 	damage += baseDamage
@@ -495,28 +495,28 @@ func (c *Character) WriteMovement(previous int, new int, subject string) {
 	// Moving backwards
 	if (previous > new) && (mvAmnt == 1) && (new > c.Placement) {
 		c.Write([]byte(color + subject + " moves backwards, towards you." + text.Reset + "\n"))
-	}else if (previous > new) && (mvAmnt == 1) && (new < c.Placement) {
+	} else if (previous > new) && (mvAmnt == 1) && (new < c.Placement) {
 		c.Write([]byte(color + subject + " moves backwards, away from you." + text.Reset + "\n"))
-	}else if (previous > new) && (mvAmnt == 1) && (new == c.Placement) {
+	} else if (previous > new) && (mvAmnt == 1) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " moves backwards, next to you." + text.Reset + "\n"))
-	}else if (previous > new) && (mvAmnt == 2) && (new > c.Placement) {
+	} else if (previous > new) && (mvAmnt == 2) && (new > c.Placement) {
 		c.Write([]byte(color + subject + " sprints backwards, towards you." + text.Reset + "\n"))
-	}else if (previous > new) && (mvAmnt == 2) && (new < c.Placement) {
+	} else if (previous > new) && (mvAmnt == 2) && (new < c.Placement) {
 		c.Write([]byte(color + subject + " sprints backwards, away from you." + text.Reset + "\n"))
-	}else if (previous > new) && (mvAmnt == 2) && (new == c.Placement) {
+	} else if (previous > new) && (mvAmnt == 2) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " sprints backwards, next to you." + text.Reset + "\n"))
-	// Moving forwards
-	}else if (previous < new) && (mvAmnt == 1) && (new < c.Placement) {
+		// Moving forwards
+	} else if (previous < new) && (mvAmnt == 1) && (new < c.Placement) {
 		c.Write([]byte(color + subject + " moves forwards, towards you." + text.Reset + "\n"))
-	}else if (previous < new) && (mvAmnt == 1) && (new > c.Placement) {
+	} else if (previous < new) && (mvAmnt == 1) && (new > c.Placement) {
 		c.Write([]byte(color + subject + " moves forwards, away from you." + text.Reset + "\n"))
-	}else if (previous < new) && (mvAmnt == 1) && (new == c.Placement) {
+	} else if (previous < new) && (mvAmnt == 1) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " moves forwards, next to you." + text.Reset + "\n"))
-	}else if (previous < new) && (mvAmnt == 2) && (new < c.Placement) {
+	} else if (previous < new) && (mvAmnt == 2) && (new < c.Placement) {
 		c.Write([]byte(color + subject + " sprints forwards, towards you." + text.Reset + "\n"))
-	}else if (previous < new) && (mvAmnt == 2) && (new > c.Placement) {
+	} else if (previous < new) && (mvAmnt == 2) && (new > c.Placement) {
 		c.Write([]byte(color + subject + " sprints forwards, away from you." + text.Reset + "\n"))
-	}else if (previous < new) && (mvAmnt == 2) && (new == c.Placement) {
+	} else if (previous < new) && (mvAmnt == 2) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " sprints forwards, next to you." + text.Reset + "\n"))
 	}
 }

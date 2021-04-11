@@ -10,9 +10,9 @@ import (
 
 func init() {
 	addHandler(link{},
-           "Usage:  link exit_name (room_id) [exit_back] \n Required: exit_name room_name \n \n Dig creates a new exit with the exit name, and links it to the room ID specified. If you specify a name back, the exit back will be automatically generated.  \n Optionals: exit_back will create the exit name back to current room \n",
-           permissions.Builder,
-           "link", "tunnel")
+		"Usage:  link exit_name (room_id) [exit_back] \n Required: exit_name room_name \n \n Dig creates a new exit with the exit name, and links it to the room ID specified. If you specify a name back, the exit back will be automatically generated.  \n Optionals: exit_back will create the exit name back to current room \n",
+		permissions.Builder,
+		"link", "tunnel")
 }
 
 type link cmd
@@ -28,13 +28,13 @@ func (link) process(s *state) {
 	// Check that the room exists.
 	if room, ok := objects.Rooms[roomRef]; !ok {
 		s.msg.Actor.SendBad("That room ID doesn't appear to exist.")
-	}else{
+	} else {
 		// Check that we aren't duping an exit
-		if !data.ExitExists(strings.ToLower(s.words[0]), s.where.RoomId){
+		if !data.ExitExists(strings.ToLower(s.words[0]), s.where.RoomId) {
 			createTo := data.CreateExit(map[string]interface{}{
-				"name": strings.ToLower(s.words[0]),
+				"name":   strings.ToLower(s.words[0]),
 				"fromId": s.where.RoomId,
-				"toId": roomRef,
+				"toId":   roomRef,
 			})
 			if createTo {
 				s.msg.Actor.SendBad("To exit creation failed.")
@@ -56,11 +56,10 @@ func (link) process(s *state) {
 				room.Exits[strings.ToLower(s.words[0])] = objects.NewExit(room.RoomId, exitData)
 			}
 			s.msg.Actor.SendGood("Exits created and loaded into game.")
-		}else {
+		} else {
 			s.msg.Actor.SendBad("An exit with that name  exists in your current room.")
 		}
 	}
-
 
 	s.ok = true
 	return

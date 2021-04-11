@@ -10,9 +10,9 @@ import (
 // Syntax: ( INVENTORY | INV )
 func init() {
 	addHandler(steal{},
-           "Usage:  steal target item \n \n Try to steal an item from a targets inventory",
-           permissions.Thief,
-           "steal")
+		"Usage:  steal target item \n \n Try to steal an item from a targets inventory",
+		permissions.Thief,
+		"steal")
 }
 
 type steal cmd
@@ -48,7 +48,7 @@ func (steal) process(s *state) {
 		s.msg.Actor.SendInfo("In their inventory:")
 		if len(inv) == 0 {
 			s.msg.Actor.Send("  No items")
-		}else {
+		} else {
 			s.msg.Actor.Send("  ", strings.Join(whatMob.Inventory.List(), ", "))
 		}
 	}

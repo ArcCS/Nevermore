@@ -8,9 +8,9 @@ import (
 
 func init() {
 	addHandler(msgall{},
-           "Usage:  msgall A thunderstorm rolls in from the east",
-           permissions.Dungeonmaster,
-           "msgall")
+		"Usage:  msgall A thunderstorm rolls in from the east",
+		permissions.Dungeonmaster,
+		"msgall")
 }
 
 type msgall cmd

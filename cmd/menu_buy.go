@@ -9,6 +9,6 @@ func init() {
 type buy cmd
 
 func (buy) process(s *state) {
-		s.msg.Actor.SendInfo("WIP, coming soon.")
+	s.msg.Actor.SendInfo("WIP, coming soon.")
 
 }

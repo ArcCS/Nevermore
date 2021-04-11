@@ -9,20 +9,20 @@ import (
 
 func init() {
 	addHandler(modspawn{},
-	"Usage:  modspawn 452 39 \n Modify a current spawn with a new value \n -or- Usage:  modspawn rate 50 \n Percentage chance \n",
-	permissions.Builder,
-	"modspawn")
+		"Usage:  modspawn 452 39 \n Modify a current spawn with a new value \n -or- Usage:  modspawn rate 50 \n Percentage chance \n",
+		permissions.Builder,
+		"modspawn")
 }
 
 type modspawn cmd
 
 func (modspawn) process(s *state) {
-	if len(s.words) < 2{
+	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("Add which mob, how does it spawn????")
 		return
 	}
 
-	if s.words[0] == "RATE"{
+	if s.words[0] == "RATE" {
 		val2, err2 := strconv.Atoi(s.words[1])
 		if err2 != nil {
 			log.Println(err2)
@@ -50,8 +50,6 @@ func (modspawn) process(s *state) {
 	}
 	mob_rate = val2
 
-
-
 	if _, ok := s.where.EncounterTable[mob_id]; ok {
 		previousRate := s.where.EncounterTable[mob_id]
 		s.where.EncounterTable[mob_id] = mob_rate
@@ -62,15 +60,15 @@ func (modspawn) process(s *state) {
 		if sumVals > 100 {
 			s.where.EncounterTable[mob_id] = previousRate
 			s.msg.Actor.SendBad("The sum of the encounter rates is more than 100% with the new value")
-		}else{
+		} else {
 			data.UpdateEncounter(map[string]interface{}{
-				"mobId": mob_id,
-				"roomId":  s.where.RoomId,
+				"mobId":  mob_id,
+				"roomId": s.where.RoomId,
 				"chance": mob_rate})
 			s.msg.Actor.SendGood("Mob spawn rate updated")
 		}
 
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That mob ID doesn't exist")
 		return
 	}

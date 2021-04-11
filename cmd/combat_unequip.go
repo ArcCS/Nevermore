@@ -6,9 +6,9 @@ import (
 
 func init() {
 	addHandler(unequip{},
-           "Usage:  unequip item # \n\n Try to unequip something you're wearing",
-           permissions.Player,
-           "unequip", "remove", "rem")
+		"Usage:  unequip item # \n\n Try to unequip something you're wearing",
+		permissions.Player,
+		"unequip", "remove", "rem")
 }
 
 type unequip cmd
@@ -29,7 +29,7 @@ func (unequip) process(s *state) {
 		}
 	}
 
-	 */
+	*/
 	_, what := s.actor.Equipment.Unequip(name)
 	if what != nil {
 		s.actor.Inventory.Lock()

@@ -37,4 +37,4 @@ func (act) process(s *state) {
 	s.ok = true
 }
 
- */
+*/

@@ -8,9 +8,9 @@ import (
 // Syntax: DROP item
 func init() {
 	addHandler(drop{},
-	"Usage:  drop itemName # \n \n Drop the specified item name and number.",
-	permissions.Player,
-	"drop")
+		"Usage:  drop itemName # \n \n Drop the specified item name and number.",
+		permissions.Player,
+		"drop")
 }
 
 type drop cmd
@@ -29,7 +29,7 @@ func (drop) process(s *state) {
 	if len(s.words) < 1 {
 		if val, err := strconv.Atoi(s.words[1]); err == nil {
 			targetNum = val
-		}else{
+		} else {
 			s.msg.Actor.SendInfo("What did you want to drop?")
 			return
 		}
@@ -50,7 +50,7 @@ func (drop) process(s *state) {
 	s.actor.Inventory.Unlock()
 
 	s.msg.Actor.SendGood("You drop ", target.Name, ".")
-	s.msg.Observers.SendInfo( s.actor.Name, " drops ", target.Name, ".")
+	s.msg.Observers.SendInfo(s.actor.Name, " drops ", target.Name, ".")
 
 	s.ok = true
 }

@@ -271,7 +271,7 @@ func (s *state) AddItemLock(i int) {
 	}
 
 	for x := 0; x < l; x++ {
-		copy(s.iLocks[x+1:l], s.iLocks[x:l-1])
+		_ = copy(s.iLocks[x+1:l], s.iLocks[x:l-1])
 		s.iLocks[x] = i
 		break
 	}
@@ -293,7 +293,7 @@ func (s *state) AddMobLock(i int) {
 	}
 
 	for x := 0; x < l; x++ {
-		copy(s.mLocks[x+1:l], s.mLocks[x:l-1])
+		_ = copy(s.mLocks[x+1:l], s.mLocks[x:l-1])
 		s.mLocks[x] = i
 		break
 	}
@@ -316,9 +316,8 @@ func (s *state) AddCharLock(i int) {
 
 	// After adding the lock to the context, lock the item
 	objects.Rooms[i].Chars.Lock()
-
 	for x := 0; x < l; x++ {
-		copy(s.cLocks[x+1:l], s.cLocks[x:l-1])
+		_ = copy(s.cLocks[x+1:l], s.cLocks[x:l-1])
 		s.cLocks[x] = i
 		break
 	}

@@ -9,7 +9,7 @@ type Item struct {
 	Object
 	ParentItemId int
 	ItemId       int
-	ItemType         int
+	ItemType     int
 	Flags        map[string]bool
 	Creator      string
 	NumDice      int
@@ -98,7 +98,7 @@ func (i *Item) Save() {
 	itemData["armor"] = i.Armor
 	itemData["max_uses"] = i.MaxUses
 	itemData["name"] = i.Name
-	itemData["sdice"]  = i.SidesDice
+	itemData["sdice"] = i.SidesDice
 	itemData["value"] = i.Value
 	itemData["spell"] = i.Spell
 	itemData["always_crit"] = utils.Btoi(i.Flags["always_crit"])
@@ -115,11 +115,11 @@ func (i *Item) Save() {
 func ReturnItemInstanceProps(item *Item) map[string]interface{} {
 	serialList := map[string]interface{}{
 		"itemId": item.ItemId,
-		"name": item.Name,
-		"uses": item.MaxUses,
-		"magic": utils.Btoi(item.Flags["magic"]),
-		"spell": item.Spell,
-		"armor": item.Armor,
+		"name":   item.Name,
+		"uses":   item.MaxUses,
+		"magic":  utils.Btoi(item.Flags["magic"]),
+		"spell":  item.Spell,
+		"armor":  item.Armor,
 	}
 	if item.ItemType == 9 {
 		serialList["contents"] = item.Storage.Jsonify()

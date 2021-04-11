@@ -9,9 +9,9 @@ import (
 
 func init() {
 	addHandler(give{},
-           "Usage:  give [person] itemName # \n \n Give the specific person an item.",
-           permissions.Player,
-           "GIVE")
+		"Usage:  give [person] itemName # \n \n Give the specific person an item.",
+		permissions.Player,
+		"GIVE")
 }
 
 type give cmd
@@ -30,7 +30,7 @@ func (give) process(s *state) {
 	var who *objects.Character
 	if s.actor.Permission.HasFlag(permissions.Dungeonmaster) || s.actor.Permission.HasFlag(permissions.Gamemaster) {
 		who = s.where.Chars.Search(whoStr, true)
-	}else{
+	} else {
 		who = s.where.Chars.Search(whoStr, false)
 	}
 	if who == nil {
@@ -41,26 +41,24 @@ func (give) process(s *state) {
 
 	// We're going to process a money transaction.
 	if strings.HasPrefix(targetStr, "$") {
-		if amount64, err := strconv.ParseInt(strings.Trim(targetStr, "$"), 10, 64); err==nil{
+		if amount64, err := strconv.ParseInt(strings.Trim(targetStr, "$"), 10, 64); err == nil {
 			amount := int(amount64)
-			if s.actor.Gold.CanSubtract(amount){
+			if s.actor.Gold.CanSubtract(amount) {
 				s.actor.Gold.SubIfCan(amount)
 				who.Gold.Add(amount)
-				s.msg.Actor.SendGood("You give ", targetStr ,  " to ", who.Name, ".")
+				s.msg.Actor.SendGood("You give ", targetStr, " to ", who.Name, ".")
 				s.msg.Participant.SendGood(s.actor.Name + " gives you " + targetStr)
 				s.msg.Observers.SendInfo("You see ", s.actor.Name, " give ", who.Name, " some gold.")
-			}else{
+			} else {
 				s.msg.Actor.SendInfo("You don't have that much gold.")
 				return
 			}
 		}
 	}
 
-
 	if val, err := strconv.Atoi(s.words[1]); err == nil {
 		targetNum = val
 	}
-
 
 	target := s.actor.Inventory.Search(targetStr, targetNum)
 
@@ -76,7 +74,7 @@ func (give) process(s *state) {
 		who.Inventory.Add(target)
 		s.actor.Inventory.Unlock()
 		who.Inventory.Unlock()
-	}else{
+	} else {
 		s.msg.Actor.SendInfo("They can't carry anymore.")
 		return
 	}

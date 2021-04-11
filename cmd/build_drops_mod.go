@@ -10,19 +10,18 @@ import (
 
 func init() {
 	addHandler(moddrop{},
-	"Usage:  moddrop mob_id item_id drop_rate \n Modify an EXISTING itme drop from a mob.  In order: ## mob_id, ## item_id, ## new percent chance ",
-	permissions.Builder,
-	"moddrop")
+		"Usage:  moddrop mob_id item_id drop_rate \n Modify an EXISTING itme drop from a mob.  In order: ## mob_id, ## item_id, ## new percent chance ",
+		permissions.Builder,
+		"moddrop")
 }
 
 type moddrop cmd
 
 func (moddrop) process(s *state) {
-	if len(s.words) < 2{
+	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("Mod which item and it's spawn rate?")
 		return
 	}
-
 
 	var mob_id, item_id, drop_rate int
 	mob_id, err := strconv.Atoi(s.words[0])
@@ -52,11 +51,11 @@ func (moddrop) process(s *state) {
 					"chance": drop_rate})
 				s.msg.Actor.SendGood("Drop rate updated")
 			}
-		}else{
+		} else {
 			s.msg.Actor.SendBad("Item not found.")
 		}
 
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That mob ID doesn't exist")
 		return
 	}

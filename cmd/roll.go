@@ -9,16 +9,16 @@ import (
 // Syntax: DROP item
 func init() {
 	addHandler(roll{},
-	"Usage:  roll sides num_dice \n \n Roll a number of specified sided dice",
-	permissions.Player,
-	"roll")
+		"Usage:  roll sides num_dice \n \n Roll a number of specified sided dice",
+		permissions.Player,
+		"roll")
 }
 
 type roll cmd
 
 func (roll) process(s *state) {
 	rollSides := 20
-	rollDice  := 1
+	rollDice := 1
 	if len(s.words) > 0 {
 		rollSides, _ = strconv.Atoi(s.words[0])
 	}

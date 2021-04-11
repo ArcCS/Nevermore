@@ -10,9 +10,9 @@ import (
 
 func init() {
 	addHandler(create{},
-	"Usage:  create (mob|item) name \n \n Create a brand new item with a name. \n Note:  Use the modify command to add modify traits of the object.",
-	permissions.Builder,
-	"create", "new")
+		"Usage:  create (mob|item) name \n \n Create a brand new item with a name. \n Note:  Use the modify command to add modify traits of the object.",
+		permissions.Builder,
+		"create", "new")
 }
 
 type create cmd

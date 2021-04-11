@@ -11,9 +11,9 @@ import (
 
 func init() {
 	addHandler(tod{},
-           "Usage:  touch target # \n\n Attempt the secret art of a touch of death on your living target",
-           permissions.Monk,
-           "touch", "tod", "touch-of-death")
+		"Usage:  touch target # \n\n Attempt the secret art of a touch of death on your living target",
+		permissions.Monk,
+		"touch", "tod", "touch-of-death")
 }
 
 type tod cmd
@@ -42,7 +42,7 @@ func (tod) process(s *state) {
 	}
 
 	var whatMob *objects.Mob
-	whatMob = s.where.Mobs.Search(name, nameNum,true)
+	whatMob = s.where.Mobs.Search(name, nameNum, true)
 	if whatMob != nil {
 		// This is an override for a GM to delete a mob
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
@@ -129,11 +129,11 @@ func (tod) process(s *state) {
 				mult *= float64(config.CombatModifiers["critical"])
 				s.msg.Actor.SendGood("Critical Strike!")
 				// TODO: Something something shattered weapons something or other
-			}else if config.RollDouble(skillLevel) {
+			} else if config.RollDouble(skillLevel) {
 				mult *= float64(config.CombatModifiers["double"])
 				s.msg.Actor.SendGood("Double Damage!")
 			}
-			actualDamage,_ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
+			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
 			whatMob.AddThreatDamage(actualDamage, s.actor.Name)
 			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			if whatMob.Stam.Current <= 0 {

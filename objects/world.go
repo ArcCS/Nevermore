@@ -6,7 +6,6 @@ import (
 	"runtime"
 )
 
-
 // Rooms contains all of the world rooms tagged with their room_id
 // This makes it very simple to move people by room_id and retain their connecting exit
 var Rooms = map[int]*Room{}
@@ -54,4 +53,3 @@ func Load() {
 	runtime.GC()
 
 }
-

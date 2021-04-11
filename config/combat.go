@@ -2,34 +2,31 @@ package config
 
 import "github.com/ArcCS/Nevermore/utils"
 
-var CombatModifiers = map[string]int {
+var CombatModifiers = map[string]int{
 	// Attack Modifiers
 	"critical": 10,
-	"double":	2,
+	"double":   2,
 
 	// Bash
-	"thunk": 	100,
+	"thunk":    100,
 	"crushing": 10,
-	"thwomp":	2,
+	"thwomp":   2,
 
 	// Amount of damage per strength point
 	"berserk": 5,
 
 	// Sneaky Types
-	"backstab":	8,
-	"snipe":	8,
+	"backstab": 8,
+	"snipe":    8,
 }
 
 // TODO: Capture these attacks in their respective commands
 /*
-	Thump		Triple Stun duration	Bash
-	Berserk	6-7 damage per point of Strength added to base damage	5 Bonus Strength	Berserk
 	Touch of Death		50% Halve Hit Points / 50% Fatal	Touch of Death
 	Turn		50% Halve Hit Points / 50% Fatal	Turn
- */
+*/
 
 var CombatCooldown = 8
-
 
 // Mob Stuns:
 var ParryStuns = 2

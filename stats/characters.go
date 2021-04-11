@@ -23,14 +23,15 @@ type characterStats struct {
 
 var ActiveCharacters = &characterStats{}
 var IpMap = make(map[string]string)
+
 // TODO: Update command execution times
 var LastActMap = make(map[string]time.Time)
 
 // Add adds the specified character to the list of characters.
 func (c *characterStats) Add(character *objects.Character, address string) {
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster, permissions.God) {
-		c.MessageGM("###: " + character.Name + "["+ address +"] joins the realm.")
-	}else{
+		c.MessageGM("###: " + character.Name + "[" + address + "] joins the realm.")
+	} else {
 		c.MessageAll("###: " + character.Name + " joins the realm.")
 	}
 	c.Lock()
@@ -44,7 +45,7 @@ func (c *characterStats) Remove(character *objects.Character) {
 	//log.Println("trying to let everyone know...")
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
 		c.MessageGM("###:" + character.Name + " departs the realm.")
-	}else{
+	} else {
 		c.MessageAll("###: " + character.Name + " departs the realm.")
 	}
 
@@ -60,7 +61,6 @@ func (c *characterStats) Remove(character *objects.Character) {
 			break
 		}
 	}
-
 
 	if len(c.list) == 0 {
 		c.list = make([]*objects.Character, 0, 10)
@@ -84,11 +84,10 @@ func (c *characterStats) Find(name string) *objects.Character {
 
 // List returns the names of all characters in the character list. The omit parameter
 // may be used to specify a character that should be omitted from the list.
-func (c *characterStats)  List() []string {
+func (c *characterStats) List() []string {
 	c.Lock()
 
 	list := make([]string, 0, len(c.list))
-
 
 	for _, character := range c.list {
 		if character.Flags["invisible"] == true {
@@ -97,7 +96,7 @@ func (c *characterStats)  List() []string {
 
 		if character.Title != "" {
 			list = append(list, fmt.Sprintf("%s, %s, %s", character.Name, character.ClassTitle, character.Title))
-		}else{
+		} else {
 			list = append(list, fmt.Sprintf("%s, %s", character.Name, character.ClassTitle))
 		}
 	}
@@ -108,16 +107,15 @@ func (c *characterStats)  List() []string {
 
 // List returns the names of all characters in the character list. The omit parameter
 // may be used to specify a character that should be omitted from the list.
-func (c *characterStats)  GMList() []string {
+func (c *characterStats) GMList() []string {
 	c.Lock()
 
 	list := make([]string, 0, len(c.list))
 
-
 	for _, character := range c.list {
 		if character.Title != "" {
 			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s, %s, %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, character.ClassTitle, character.Title))
-		}else{
+		} else {
 			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s, %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, character.ClassTitle))
 		}
 	}
@@ -159,7 +157,6 @@ func (c *characterStats) MessageGM(msg string) {
 	c.Unlock()
 	return
 }
-
 
 // Len returns the length of the character list.
 func (c *characterStats) Len() (l int) {

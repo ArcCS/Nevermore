@@ -57,7 +57,6 @@ func (godir) process(s *state) {
 		return
 	}
 
-
 	// Decide what exit we are going to
 	if utils.StringIn(s.cmd, directionals) {
 		exitName = directionIndex[s.cmd]
@@ -65,7 +64,7 @@ func (godir) process(s *state) {
 		if len(s.words) > 0 {
 			// Join the strings together for exits with spaces
 			exitName = strings.Join(s.words, " ")
-		}else{
+		} else {
 			s.msg.Actor.SendBad("Go where?")
 		}
 	}
@@ -83,10 +82,10 @@ func (godir) process(s *state) {
 		// Check that the room ID exists
 		if to, ok := objects.Rooms[toE.ToId]; ok {
 			// Apply a lock
-			if !utils.IntIn(toE.ToId, s.cLocks){
+			if !utils.IntIn(toE.ToId, s.cLocks) {
 				s.AddCharLock(toE.ToId)
 				return
-			}else{
+			} else {
 				if !toE.Flags["placement_dependent"] {
 					//TODO Check various exit flags,  perform mob blocking
 					//log.Println(rooms.Rooms[toE.ToId].Crowded())
@@ -101,11 +100,11 @@ func (godir) process(s *state) {
 							s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
 						}
 						s.scriptActor("LOOK")
-						s.ok=true
+						s.ok = true
 						return
 					} else {
 						s.msg.Actor.SendInfo("That area is crowded.")
-						s.ok=true
+						s.ok = true
 						return
 					}
 				}
@@ -114,10 +113,8 @@ func (godir) process(s *state) {
 		}
 	} else {
 		s.msg.Actor.SendInfo("You can't go that direction.")
-		s.ok=true
+		s.ok = true
 		return
 	}
-
-
 
 }

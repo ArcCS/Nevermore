@@ -8,7 +8,7 @@ import (
 
 func init() {
 	addHandler(appeal{},
-		"Usage:  appeal HELP ME OH GODS OR CREATORS\n \n Appeal a message to higher powers.  Note: Preppend OOC to clarify it's a non RP issue", 				permissions.Player,
+		"Usage:  appeal HELP ME OH GODS OR CREATORS\n \n Appeal a message to higher powers.  Note: Preppend OOC to clarify it's a non RP issue", permissions.Player,
 		"APPEAL")
 
 }

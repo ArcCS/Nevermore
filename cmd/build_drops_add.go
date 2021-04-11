@@ -10,15 +10,15 @@ import (
 
 func init() {
 	addHandler(adddrop{},
-	"Usage:  adddrop mob_id item_id drop_rate \n In order: add a drop to MOB ##, ITEM ##, WHOLE NUMBER PERCENT CHANCE ##  \n" ,
-	permissions.Builder,
-	"adddrop")
+		"Usage:  adddrop mob_id item_id drop_rate \n In order: add a drop to MOB ##, ITEM ##, WHOLE NUMBER PERCENT CHANCE ##  \n",
+		permissions.Builder,
+		"adddrop")
 }
 
 type adddrop cmd
 
 func (adddrop) process(s *state) {
-	if len(s.words) < 3{
+	if len(s.words) < 3 {
 		s.msg.Actor.SendInfo("Missing some arguments?")
 		return
 	}
@@ -51,10 +51,10 @@ func (adddrop) process(s *state) {
 			} else {
 				s.msg.Actor.SendBad("You can't set a drop to more than 100%")
 			}
-		}else{
+		} else {
 			s.msg.Actor.SendBad("That item ID doesn't exist.")
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That mob ID doesn't exist")
 		return
 	}

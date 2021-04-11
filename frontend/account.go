@@ -15,8 +15,8 @@ import (
 // account and player creation.
 type account struct {
 	*frontend
-	account  string
-	password [16]byte
+	account    string
+	password   [16]byte
 	permission permissions.Permissions
 }
 
@@ -118,8 +118,8 @@ func (a *account) write() {
 	}
 
 	newAcct := make(map[string]interface{})
-	newAcct["name"] =  a.account
-	newAcct["password"] =  hex.EncodeToString(a.password[:])
+	newAcct["name"] = a.account
+	newAcct["password"] = hex.EncodeToString(a.password[:])
 
 	if data.NewAcct(newAcct) {
 		log.Printf("New account failed to create: %s", a.account)

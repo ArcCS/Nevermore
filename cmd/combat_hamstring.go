@@ -7,10 +7,11 @@ import (
 	"strconv"
 )
 
-func init() { addHandler(hamstring{},
-           "Usage:  hamstring target # \n\n Try to hamstring a mob to generate a large amount of threat",
-           permissions.Fighter, //TODO: Add Barbarian here
-           "hamstring", "ham")
+func init() {
+	addHandler(hamstring{},
+		"Usage:  hamstring target # \n\n Try to hamstring a mob to generate a large amount of threat",
+		permissions.Fighter, //TODO: Add Barbarian here
+		"hamstring", "ham")
 }
 
 type hamstring cmd
@@ -39,7 +40,7 @@ func (hamstring) process(s *state) {
 	}
 
 	var whatMob *objects.Mob
-	whatMob = s.where.Mobs.Search(name, nameNum,true)
+	whatMob = s.where.Mobs.Search(name, nameNum, true)
 	if whatMob != nil {
 
 		// Shortcut a missing weapon:
@@ -60,7 +61,7 @@ func (hamstring) process(s *state) {
 		whatMob.AddThreatDamage(whatMob.Stam.Max/2, s.actor.Name)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		s.msg.Actor.SendInfo("You hamstring " + whatMob.Name)
-		s.msg.Observers.SendInfo(s.actor.Name + " hamstrings " + whatMob.Name )
+		s.msg.Observers.SendInfo(s.actor.Name + " hamstrings " + whatMob.Name)
 		return
 
 	}

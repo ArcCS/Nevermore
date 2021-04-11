@@ -11,15 +11,15 @@ import (
 // Syntax: spells
 func init() {
 	addHandler(spell{},
-           "Usage:  spells \n \n List the spells currently bound to your character, and your spellbook",
-           permissions.Player,
-           "SPELLS")
+		"Usage:  spells \n \n List the spells currently bound to your character, and your spellbook",
+		permissions.Player,
+		"SPELLS")
 }
 
 type spell cmd
 
 func (spell) process(s *state) {
-spell_template := `Your spellbook contains the following spell incantations:
+	spell_template := `Your spellbook contains the following spell incantations:
 ----------------------------------------------------------------------
 {{.Spells}}
 
@@ -33,7 +33,7 @@ You sense the following enchantments bound to your lifeforce:
 	}
 
 	data := struct {
-		Spells string
+		Spells       string
 		SpellEffects string
 	}{
 		strings.Join(s.actor.Spells, ", "),
@@ -44,7 +44,7 @@ You sense the following enchantments bound to your lifeforce:
 	err := tmpl.Execute(&output, data)
 	if err != nil {
 		log.Println(err)
-	}else{
+	} else {
 		s.msg.Actor.SendGood(output.String())
 	}
 

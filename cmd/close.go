@@ -8,9 +8,9 @@ import (
 // Syntax: CLOSE <door>
 func init() {
 	addHandler(closeExit{},
-           "Usage:  close exitName \n\n Close the specified exit so no one can pass through it.",
-           permissions.Player,
-           "CLOSE")
+		"Usage:  close exitName \n\n Close the specified exit so no one can pass through it.",
+		permissions.Player,
+		"CLOSE")
 }
 
 type closeExit cmd
@@ -52,10 +52,9 @@ func (closeExit) process(s *state) {
 		who := s.actor.Name
 		s.msg.Actor.SendGood("You close ", name, ".")
 		s.msg.Observers.SendInfo(who, " closes ", name, ".")
-	}else{
+	} else {
 		s.msg.Actor.SendGood("You close ", name, ".")
 	}
-
 
 	s.ok = true
 }

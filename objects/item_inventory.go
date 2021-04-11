@@ -9,17 +9,16 @@ import (
 )
 
 type ItemInventory struct {
-	Contents    []*Item
+	Contents []*Item
 	sync.Mutex
 	TotalWeight int
-	Flags map[string]bool
+	Flags       map[string]bool
 }
-
 
 // New ItemInventory returns a new basic ItemInventory structure
 func NewItemInventory(o ...*Item) *ItemInventory {
 	i := &ItemInventory{
-		Contents:  make([]*Item, 0, len(o)),
+		Contents: make([]*Item, 0, len(o)),
 	}
 
 	for _, ob := range o {
@@ -59,14 +58,13 @@ func (i *ItemInventory) RemoveNonPerms() {
 		if item.Flags["permanent"] == true {
 			newContents = append(newContents, item)
 			newWeight += item.GetWeight()
-		}else{
+		} else {
 			item = nil
 		}
 	}
 	i.Contents = newContents
 	i.TotalWeight = newWeight
 }
-
 
 // Search the ItemInventory to return a specific instance of something
 func (i *ItemInventory) Search(alias string, num int) *Item {
@@ -76,10 +74,10 @@ func (i *ItemInventory) Search(alias string, num int) *Item {
 
 	pass := 1
 	for _, c := range i.Contents {
-		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)){
+		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
 			if pass == num {
 				return c
-			}else{
+			} else {
 				pass++
 			}
 		}
@@ -92,7 +90,7 @@ func (i *ItemInventory) Search(alias string, num int) *Item {
 func (i *ItemInventory) List() []string {
 	items := make([]string, 0)
 
-	switch len(i.Contents){
+	switch len(i.Contents) {
 	case 0:
 		return items
 	}
@@ -121,7 +119,7 @@ func (i *ItemInventory) Free() {
 func (i *ItemInventory) Jsonify() string {
 	itemList := make([]map[string]interface{}, 0)
 
-	switch len(i.Contents){
+	switch len(i.Contents) {
 	case 0:
 		return "[]"
 	}
@@ -145,18 +143,18 @@ func (i *ItemInventory) ReducedList() string {
 	for _, o := range i.Contents {
 		// List all
 		_, inMap := items[o.Name]
-			if inMap {
-				items[o.Name]++
-			}else {
-				items[o.Name] = 1
-			}
+		if inMap {
+			items[o.Name]++
+		} else {
+			items[o.Name] = 1
+		}
 	}
 
 	stringify := make([]string, 0)
 	for k, v := range items {
 		if v == 1 {
 			stringify = append(stringify, "a "+k)
-		}else {
+		} else {
 			stringify = append(stringify, config.TextNumbers[v]+" "+k+"s")
 		}
 	}
@@ -175,10 +173,10 @@ func RestoreInventory(jsonString string) *ItemInventory {
 		newItem := Item{}
 		copier.Copy(&newItem, Items[int(item["itemId"].(float64))])
 		newItem.Name = item["name"].(string)
-		newItem.MaxUses	= int(item["uses"].(float64))
+		newItem.MaxUses = int(item["uses"].(float64))
 		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
 		newItem.Spell = item["spell"].(string)
-		newItem.Armor =	int(item["armor"].(float64))
+		newItem.Armor = int(item["armor"].(float64))
 		if newItem.ItemType == 9 {
 			newItem.Storage = RestoreInventory(item["contents"].(string))
 		}

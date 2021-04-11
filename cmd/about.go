@@ -4,9 +4,9 @@ import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
 	addHandler(about{},
-	"Display version and codebase information.",
-	permissions.Player,
-	"about")
+		"Display version and codebase information.",
+		permissions.Player,
+		"about")
 }
 
 type about cmd

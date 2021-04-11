@@ -65,7 +65,7 @@ func (examine) process(s *state) {
 			{"T", "indoors", strconv.FormatBool(roomRef.Flags["indoors"]), "Room is indoors"},
 			{"T", "urban", strconv.FormatBool(roomRef.Flags["urban"]), "Room is part of a city"},
 			{"T", "underground", strconv.FormatBool(roomRef.Flags["underground"]), "Room is underground"},
-			{"T", "encounters_on",strconv.FormatBool(roomRef.Flags["encounters_on"]), "Monsters can spawn"},
+			{"T", "encounters_on", strconv.FormatBool(roomRef.Flags["encounters_on"]), "Monsters can spawn"},
 			{"T", "fire", strconv.FormatBool(roomRef.Flags["fire"]), "Room causes and amplifies fire."},
 			{"T", "water", strconv.FormatBool(roomRef.Flags["water"]), "Room causes and amplifies water."},
 			{"T", "earth", strconv.FormatBool(roomRef.Flags["earth"]), "Room causes and amplifies earth."},
@@ -93,7 +93,7 @@ func (examine) process(s *state) {
 			t.AppendRows([]table.Row{
 				{"X", "mobId", strconv.Itoa(mobRef.MobId), "DB id for mob"},
 				{"V", "name", mobRef.Name, "Mob Name"},
-				{"V", "description",  text.WrapSoft(mobRef.Description, rowLength/5), "Mob description"},
+				{"V", "description", text.WrapSoft(mobRef.Description, rowLength/5), "Mob description"},
 				{"V", "level", strconv.Itoa(mobRef.Level), "Mob Level"},
 				{"V", "experience", strconv.Itoa(mobRef.Experience), "Awarded Experience"},
 				{"V", "gold", strconv.Itoa(mobRef.Gold), "Gold dropped"},
@@ -146,7 +146,7 @@ func (examine) process(s *state) {
 				{"V", "type", config.ItemTypes[objRef.ItemType], "Type of Item"},
 				{"V", "value", strconv.Itoa(objRef.Value), "Pawning Value"},
 				{"V", "max_uses", strconv.Itoa(objRef.MaxUses), "Number of uses before breakage"},
-				{"V", "armor", strconv.Itoa(objRef.Armor	), "Armor value from this item"},
+				{"V", "armor", strconv.Itoa(objRef.Armor), "Armor value from this item"},
 				{"V", "ndice", strconv.Itoa(objRef.NumDice), "Number of Dice to Roll"},
 				{"V", "sdice", strconv.Itoa(objRef.SidesDice), "Sides of Dice Being Rolled"},
 				{"V", "pdice", strconv.Itoa(objRef.PlusDice), "Additional value to add to roll."},
@@ -242,9 +242,9 @@ func (examine) process(s *state) {
 				{"V", "missileexp", charData["missileexp"].(int64), "Missile Skill Experience"},
 				{"T", "darkvision", strconv.FormatBool(charData["flags"].(map[string]interface{})["darkvision"].(int64) != 0), "Permanent Dark Vision"},
 			})
-				t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
-				s.msg.Actor.SendGood(t.Render())
-		}else {
+			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
+			s.msg.Actor.SendGood(t.Render())
+		} else {
 			stats.ActiveCharacters.Lock()
 			t.AppendRows([]table.Row{
 				{"V", "name", character.Name, "Characters Name"},

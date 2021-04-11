@@ -1,17 +1,18 @@
 package config
+
 // Combat values
 
 // Max Damage
 var MaxWeaponDamage = map[int]int{
-	1: 15,
-	2: 20,
-	3: 25,
-	4: 30,
-	5: 35,
-	6: 40,
-	7: 45,
-	8: 50,
-	9: 55,
+	1:  15,
+	2:  20,
+	3:  25,
+	4:  30,
+	5:  35,
+	6:  40,
+	7:  45,
+	8:  50,
+	9:  55,
 	10: 60,
 	11: 65,
 	12: 70,
@@ -33,7 +34,7 @@ var MaxWeaponDamage = map[int]int{
 
 // Quick Function to check if character can wield
 func CanWield(tier int, class int, max int) bool {
-	if class==0 {
+	if class == 0 {
 		tier += 1
 	}
 	if max < MaxWeaponDamage[tier] {
@@ -44,25 +45,25 @@ func CanWield(tier int, class int, max int) bool {
 
 // Exp to level weapon classes
 var WeaponExpLevels = map[int]int{
-	0: 0,
-	1: 500,
-	2: 1000,
-	3: 10000,
-	4: 100000,
-	5: 250000,
-	6: 500000,
-	7: 750000,
-	8: 1000000,
-	9: 2500000,
+	0:  0,
+	1:  500,
+	2:  1000,
+	3:  10000,
+	4:  100000,
+	5:  250000,
+	6:  500000,
+	7:  750000,
+	8:  1000000,
+	9:  2500000,
 	10: 5000000,
 	11: 15000000,
 }
 
 type WeaponClass struct {
-	Title string
-	DoubleDamage float64
+	Title          string
+	DoubleDamage   float64
 	CriticalStrike float64
-	LethalRate float64
+	LethalRate     float64
 }
 
 var WeaponTitles = []string{

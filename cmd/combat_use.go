@@ -12,9 +12,9 @@ import (
 
 func init() {
 	addHandler(use{},
-           "Usage:  use item # \n\n Use an item",
-           permissions.Player,
-           "USE")
+		"Usage:  use item # \n\n Use an item",
+		permissions.Player,
+		"USE")
 }
 
 //TODO: Map out the use of items and the effect they map to under spells
@@ -47,21 +47,21 @@ func (use) process(s *state) {
 		if val, err := strconv.Atoi(s.words[3]); err == nil {
 			nameNum = val
 		}
-	}else if len(s.words) == 3 {
+	} else if len(s.words) == 3 {
 		name = s.words[2]
 		if val, err := strconv.Atoi(s.words[1]); err == nil {
 			itemNum = val
-		}else {
+		} else {
 			// Try to snag a number off the list
 			name = s.words[1]
 			if val, err := strconv.Atoi(s.words[2]); err == nil {
 				nameNum = val
 			}
 		}
-	}else if len(s.words) == 2 {
+	} else if len(s.words) == 2 {
 		if val, err := strconv.Atoi(s.words[1]); err == nil {
 			itemNum = val
-		}else {
+		} else {
 			name = s.words[1]
 		}
 	}
@@ -87,26 +87,26 @@ func (use) process(s *state) {
 				}
 				// It was a mob!
 				if whatMob != nil {
-						msg = spells.Effects[spellInstance.Effect](s.actor, whatMob, spellInstance.Magnitude)
-						s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatMob.Name)
-						s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
-						s.msg.Actor.SendGood(msg)
-						if whatMob.Stam.Current <= 0 {
-							s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
-							s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
-							//TODO Calculate experience
-							stringExp := strconv.Itoa(whatMob.Experience)
-							for k := range whatMob.ThreatTable {
-								s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-								s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
-							}
-							s.msg.Observers.SendInfo(whatMob.Name + " dies.")
-							s.msg.Actor.SendInfo(whatMob.DropInventory())
-							objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
-							whatMob = nil
+					msg = spells.Effects[spellInstance.Effect](s.actor, whatMob, spellInstance.Magnitude)
+					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatMob.Name)
+					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
+					s.msg.Actor.SendGood(msg)
+					if whatMob.Stam.Current <= 0 {
+						s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
+						s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
+						//TODO Calculate experience
+						stringExp := strconv.Itoa(whatMob.Experience)
+						for k := range whatMob.ThreatTable {
+							s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+							s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
 						}
-						return
+						s.msg.Observers.SendInfo(whatMob.Name + " dies.")
+						s.msg.Actor.SendInfo(whatMob.DropInventory())
+						objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
+						whatMob = nil
 					}
+					return
+				}
 
 				// Are we casting on a character
 				var whatChar *objects.Character
@@ -130,7 +130,7 @@ func (use) process(s *state) {
 					s.msg.Actor.SendGood(msg)
 					return
 				}
-			}else{
+			} else {
 				log.Println("Arrived here")
 				msg = spells.Effects[spellInstance.Effect](s.actor, s.actor, spellInstance.Magnitude)
 				s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")

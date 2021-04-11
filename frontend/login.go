@@ -16,7 +16,6 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 )
 
-
 // login embeds a frontend instance adding fields and methods specific to
 // account logins.
 type login struct {

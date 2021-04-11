@@ -10,9 +10,9 @@ import (
 // Syntax: ( INVENTORY | INV )
 func init() {
 	addHandler(peek{},
-           "Usage:  peek \n \n Display the current items in your inventory.",
-           permissions.Thief,
-           "peek")
+		"Usage:  peek \n \n Display the current items in your inventory.",
+		permissions.Thief,
+		"peek")
 }
 
 type peek cmd
@@ -48,7 +48,7 @@ func (peek) process(s *state) {
 		s.msg.Actor.SendInfo("In their inventory:")
 		if len(inv) == 0 {
 			s.msg.Actor.Send("  No items")
-		}else {
+		} else {
 			s.msg.Actor.Send("  ", strings.Join(whatMob.Inventory.List(), ", "))
 		}
 	}

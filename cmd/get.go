@@ -8,9 +8,9 @@ import (
 
 func init() {
 	addHandler(get{},
-           "Usage:  get [container_name] itemName # \n \n Get the specified item.",
-           permissions.Player,
-           "GET", "TAKE", "G")
+		"Usage:  get [container_name] itemName # \n \n Get the specified item.",
+		permissions.Player,
+		"GET", "TAKE", "G")
 }
 
 type get cmd
@@ -50,22 +50,54 @@ func (get) process(s *state) {
 		}
 	}
 
-		if whereStr == "" {
-			roomInventory := s.where.Items.Search(targetStr, targetNum)
-			if roomInventory != nil {
-				if roomInventory.ItemType == 10 {
-					s.where.Items.Remove(roomInventory)
-					s.actor.Gold.Add(roomInventory.Value)
-					s.msg.Actor.SendGood("You picked up ", roomInventory.Name, " and put it in your gold pouch.")
-					s.msg.Observers.SendInfo("You see ", s.actor.Name, " get ", roomInventory.Name, ".")
+	if whereStr == "" {
+		roomInventory := s.where.Items.Search(targetStr, targetNum)
+		if roomInventory != nil {
+			if roomInventory.ItemType == 10 {
+				s.where.Items.Remove(roomInventory)
+				s.actor.Gold.Add(roomInventory.Value)
+				s.msg.Actor.SendGood("You picked up ", roomInventory.Name, " and put it in your gold pouch.")
+				s.msg.Observers.SendInfo("You see ", s.actor.Name, " get ", roomInventory.Name, ".")
+				return
+			} else if (s.actor.Inventory.TotalWeight + roomInventory.GetWeight()) <= s.actor.MaxWeight() {
+				s.actor.Inventory.Lock()
+				s.where.Items.Remove(roomInventory)
+				s.actor.Inventory.Add(roomInventory)
+				s.actor.Inventory.Unlock()
+				s.msg.Actor.SendGood("You get ", roomInventory.Name, ".")
+				s.msg.Observers.SendInfo(s.actor.Name, " takes ", roomInventory.Name, ".")
+				return
+			} else {
+				s.msg.Actor.SendInfo("That item weighs too much for you to add to your inventory.")
+				return
+			}
+		}
+	}
+
+	// Try to find the where if it's not the room
+	if whereStr != "" {
+		log.Println("Looking elsewhere for ", targetStr)
+		where := s.where.Items.Search(whereStr, whereNum)
+		if where != nil && where.ItemType == 9 {
+			whereInventory := where.Storage.Search(targetStr, targetNum)
+			if whereInventory != nil {
+				if whereInventory.ItemType == 10 {
+					where.Storage.Lock()
+					where.Storage.Remove(whereInventory)
+					s.actor.Gold.Add(whereInventory.Value)
+					s.msg.Actor.SendGood("You take ", whereInventory.Name, " from ", where.Name, " and put it in your gold pouch.")
+					s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
+					where.Storage.Unlock()
 					return
-				} else if (s.actor.Inventory.TotalWeight + roomInventory.GetWeight()) <= s.actor.MaxWeight() {
+				} else if (s.actor.Inventory.TotalWeight + whereInventory.GetWeight()) <= s.actor.MaxWeight() {
+					where.Storage.Lock()
 					s.actor.Inventory.Lock()
-					s.where.Items.Remove(roomInventory)
-					s.actor.Inventory.Add(roomInventory)
+					where.Storage.Remove(whereInventory)
+					s.actor.Inventory.Add(whereInventory)
+					where.Storage.Unlock()
 					s.actor.Inventory.Unlock()
-					s.msg.Actor.SendGood("You get ", roomInventory.Name, ".")
-					s.msg.Observers.SendInfo(s.actor.Name, " takes ", roomInventory.Name, ".")
+					s.msg.Actor.SendGood("You take ", whereInventory.Name, " from ", where.Name, ".")
+					s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " take ", where.Name, ".")
 					return
 				} else {
 					s.msg.Actor.SendInfo("That item weighs too much for you to add to your inventory.")
@@ -73,40 +105,8 @@ func (get) process(s *state) {
 				}
 			}
 		}
-
-		// Try to find the where if it's not the room
-		if whereStr != "" {
-			log.Println("Looking elsewhere for ", targetStr)
-			where := s.where.Items.Search(whereStr, whereNum)
-			if where != nil && where.ItemType == 9 {
-				whereInventory := where.Storage.Search(targetStr, targetNum)
-				if whereInventory != nil {
-					if whereInventory.ItemType == 10 {
-						where.Storage.Lock()
-						where.Storage.Remove(whereInventory)
-						s.actor.Gold.Add(whereInventory.Value)
-						s.msg.Actor.SendGood("You take ", whereInventory.Name, " from ", where.Name, " and put it in your gold pouch.")
-						s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
-						where.Storage.Unlock()
-						return
-					} else if (s.actor.Inventory.TotalWeight + whereInventory.GetWeight()) <= s.actor.MaxWeight() {
-						where.Storage.Lock()
-						s.actor.Inventory.Lock()
-						where.Storage.Remove(whereInventory)
-						s.actor.Inventory.Add(whereInventory)
-						where.Storage.Unlock()
-						s.actor.Inventory.Unlock()
-						s.msg.Actor.SendGood("You take ", whereInventory.Name, " from ", where.Name, ".")
-						s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " take ", where.Name, ".")
-						return
-					} else {
-						s.msg.Actor.SendInfo("That item weighs too much for you to add to your inventory.")
-						return
-					}
-				}
-			}
-		}
-
-		s.msg.Actor.SendBad("Get what?")
-		s.ok = true
 	}
+
+	s.msg.Actor.SendBad("Get what?")
+	s.ok = true
+}

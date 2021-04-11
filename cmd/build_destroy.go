@@ -11,9 +11,9 @@ import (
 
 func init() {
 	addHandler(destroy{},
-	"Usage:  destroy (room|mob|item|exit) ID/name) \n \n Delete the item entirely from the database.  If this is a builder account, you must be the creator of the item to delete.  If you delete a room, it will delete the exits to and from it; be mindful and grab id's or tunnel around prior to deletion.",
-	permissions.Builder,
-	"destroy", "delete", "del")
+		"Usage:  destroy (room|mob|item|exit) ID/name) \n \n Delete the item entirely from the database.  If this is a builder account, you must be the creator of the item to delete.  If you delete a room, it will delete the exits to and from it; be mindful and grab id's or tunnel around prior to deletion.",
+		permissions.Builder,
+		"destroy", "delete", "del")
 }
 
 type destroy cmd
@@ -24,7 +24,7 @@ func (destroy) process(s *state) {
 		return
 	}
 
-	switch strings.ToLower(s.input[0]){
+	switch strings.ToLower(s.input[0]) {
 	case "room":
 		objectRef, _ := strconv.Atoi(s.input[1])
 		if objectRef == s.where.RoomId {
@@ -44,10 +44,10 @@ func (destroy) process(s *state) {
 				delete(objects.Rooms, objectRef)
 				s.where.CleanExits()
 				s.msg.Actor.SendGood("Deleted room successfully.")
-			}else{
+			} else {
 				s.msg.Actor.SendBad("No permissions to modify your current location. ")
 			}
-		}else{
+		} else {
 			s.msg.Actor.SendBad("Couldn't find room.")
 		}
 	case "exit":
@@ -66,15 +66,15 @@ func (destroy) process(s *state) {
 		exit, rErr := s.where.Exits[objectRef]
 		if rErr {
 			if (s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster)) || objects.Rooms[exit.ToId].Creator == s.actor.Name {
-				data.DeleteExit(exit.Name, s.where.RoomId )
+				data.DeleteExit(exit.Name, s.where.RoomId)
 				delete(s.where.Exits, objectRef)
 				s.where.CleanExits()
 				s.msg.Actor.SendGood("Deleted exit successfully.")
-			}else{
+			} else {
 				s.msg.Actor.SendBad("No permissions to modify your current location. ")
 			}
 
-		}else{
+		} else {
 			s.msg.Actor.SendBad("Couldn't find exit.")
 		}
 	default:

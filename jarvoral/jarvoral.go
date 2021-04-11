@@ -11,10 +11,9 @@ import (
 
 // Variables used for command line parameters
 var (
-	dg *discordgo.Session
+	dg  *discordgo.Session
 	err error
 )
-
 
 func StartJarvoral() {
 	// Create a new Discord session using the provided bot token.
@@ -40,7 +39,7 @@ func StartJarvoral() {
 
 }
 
-func StopJarvoral(){
+func StopJarvoral() {
 	dg.Close()
 }
 
@@ -65,8 +64,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if len(players) > 1 {
-			message  = "There are currently " + strconv.Itoa(len(players)) + " players in the realms. \n"
-		}else {
+			message = "There are currently " + strconv.Itoa(len(players)) + " players in the realms. \n"
+		} else {
 			message = "There is currently " + strconv.Itoa(len(players)) + " player in the realms. \n"
 		}
 

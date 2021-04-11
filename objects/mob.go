@@ -17,60 +17,60 @@ import (
 // Mob implements a control object for mobs interacting with players and each other
 type Mob struct {
 	Object
-	MobId int
+	MobId     int
 	Inventory *ItemInventory
-	ItemList map[int]int
-	Flags map[string]bool
-	Effects map[string]*Effect
+	ItemList  map[int]int
+	Flags     map[string]bool
+	Effects   map[string]*Effect
 
 	// ParentId is the room id for the room
-	ParentId int
-	Gold int
+	ParentId   int
+	Gold       int
 	Experience int
-	Level int
+	Level      int
 
 	Stam Meter
 	Mana Meter
 
 	// Attributes
-	Str Meter
-	Dex Meter
-	Con Meter
-	Int Meter
-	Pie Meter
+	Str   Meter
+	Dex   Meter
+	Con   Meter
+	Int   Meter
+	Pie   Meter
 	Armor int
 
 	// Dice
-	NumDice int
+	NumDice   int
 	SidesDice int
-	PlusDice int
+	PlusDice  int
 
 	// Magic
-	ChanceCast int
-	Spells []string
+	ChanceCast      int
+	Spells          []string
 	WaterResistance int
-	AirResistance int
-	FireResistance int
+	AirResistance   int
+	FireResistance  int
 	EarthResistance int
 
 	//Threat table attacker -> damage
 	//TODO These are crappy short cuts,  we should use a target shim, or direct object pointers
 	TotalThreatDamage int
-	ThreatTable map[string]int
-	CurrentTarget string
+	ThreatTable       map[string]int
+	CurrentTarget     string
 
-	NumWander int
+	NumWander  int
 	TicksAlive int
 	WimpyValue int
 
 	MobTickerUnload chan bool
-	MobTicker *time.Ticker
+	MobTicker       *time.Ticker
 	// An int to hold a stun time.
 	MobStunned int
 }
 
 // Pop the mob data
-func LoadMob(mobData map[string]interface{}) (*Mob, bool){
+func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 	description := ""
 	var ok bool
 	if description, ok = mobData["description"].(string); !ok {
@@ -94,10 +94,10 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 		Meter{int(mobData["hpmax"].(int64)), int(mobData["hpcur"].(int64))},
 		Meter{int(mobData["mpmax"].(int64)), int(mobData["mpcur"].(int64))},
 		Meter{40, int(mobData["strength"].(int64))},
-		Meter{40,int(mobData["dexterity"].(int64))},
-		Meter{40,int(mobData["constitution"].(int64))},
-		Meter{40,int(mobData["intelligence"].(int64))},
-		Meter{40,int(mobData["piety"].(int64))},
+		Meter{40, int(mobData["dexterity"].(int64))},
+		Meter{40, int(mobData["constitution"].(int64))},
+		Meter{40, int(mobData["intelligence"].(int64))},
+		Meter{40, int(mobData["piety"].(int64))},
 		int(mobData["armor"].(int64)),
 		int(mobData["ndice"].(int64)),
 		int(mobData["sdice"].(int64)),
@@ -128,17 +128,17 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool){
 		}
 	}
 
-	for k, v := range mobData["flags"].(map[string]interface{}){
-		if v == nil{
+	for k, v := range mobData["flags"].(map[string]interface{}) {
+		if v == nil {
 			newMob.Flags[k] = false
-		}else {
+		} else {
 			newMob.Flags[k] = int(v.(int64)) != 0
 		}
 	}
 	return newMob, true
 }
 
-func (m *Mob) StartTicking(){
+func (m *Mob) StartTicking() {
 	m.CalculateInventory()
 	m.ThreatTable = make(map[string]int)
 	m.MobTickerUnload = make(chan bool)
@@ -157,10 +157,10 @@ func (m *Mob) StartTicking(){
 }
 
 // The mob brain is this ticker
-func (m *Mob) Tick(){
+func (m *Mob) Tick() {
 	if m.MobStunned > 0 {
 		m.MobStunned -= 1
-	}else {
+	} else {
 		// We're kind of managing our own state...  set all the locks
 		m.TicksAlive++
 		if m.TicksAlive >= m.NumWander && m.CurrentTarget == "" {
@@ -213,8 +213,8 @@ func (m *Mob) Tick(){
 					whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
 					Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
 				}
-			}else if (m.CurrentTarget != "" && !m.Flags["ranged"] &&
-					m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
+			} else if (m.CurrentTarget != "" && !m.Flags["ranged"] &&
+				m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
 				(m.CurrentTarget != "" && m.Flags["ranged"] &&
 					(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1)) {
 				oldPlacement := m.Placement
@@ -235,7 +235,7 @@ func (m *Mob) Tick(){
 				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(target.Skills[target.Equipment.Main.ItemType].Value) {
 					if target.Tier >= 10 {
 						// It's a riposte
-						actualDamage,_ := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
+						actualDamage, _ := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
 						target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))
 						if m.Stam.Current <= 0 {
 							Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
@@ -341,7 +341,7 @@ func (m *Mob) DropInventory() string {
 	}
 	if len(drops) == 0 {
 		return "The " + m.Name + " was carrying:\n Nothing"
-	}else{
+	} else {
 		return "The " + m.Name + " was carrying:\n " + strings.Join(drops, ", ")
 	}
 }
@@ -351,19 +351,19 @@ func (m *Mob) CalculateExperience(attackerName string) {
 	return
 }
 
-func (m *Mob) AddThreatDamage(damage int, attackerName string){
+func (m *Mob) AddThreatDamage(damage int, attackerName string) {
 	m.ThreatTable[attackerName] += damage
 	if m.CurrentTarget == "" {
 		m.CurrentTarget = attackerName
 	}
 }
 
-func (m *Mob) ApplyEffect(effectName string, length string, interval string,  effect func(), effectOff func()){
-	m.Effects[effectName] = NewEffect(length, interval,  effect , effectOff)
+func (m *Mob) ApplyEffect(effectName string, length string, interval string, effect func(), effectOff func()) {
+	m.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
 	effect()
 }
 
-func (m *Mob) RemoveEffect(effectName string){
+func (m *Mob) RemoveEffect(effectName string) {
 	delete(m.Effects, effectName)
 }
 
@@ -378,30 +378,30 @@ func (m *Mob) ToggleFlag(flagName string) bool {
 
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
 	//TODO: Review the numbers for armor here
-	finalDamage := math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints)*config.MobArmorReduction)))
+	finalDamage := math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction)))
 	m.Stam.Subtract(int(finalDamage))
 	return int(finalDamage), 0
 }
 
-func (m *Mob) ReceiveVitalDamage(damage int) int{
+func (m *Mob) ReceiveVitalDamage(damage int) int {
 	damageMod, _ := m.ReceiveDamage(damage)
 	return damageMod
 }
 
-func (m *Mob) Heal(damage int) (int, int){
+func (m *Mob) Heal(damage int) (int, int) {
 	m.Stam.Add(damage)
 	return damage, 0
 }
 
-func (m *Mob) HealStam(damage int){
+func (m *Mob) HealStam(damage int) {
 	m.Stam.Add(damage)
 }
 
-func (m *Mob) HealVital(damage int){
+func (m *Mob) HealVital(damage int) {
 	m.Heal(damage)
 }
 
-func (m *Mob) RestoreMana(damage int){
+func (m *Mob) RestoreMana(damage int) {
 	m.Mana.Add(damage)
 }
 
@@ -428,36 +428,36 @@ func (m *Mob) Look() string {
 
 func (m *Mob) Save() {
 	mobData := make(map[string]interface{})
-	mobData["mob_id"] = m.MobId 
-	mobData["name"] = m.Name 
-	mobData["description"]= m.Description 
-	mobData["experience"]= m.Experience 
-	mobData["level"]= m.Level 
-	mobData["gold"]= m.Gold 
-	mobData["constitution"]= m.Con.Current 
-	mobData["strength"]= m.Str.Current 
-	mobData["intelligence"]= m.Int.Current 
-	mobData["dexterity"]= m.Dex.Current 
-	mobData["piety"]= m.Pie.Current 
-	mobData["mpmax"]= m.Mana.Max 
-	mobData["mpcur"]= m.Mana.Current 
-	mobData["hpcur"]= m.Stam.Current 
-	mobData["hpmax"]= m.Stam.Max 
-	mobData["sdice"]= m.SidesDice 
-	mobData["ndice"]= m.NumDice 
-	mobData["pdice"]= m.PlusDice 
+	mobData["mob_id"] = m.MobId
+	mobData["name"] = m.Name
+	mobData["description"] = m.Description
+	mobData["experience"] = m.Experience
+	mobData["level"] = m.Level
+	mobData["gold"] = m.Gold
+	mobData["constitution"] = m.Con.Current
+	mobData["strength"] = m.Str.Current
+	mobData["intelligence"] = m.Int.Current
+	mobData["dexterity"] = m.Dex.Current
+	mobData["piety"] = m.Pie.Current
+	mobData["mpmax"] = m.Mana.Max
+	mobData["mpcur"] = m.Mana.Current
+	mobData["hpcur"] = m.Stam.Current
+	mobData["hpmax"] = m.Stam.Max
+	mobData["sdice"] = m.SidesDice
+	mobData["ndice"] = m.NumDice
+	mobData["pdice"] = m.PlusDice
 	mobData["spells"] = strings.Join(m.Spells, ",")
-	mobData["casting_probability"] = m.ChanceCast 
-	mobData["armor"]= m.Armor
-	mobData["numwander"]= m.NumWander
-	mobData["wimpyvalue"]= m.WimpyValue
-	mobData["air_resistance"]= m.AirResistance
-	mobData["fire_resistance"]= m.FireResistance
-	mobData["earth_resistance"]= m.EarthResistance
-	mobData["water_resistance"]= m.WaterResistance
-	mobData["hide_encounter"]= utils.Btoi(m.Flags["hide_encounter"])
-	mobData["invisible"]= utils.Btoi(m.Flags["invisible"])
-	mobData["permanent"]= utils.Btoi(m.Flags["permanent"])
-	mobData["hostile"]= utils.Btoi(m.Flags["hostile"])
+	mobData["casting_probability"] = m.ChanceCast
+	mobData["armor"] = m.Armor
+	mobData["numwander"] = m.NumWander
+	mobData["wimpyvalue"] = m.WimpyValue
+	mobData["air_resistance"] = m.AirResistance
+	mobData["fire_resistance"] = m.FireResistance
+	mobData["earth_resistance"] = m.EarthResistance
+	mobData["water_resistance"] = m.WaterResistance
+	mobData["hide_encounter"] = utils.Btoi(m.Flags["hide_encounter"])
+	mobData["invisible"] = utils.Btoi(m.Flags["invisible"])
+	mobData["permanent"] = utils.Btoi(m.Flags["permanent"])
+	mobData["hostile"] = utils.Btoi(m.Flags["hostile"])
 	data.UpdateMob(mobData)
 }

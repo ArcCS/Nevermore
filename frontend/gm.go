@@ -10,14 +10,13 @@ import (
 	"strings"
 )
 
-
 // account embeds a frontend instance adding fields and methods specific to
 // account and player creation.
 type newPCharacter struct {
 	*frontend
-	name string
+	name   string
 	gender string
-	race int
+	race   int
 }
 
 func NewPCharacter(f *frontend) (a *newPCharacter) {
@@ -56,6 +55,7 @@ func (a *newPCharacter) charPNameProcess() {
 		a.fastPCharDisplay()
 	}
 }
+
 // ******   Fast Processing Options
 func (a *newPCharacter) fastPCharDisplay() {
 	a.buf.SendInfo(`Fast Step 1, Gender, Race
@@ -80,7 +80,7 @@ func (a *newPCharacter) fastPCharProcess() {
 		if strings.Contains(" ", inputVal) {
 			topic := strings.Split(inputVal, " ")[1]
 			a.helpDisplay(topic)
-		}else{
+		} else {
 			a.helpDisplay("races")
 		}
 		a.nextFunc = a.fastPCharProcess
@@ -92,7 +92,7 @@ func (a *newPCharacter) fastPCharProcess() {
 		a.newPCharacterDisplay()
 	case validateFastPStep(inputVal):
 		items := strings.Split(inputVal, " ")
-		a.buf.SendInfo(fmt.Sprintf("Gender: %[1]s, Race: %[2]s", items[0],items[1]))
+		a.buf.SendInfo(fmt.Sprintf("Gender: %[1]s, Race: %[2]s", items[0], items[1]))
 		a.gender = items[0]
 		a.race = utils.IndexOf(items[1], config.AvailableRaces)
 		a.confirmFastSelections()
@@ -101,7 +101,6 @@ func (a *newPCharacter) fastPCharProcess() {
 		a.nextFunc = a.fastPCharDisplay
 	}
 }
-
 
 func (a *newPCharacter) confirmFastSelections() {
 	a.buf.SendInfo(fmt.Sprintf(`Here is what you selected:
@@ -116,7 +115,7 @@ No (n) Go back to selections
 Restart (r) Restart the GM builder
 Cancel (c) Leave the GM builder
 `, a.name,
- a.gender,
+		a.gender,
 		config.AvailableRaces[a.race],
 	))
 	a.nextFunc = a.confirmFastProcess
@@ -160,7 +159,7 @@ func (a *newPCharacter) completeBuilder() {
 	if data.CreateChar(charData) {
 		a.buf.Send(text.Info, "New GM created,  entering Altin. \n", text.Reset)
 		StartGame(a.frontend, a.name)
-	}else {
+	} else {
 		a.buf.SendBad(text.Info, "Error, try again later. \n", text.Reset)
 		NewStart(a.frontend)
 	}
@@ -172,17 +171,16 @@ func (a *newPCharacter) helpDisplay(subject string) {
 	if subject == "races" {
 		a.buf.Send("Available races: \n")
 		a.buf.Send(strings.Join(config.AvailableRaces, ", "))
-	}else{
+	} else {
 		a.buf.Send("No help on that topic found")
 	}
 }
 
-
 func validateFastPStep(choiceInput string) bool {
 	inputs := strings.Split(choiceInput, " ")
 	//gender (m|f), race, and class separated by spaces"
-	if inputs[0] != "f"{
-		if inputs[0] != "m"{
+	if inputs[0] != "f" {
+		if inputs[0] != "m" {
 			return false
 		}
 	}

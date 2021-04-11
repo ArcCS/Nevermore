@@ -5,18 +5,18 @@ import (
 	"time"
 )
 
-type Effect struct{
+type Effect struct {
 	startTime time.Time
-	length time.Duration
+	length    time.Duration
 
 	lastTrigger time.Time
-	interval time.Duration
+	interval    time.Duration
 
-	effect func()
+	effect    func()
 	effectOff func()
 }
 
-func NewEffect(length string, interval string,  effect func(), effectOff func()) *Effect {
+func NewEffect(length string, interval string, effect func(), effectOff func()) *Effect {
 	lengthTime, _ := strconv.Atoi(length)
 	parseLength := time.Duration(lengthTime) * time.Second
 	parseInterval, _ := time.ParseDuration(interval)

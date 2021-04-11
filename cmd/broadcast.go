@@ -30,8 +30,8 @@ func (broadcast) process(s *state) {
 			stats.ActiveCharacters.MessageAll("### " + s.actor.Name + ": " + strings.Join(s.input, " "))
 		}
 	}else {
-	 */
-		stats.ActiveCharacters.MessageAll("### " + s.actor.Name + ": " + strings.Join(s.input, " "))
+	*/
+	stats.ActiveCharacters.MessageAll("### " + s.actor.Name + ": " + strings.Join(s.input, " "))
 	//}
 
 	s.ok = true

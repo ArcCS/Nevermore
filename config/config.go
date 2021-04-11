@@ -9,36 +9,36 @@ import (
 
 // Server default configuration
 var Server = struct {
-	Host           string        // Host for server to listen on
-	DBUname		   string		// The Username for the neo4j instance
-	DBPword		   string		// The Password for the neo4j instance
-	DBAddress	   string		// The address of the neo4j server
-	Port           string        // Port for server to listen on
-	Greeting       []byte        // Connection greeting
-	Motd		   string		// MOTD when logging in
-	IdleTimeout    time.Duration // Idle connection disconnect time
-	MaxPlayers     int           // Max number of players allowed to login at once
-	DataDir        string        // Main data directory
-	MaxCharacters  int			// Maximum number of characters
-	SearchResults int		// Max search results
-	Running	bool
-	CreateChars bool
+	Host              string        // Host for server to listen on
+	DBUname           string        // The Username for the neo4j instance
+	DBPword           string        // The Password for the neo4j instance
+	DBAddress         string        // The address of the neo4j server
+	Port              string        // Port for server to listen on
+	Greeting          []byte        // Connection greeting
+	Motd              string        // MOTD when logging in
+	IdleTimeout       time.Duration // Idle connection disconnect time
+	MaxPlayers        int           // Max number of players allowed to login at once
+	DataDir           string        // Main data directory
+	MaxCharacters     int           // Maximum number of characters
+	SearchResults     int           // Max search results
+	Running           bool
+	CreateChars       bool
 	PermissionDefault int
 }{
-	Host:           "127.0.0.1",
-	DBUname:		"nexus",
-	DBPword:		"NeXuS@0937",
-	DBAddress:		"207.192.75.216",
-	Port:           "4001",
-	Greeting:       []byte("Welcome to Aalynor's Nexus."),
-	Motd:			"",
-	IdleTimeout:    10 * time.Minute,
-	MaxPlayers:     1024,
-	DataDir:        ".",
-	MaxCharacters:  20,
-	SearchResults: 15,
-	Running: true,
-	CreateChars: true,
+	Host:              "127.0.0.1",
+	DBUname:           "nexus",
+	DBPword:           "NeXuS@0937",
+	DBAddress:         "207.192.75.216",
+	Port:              "4001",
+	Greeting:          []byte("Welcome to Aalynor's Nexus."),
+	Motd:              "",
+	IdleTimeout:       10 * time.Minute,
+	MaxPlayers:        1024,
+	DataDir:           ".",
+	MaxCharacters:     20,
+	SearchResults:     15,
+	Running:           true,
+	CreateChars:       true,
 	PermissionDefault: 15,
 }
 
@@ -109,4 +109,3 @@ func init() {
 }
 
 var BlockedNames, _ = utils.ReadLines("restricted_names")
-

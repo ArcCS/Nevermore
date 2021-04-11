@@ -9,9 +9,9 @@ import (
 
 func init() {
 	addHandler(equip{},
-           "Usage:  equip item # \n\n Try to equip an item from your inventory",
-           permissions.Player,
-           "equip", "wield", "wear")
+		"Usage:  equip item # \n\n Try to equip an item from your inventory",
+		permissions.Player,
+		"equip", "wield", "wear")
 }
 
 type equip cmd
@@ -46,7 +46,7 @@ func (equip) process(s *state) {
 			s.msg.Actor.SendGood("You equip " + what.Name)
 			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.Name)
 			s.actor.Inventory.Remove(what)
-		}else{
+		} else {
 			s.msg.Actor.SendBad("You already have something equipped there.")
 		}
 

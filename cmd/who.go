@@ -10,18 +10,18 @@ import (
 // Syntax: WHO
 func init() {
 	addHandler(who{},
-           "Usage:  who \n \n Display other currently logged in characters.",
-           permissions.Player,
-           "WHO")
+		"Usage:  who \n \n Display other currently logged in characters.",
+		permissions.Player,
+		"WHO")
 }
 
 type who cmd
 
 func (who) process(s *state) {
 	var players []string
-	if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+	if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		players = stats.ActiveCharacters.GMList()
-	}else{
+	} else {
 		players = stats.ActiveCharacters.List()
 	}
 

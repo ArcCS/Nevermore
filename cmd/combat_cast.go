@@ -13,9 +13,9 @@ import (
 
 func init() {
 	addHandler(cast{},
-           "Usage:  cast spell_name target # \n\n Attempts to cast a known spell from your spellbook",
-           permissions.Player,
-           "cast")
+		"Usage:  cast spell_name target # \n\n Attempts to cast a known spell from your spellbook",
+		permissions.Player,
+		"cast")
 }
 
 type cast cmd
@@ -114,7 +114,7 @@ func (cast) process(s *state) {
 			s.msg.Actor.SendGood(msg)
 			return
 		}
-	}else{
+	} else {
 
 		spellInstance, ok := spells.Spells[strings.ToLower(s.input[0])]
 		if !ok {
@@ -141,7 +141,6 @@ func (cast) process(s *state) {
 		s.msg.Actor.SendGood(msg)
 		return
 	}
-
 
 	s.msg.Actor.SendInfo("Cast on who?")
 	s.ok = true

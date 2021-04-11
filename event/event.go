@@ -5,6 +5,7 @@
 
 // The event package implements WolfMUD's asynchronous scripting mechanism.
 package event
+
 /*
 import (
 	"github.com/ArcCS/Nevermore/objects"

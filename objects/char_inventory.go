@@ -7,17 +7,16 @@ import (
 
 type CharInventory struct {
 	ParentId int
-	Contents    []*Character
+	Contents []*Character
 	sync.Mutex
 	Flags map[string]bool
 }
-
 
 // New CharInventory returns a new basic CharInventory structure
 func NewCharInventory(roomID int, o ...*Character) *CharInventory {
 	i := &CharInventory{
 		ParentId: roomID,
-		Contents:  make([]*Character, 0, len(o)),
+		Contents: make([]*Character, 0, len(o)),
 	}
 
 	for _, ob := range o {
@@ -45,7 +44,7 @@ func (i *CharInventory) Remove(o *Character) {
 			break
 		}
 	}
-	if len(i.Contents) == 0{
+	if len(i.Contents) == 0 {
 		Rooms[i.ParentId].LastPerson()
 	}
 	if len(i.Contents) == 0 {
@@ -70,7 +69,6 @@ func (i *CharInventory) Search(alias string, gm bool) *Character {
 	return nil
 }
 
-
 // List the items in this CharInventory
 func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude string, gm bool) []string {
 	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
@@ -81,38 +79,7 @@ func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude strin
 		if strings.ToLower(o.Name) != strings.ToLower(exclude) {
 			if gm {
 				items = append(items, o.Name)
-			}else if seeInvisible && !ignoreHidden {
-				items = append(items, o.Name)
-				// List non-hiddens
-			} else if seeInvisible {
-				if o.Flags["hidden"] != true {
-					items = append(items, o.Name)
-				}
-			} else if ignoreHidden {
-				if o.Flags["invisible"] != true {
-					items = append(items, o.Name)
-				}
-			} else {
-				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
-					items = append(items, o.Name)
-				}
-			}
-		}
-	}
-	return items
-	}
-
-// List the items in this CharInventory
-func (i *CharInventory) MobList(seeInvisible bool, ignoreHidden bool) []string {
-	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
-	items := make([]string, 0)
-
-	for _, o := range i.Contents {
-		// List all
-		if o.Class == 100 {
-			continue
-		}else{
-			if seeInvisible && !ignoreHidden {
+			} else if seeInvisible && !ignoreHidden {
 				items = append(items, o.Name)
 				// List non-hiddens
 			} else if seeInvisible {
@@ -133,7 +100,36 @@ func (i *CharInventory) MobList(seeInvisible bool, ignoreHidden bool) []string {
 	return items
 }
 
+// List the items in this CharInventory
+func (i *CharInventory) MobList(seeInvisible bool, ignoreHidden bool) []string {
+	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	items := make([]string, 0)
 
+	for _, o := range i.Contents {
+		// List all
+		if o.Class == 100 {
+			continue
+		} else {
+			if seeInvisible && !ignoreHidden {
+				items = append(items, o.Name)
+				// List non-hiddens
+			} else if seeInvisible {
+				if o.Flags["hidden"] != true {
+					items = append(items, o.Name)
+				}
+			} else if ignoreHidden {
+				if o.Flags["invisible"] != true {
+					items = append(items, o.Name)
+				}
+			} else {
+				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
+					items = append(items, o.Name)
+				}
+			}
+		}
+	}
+	return items
+}
 
 // Free recursively calls Free on all of it's content when the CharInventory
 // attribute is freed.

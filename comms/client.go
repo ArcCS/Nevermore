@@ -1,4 +1,4 @@
- // Copyright 2017 Andrew 'Diddymus' Rolfe. All rights reserved.
+// Copyright 2017 Andrew 'Diddymus' Rolfe. All rights reserved.
 //
 // Use of this source code is governed by the license in the LICENSE file
 // included with the source code.
@@ -126,7 +126,7 @@ func (c *client) process() {
 					in, err = s.ReadSlice('\n')
 					frontend.Zero(in)
 				}
-				_,_ = c.Write([]byte(text.Bad + "\nYou type too much.\n" + text.Prompt + ">"))
+				_, _ = c.Write([]byte(text.Bad + "\nYou type too much.\n" + text.Prompt + ">"))
 				continue
 			}
 

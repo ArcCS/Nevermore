@@ -4,9 +4,9 @@ import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
 	addHandler(read{},
-           "Usage:  read item_name # \n \n Read the specified scroll into your spellbook",
-           permissions.Player,
-           "READ")
+		"Usage:  read item_name # \n \n Read the specified scroll into your spellbook",
+		permissions.Player,
+		"READ")
 }
 
 type read cmd
@@ -20,7 +20,6 @@ func (read) process(s *state) {
 
 	name := s.words[0]
 	nameNum := 1
-
 
 	// Try searching inventory where we are
 	what := s.actor.Inventory.Search(name, nameNum)

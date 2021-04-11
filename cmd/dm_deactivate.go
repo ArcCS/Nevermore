@@ -8,9 +8,9 @@ import (
 
 func init() {
 	addHandler(deactivate{},
-           "Usage:  deactivate (id) \n \n Activate a room so that it can be seen in the world. ",
-           permissions.Dungeonmaster,
-           "deactivate")
+		"Usage:  deactivate (id) \n \n Activate a room so that it can be seen in the world. ",
+		permissions.Dungeonmaster,
+		"deactivate")
 }
 
 type deactivate cmd
@@ -20,7 +20,7 @@ func (deactivate) process(s *state) {
 		s.where.Flags["active"] = false
 		s.where.Save()
 		s.msg.Actor.SendGood("Current room deactivated")
-	}else {
+	} else {
 		objectRef, _ := strconv.Atoi(s.input[1])
 		room, rErr := objects.Rooms[objectRef]
 		if rErr {

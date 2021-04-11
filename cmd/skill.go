@@ -11,9 +11,9 @@ import (
 // Syntax: WHO
 func init() {
 	addHandler(skills{},
-           "Usage:  skill \n \n Display the current level of your various weapon skills",
-           permissions.Player,
-           "skill")
+		"Usage:  skill \n \n Display the current level of your various weapon skills",
+		permissions.Player,
+		"skill")
 }
 
 type skills cmd
@@ -23,7 +23,7 @@ type skills cmd
 func (skills) process(s *state) {
 
 	skill_template :=
-`Skill                Level of Mastery
+		`Skill                Level of Mastery
 -----------------------------------------------------------------
 Sharp Weapons        {{.Sharp}}
 Thrust Weapons       {{.Thrust}}
@@ -32,10 +32,10 @@ Pole Weapons         {{.Pole}}
 Missile Weapons      {{.Missile}}
 `
 	data := struct {
-		Sharp string
-		Thrust string
-		Blunt string
-		Pole string
+		Sharp   string
+		Thrust  string
+		Blunt   string
+		Pole    string
 		Missile string
 	}{
 		config.WeaponExpTitle(s.actor.Skills[0].Value),
@@ -50,7 +50,7 @@ Missile Weapons      {{.Missile}}
 	err := tmpl.Execute(&output, data)
 	if err != nil {
 		log.Println(err)
-	}else{
+	} else {
 		s.msg.Actor.SendGood(output.String())
 	}
 

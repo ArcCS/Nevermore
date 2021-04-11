@@ -1,4 +1,5 @@
 package objects
+
 // Everyone's an object,  put all the basics here and then everyone gets to ride this train
 
 import (
@@ -12,7 +13,7 @@ Object is a base level instantiation of any world item.
 The rest of the the world constructs from this
 */
 type Object struct {
-	Name string
+	Name        string
 	Description string
 
 	Placement int
@@ -27,7 +28,6 @@ func init() {
 	ObjectCount = make(chan uint)
 }
 
-
 func (o *Object) String() string {
 	return fmt.Sprintf("%p %[1]T", o)
 }
@@ -36,7 +36,7 @@ func (o *Object) Free() {
 
 }
 
-func (o *Object) ChangePlacement(place int) bool{
+func (o *Object) ChangePlacement(place int) bool {
 	if place < 5 && place > 0 {
 		o.Placement = place
 		return true

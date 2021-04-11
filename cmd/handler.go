@@ -26,7 +26,7 @@ var helpText = map[string]string{}
 // addHandler adds the given commands for the specified handler.
 // It requires the command handler,  a help string to add to the help data, a bitmask permission, and the relative
 // commands that will be each added to dispatch
-func addHandler(h handler, helpString string, permission permissions.Permissions, cmds ...string ) {
+func addHandler(h handler, helpString string, permission permissions.Permissions, cmds ...string) {
 	for _, cmd := range cmds {
 		handlers[strings.ToUpper(cmd)] = h
 		handlerPermission[strings.ToUpper(cmd)] = permission
@@ -63,14 +63,14 @@ func dispatchHandler(s *state) {
 		case valid:
 			if s.actor.Permission.HasFlag(handlerPermission[s.cmd]) || s.actor.Permission.HasAnyFlags(permissions.Dungeonmaster, permissions.Gamemaster) {
 				handler.process(s)
-			}else {
+			} else {
 				s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
 			}
 		default:
 			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (3)")
 		}
 
-	}else{
+	} else {
 		s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (4)")
 	}
 }

@@ -6,9 +6,9 @@ import (
 
 func init() {
 	addHandler(roomall{},
-           "Usage:  roomall A mouse darts by in the corner of the square",
-           0,
-           "roomall")
+		"Usage:  roomall A mouse darts by in the corner of the square",
+		0,
+		"roomall")
 }
 
 type roomall cmd

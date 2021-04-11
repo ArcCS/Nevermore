@@ -9,9 +9,9 @@ import (
 
 func init() {
 	addHandler(teleport{},
-	"Usage:  teleport id # \n \n teleports you to the specified room id",
-	permissions.Builder,
-	"teleport")
+		"Usage:  teleport id # \n \n teleports you to the specified room id",
+		permissions.Builder,
+		"teleport")
 }
 
 type teleport cmd
@@ -28,16 +28,16 @@ func (teleport) process(s *state) {
 	}
 	roomId, _ := strconv.Atoi(s.words[0])
 	if to, ok := objects.Rooms[roomId]; ok {
-		if !utils.IntIn(to.RoomId, s.cLocks){
+		if !utils.IntIn(to.RoomId, s.cLocks) {
 			s.AddCharLock(to.RoomId)
 			return
-		}else{
+		} else {
 			s.where.Chars.Remove(s.actor)
 			to.Chars.Add(s.actor)
 			s.actor.ParentId = to.RoomId
 			s.scriptActor("LOOK")
 
-			s.ok=true
+			s.ok = true
 			return
 		}
 	}

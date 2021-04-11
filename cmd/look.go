@@ -17,9 +17,9 @@ import (
 // Syntax: ( LOOK | L ) has.Thing
 func init() {
 	addHandler(look{},
-           "Usage:  look [object|exit|character|mob] # \n \n Put your peepers on something. (Also can use short hand L",
-           permissions.Player,
-           "LOOK", "L")
+		"Usage:  look [object|exit|character|mob] # \n \n Put your peepers on something. (Also can use short hand L",
+		permissions.Player,
+		"LOOK", "L")
 }
 
 type look cmd
@@ -31,22 +31,22 @@ func (look) process(s *state) {
 	if len(s.input) == 0 {
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(true))
-		}else{
+		} else {
 			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(false))
 		}
 		// Pick whether it's a GM or a user looking and go for it.
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			others = objects.Rooms[s.actor.ParentId].Chars.List(true, true, s.actor.Name, true)
 			mobs = objects.Rooms[s.actor.ParentId].Mobs.ReducedList(true, true)
-			mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(true,true )
-		}else{
+			mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(true, true)
+		} else {
 			others = objects.Rooms[s.actor.ParentId].Chars.List(false, false, s.actor.Name, false)
 			mobs = objects.Rooms[s.actor.ParentId].Mobs.ReducedList(false, false)
-			mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(false, false )
+			mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(false, false)
 		}
 		if len(others) == 1 {
 			s.msg.Actor.SendInfo(strings.Join(others, ", "), " is also here.")
-		} else if len(others) > 1{
+		} else if len(others) > 1 {
 			s.msg.Actor.SendInfo(strings.Join(others, ", "), " are also here.")
 		}
 		if len(mobs) > 0 {
@@ -76,7 +76,7 @@ func (look) process(s *state) {
 	// Check characters in the room first.
 	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		whatChar = s.where.Chars.Search(name, true)
-	}else{
+	} else {
 		whatChar = s.where.Chars.Search(name, false)
 	}
 	// It was a person!
@@ -98,18 +98,18 @@ func (look) process(s *state) {
 		data := struct {
 			Sub_pronoun string
 			Pos_pronoun string
-			Isare string
-			HasHave string
-			Chest string
-			Neck string
-			Main string
-			Offhand	string
-			Arms string
-			Finger1 string
-			Finger2 string
-			Legs string
-			Feet string
-			Head string
+			Isare       string
+			HasHave     string
+			Chest       string
+			Neck        string
+			Main        string
+			Offhand     string
+			Arms        string
+			Finger1     string
+			Finger2     string
+			Legs        string
+			Feet        string
+			Head        string
 		}{
 			strings.Title(config.TextSubPronoun[whatChar.Gender]),
 			config.TextPosPronoun[whatChar.Gender],
@@ -133,7 +133,7 @@ func (look) process(s *state) {
 		err := tmpl.Execute(&output, data)
 		if err != nil {
 			log.Println(err)
-		}else{
+		} else {
 			s.msg.Actor.SendGood(output.String())
 		}
 
@@ -149,7 +149,7 @@ func (look) process(s *state) {
 	if whatExit != nil {
 		if whatExit.Description == "" {
 			s.msg.Actor.SendInfo(objects.Rooms[whatExit.ToId].Look(false))
-		}else {
+		} else {
 			s.msg.Actor.SendInfo(whatExit.Look())
 		}
 		return
@@ -158,23 +158,24 @@ func (look) process(s *state) {
 	// Check mobs
 	var whatMob *objects.Mob
 	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		whatMob = s.where.Mobs.Search(name, nameNum,true)
-	}else{
-		whatMob = s.where.Mobs.Search(name, nameNum,false)
+		whatMob = s.where.Mobs.Search(name, nameNum, true)
+	} else {
+		whatMob = s.where.Mobs.Search(name, nameNum, false)
 	}
 	// It was a mob!
 	if whatMob != nil {
 		s.msg.Actor.SendInfo(whatMob.Look())
 		s.msg.Actor.SendInfo("It is standing" + WhereAt(whatMob.Placement, s.actor.Placement))
 		log.Println(whatMob.ThreatTable)
-		_, ok := whatMob.ThreatTable[s.actor.Name]; if !ok {
+		_, ok := whatMob.ThreatTable[s.actor.Name]
+		if !ok {
 			s.msg.Actor.SendInfo("It isn't paying attention to you.")
-		}else{
+		} else {
 			s.msg.Actor.SendInfo("It appears very angry at you!")
 		}
 		if whatMob.CurrentTarget == s.actor.Name {
 			s.msg.Actor.SendInfo("It is attacking you!")
-		}else if whatMob.CurrentTarget != "" {
+		} else if whatMob.CurrentTarget != "" {
 			s.msg.Actor.SendInfo("it is attacking " + whatMob.CurrentTarget)
 		}
 		return
@@ -206,7 +207,7 @@ func (look) process(s *state) {
 		s.msg.Actor.SendInfo("You examine your equipped " + what.Name)
 		s.msg.Actor.SendInfo(what.Look())
 		return
-	}else{
+	} else {
 		s.msg.Actor.SendBad("You see no '", name, "' to examine.")
 		return
 	}
@@ -222,16 +223,16 @@ func WhereAt(subLoc int, charLoc int) string {
 	direction := ""
 	if subLoc > charLoc {
 		direction = "in front of you."
-	}else{
+	} else {
 		direction = "behind you."
 	}
 	if diff == 1 {
 		steps = " a couple steps "
-	}else if diff == 2 {
+	} else if diff == 2 {
 		steps = " a dozen steps "
-	}else if diff == 3 {
+	} else if diff == 3 {
 		steps = " many steps "
-	}else if diff == 4 {
+	} else if diff == 4 {
 		steps = " at the other end of the room "
 	}
 	return steps + direction

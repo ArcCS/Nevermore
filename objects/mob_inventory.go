@@ -10,17 +10,16 @@ import (
 
 type MobInventory struct {
 	ParentId int
-	Contents    []*Mob
+	Contents []*Mob
 	sync.Mutex
 	Flags map[string]bool
 }
-
 
 // New MobInventory returns a new basic MobInventory structure
 func NewMobInventory(ParentID int, o ...*Mob) *MobInventory {
 	i := &MobInventory{
 		ParentId: ParentID,
-		Contents:  make([]*Mob, 0, len(o)),
+		Contents: make([]*Mob, 0, len(o)),
 	}
 
 	for _, ob := range o {
@@ -36,7 +35,7 @@ func (i *MobInventory) Add(o *Mob) {
 	i.Contents = append(i.Contents, o)
 	if o.Flags["invisible"] {
 		Rooms[i.ParentId].MessageVisible(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
-	}else if !o.Flags["hidden"] {
+	} else if !o.Flags["hidden"] {
 		Rooms[i.ParentId].MessageAll(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
 	}
 }
@@ -63,7 +62,7 @@ func (i *MobInventory) RemoveNonPerms() {
 	for _, mob := range i.Contents {
 		if mob.Flags["permanent"] == true {
 			newContents = append(newContents, mob)
-		}else{
+		} else {
 			mob.MobTickerUnload <- true
 			mob = nil
 		}
@@ -79,13 +78,13 @@ func (i *MobInventory) Search(alias string, num int, gm bool) *Mob {
 
 	pass := 1
 	for _, c := range i.Contents {
-		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)){
+		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
 			//log.Println("Searching for mob on pass " + strconv.Itoa(pass) + " looking for " + strconv.Itoa(num))
 			if pass == num {
 				if i.Flags["invisible"] == false || gm {
 					return c
 				}
-			}else{
+			} else {
 				pass++
 			}
 		}
@@ -100,7 +99,7 @@ func (i *MobInventory) GetNumber(o *Mob) int {
 	for _, c := range i.Contents {
 		if c == o {
 			return pass
-		}else if c.Name == o.Name {
+		} else if c.Name == o.Name {
 			pass++
 		}
 	}
@@ -113,10 +112,10 @@ func (i *MobInventory) List(seeInvisible bool, gm bool) []string {
 
 	for _, o := range i.Contents {
 		// List all
-		if seeInvisible && gm{
-				items = append(items, o.Name)
+		if seeInvisible && gm {
+			items = append(items, o.Name)
 			// List non-hiddens invis
-		}else if seeInvisible && !gm {
+		} else if seeInvisible && !gm {
 			if o.Flags["hidden"] != true {
 				items = append(items, o.Name)
 			}
@@ -164,18 +163,18 @@ func (i *MobInventory) ReducedList(seeInvisible bool, gm bool) string {
 	for _, o := range i.Contents {
 		// List all
 		_, inMap := items[o.Name]
-		if seeInvisible && gm{
+		if seeInvisible && gm {
 			if inMap {
 				items[o.Name]++
-			}else {
+			} else {
 				items[o.Name] = 1
 			}
 			// List non-hiddens invis
-		}else if seeInvisible && !gm {
+		} else if seeInvisible && !gm {
 			if o.Flags["hidden"] != true {
 				if inMap {
 					items[o.Name]++
-				}else {
+				} else {
 					items[o.Name] = 1
 				}
 			}
@@ -184,7 +183,7 @@ func (i *MobInventory) ReducedList(seeInvisible bool, gm bool) string {
 			if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
 				if inMap {
 					items[o.Name]++
-				}else {
+				} else {
 					items[o.Name] = 1
 				}
 			}
@@ -195,7 +194,7 @@ func (i *MobInventory) ReducedList(seeInvisible bool, gm bool) string {
 	for k, v := range items {
 		if v == 1 {
 			stringify = append(stringify, "a "+k)
-		}else {
+		} else {
 			stringify = append(stringify, config.TextNumbers[v]+" "+k+"s")
 		}
 	}

@@ -1,17 +1,18 @@
 package config
+
 // Mapping value definitions
 
 var ItemTypes = map[int]string{
-	0: "sharp",
-	1: "thrust",
-	2: "blunt",
-	3: "pole",
-	4: "range",
-	5: "body",
-	6: "device",
-	7: "scroll",
-	8: "wand",
-	9: "chest",
+	0:  "sharp",
+	1:  "thrust",
+	2:  "blunt",
+	3:  "pole",
+	4:  "range",
+	5:  "body",
+	6:  "device",
+	7:  "scroll",
+	8:  "wand",
+	9:  "chest",
 	10: "gold",
 	11: "key",
 	12: "light",

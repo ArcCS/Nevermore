@@ -10,11 +10,11 @@ import (
 
 func init() {
 	addHandler(spawn{},
-	"Usage:  spawn (mob|item) (name) \n \n Use this command to spawn a mob or item to be modified: \n" +
-		"Items: Item will be added to your inventory\n" +
-		"  -->  If you wish to save it as the template for that item, use the 'savetemplate item' command\n" +
-		"Mob:  Mob will be spawned into your room. \n" +
-		"  -->  If you wish to save it as the template for that mob, use the 'savetemplate mob' command\n\n",
+		"Usage:  spawn (mob|item) (name) \n \n Use this command to spawn a mob or item to be modified: \n"+
+			"Items: Item will be added to your inventory\n"+
+			"  -->  If you wish to save it as the template for that item, use the 'savetemplate item' command\n"+
+			"Mob:  Mob will be spawned into your room. \n"+
+			"  -->  If you wish to save it as the template for that mob, use the 'savetemplate mob' command\n\n",
 		permissions.Player,
 		"spawn")
 }

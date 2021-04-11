@@ -4,7 +4,7 @@ import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
 	addHandler(configVar{},
-		"Usage:  config list  \n Show all configurable variables \n" +
+		"Usage:  config list  \n Show all configurable variables \n"+
 			"config var_name value \n Change the configuration value",
 		permissions.Builder,
 		"config")

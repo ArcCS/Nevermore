@@ -9,15 +9,15 @@ import (
 
 func init() {
 	addHandler(remspawn{},
-	"Usage:  remspawn id \n \n Remove a spawn from the encounter table \n" ,
-	permissions.Builder,
-	"remspawn")
+		"Usage:  remspawn id \n \n Remove a spawn from the encounter table \n",
+		permissions.Builder,
+		"remspawn")
 }
 
 type remspawn cmd
 
 func (remspawn) process(s *state) {
-	if len(s.words) < 1{
+	if len(s.words) < 1 {
 		s.msg.Actor.SendInfo("Remove what?")
 		return
 	}
@@ -33,7 +33,7 @@ func (remspawn) process(s *state) {
 		delete(s.where.EncounterTable, mob_id)
 		data.DeleteEncounter(mob_id, s.actor.ParentId)
 		s.msg.Actor.SendGood("Mob removed from this room's encounter table.")
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That mob ID doesn't encounter here.")
 		return
 	}

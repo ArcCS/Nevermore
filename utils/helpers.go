@@ -85,7 +85,7 @@ func IndexOf(element string, data []string) int {
 			return k
 		}
 	}
-	return -1    //not found.
+	return -1 //not found.
 }
 
 func ReadLines(path string) ([]string, error) {
@@ -104,9 +104,9 @@ func ReadLines(path string) ([]string, error) {
 }
 
 func Btoi(val bool) int {
-	if val{
+	if val {
 		return 1
-	}else{
+	} else {
 		return 0
 	}
 }

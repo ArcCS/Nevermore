@@ -2,7 +2,7 @@ package prompt
 
 // Structure to contain dynamic menus
 type Menu struct {
-	Text string
+	Text    string
 	Options map[string]MenuItem
 }
 

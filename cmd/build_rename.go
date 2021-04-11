@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	addHandler(rename{},"Usage:  rename name new_name \n \n Use this command to change the instance item name. (Does not overwrite DB) \n",
+	addHandler(rename{}, "Usage:  rename name new_name \n \n Use this command to change the instance item name. (Does not overwrite DB) \n",
 		permissions.Builder,
 		"rename")
 }
@@ -27,7 +27,7 @@ func (rename) process(s *state) {
 	if item != nil {
 		item.Name = strings.Join(s.input[1:], " ")
 		s.msg.Actor.SendGood("Item name changed to " + item.Name)
-	}else{
+	} else {
 		s.msg.Actor.SendBad("Not an object that can be edited.")
 	}
 

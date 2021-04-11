@@ -4,9 +4,9 @@ import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
 	addHandler(menu{},
-           "Usage:  menu \n \n WIP:  Create/Modify a menu prompt ",
-           permissions.Dungeonmaster,
-           "menu")
+		"Usage:  menu \n \n WIP:  Create/Modify a menu prompt ",
+		permissions.Dungeonmaster,
+		"menu")
 }
 
 type menu cmd
@@ -16,7 +16,6 @@ func (menu) process(s *state) {
 		s.msg.Actor.SendInfo("Menu's.. mumble.. mumble..")
 		return
 	}
-
 
 	s.ok = true
 	return

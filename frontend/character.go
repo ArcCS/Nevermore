@@ -16,15 +16,15 @@ import (
 // account and player creation.
 type newCharacter struct {
 	*frontend
-	name string
+	name   string
 	gender string
-	class int
-	race int
-	str int
-	con int
-	dex int
-	pie int
-	intel int
+	class  int
+	race   int
+	str    int
+	con    int
+	dex    int
+	pie    int
+	intel  int
 }
 
 // verifyName is used to test that a players name only uses the letters A-Z,a-z.
@@ -182,10 +182,10 @@ func (a *newCharacter) selectRaceProcess() {
 		a.buf.Send(text.Info, "No input given. Please try again. \n", text.Reset)
 		a.nextFunc = a.selectRaceProcess
 	case strings.Contains(inputVal, "help"):
-		if strings.Contains( inputVal, " ") {
+		if strings.Contains(inputVal, " ") {
 			topic := strings.Split(inputVal, " ")[1]
 			a.helpDisplay(topic)
-		}else{
+		} else {
 			a.helpDisplay("races")
 		}
 		a.nextFunc = a.selectRaceProcess
@@ -199,7 +199,7 @@ func (a *newCharacter) selectRaceProcess() {
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
 	case utils.StringIn(inputVal, config.AvailableRaces):
-		a.buf.Send(text.Info, "Your character is a: ", inputVal, "." , text.Reset)
+		a.buf.Send(text.Info, "Your character is a: ", inputVal, ".", text.Reset)
 		a.race = utils.IndexOf(inputVal, config.AvailableRaces)
 		a.selectClassDisplay()
 	default:
@@ -231,10 +231,10 @@ func (a *newCharacter) selectClassProcess() {
 		a.buf.Send(text.Info, "No input given. Please try again. \n", text.Reset)
 		a.nextFunc = a.selectClassProcess
 	case strings.Contains(inputVal, "help"):
-		if strings.Contains( inputVal, " ") {
+		if strings.Contains(inputVal, " ") {
 			topic := strings.Split(inputVal, " ")[1]
 			a.helpDisplay(topic)
-		}else{
+		} else {
 			a.helpDisplay("classes")
 		}
 		a.nextFunc = a.selectClassProcess
@@ -248,7 +248,7 @@ func (a *newCharacter) selectClassProcess() {
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
 	case utils.StringIn(inputVal, config.AvailableClasses):
-		a.buf.Send(text.Info, "Your character class is ", inputVal, "." , text.Reset)
+		a.buf.Send(text.Info, "Your character class is ", inputVal, ".", text.Reset)
 		a.class = utils.IndexOf(inputVal, config.AvailableClasses)
 		a.selectStatsDisplay()
 	default:
@@ -256,7 +256,6 @@ func (a *newCharacter) selectClassProcess() {
 		a.nextFunc = a.selectClassProcess
 	}
 }
-
 
 func (a *newCharacter) selectStatsDisplay() {
 	a.buf.SendInfo(fmt.Sprintf(`The Old Woman hears your answer and appears to be visually sizing up your suitability for the desired profession.
@@ -289,7 +288,7 @@ Cancel (c), return to the main menu.`,
 		strconv.Itoa(config.RaceDefs[config.AvailableRaces[a.race]].IntMax),
 		strconv.Itoa(config.RaceDefs[config.AvailableRaces[a.race]].PieMin),
 		strconv.Itoa(config.RaceDefs[config.AvailableRaces[a.race]].PieMax),
-		))
+	))
 	a.nextFunc = a.selectStatsProcess
 }
 
@@ -310,7 +309,7 @@ func (a *newCharacter) selectStatsProcess() {
 		a.newCharacterDisplay()
 	case a.validateStats(inputVal):
 		stats := strings.Split(inputVal, " ")
-		a.buf.SendInfo(fmt.Sprintf("Your stats will be Str: %[1]s Dex: %[2]s Con: %[3]s Int: %[4]s Pie: %[5]s", stats[0],stats[1],stats[2],stats[3],stats[4]))
+		a.buf.SendInfo(fmt.Sprintf("Your stats will be Str: %[1]s Dex: %[2]s Con: %[3]s Int: %[4]s Pie: %[5]s", stats[0], stats[1], stats[2], stats[3], stats[4]))
 		a.str, _ = strconv.Atoi(stats[0])
 		a.dex, _ = strconv.Atoi(stats[1])
 		a.con, _ = strconv.Atoi(stats[2])
@@ -341,14 +340,14 @@ No (n) Go back to the last step
 Restart (r) Restart the character builder
 Cancel (c) Leave the character builder
 `, a.gender,
-config.AvailableRaces[a.race],
-config.AvailableClasses[a.class],
-a.str,
-a.dex,
-a.con,
-a.intel,
-a.pie,
-))
+		config.AvailableRaces[a.race],
+		config.AvailableClasses[a.class],
+		a.str,
+		a.dex,
+		a.con,
+		a.intel,
+		a.pie,
+	))
 	a.nextFunc = a.confirmProcess
 }
 
@@ -375,8 +374,6 @@ func (a *newCharacter) confirmProcess() {
 	}
 }
 
-
-
 // Finalize, save, and place hte character into the world.
 func (a *newCharacter) storyFinish() {
 	a.buf.SendInfo(`The Old Woman says, "You'll fit into this world just fine.
@@ -391,7 +388,6 @@ The mists begin to clear...
 (Your character has been created.  Send any input to begin journey.`)
 	a.nextFunc = a.completeBuilder
 }
-
 
 // ******   Fast Processing Options
 func (a *newCharacter) fastStep1Display() {
@@ -419,16 +415,16 @@ func (a *newCharacter) fastStep1Process() {
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
 	case strings.Contains(inputVal, "help"):
-		if strings.Contains( inputVal, " ") {
+		if strings.Contains(inputVal, " ") {
 			topic := strings.Split(inputVal, " ")[1]
 			a.helpDisplay(topic)
-		}else{
+		} else {
 			a.helpDisplay("classes")
 		}
 		a.nextFunc = a.fastStep1Process
 	case validateFastStep(inputVal):
 		items := strings.Split(inputVal, " ")
-		a.buf.SendInfo(fmt.Sprintf("Gender: %[1]s, Race: %[2]s, Class: %[3]s", items[0],items[1],items[2]))
+		a.buf.SendInfo(fmt.Sprintf("Gender: %[1]s, Race: %[2]s, Class: %[3]s", items[0], items[1], items[2]))
 		a.gender = items[0]
 		a.race = utils.IndexOf(items[1], config.AvailableRaces)
 		a.class = utils.IndexOf(items[2], config.AvailableClasses)
@@ -467,7 +463,7 @@ Cancel (c), return to the main menu.`,
 		strconv.Itoa(config.RaceDefs[config.AvailableRaces[a.race]].IntMax),
 		strconv.Itoa(config.RaceDefs[config.AvailableRaces[a.race]].PieMin),
 		strconv.Itoa(config.RaceDefs[config.AvailableRaces[a.race]].PieMax),
-		))
+	))
 	a.nextFunc = a.fastStep2Process
 }
 
@@ -488,7 +484,7 @@ func (a *newCharacter) fastStep2Process() {
 		a.newCharacterDisplay()
 	case a.validateStats(inputVal):
 		stats := strings.Split(inputVal, " ")
-		a.buf.SendInfo(fmt.Sprintf("Your stats will be Str: %[1]s Dex: %[2]s Con: %[3]s Int: %[4]s Pie: %[5]s", stats[0],stats[1],stats[2],stats[3],stats[4]))
+		a.buf.SendInfo(fmt.Sprintf("Your stats will be Str: %[1]s Dex: %[2]s Con: %[3]s Int: %[4]s Pie: %[5]s", stats[0], stats[1], stats[2], stats[3], stats[4]))
 		a.str, _ = strconv.Atoi(stats[0])
 		a.dex, _ = strconv.Atoi(stats[1])
 		a.con, _ = strconv.Atoi(stats[2])
@@ -568,7 +564,7 @@ func (a *newCharacter) completeBuilder() {
 	if !data.CreateChar(charData) {
 		a.buf.Send(text.Info, "# New character created,  entering Altin. \n", text.Reset)
 		FirstTimeStartGame(a.frontend, a.name)
-	}else {
+	} else {
 		a.buf.SendBad(text.Info, "Error, try again later. \n", text.Reset)
 		NewStart(a.frontend)
 	}
@@ -580,17 +576,17 @@ func (a *newCharacter) helpDisplay(subject string) {
 	if subject == "races" {
 		a.buf.Send("Available races: \n")
 		a.buf.Send(strings.Join(config.AvailableRaces, ", "))
-	}else if subject == "classes" {
+	} else if subject == "classes" {
 		a.buf.Send("Available classes: \n")
 		a.buf.Send(strings.Join(config.AvailableClasses, ", "))
-	}else if utils.StringIn(subject, config.AvailableRaces){
-		outLine := fmt.Sprintf("Race: %[1]s \n" +
-			"Desc: %[2]s \n" +
-			"Attribute: Min/Max \n" +
-			"Strength: %[3]s/%[4]s, \n" +
-			"Dexterity: %[5]s/%[6]s, \n" +
-			"Constitution: %[7]s/%[8]s, \n" +
-			"Intelligence: %[9]s/%[10]s, \n" +
+	} else if utils.StringIn(subject, config.AvailableRaces) {
+		outLine := fmt.Sprintf("Race: %[1]s \n"+
+			"Desc: %[2]s \n"+
+			"Attribute: Min/Max \n"+
+			"Strength: %[3]s/%[4]s, \n"+
+			"Dexterity: %[5]s/%[6]s, \n"+
+			"Constitution: %[7]s/%[8]s, \n"+
+			"Intelligence: %[9]s/%[10]s, \n"+
 			"Piety: %[11]s/%[12]s \n",
 			subject,
 			config.RaceDefs[subject].Desc,
@@ -606,11 +602,11 @@ func (a *newCharacter) helpDisplay(subject string) {
 			strconv.Itoa(config.RaceDefs[subject].PieMax),
 		)
 		a.buf.Send(outLine)
-	}else if utils.StringIn(subject, config.AvailableClasses){
+	} else if utils.StringIn(subject, config.AvailableClasses) {
 		outLine := fmt.Sprintf(
-			"Class: %[1]s \n" +
-				"Desc: %[2]s \n" +
-				"Abilities: %[3]s \n" +
+			"Class: %[1]s \n"+
+				"Desc: %[2]s \n"+
+				"Abilities: %[3]s \n"+
 				"Recommended Races: %[4]s \n"+
 				"Recommended Stat Focuses: %[5]s \n",
 			subject,
@@ -620,12 +616,12 @@ func (a *newCharacter) helpDisplay(subject string) {
 			config.Classes[subject].Stats,
 		)
 		a.buf.Send(outLine)
-	}else{
+	} else {
 		a.buf.Send("No help on that topic found")
 	}
 }
 
-func parseStats(statInput string) []int{
+func parseStats(statInput string) []int {
 	stats := strings.Split(statInput, " ")
 	statOut := make([]int, 5)
 	for i, v := range stats {
@@ -637,8 +633,8 @@ func parseStats(statInput string) []int{
 func validateFastStep(choiceInput string) bool {
 	inputs := strings.Split(choiceInput, " ")
 	//gender (m|f), race, and class separated by spaces"
-	if inputs[0] != "f"{
-		if inputs[0] != "m"{
+	if inputs[0] != "f" {
+		if inputs[0] != "m" {
 			return false
 		}
 	}

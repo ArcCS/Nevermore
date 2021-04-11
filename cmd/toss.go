@@ -8,9 +8,9 @@ import (
 // Syntax: JUNK item
 func init() {
 	addHandler(toss{},
-           "Usage:  toss itemName # \n \n Toss an item away, this is a permanent deletion.",
-           permissions.Player,
-           "toss")
+		"Usage:  toss itemName # \n \n Toss an item away, this is a permanent deletion.",
+		permissions.Player,
+		"toss")
 }
 
 type toss cmd

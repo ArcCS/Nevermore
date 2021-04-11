@@ -8,9 +8,9 @@ import (
 
 func init() {
 	addHandler(quit{},
-           "Usage:  quit \n \n GTFO ",
-           permissions.Anyone,
-           "QUIT")
+		"Usage:  quit \n \n GTFO ",
+		permissions.Anyone,
+		"QUIT")
 }
 
 type quit cmd

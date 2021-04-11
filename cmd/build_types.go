@@ -8,9 +8,9 @@ import (
 
 func init() {
 	addHandler(types{},
-           "Usage:  types  \n Print all of the integer to type relationships. ",
-           permissions.Builder,
-           "types")
+		"Usage:  types  \n Print all of the integer to type relationships. ",
+		permissions.Builder,
+		"types")
 }
 
 type types cmd

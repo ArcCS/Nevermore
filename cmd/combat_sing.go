@@ -13,9 +13,9 @@ import (
 
 func init() {
 	addHandler(sing{},
-           "Usage:  sing song_name # \n\n Use your instrument to sing a song!",
-           permissions.Bard,
-           "sing")
+		"Usage:  sing song_name # \n\n Use your instrument to sing a song!",
+		permissions.Bard,
+		"sing")
 }
 
 type sing cmd
@@ -116,7 +116,7 @@ func (sing) process(s *state) {
 			s.msg.Actor.SendGood(msg)
 			return
 		}
-	}else{
+	} else {
 
 		spellInstance, ok := spells.Spells[strings.ToLower(s.input[0])]
 		if !ok {
@@ -143,7 +143,6 @@ func (sing) process(s *state) {
 		s.msg.Actor.SendGood(msg)
 		return
 	}
-
 
 	s.msg.Actor.SendInfo("Cast on who?")
 	s.ok = true

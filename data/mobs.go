@@ -9,8 +9,8 @@ func LoadMobs() []interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	conn, _ := getConn()
 	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (m:mob) OPTIONAL MATCH (m)-[d:drops]->(i:item) RETURN " +
-	`{mob_id:m.mob_id, 
+	data, _, _, rtrap := conn.QueryNeoAll("MATCH (m:mob) OPTIONAL MATCH (m)-[d:drops]->(i:item) RETURN "+
+		`{mob_id:m.mob_id, 
 	name:m.name, 
 	description:m.description, 
 	experience:m.experience, 
@@ -43,7 +43,7 @@ func LoadMobs() []interface{} {
 	invisible:m.invisible, 
 	permanent:m.permanent,
 	hostile:m.hostile}}`, nil)
-	if rtrap != nil{
+	if rtrap != nil {
 		log.Println(rtrap)
 		return nil
 	}
@@ -59,7 +59,7 @@ func LoadMob(mobId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	conn, _ := getConn()
 	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (m:mob {mob_id: {mobId}}) OPTIONAL MATCH (m)-[d:drops]->(i:item) RETURN " +
+	data, _, _, rtrap := conn.QueryNeoAll("MATCH (m:mob {mob_id: {mobId}}) OPTIONAL MATCH (m)-[d:drops]->(i:item) RETURN "+
 		`{mob_id:m.mob_id, 
 	name:m.name, 
 	description:m.description, 
@@ -93,10 +93,10 @@ func LoadMob(mobId int) map[string]interface{} {
 	invisible:m.invisible, 
 	permanent:m.permanent,
 	hostile:m.hostile }}`,
-		map[string]interface {}{
+		map[string]interface{}{
 			"mobId": mobId,
 		})
-	if rtrap != nil{
+	if rtrap != nil {
 		log.Println(rtrap)
 		return nil
 	}
@@ -109,8 +109,8 @@ func CreateMob(mobName string, creator string) (int, bool) {
 	defer conn.Close()
 	mob_id := nextId("mob")
 	result, rtrap := conn.ExecNeo(
-		"CREATE (m:mob) SET " +
-		`m.mob_id = {mobId}, 
+		"CREATE (m:mob) SET "+
+			`m.mob_id = {mobId}, 
 		m.name = {name}, 
 		m.creator = {creator}, 
 		m.description=  "A shiny new mob!", 
@@ -142,31 +142,31 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		m.invisible= 0, 
 		m.permanent= 0,
 		m.hostile=0`,
-		map[string]interface {}{
-			"mobId": mob_id,
-			"name":   mobName,
+		map[string]interface{}{
+			"mobId":   mob_id,
+			"name":    mobName,
 			"creator": creator,
 		},
 	)
 
-	if rtrap != nil{
+	if rtrap != nil {
 		log.Println(rtrap)
 	}
 	numResult, _ := result.RowsAffected()
 	if numResult > 0 {
 		return mob_id, false
-	}else {
+	} else {
 		return -1, true
 	}
 }
 
 // Update Room
-func UpdateMob(mobData map[string]interface{})  bool {
+func UpdateMob(mobData map[string]interface{}) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	result, rtrap := conn.ExecNeo(
-		"MATCH (m:mob) WHERE m.mob_id={mob_id} SET " +
-		`m.name={name},
+		"MATCH (m:mob) WHERE m.mob_id={mob_id} SET "+
+			`m.name={name},
 		m.description={description},
 		m.experience={experience}, 
 		m.level={level}, 
@@ -196,48 +196,48 @@ func UpdateMob(mobData map[string]interface{})  bool {
 		m.invisible={invisible}, 
 		m.permanent={permanent},
 		m.hostile={hostile}`,
-		map[string]interface {}{
-			"mob_id": mobData["mob_id"],
-			"name": mobData["name"],
-			"description": mobData["description"],
-			"experience": mobData["experience"],
-			"level": mobData["level"],
-			"gold": mobData["gold"],
-			"constitution": mobData["constitution"],
-			"strength": mobData["strength"],
-			"intelligence": mobData["intelligence"],
-			"dexterity": mobData["dexterity"],
-			"piety": mobData["piety"],
-			"mpmax": mobData["mpmax"],
-			"mpcur": mobData["mpcur"],
-			"hpcur": mobData["hpcur"],
-			"hpmax": mobData["hpmax"],
-			"sdice": mobData["sdice"],
-			"ndice": mobData["ndice"],
-			"pdice": mobData["pdice"],
-			"spells": mobData["spells"],
+		map[string]interface{}{
+			"mob_id":              mobData["mob_id"],
+			"name":                mobData["name"],
+			"description":         mobData["description"],
+			"experience":          mobData["experience"],
+			"level":               mobData["level"],
+			"gold":                mobData["gold"],
+			"constitution":        mobData["constitution"],
+			"strength":            mobData["strength"],
+			"intelligence":        mobData["intelligence"],
+			"dexterity":           mobData["dexterity"],
+			"piety":               mobData["piety"],
+			"mpmax":               mobData["mpmax"],
+			"mpcur":               mobData["mpcur"],
+			"hpcur":               mobData["hpcur"],
+			"hpmax":               mobData["hpmax"],
+			"sdice":               mobData["sdice"],
+			"ndice":               mobData["ndice"],
+			"pdice":               mobData["pdice"],
+			"spells":              mobData["spells"],
 			"casting_probability": mobData["casting_probability"],
-			"armor": mobData["armor"],
-			"numwander": mobData["numwander"],
-			"wimpyvalue": mobData["wimpyvalue"],
-			"air_resistance": mobData["air_resistance"],
-			"fire_resistance": mobData["fire_resistance"],
-			"earth_resistance": mobData["earth_resistance"],
-			"water_resistance": mobData["water_resistance"],
-			"hide_encounter": mobData["hide_encounter"],
-			"invisible": mobData["invisible"],
-			"permanent": mobData["permanent"],
-			"hostile": mobData["hostile"],
+			"armor":               mobData["armor"],
+			"numwander":           mobData["numwander"],
+			"wimpyvalue":          mobData["wimpyvalue"],
+			"air_resistance":      mobData["air_resistance"],
+			"fire_resistance":     mobData["fire_resistance"],
+			"earth_resistance":    mobData["earth_resistance"],
+			"water_resistance":    mobData["water_resistance"],
+			"hide_encounter":      mobData["hide_encounter"],
+			"invisible":           mobData["invisible"],
+			"permanent":           mobData["permanent"],
+			"hostile":             mobData["hostile"],
 		},
 	)
 
-	if rtrap != nil{
+	if rtrap != nil {
 		log.Println(rtrap)
 	}
 	numResult, _ := result.RowsAffected()
 	if numResult > 0 {
 		return false
-	}else {
+	} else {
 		return true
 	}
 }
@@ -247,24 +247,24 @@ func CreateEncounter(encounterData map[string]interface{}) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	toExit, rtrap := conn.ExecNeo(
-		"MATCH (r:room), (m:mob) WHERE " +
-			"r.room_id = {roomId} AND m.mob_id = {mobId} " +
+		"MATCH (r:room), (m:mob) WHERE "+
+			"r.room_id = {roomId} AND m.mob_id = {mobId} "+
 			`CREATE (r)-[s:spawns]->(m) SET 
         s.chance={chance}`,
-		map[string]interface {}{
-			"mobId":        encounterData["mobId"],
-			"roomId":       encounterData["roomId"],
-			"chance":               encounterData["chance"],
+		map[string]interface{}{
+			"mobId":  encounterData["mobId"],
+			"roomId": encounterData["roomId"],
+			"chance": encounterData["chance"],
 		},
 	)
-	if rtrap != nil{
+	if rtrap != nil {
 		log.Println(rtrap)
 	}
 
 	numResult, _ := toExit.RowsAffected()
 	if numResult > 0 {
 		return false
-	}else {
+	} else {
 		return true
 	}
 }
@@ -274,7 +274,7 @@ func SumEncounters(roomId int) int {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, _ := conn.QueryNeoAll("MATCH (r:room)-[s:spawns]->() WHERE r.room_id={room_id} RETURN {rate_sum: sum(s.chance)}",
-		map[string]interface {}{
+		map[string]interface{}{
 			"room_id": roomId,
 		},
 	)
@@ -287,7 +287,7 @@ func DeleteMob(mobId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _ := conn.ExecNeo("MATCH ()-[s:spawns]->(m:mob)-[d:drops]->() WHERE m.mob_id={mob_id} DELETE s, m, d",
-		map[string]interface {}{
+		map[string]interface{}{
 			"room_id": mobId,
 		},
 	)
@@ -295,7 +295,7 @@ func DeleteMob(mobId int) bool {
 	numResult, _ := data.RowsAffected()
 	if numResult < 1 {
 		return false
-	}else {
+	} else {
 		return true
 	}
 }
@@ -305,23 +305,22 @@ func UpdateEncounter(mobData map[string]interface{}) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	toExit, etrap := conn.ExecNeo(
-		"MATCH (r:room)-[s:spawns]->(m:mob) WHERE " +
-			"r.room_id={roomId} AND m.mob_id={mobId} SET " +
+		"MATCH (r:room)-[s:spawns]->(m:mob) WHERE "+
+			"r.room_id={roomId} AND m.mob_id={mobId} SET "+
 			"s.chance={chance}",
-		map[string]interface {}{
-			"roomId":  mobData["roomId"],
-			"mobId":   mobData["mobId"],
-			"chance":	mobData["chance"],
-
+		map[string]interface{}{
+			"roomId": mobData["roomId"],
+			"mobId":  mobData["mobId"],
+			"chance": mobData["chance"],
 		},
 	)
-	if etrap != nil{
+	if etrap != nil {
 		log.Println(etrap)
 	}
 	numResult, _ := toExit.RowsAffected()
 	if numResult > 0 {
 		return false
-	}else {
+	} else {
 		return true
 	}
 }
@@ -331,18 +330,18 @@ func DeleteEncounter(mobId int, roomId int) bool {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, rtrap := conn.ExecNeo("MATCH (r:room)-[s:spawns]->(m:mob) WHERE r.room_id={room_id} AND s.mob_id={mob_id} DELETE s",
-		map[string]interface {}{
+		map[string]interface{}{
 			"room_id": roomId,
-			"mob_id": mobId,
+			"mob_id":  mobId,
 		},
 	)
-	if rtrap != nil{
+	if rtrap != nil {
 		log.Println(rtrap)
 	}
 	numResult, _ := data.RowsAffected()
 	if numResult < 1 {
 		return false
-	}else {
+	} else {
 		return true
 	}
 }
@@ -351,15 +350,15 @@ func DeleteEncounter(mobId int, roomId int) bool {
 func SearchMobName(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
-	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (m:mob) WHERE toLower(m.name) CONTAINS toLower({search}) RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.name SKIP {skip} LIMIT {limit}",
-		map[string]interface {}{
+	data, _, _, rtrap := conn.QueryNeoAll("MATCH (m:mob) WHERE toLower(m.name) CONTAINS toLower({search}) RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.name SKIP {skip} LIMIT {limit}",
+		map[string]interface{}{
 			"search": searchStr,
-			"skip": skip,
-			"limit": config.Server.SearchResults,
+			"skip":   skip,
+			"limit":  config.Server.SearchResults,
 		},
 	)
 
-	if rtrap != nil{
+	if rtrap != nil {
 		log.Println(rtrap)
 		return nil
 	}
@@ -374,15 +373,15 @@ func SearchMobName(searchStr string, skip int) []interface{} {
 func SearchMobDesc(searchStr string, skip int) []interface{} {
 	conn, _ := getConn()
 	defer conn.Close()
-	data, _, _, rtrap:= conn.QueryNeoAll("MATCH (m:mob) WHERE toLower(m.description) CONTAINS toLower({search}) RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.name SKIP {skip} LIMIT {limit}",
-		map[string]interface {}{
+	data, _, _, rtrap := conn.QueryNeoAll("MATCH (m:mob) WHERE toLower(m.description) CONTAINS toLower({search}) RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.name SKIP {skip} LIMIT {limit}",
+		map[string]interface{}{
 			"search": searchStr,
-			"skip": skip,
-			"limit": config.Server.SearchResults,
+			"skip":   skip,
+			"limit":  config.Server.SearchResults,
 		},
 	)
 
-	if rtrap != nil{
+	if rtrap != nil {
 		log.Println(rtrap)
 		return nil
 	}

@@ -4,14 +4,14 @@ import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
 	addHandler(whisper{},
-           "Usage:  whisper \n \n Get the specified item.",
-           permissions.Player,
-           "WHISPER")
+		"Usage:  whisper \n \n Get the specified item.",
+		permissions.Player,
+		"WHISPER")
 }
 
 type whisper cmd
 
 func (whisper) process(s *state) {
-		s.msg.Actor.SendInfo("WIP, coming soon.")
+	s.msg.Actor.SendInfo("WIP, coming soon.")
 
 }

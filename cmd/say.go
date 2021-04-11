@@ -8,9 +8,9 @@ import (
 // Syntax: SAY <message> | " <message>
 func init() {
 	addHandler(say{},
-           "Usage:  say \n \n Say something out loud!",
-           permissions.Player,
-           "SAY")
+		"Usage:  say \n \n Say something out loud!",
+		permissions.Player,
+		"SAY")
 }
 
 type say cmd
@@ -38,10 +38,10 @@ func (say) process(s *state) {
 	if msg[len(msg)-1:] == "?" {
 		s.msg.Actor.SendGood("You ask: \"", msg, "\"")
 		s.msg.Observers.SendInfo(who, " asks: \"", msg, "\"")
-	}else if msg[len(msg)-1:] == "!" {
+	} else if msg[len(msg)-1:] == "!" {
 		s.msg.Actor.SendGood("You exclaim: \"", msg, "\"")
 		s.msg.Observers.SendInfo(who, " exclaims: \"", msg, "\"")
-	}else {
+	} else {
 		s.msg.Actor.SendGood("You say: \"", msg, "\"")
 		s.msg.Observers.SendInfo(who, " says:  \"", msg, "\"")
 	}

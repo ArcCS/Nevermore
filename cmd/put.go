@@ -7,9 +7,9 @@ import (
 
 func init() {
 	addHandler(put{},
-           "Usage:  put itemName # [chest] \n \n Put the specified item name in a chest.",
-           permissions.Player,
-           "PUT")
+		"Usage:  put itemName # [chest] \n \n Put the specified item name in a chest.",
+		permissions.Player,
+		"PUT")
 }
 
 type put cmd
@@ -86,7 +86,6 @@ func (put) process(s *state) {
 	where.Storage.Add(target)
 	s.actor.Inventory.Unlock()
 	where.Storage.Lock()
-
 
 	s.msg.Actor.SendGood("You put ", target.Name, " into ", where.Name, ".")
 	s.msg.Observers.SendInfo("You see ", s.actor.Name, " put ", target.Name, " into ", where.Name, ".")

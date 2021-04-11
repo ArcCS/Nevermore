@@ -12,9 +12,9 @@ import (
 
 func init() {
 	addHandler(backstab{},
-           "Usage:  backstab target # \n\n Backstab the target, can only be done while hidden",
-           permissions.Thief,
-           "backstab", "bs")
+		"Usage:  backstab target # \n\n Backstab the target, can only be done while hidden",
+		permissions.Thief,
+		"backstab", "bs")
 }
 
 type backstab cmd
@@ -52,7 +52,7 @@ func (backstab) process(s *state) {
 	}
 
 	var whatMob *objects.Mob
-	whatMob = s.where.Mobs.Search(name, nameNum,true)
+	whatMob = s.where.Mobs.Search(name, nameNum, true)
 	if whatMob != nil {
 
 		// Shortcut a missing weapon:
@@ -78,24 +78,24 @@ func (backstab) process(s *state) {
 		// Check the rolls in reverse order from hardest to lowest for bash rolls.
 		damageModifier := 1
 		stunModifier := 1
-		if utils.Roll(config.ThunkRoll, 1, 0) == 1 {  // Thunk
+		if utils.Roll(config.ThunkRoll, 1, 0) == 1 { // Thunk
 			damageModifier = config.CombatModifiers["thunk"]
 			s.msg.Actor.SendGood("Thunk!!")
-		}else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Crushing
+		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Crushing
 			damageModifier = config.CombatModifiers["crushing"]
 			s.msg.Actor.SendGood("Craaackk!!")
-		}else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Thwomp
+		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Thwomp
 			damageModifier = config.CombatModifiers["thwomp"]
 			s.msg.Actor.SendGood("Thwomp!!")
-		}else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Thump
+		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Thump
 			stunModifier = 2
 			s.msg.Actor.SendGood("Thump!!")
 		}
-		whatMob.MobStunned = config.BashStuns*stunModifier
-		actualDamage,_ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
+		whatMob.MobStunned = config.BashStuns * stunModifier
+		actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor.Name)
 		s.msg.Actor.SendInfo("You bashed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
-		s.msg.Observers.SendInfo(s.actor.Name + " bashes " + whatMob.Name )
+		s.msg.Observers.SendInfo(s.actor.Name + " bashes " + whatMob.Name)
 		if whatMob.Stam.Current <= 0 {
 			s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
 			s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)

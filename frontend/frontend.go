@@ -74,15 +74,15 @@ func (closedError) Temporary() bool {
 // frontend represents the current frontend state for a given io.Writer - this
 // is typically from a player's network connection.
 type frontend struct {
-	output    io.Writer       // Writer to send output text to
-	buf       *message.Buffer // Buffered messages written with next prompt
-	input     []byte          // The input text we are currently processing
-	nextFunc  func()          // The next frontend function called by Parse
-	remoteAddr string  // IP Address
-	character *objects.Character // The current player instance (ingame or not)
-	account   string
+	output      io.Writer          // Writer to send output text to
+	buf         *message.Buffer    // Buffered messages written with next prompt
+	input       []byte             // The input text we are currently processing
+	nextFunc    func()             // The next frontend function called by Parse
+	remoteAddr  string             // IP Address
+	character   *objects.Character // The current player instance (ingame or not)
+	account     string
 	permissions permissions.Permissions
-	err       error           // First error to occur else nil
+	err         error // First error to occur else nil
 }
 
 func (f *frontend) GetCharacter() *objects.Character {
@@ -95,8 +95,8 @@ func (f *frontend) GetCharacter() *objects.Character {
 // greetingDisplay.
 func New(output io.Writer, address string) *frontend {
 	f := &frontend{
-		buf:    message.AcquireBuffer(),
-		output: output,
+		buf:        message.AcquireBuffer(),
+		output:     output,
 		remoteAddr: address,
 	}
 	f.buf.OmitLF(true)

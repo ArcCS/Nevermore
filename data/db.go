@@ -19,17 +19,17 @@ func getConn() (bolt.Conn, error) {
 }
 
 // Player, Mob, Object, Room, Quest, ItemInventory
-func nextId(dataType string) int{
+func nextId(dataType string) int {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, _ := conn.QueryNeoAll(fmt.Sprintf("MATCH (r:%[1]s) RETURN COALESCE(MAX(r.%[2]s_id), 0)", strings.ToLower(dataType), dataType), nil)
-	return int(data[0][0].(int64))+1
+	return int(data[0][0].(int64)) + 1
 }
 
 // Player, Mob, Object, Room, Quest, ItemInventory
-func nextLinkId(dataType string) int{
+func nextLinkId(dataType string) int {
 	conn, _ := getConn()
 	defer conn.Close()
 	data, _, _, _ := conn.QueryNeoAll(fmt.Sprintf("MATCH ()-[r:%[1]s]->() RETURN COALESCE(MAX(r.%[2]s_id), 0)", strings.ToLower(dataType), dataType), nil)
-	return int(data[0][0].(int64))+1
+	return int(data[0][0].(int64)) + 1
 }
