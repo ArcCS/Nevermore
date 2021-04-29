@@ -3,21 +3,18 @@
 package data
 
 import (
-	"fmt"
 	"github.com/ArcCS/Nevermore/config"
 	"log"
 	"strings"
 )
 
-// New account
+// NewAcct Create a new account from a map of account values
 func NewAcct(acctData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	result, _ := conn.ExecNeo("CREATE (a:account) SET "+
-		"a.account_id = {acctId}, "+
-		"a.name = {acctName}, "+
-		"a.permissions = {permissions},  "+
-		"a.password = {acctPass}, "+
+	results, err := execWrite("CREATE (a:account) SET "+
+		"a.account_id = $acctId, "+
+		"a.name = $acctName, "+
+		"a.permissions = $permissions,  "+
+		"a.password = $acctPass, "+
 		"a.active = true",
 		map[string]interface{}{
 			"acctId":      nextId("account"),
@@ -26,63 +23,71 @@ func NewAcct(acctData map[string]interface{}) bool {
 			"permissions": config.Server.PermissionDefault,
 		},
 	)
-	numResult, _ := result.RowsAffected()
-	if numResult < 0 {
-		return true
-	} else {
+	if err != nil {
+		log.Println(err)
 		return false
 	}
+	if results.Counters().NodesCreated() > 0 {
+		return true
+	}
+	return false
 }
 
-// Retrieve account info
+// LoadAcct Retrieve account info based on an acctName
 func LoadAcct(acctName string) (map[string]interface{}, bool) {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, _ := conn.QueryNeoAll("MATCH (a:account) WHERE toLower(a.name)=toLower({acctName}) RETURN "+
+	results, err := execRead("MATCH (a:account) WHERE toLower(a.name)=toLower($acctName) RETURN "+
 		"{account_id: a.account_id, name: a.name, permissions: a.permissions, password: a.password}",
 		map[string]interface{}{
 			"acctName": acctName,
 		},
 	)
-	if len(data) < 1 {
+	if err != nil {
+		log.Println(err)
 		return nil, true
+	}
+	if len(results) > 0 {
+		return results[0].Values[0].(map[string]interface{}), false
 	} else {
-		return data[0][0].(map[string]interface{}), false
+		return nil, true
 	}
 }
 
-// Retrieve whether the account exists\
+// AccountExists Checks whether an account exists based on name
 func AccountExists(acctName string) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, _ := conn.QueryNeoAll("MATCH (a:account) WHERE toLower(a.name)=toLower({acctName}) RETURN a",
+	results, err := execRead("MATCH (a:account) WHERE toLower(a.name)=toLower($acctName) RETURN a",
 		map[string]interface{}{
 			"acctName": acctName,
 		},
 	)
-	if len(data) < 1 {
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if len(results) < 1 {
 		return false
 	} else {
 		return true
 	}
 }
 
-// Retrieve account characters
+// ListChars Retrieve account characters based on account name
 func ListChars(acctName string) []string {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, _ := conn.QueryNeoAll("MATCH (a:account)-[o:owns]->(c:character) WHERE toLower(a.name)=toLower({acctName}) and "+
-		"c.class<>100 and c.active=true RETURN c.name",
+	results, err := execRead("MATCH (a:account)-[o:owns]->(c:character) WHERE toLower(a.name)=toLower($acctName) and "+
+		"c.class<>100 and c.active=true RETURN {name: c.name}",
 		map[string]interface{}{
 			"acctName": acctName,
 		},
 	)
-	if len(data) < 1 {
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	if len(results) < 1 {
 		return nil
 	} else {
 		searchList := make([]string, 0)
-		for _, row := range data {
-			datum := row[0].(string)
+		for _, row := range results {
+			datum := row.Values[0].(map[string]interface{})["name"].(string)
 			if strings.TrimSpace(datum) != "" {
 				searchList = append(searchList, datum)
 			}
@@ -91,54 +96,58 @@ func ListChars(acctName string) []string {
 	}
 }
 
-// Retrieve account power characters
+// ListPowerChar Retrieve account power characters based on account name
 func ListPowerChar(acctName string) (string, bool) {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, _ := conn.QueryNeoAll("MATCH (a:account)-[o:owns]->(d:character) WHERE toLower(a.name)=toLower({acctName}) and d.class=100 RETURN "+
+	results, err := execRead("MATCH (a:account)-[o:owns]->(d:character) WHERE toLower(a.name)=toLower($acctName) and d.class=100 RETURN "+
 		"{char: d.name}",
 		map[string]interface{}{
 			"acctName": acctName,
 		},
 	)
-	if len(data) < 1 {
+	if err != nil {
+		log.Println(err)
+		return "", true
+	}
+	if len(results) < 1 {
 		return "", true
 	} else {
-		datum := data[0][0].(map[string]interface{})
+		datum := results[0].Values[0].(map[string]interface{})
 		return datum["char"].(string), false
 	}
 }
 
-// Deactivate account
+// Deactivate account based on account name
 func Deactivate(acctName string) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, _ := conn.QueryNeoAll("MATCH (a:account) WHERE a.name={acctName} SET a.active=false",
+	results, err := execWrite("MATCH (a:account) WHERE a.name=$acctName SET a.active=false",
 		map[string]interface{}{
 			"acctName": acctName,
 		},
 	)
-	if len(data) < 1 {
+	if err != nil {
+		log.Println(err)
 		return false
-	} else {
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
+	} else {
+		return false
 	}
 }
 
-// Update account
+// UpdatePassword Update account
 func UpdatePassword(acctName string, acctPass string) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	result, rtrap := conn.ExecNeo("MATCH (a:account) WHERE toLower(a.name)=toLower({acctName}) SET "+
-		"a.password = {acctPass} ",
+	results, err := execWrite("MATCH (a:account) WHERE toLower(a.name)=toLower($acctName) SET "+
+		"a.password = $acctPass ",
 		map[string]interface{}{
 			"acctName": acctName,
 			"acctPass": acctPass,
 		},
 	)
-	fmt.Println(rtrap)
-	numResult, _ := result.RowsAffected()
-	if numResult < 0 {
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
 	} else {
 		return false
@@ -146,35 +155,36 @@ func UpdatePassword(acctName string, acctPass string) bool {
 }
 
 func TogglePermission(acctName string, permission uint32) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	result, rtrap := conn.ExecNeo("MATCH (a:account) WHERE toLower(a.name)=toLower({acctName}) SET "+
-		"a.permissions = apoc.bitwise.op(a.permissions,'^',{permission})",
+	results, err := execWrite("MATCH (a:account) WHERE toLower(a.name)=toLower($acctName) SET "+
+		"a.permissions = apoc.bitwise.op(a.permissions,'^',$permission)",
 		map[string]interface{}{
 			"acctName":   acctName,
 			"permission": permission,
 		},
 	)
-	log.Println(rtrap)
-	numResult, _ := result.RowsAffected()
-	if numResult < 0 {
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
 	} else {
 		return false
 	}
 }
 
-// Delete account
+// DeleteAcct Delete account based on account name
 func DeleteAcct(acctName string) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	result, _ := conn.ExecNeo("MATCH (a:account) WHERE a.name={acctName} DELETE a",
+	results, err := execWrite("MATCH (a:account) WHERE a.name=$acctName DELETE a",
 		map[string]interface{}{
 			"acctName": acctName,
 		},
 	)
-	numResult, _ := result.RowsAffected()
-	if numResult < 0 {
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
 	} else {
 		return false
@@ -182,23 +192,19 @@ func DeleteAcct(acctName string) bool {
 }
 
 func SearchAccountName(searchStr string, skip int) []interface{} {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (a:account) WHERE toLower(a.name) CONTAINS toLower({search}) ORDER BY a.name LIMIT 15 SKIP {skip} ",
+	data, err := execRead("MATCH (a:account) WHERE toLower(a.name) CONTAINS toLower($search) ORDER BY a.name LIMIT 15 SKIP $skip ",
 		map[string]interface{}{
 			"search": searchStr,
 			"skip":   skip,
 		},
 	)
-
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 		return nil
 	}
 	searchList := make([]interface{}, len(data))
 	for _, row := range data {
-		datum := row[0].(map[string]interface{})
-		searchList = append(searchList, datum)
+		searchList = append(searchList, row.Values[0].(map[string]interface{}))
 	}
 	return searchList
 }

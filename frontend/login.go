@@ -80,7 +80,7 @@ func (l *login) passwordProcess() {
 
 	acctData, err := data.LoadAcct(l.inputName)
 	if err {
-		l.buf.Send(text.Bad, "Account ID or password is incorrect.\n", text.Reset)
+		l.buf.Send(text.Bad, "Account ID or password is incorrect. (Load acct failure) \n", text.Reset)
 		NewLogin(l.frontend)
 		return
 	}

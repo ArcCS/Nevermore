@@ -4,21 +4,12 @@ package data
 
 import (
 	"github.com/ArcCS/Nevermore/config"
-	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 	"log"
 )
 
 func LoadRooms() []interface{} {
 	// Return all of the rooms to be pushed into the room stack
-	conn, _ := getConn()
-	defer func(conn bolt.Conn) {
-		err := conn.Close()
-		if err != nil {
-			log.Println("Connection Close Failed in LoadRooms():\n" + err.Error())
-			return
-		}
-	}(conn)
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (r:room) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
+	data, err := execRead("MATCH (r:room) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
 		`{room_id: r.room_id, creator: r.creator, name: r.name, description: r.description, encounter_rate: r.encounter_rate, 
 	encounters: collect({chance: s.chance, mob_id: m.mob_id}),
 	exits: collect({direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
@@ -55,23 +46,20 @@ func LoadRooms() []interface{} {
 	hilevel: r.hilevel,
 	earth: r.earth,
 	wind: r.wind}}`, nil)
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 		return nil
 	}
 	roomList := make([]interface{}, len(data))
 	for _, row := range data {
-		datum := row[0].(map[string]interface{})
-		roomList = append(roomList, datum)
+		roomList = append(roomList, row.Values[0].(map[string]interface{}))
 	}
 	return roomList
 }
 
-func LoadRoom(roomId int) map[string]interface{} {
+func LoadRoom(room_id int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (r:room {room_id: {roomId}}) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
+	data, err := execRead("MATCH (r:room {room_id: $room_id}) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
 		`{room_id: r.room_id, creator: r.creator, name: r.name, description: r.description, encounter_rate: r.encounter_rate, 
 	encounters: collect({chance: s.change, mob_id: m.mob_id}), exits: collect({direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
 	flags:{closeable: e.closeable,
@@ -108,20 +96,18 @@ func LoadRoom(roomId int) map[string]interface{} {
 	earth: r.earth,
 	wind: r.wind}}`,
 		map[string]interface{}{
-			"roomId": roomId,
+			"room_id": room_id,
 		})
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 		return nil
 	}
-	return data[0][0].(map[string]interface{})
+	return data[0].Values[0].(map[string]interface{})
 }
 
-func LoadExit(exitName string, roomId int, toId int) map[string]interface{} {
+func LoadExit(exitName string, room_id int, toId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (r:room)-[e:exit]->(d:room) WHERE r.room_id={fromId} AND e.name={exitname} AND d.room_id={toId} RETURN "+
+	data, err := execRead("MATCH (r:room)-[e:exit]->(d:room) WHERE r.room_id=$fromId AND e.name=$exitname AND d.room_id=$toId RETURN "+
 		`{direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
 	flags:{closeable: e.closeable,
 	closed: e.closed,
@@ -137,28 +123,26 @@ func LoadExit(exitName string, roomId int, toId int) map[string]interface{} {
 	placement_dependent: e.placement_dependent}}`,
 		map[string]interface{}{
 			"exitname": exitName,
-			"fromId":   roomId,
+			"fromId":   room_id,
 			"toId":     toId,
 		})
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 		return nil
 	}
-	return data[0][0].(map[string]interface{})
+	return data[0].Values[0].(map[string]interface{})
 }
 
-// Create Room
+// CreateRoom will create a new room from a roomname and a creator
 func CreateRoom(roomName string, creator string) (int, bool) {
-	conn, _ := getConn()
-	defer conn.Close()
 	room_id := nextId("room")
-	result, rtrap := conn.ExecNeo(
+	results, err := execWrite(
 		"CREATE (r:room) SET "+
-			"r.room_id = {roomId}, "+
-			"r.name = {name}, "+
+			"r.room_id = $room_id, "+
+			"r.name = $name, "+
 			"r.description = 'This is a nice room you made here... needs a description though.', "+
 			"r.encounter_rate = 0,"+
-			"r.creator = {creator}, "+
+			"r.creator = $creator, "+
 			"r.repair = 0, "+
 			"r.mana_drain = 0, "+
 			"r.no_summon = 0, "+
@@ -184,32 +168,28 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 			"r.train = 0, "+
 			"r.wind = 0",
 		map[string]interface{}{
-			"roomId":  room_id,
+			"room_id":  room_id,
 			"name":    roomName,
 			"creator": creator,
 		},
 	)
-
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 	}
-	numResult, _ := result.RowsAffected()
-	if numResult > 0 {
+	if 	results.Counters().NodesCreated() > 0 {
 		return room_id, false
 	} else {
 		return -1, true
 	}
 }
 
-// Create Exits
+// CreateExit Create Exits from a map of exitData
 func CreateExit(exitData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	toExit, rtrap := conn.ExecNeo(
+	results, err := execWrite(
 		"MATCH (r:room), (r2:room) WHERE "+
-			"r.room_id = {baseRoom} AND r2.room_id = {toRoom} "+
+			"r.room_id = $baseRoom AND r2.room_id = $toRoom "+
 			`CREATE (r)-[e:exit]->(r2) SET 
-	e.name={exitName}, 
+	e.name=$exitName, 
 	e.placement=3, 
 	e.key_id=0, 
 	e.closeable=0,
@@ -230,28 +210,29 @@ func CreateExit(exitData map[string]interface{}) bool {
 			"toRoom":   exitData["toId"],
 		},
 	)
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
+		return true
 	}
-
-	numResult, _ := toExit.RowsAffected()
-	if numResult > 0 {
+	if 	results.Counters().RelationshipsCreated() > 0 {
 		return false
 	} else {
 		return true
 	}
 }
 
-// Does this exit exist?
-func ExitExists(exitName string, roomId int) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, _ := conn.QueryNeoAll("MATCH (r:room)-(e:exit)->() WHERE r.room_id={room_id} AND e.name={name} RETURN e",
+// ExitExists Does this exit exist?
+func ExitExists(exitName string, room_id int) bool {
+	data, err := execRead("MATCH (r:room)-(e:exit)->() WHERE r.room_id=$room_id AND e.name=$name RETURN e",
 		map[string]interface{}{
-			"room_id": roomId,
+			"room_id": room_id,
 			"name":    exitName,
 		},
 	)
+	if err != nil {
+		log.Println(err)
+		return true
+	}
 	if len(data) <= 1 {
 		return false
 	} else {
@@ -259,57 +240,55 @@ func ExitExists(exitName string, roomId int) bool {
 	}
 }
 
-// Delete Room
-func DeleteRoom(roomId int) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _ := conn.ExecNeo("MATCH ()-[e:exit]->(r:room)-[e2:exit]->() WHERE r.room_id={room_id} DELETE r, e, e2",
+// DeleteRoom Delete Room
+func DeleteRoom(room_id int) bool {
+	results, err := execWrite("MATCH ()-[e:exit]->(r:room)-[e2:exit]->() WHERE r.room_id=$room_id DELETE r, e, e2",
 		map[string]interface{}{
-			"room_id": roomId,
+			"room_id": room_id,
 		},
 	)
-
-	numResult, _ := data.RowsAffected()
-	if numResult < 1 {
-		return false
-	} else {
+	if err != nil {
+		log.Println(err)
 		return true
+	}
+	if results.Counters().NodesDeleted() > 0 {
+		return true
+	} else {
+		return false
 	}
 }
 
 // UpdateRoom Update Room
 func UpdateRoom(roomData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	result, rtrap := conn.ExecNeo(
-		"MATCH (r:room) WHERE r.room_id={room_id} SET "+
-			"r.name = {name}, "+
-			"r.description = {description}, "+
-			"r.repair = {repair}, "+
-			"r.mana_drain = {mana_drain}, "+
-			"r.no_summon = {no_summon}, "+
-			"r.encounter_rate = {encounter_rate},"+
-			"r.heal_fast = {heal_fast}, "+
-			"r.no_teleport = {no_teleport}, "+
-			"r.lo_level = {lo_level}, "+
-			"r.no_scry = {no_scry}, "+
-			"r.shielded = {shielded}, "+
-			"r.dark_always = {dark_always}, "+
-			"r.light_always = {light_always}, "+
-			"r.natural_light = {natural_light}, "+
-			"r.indoors = {indoors}, "+
-			"r.fire = {fire}, "+
-			"r.encounters_on = {encounters_on}, "+
-			"r.no_word_of_recall = {no_word_of_recall}, "+
-			"r.water = {water}, "+
-			"r.no_magic = {no_magic}, "+
-			"r.urban = {urban}, "+
-			"r.underground = {underground}, "+
-			"r.hilevel = {hilevel}, "+
-			"r.earth = {earth}, "+
-			"r.active = {active}, "+
-			"r.train = {train},"+
-			"r.wind = {wind}",
+	results, err := execWrite(
+		"MATCH (r:room) WHERE r.room_id=$room_id SET "+
+			"r.name = $name, "+
+			"r.description = $description, "+
+			"r.repair = $repair, "+
+			"r.mana_drain = $mana_drain, "+
+			"r.no_summon = $no_summon, "+
+			"r.encounter_rate = $encounter_rate,"+
+			"r.heal_fast = $heal_fast, "+
+			"r.no_teleport = $no_teleport, "+
+			"r.lo_level = $lo_level, "+
+			"r.no_scry = $no_scry, "+
+			"r.shielded = $shielded, "+
+			"r.dark_always = $dark_always, "+
+			"r.light_always = $light_always, "+
+			"r.natural_light = $natural_light, "+
+			"r.indoors = $indoors, "+
+			"r.fire = $fire, "+
+			"r.encounters_on = $encounters_on, "+
+			"r.no_word_of_recall = $no_word_of_recall, "+
+			"r.water = $water, "+
+			"r.no_magic = $no_magic, "+
+			"r.urban = $urban, "+
+			"r.underground = $underground, "+
+			"r.hilevel = $hilevel, "+
+			"r.earth = $earth, "+
+			"r.active = $active, "+
+			"r.train = $train,"+
+			"r.wind = $wind",
 		map[string]interface{}{
 			"room_id":           roomData["room_id"],
 			"name":              roomData["name"],
@@ -342,25 +321,22 @@ func UpdateRoom(roomData map[string]interface{}) bool {
 		},
 	)
 
-	if rtrap != nil {
-		log.Println(rtrap)
-	}
-	numResult, _ := result.RowsAffected()
-	if numResult > 0 {
+	if err != nil {
+		log.Println(err)
 		return false
-	} else {
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
 	}
+	return false
 }
 
-// Rename Exit
+// RenameExit Renames an exit based on it's previous name, the new name, and the connecting room information
 func RenameExit(exitName string, oldName string, baseRoom int, toRoom int) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	toExit, etrap := conn.ExecNeo(
+	results, err := execWrite(
 		"MATCH (r:room)-[e:exit]->(r2:room) WHERE "+
-			"r.room_id={baseRoom} AND r2.room_id={toRoom} AND e.name={oldexit} SET "+
-			`e.name={exitname}`,
+			"r.room_id=$baseRoom AND r2.room_id=$toRoom AND e.name=$oldexit SET "+
+			`e.name=$exitname`,
 		map[string]interface{}{
 			"exitname": exitName,
 			"oldexit":  oldName,
@@ -368,39 +344,36 @@ func RenameExit(exitName string, oldName string, baseRoom int, toRoom int) bool 
 			"toRoom":   toRoom,
 		},
 	)
-	if etrap != nil {
-		log.Println(etrap)
-	}
-	numResult, _ := toExit.RowsAffected()
-	if numResult > 0 {
+	if err != nil {
+		log.Println(err)
 		return false
-	} else {
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
 	}
+	return false
 }
 
-// Update Exit
+// UpdateExit Update Exit based on
 func UpdateExit(exitData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	toExit, etrap := conn.ExecNeo(
+	results, err := execWrite(
 		"MATCH (r:room)-[e:exit]->(r2:room) WHERE "+
-			"r.room_id={baseRoom} AND r2.room_id={toRoom} AND e.name={exitname} SET "+
-			`e.placement={placement}, 
-	e.description={description},
-	e.key_id={key_id}, 
-	e.closeable={closeable},
-	e.closed={closed},
-	e.autoclose={autoclose},
-	e.lockable={lockable},
-	e.unpickable={unpickable},
-	e.locked={locked},
-	e.hidden={hidden},
-	e.invisible={invisible},
-	e.levitate={levitate},
-	e.day_only={day_only},
-	e.night_only={night_only},
-	e.placement_dependent={placement_dependent}`,
+			"r.room_id=$baseRoom AND r2.room_id=$toRoom AND e.name=$exitname SET "+
+			`e.placement=$placement, 
+	e.description=$description,
+	e.key_id=$key_id, 
+	e.closeable=$closeable,
+	e.closed=$closed,
+	e.autoclose=$autoclose,
+	e.lockable=$lockable,
+	e.unpickable=$unpickable,
+	e.locked=$locked,
+	e.hidden=$hidden,
+	e.invisible=$invisible,
+	e.levitate=$levitate,
+	e.day_only=$day_only,
+	e.night_only=$night_only,
+	e.placement_dependent=$placement_dependent`,
 		map[string]interface{}{
 			"exitname":            exitData["exitname"],
 			"baseRoom":            exitData["fromId"],
@@ -422,132 +395,112 @@ func UpdateExit(exitData map[string]interface{}) bool {
 			"placement_dependent": exitData["placement_dependent"],
 		},
 	)
-	if etrap != nil {
-		log.Println(etrap)
-	}
-	numResult, _ := toExit.RowsAffected()
-	if numResult > 0 {
+	if err != nil {
+		log.Println(err)
 		return false
-	} else {
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
 	}
+	return false
 }
 
-// Delete Exit
-func DeleteExit(exitName string, roomId int) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, rtrap := conn.ExecNeo("MATCH (r:room)-[e:exit]->() WHERE r.room_id={room_id} AND e.name={name} DELETE e",
+// DeleteExit Delete Exit based on the exit name and the containing room
+func DeleteExit(exitName string, room_id int) bool {
+	results, err := execWrite("MATCH (r:room)-[e:exit]->() WHERE r.room_id=$room_id AND e.name=$name DELETE e",
 		map[string]interface{}{
-			"room_id": roomId,
+			"room_id": room_id,
 			"name":    exitName,
 		},
 	)
-	if rtrap != nil {
-		log.Println(rtrap)
-	}
-	numResult, _ := data.RowsAffected()
-	if numResult < 1 {
+	if err != nil {
+		log.Println(err)
 		return false
-	} else {
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
 	}
+	return false
 }
 
 func SearchRoomName(searchStr string, skip int) []interface{} {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (r:room) WHERE toLower(r.name) CONTAINS toLower({search}) RETURN {room_id: r.room_id, creator: r.creator, name: r.name} ORDER BY r.name SKIP {skip} LIMIT {limit}",
+	data, err := execRead("MATCH (r:room) WHERE toLower(r.name) CONTAINS toLower($search) RETURN {room_id: r.room_id, creator: r.creator, name: r.name} ORDER BY r.name SKIP $skip LIMIT $limit",
 		map[string]interface{}{
 			"search": searchStr,
 			"skip":   skip,
 			"limit":  config.Server.SearchResults,
 		},
 	)
-
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 		return nil
 	}
 	roomList := make([]interface{}, len(data))
 	for _, row := range data {
-		datum := row[0].(map[string]interface{})
-		roomList = append(roomList, datum)
+		roomList = append(roomList, row.Values[0].(map[string]interface{}))
 	}
 	return roomList
 }
 
 func SearchRoomDesc(searchStr string, skip int) []interface{} {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (r:room) WHERE toLower(r.description) CONTAINS toLower({search}) RETURN {room_id: r.room_id, creator: r.creator, name: r.name} ORDER BY r.name SKIP {skip} LIMIT {limit}",
+	data, err := execRead("MATCH (r:room) WHERE toLower(r.description) CONTAINS toLower($search) RETURN {room_id: r.room_id, creator: r.creator, name: r.name} ORDER BY r.name SKIP $skip LIMIT $limit",
 		map[string]interface{}{
 			"search": searchStr,
 			"skip":   skip,
 			"limit":  config.Server.SearchResults,
 		},
 	)
-
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 		return nil
 	}
 	roomList := make([]interface{}, len(data))
 	for _, row := range data {
-		datum := row[0].(map[string]interface{})
-		roomList = append(roomList, datum)
+		roomList = append(roomList, row.Values[0].(map[string]interface{}))
 	}
 	return roomList
 }
 
-func CreateNarrative(narrData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	toNarr, rtrap := conn.ExecNeo(
+func CreateNarrative(narrData map[string]interface{}) (bool, error) {
+	results, err := execWrite(
 		"MATCH (r:room) WHERE "+
-			"r.room_id = {roomId} "+
+			"r.room_id = $room_id "+
 			`CREATE (r)-[nar:narr]->(n:narrative) SET 
-	n.text={narrText}, n.title={narrTitle}`,
+	n.text=$narrText, n.title=$narrTitle`,
 		map[string]interface{}{
-			"roomId":    narrData["roomId"],
+			"room_id":    narrData["room_id"],
 			"narrTitle": narrData["narrTitle"],
 			"narrText":  narrData["narrText"],
 		},
 	)
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 	}
-
-	numResult, _ := toNarr.RowsAffected()
-	if numResult > 0 {
-		return false
+	if 	results.Counters().NodesCreated() > 0 {
+		return true, nil
 	} else {
-		return true
+		return false, nil
 	}
 }
 
 func UpdateNarrative(narrData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	toNarr, rtrap := conn.ExecNeo(
+	results, err := execWrite(
 		"MATCH (r:room)-[nar:narr]-> WHERE "+
-			"r.room_id = {roomId} "+
+			"r.room_id = $room_id "+
 			`CREATE (r)-[nar:narr]->(n:narrative) SET 
-	n.text={narrText}, n.title={narrTitle}`,
+	n.text=$narrText, n.title=$narrTitle`,
 		map[string]interface{}{
-			"roomId":    narrData["roomId"],
+			"room_id":    narrData["room_id"],
 			"narrTitle": narrData["narrTitle"],
 			"narrText":  narrData["narrText"],
 		},
 	)
-	if rtrap != nil {
-		log.Println(rtrap)
-	}
-
-	numResult, _ := toNarr.RowsAffected()
-	if numResult > 0 {
+	if err != nil {
+		log.Println(err)
 		return false
-	} else {
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
 	}
+	return false
 }

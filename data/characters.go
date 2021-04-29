@@ -9,11 +9,9 @@ import (
 	"strings"
 )
 
-// Retrieve character information
+// LoadChar Retrieve character information
 func LoadChar(charName string) (map[string]interface{}, bool) {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (a:character) WHERE toLower(a.name)=toLower({charName}) RETURN {"+
+	results, err := execRead("MATCH (a:character) WHERE toLower(a.name)=toLower($charName) RETURN {"+
 		"gender: a.gender, "+
 		"character_id: a.character_id, "+
 		"name: a.name, "+
@@ -62,48 +60,49 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 			"charName": charName,
 		},
 	)
-	if len(data) < 1 {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 		return nil, true
+	}
+	if len(results) < 1 {
+		return nil, false
 	} else {
-		return data[0][0].(map[string]interface{}), false
+		return results[0].Values[0].(map[string]interface{}), false
 	}
 }
 
-// New character
+// CreateChar New character
 func CreateChar(charData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	result, rtrap := conn.ExecNeo(
+	results, err := execWrite(
 		"CREATE (a:character) SET "+
-			"a.character_id = {characterId}, "+
-			"a.gender = {gender}, "+
-			"a.name = {name}, "+
-			"a.class = {class}, "+
-			"a.race = {race}, "+
+			"a.character_id = $characterId, "+
+			"a.gender = $gender, "+
+			"a.name = $name, "+
+			"a.class = $class, "+
+			"a.race = $race, "+
 			"a.active = true, "+
 			"a.passages = 0,"+
 			"a.bonuspoints = 0,"+
 			"a.title = '', "+
 			"a.tier = 1, "+
-			"a.strcur = {strcur}, "+
-			"a.concur = {concur}, "+
-			"a.dexcur = {dexcur}, "+
-			"a.piecur = {piecur}, "+
-			"a.intcur = {intcur}, "+
+			"a.strcur = $strcur, "+
+			"a.concur = $concur, "+
+			"a.dexcur = $dexcur, "+
+			"a.piecur = $piecur, "+
+			"a.intcur = $intcur, "+
 			"a.strmod = 0, "+
 			"a.conmod = 0, "+
 			"a.dexmod = 0, "+
 			"a.piemod = 0, "+
 			"a.intmod = 0, "+
-			"a.manacur = {curr_mana}, "+
-			"a.vitcur = {curr_vit}, "+
-			"a.stamcur = {curr_stam}, "+
-			"a.manamax = {curr_mana}, "+
-			"a.vitmax = {curr_vit}, "+
-			"a.stammax = {curr_stam}, "+
+			"a.manacur = $curr_mana, "+
+			"a.vitcur = $curr_vit, "+
+			"a.stamcur = $curr_stam, "+
+			"a.manamax = $curr_mana, "+
+			"a.vitmax = $curr_vit, "+
+			"a.stammax = $curr_stam, "+
 			"a.description = '', "+
-			"a.parentid = {start_room},"+
+			"a.parentid = $start_room,"+
 			"a.birthday = 0,"+
 			"a.played = 0,"+
 			"a.broadcasts = 5,"+
@@ -139,66 +138,66 @@ func CreateChar(charData map[string]interface{}) bool {
 			"start_room":  config.StartingRoom,
 		},
 	)
-
-	owner, otrap := conn.ExecNeo(
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	owner, oerr := execWrite(
 		"MATCH (a:account), (c:character) WHERE "+
-			"a.name = {aname} AND c.name = {cname} "+
+			"a.name = $aname AND c.name = $cname "+
 			"CREATE (a)-[o:owns]->(c) RETURN o",
 		map[string]interface{}{
 			"aname": charData["account"],
 			"cname": charData["name"],
 		},
 	)
-
-	fmt.Println(rtrap)
-	fmt.Println(otrap)
-	ownResult, _ := owner.RowsAffected()
-	numResult, _ := result.RowsAffected()
-	if numResult > 0 && ownResult > 0 {
+	if oerr != nil {
+		log.Println(oerr)
 		return false
-	} else {
+	}
+	if results.Counters().NodesCreated() > 0 && owner.Counters().RelationshipsCreated() > 0 {
 		return true
+	} else {
+		return false
 	}
 }
 
-// Update character
+// SaveChar Update character information from a map
 func SaveChar(charData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	result, rtrap := conn.ExecNeo(
-		"MATCH (a:character) WHERE a.character_id={characterid} SET "+
-			"a.name = {name}, "+
+	results, err := execWrite(
+		"MATCH (a:character) WHERE a.character_id=$characterid SET "+
+			"a.name = $name, "+
 			"a.passages = 0,"+
 			"a.bonuspoints = 0,"+
-			"a.title = {title}, "+
-			"a.tier = {tier},  "+
-			"a.strcur = {strcur}, "+
-			"a.concur = {concur}, "+
-			"a.dexcur = {dexcur}, "+
-			"a.piecur = {piecur}, "+
-			"a.intcur = {intcur}, "+
-			"a.manacur = {curr_mana}, "+
-			"a.vitcur = {curr_vit}, "+
-			"a.stamcur = {curr_stam}, "+
-			"a.manamax = {max_mana}, "+
-			"a.vitmax = {max_vit}, "+
-			"a.stammax = {max_stam}, "+
-			"a.description = {description}, "+
-			"a.parentid = {parent_id},"+
-			"a.played = {played},"+
-			"a.broadcasts = {broadcasts},"+
-			"a.evals = {evals},"+
-			"a.gold = {gold},"+
-			"a.bankgold = {bankgold},"+
-			"a.sharpexp = {sharpexp},"+
-			"a.bluntexp = {bluntexp},"+
-			"a.poleexp = {poleexp},"+
-			"a.thrustexp = {thrustexp},"+
-			"a.missileexp = {missileexp},"+
-			"a.spells = {spells},"+
-			"a.equipment = {equipment},"+
-			"a.inventory = {inventory},"+
-			"a.experience = {experience}",
+			"a.title = $title, "+
+			"a.tier = $tier,  "+
+			"a.strcur = $strcur, "+
+			"a.concur = $concur, "+
+			"a.dexcur = $dexcur, "+
+			"a.piecur = $piecur, "+
+			"a.intcur = $intcur, "+
+			"a.manacur = $curr_mana, "+
+			"a.vitcur = $curr_vit, "+
+			"a.stamcur = $curr_stam, "+
+			"a.manamax = $max_mana, "+
+			"a.vitmax = $max_vit, "+
+			"a.stammax = $max_stam, "+
+			"a.description = $description, "+
+			"a.parentid = $parent_id,"+
+			"a.played = $played,"+
+			"a.broadcasts = $broadcasts,"+
+			"a.evals = $evals,"+
+			"a.gold = $gold,"+
+			"a.bankgold = $bankgold,"+
+			"a.sharpexp = $sharpexp,"+
+			"a.bluntexp = $bluntexp,"+
+			"a.poleexp = $poleexp,"+
+			"a.thrustexp = $thrustexp,"+
+			"a.missileexp = $missileexp,"+
+			"a.spells = $spells,"+
+			"a.equipment = $equipment,"+
+			"a.inventory = $inventory,"+
+			"a.experience = $experience",
 		map[string]interface{}{
 			"characterid": charData["character_id"],
 			"name":        charData["name"],
@@ -233,64 +232,67 @@ func SaveChar(charData map[string]interface{}) bool {
 			"inventory":   charData["inventory"],
 		},
 	)
-
-	fmt.Println(rtrap)
-	numResult, _ := result.RowsAffected()
-	if numResult > 0 {
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if results.Counters().ContainsUpdates() {
 		return false
 	} else {
 		return true
 	}
 }
 
-// Update character
+// SaveCharField Update character
 func SaveCharField(charName string, field string, fieldVal interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	result, rtrap := conn.ExecNeo(
-		"MATCH (a:character) WHERE toLower(a.name)=toLower({charName}) SET "+
-			fmt.Sprintf("a.%[1]s", strings.ToLower(field))+" = {field_val}",
+	results, err := execWrite(
+		"MATCH (a:character) WHERE toLower(a.name)=toLower($charName) SET "+
+			fmt.Sprintf("a.%[1]s", strings.ToLower(field))+" = $field_val",
 		map[string]interface{}{
 			"charName":  charName,
 			"field_val": fieldVal,
 		},
 	)
-
-	fmt.Println(rtrap)
-	numResult, _ := result.RowsAffected()
-	if numResult > 0 {
+	if err != nil {
+		log.Println(err)
 		return false
-	} else {
+	}
+	if results.Counters().ContainsUpdates() {
 		return true
+	} else {
+		return false
 	}
 }
 
 func CharacterExists(charName string) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, _ := conn.QueryNeoAll("MATCH (c:character) WHERE toLower(c.name)=toLower({charName}) RETURN c",
+	results, err := execRead("MATCH (c:character) WHERE toLower(c.name)=toLower($charName) RETURN c",
 		map[string]interface{}{
 			"charName": charName,
 		},
 	)
-	if len(data) < 1 {
+	if err != nil {
+		log.Println(err)
 		return false
-	} else {
+	}
+	if len(results) > 0 {
 		return true
+	} else {
+		return false
 	}
 }
 
-// Delete character
+// DeleteChar Delete character
 func DeleteChar(charName string) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	result, _ := conn.ExecNeo("MATCH (a:character) WHERE a.name={charName} DELETE a",
+	results, err := execWrite("MATCH (a:character) WHERE a.name=$charName DELETE a",
 		map[string]interface{}{
 			"charName": charName,
 		},
 	)
-	numResult, _ := result.RowsAffected()
-	if numResult < 0 {
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if results.Counters().NodesDeleted() > 0 {
 		return true
 	} else {
 		return false
@@ -298,47 +300,39 @@ func DeleteChar(charName string) bool {
 }
 
 func SearchCharName(searchStr string, skip int) []interface{} {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (c:character) WHERE toLower(c.name) CONTAINS toLower({search}) RETURN c ORDER BY c.name SKIP {skip} LIMIT {limit}",
+	results, err := execRead("MATCH (c:character) WHERE toLower(c.name) CONTAINS toLower($search) RETURN c ORDER BY c.name SKIP $skip LIMIT $limit",
 		map[string]interface{}{
 			"search": searchStr,
 			"skip":   skip,
 			"limit":  config.Server.SearchResults,
 		},
 	)
-
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 		return nil
 	}
-	searchList := make([]interface{}, len(data))
-	for _, row := range data {
-		datum := row[0].(map[string]interface{})
-		searchList = append(searchList, datum)
+	searchList := make([]interface{}, len(results))
+	for _, row := range results {
+		searchList = append(searchList, row.Values[0].(map[string]interface{}))
 	}
 	return searchList
 }
 
 func SearchCharDesc(searchStr string, skip int) []interface{} {
-	conn, _ := getConn()
-	defer conn.Close()
-	data, _, _, rtrap := conn.QueryNeoAll("MATCH (c:character) WHERE toLower(c.description) CONTAINS toLower({search}) RETURN c ORDER BY c.name SKIP {skip} LIMIT {limit}",
+	results, err := execRead("MATCH (c:character) WHERE toLower(c.description) CONTAINS toLower($search) RETURN c ORDER BY c.name SKIP $skip LIMIT $limit",
 		map[string]interface{}{
 			"search": searchStr,
 			"skip":   skip,
 			"limit":  config.Server.SearchResults,
 		},
 	)
-
-	if rtrap != nil {
-		log.Println(rtrap)
+	if err != nil {
+		log.Println(err)
 		return nil
 	}
-	searchList := make([]interface{}, len(data))
-	for _, row := range data {
-		datum := row[0].(map[string]interface{})
-		searchList = append(searchList, datum)
+	searchList := make([]interface{}, len(results))
+	for _, row := range results {
+		searchList = append(searchList, row.Values[0].(map[string]interface{}))
 	}
 	return searchList
 }
@@ -349,7 +343,7 @@ func NextInventoryId(characterName string) int {
 conn, _ := getConn()
 defer conn.Close()
 	data, _, _, _ := conn.QueryNeoAll("MATCH (c:character)-[h:has]->(item)"+
-	"WHERE c.name={characterName}" +
+	"WHERE c.name=$characterName" +
 "WITH COLLECT(h.has_id) as has_ids" +
 "WITH MAX(has_ids)+1 AS new_id" +
 "RETURN new_id",
@@ -366,15 +360,15 @@ func CreateInventory(inventoryData map[string]interface{}) bool {
 	defer conn.Close()
 	hasInventory, rtrap := conn.ExecNeo(
 		"MATCH (c:character), (i:item) WHERE " +
-			"c.character_id = {characterName} AND i.item_id = {itemId} " +
+			"c.character_id = $characterName AND i.item_id = $itemId " +
 			`CREATE (c)-[h:has]->(i) SET
-				h.has_id={hasId},
-				h.name={itemName},
-				h.uses={uses},
-				h.magic={magic},
-				h.spell={spell},
-				h.armor={armor},
-				h.equipped={equipped}`,
+				h.has_id=$hasId,
+				h.name=$itemName,
+				h.uses=$uses,
+				h.magic=$magic,
+				h.spell=$spell,
+				h.armor=$armor,
+				h.equipped=$equipped`,
 		map[string]interface {}{
 			"characterName":        inventoryData["characterName"],
 			"itemId":       inventoryData["itemId"],
@@ -405,9 +399,9 @@ func DeleteInventoryItem(characterName string, hasId int) bool {
 	defer conn.Close()
 	toExit, rtrap := conn.ExecNeo(
 		"MATCH (c:character)-[h:has_id]->(item) WHERE " +
-			"c.name = {characterName} AND h.has_id = {hasId} " +
+			"c.name = $characterName AND h.has_id = $hasId " +
 			`DELETE (c)-[s:spawns]->(m) SET
-	s.chance={chance}`,
+	s.chance=$chance`,
 		map[string]interface {}{
 			"hasId":        hasId,
 			"characterName":       characterName,
@@ -435,15 +429,15 @@ func UpdateInventory(inventoryData map[string]interface{}) bool {
 	defer conn.Close()
 	hasInventory, rtrap := conn.ExecNeo(
 		"MATCH (c:character)-[h:has]->(i:item) WHERE " +
-			"c.character_id = {characterName} AND i.item_id = {itemId} and h.has_id =  {hasId} " +
+			"c.character_id = $characterName AND i.item_id = $itemId and h.has_id =  $hasId " +
 			`CREATE (c)-[h:has]->(i) SET
-				h.has_id={hasId},
-				h.name={itemName},
-				h.uses={uses},
-				h.magic={magic},
-				h.spell={spell},
-				h.armor={armor},
-				h.equipped={equipped}`,
+				h.has_id=$hasId,
+				h.name=$itemName,
+				h.uses=$uses,
+				h.magic=$magic,
+				h.spell=$spell,
+				h.armor=$armor,
+				h.equipped=$equipped`,
 		map[string]interface {}{
 			"characterName":        inventoryData["characterName"],
 			"itemId":       inventoryData["itemId"],

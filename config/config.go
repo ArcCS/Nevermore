@@ -26,9 +26,9 @@ var Server = struct {
 	PermissionDefault int
 }{
 	Host:              "127.0.0.1",
-	DBUname:           "nexus",
-	DBPword:           "NeXuS@0937",
-	DBAddress:         "207.192.75.216",
+	DBUname:		   "USERNAME",
+	DBPword:		   "PASSWORD",
+	DBAddress:		   "127.0.0.1",
 	Port:              "4001",
 	Greeting:          []byte("Welcome to Aalynor's Nexus."),
 	Motd:              "",
@@ -71,7 +71,7 @@ var Login = struct {
 	SaltLength:     32,
 }
 
-// Debugging configuration
+// configuration
 var Debug = struct {
 	LongLog    bool // Long log with microseconds & filename?
 	Panic      bool // Let goroutines panic and stop server?
