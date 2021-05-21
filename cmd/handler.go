@@ -47,17 +47,21 @@ func dispatchHandler(s *state) {
 		}
 
 		// Check the player stack for the command first
-		if val, ok := s.actor.Menu[strings.ToLower(s.cmd)]; ok {
+		if val, ok := s.actor.Commands[strings.ToLower(s.cmd)]; ok {
 			s.scriptActor(val.Command, strings.Join(s.input, " "))
 			return
 		}
-		s.actor.EmptyMenu()
+		s.actor.EmptyCommands()
+
+		// TODO: Check the items in the players inventory
 
 		// Check the room stack for a command second:
 		if val, ok := s.where.Commands[s.cmd]; ok {
 			s.scriptAll(val.Command, strings.Join(s.input, " "))
 			return
 		}
+
+		// TODO: Check the permanent items in the room
 
 		switch handler, valid := handlers[s.cmd]; {
 		case valid:

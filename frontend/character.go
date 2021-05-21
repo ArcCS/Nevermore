@@ -561,7 +561,7 @@ func (a *newCharacter) completeBuilder() {
 	charData["con"] = a.con
 	charData["intel"] = a.intel
 	charData["pie"] = a.pie
-	if !data.CreateChar(charData) {
+	if data.CreateChar(charData) {
 		a.buf.Send(text.Info, "# New character created,  entering Altin. \n", text.Reset)
 		FirstTimeStartGame(a.frontend, a.name)
 	} else {
@@ -633,6 +633,9 @@ func parseStats(statInput string) []int {
 func validateFastStep(choiceInput string) bool {
 	inputs := strings.Split(choiceInput, " ")
 	//gender (m|f), race, and class separated by spaces"
+	if len(inputs) < 3 {
+		return false
+	}
 	if inputs[0] != "f" {
 		if inputs[0] != "m" {
 			return false

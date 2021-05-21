@@ -14,6 +14,8 @@ var ConBonusHealthDiv = 5
 var DexDodgeMod = .0025 //Chance to dodge
 var DexGlobalMod = .05  // Seconds to subtract from global ticker
 
+var HideChancePerPoint = 3
+
 // Int Mods
 var IntOffensiveMod = .01
 var IntManaPool = 2             // Number of points of mana to add

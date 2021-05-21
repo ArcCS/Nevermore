@@ -8,8 +8,10 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/message"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/stats"
 	"io"
 	"strings"
+	"time"
 )
 
 func init() {
@@ -55,6 +57,7 @@ type state struct {
 // again. This repeats until the list of locks is complete, the command
 // processed and sync returns true.
 func Parse(o *objects.Character, input string) string {
+	stats.LastActMap[o.Name] = time.Now()
 	s := newState(o, input)
 	for !s.sync() {
 	}

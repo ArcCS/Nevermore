@@ -62,12 +62,19 @@ func (i *MobInventory) RemoveNonPerms() {
 	for _, mob := range i.Contents {
 		if mob.Flags["permanent"] == true {
 			newContents = append(newContents, mob)
+			mob.MobTickerUnload <- true
 		} else {
 			mob.MobTickerUnload <- true
 			mob = nil
 		}
 	}
 	i.Contents = newContents
+}
+
+func (i *MobInventory) RestartPerms() {
+	for _, mob := range i.Contents {
+		mob.StartTicking()
+	}
 }
 
 // Search the MobInventory to return a specific instance of something
@@ -212,4 +219,34 @@ func (i *MobInventory) Free() {
 		i.Contents[x] = nil
 		t.Free()
 	}
+}
+
+func RestoreMobs(ParentID int, jsonString string) *MobInventory {
+	// TODO: Needs implementation
+	NewInventory := &MobInventory{
+		ParentId: ParentID,
+		Contents: make([]*Mob, 0, 0),
+	}
+	/*
+	obj := make([]map[string]interface{}, 0)
+	err := json.Unmarshal([]byte(jsonString), &obj)
+	if err != nil {
+		return NewInventory
+	}
+	for _, mob := range obj {
+		newMob := Mob{}
+		copier.Copy(&newMob, Mobs[int(mob["mobId"].(float64))])
+		newMob.Name = mob["name"].(string)
+
+		newItem.MaxUses = int(item["uses"].(float64))
+		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
+		newItem.Spell = item["spell"].(string)
+		newItem.Armor = int(item["armor"].(float64))
+
+
+		NewInventory.Add(&newMob)
+
+	}
+	 */
+	return NewInventory
 }

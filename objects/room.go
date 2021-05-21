@@ -24,7 +24,6 @@ type Room struct {
 	Chars    *CharInventory
 	Items    *ItemInventory
 	Flags    map[string]bool
-	Commands map[string]prompt.MenuItem
 	// This is a whole number percentage out of 100
 	EncounterRate int
 	// MobID mapped to an encounter percentage
@@ -40,22 +39,21 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 			Name:        roomData["name"].(string),
 			Description: roomData["description"].(string),
 			Placement:   3,
+			Commands: make(map[string]prompt.MenuItem),
 		},
 		int(roomData["room_id"].(int64)),
 		roomData["creator"].(string),
 		make(map[string]*Exit),
-		NewMobInventory(int(roomData["room_id"].(int64))),
+		RestoreMobs(int(roomData["room_id"].(int64)), roomData["mobs"].(string)),
 		NewCharInventory(int(roomData["room_id"].(int64))),
-		NewItemInventory(),
+		RestoreInventory(roomData["inventory"].(string)),
 		make(map[string]bool),
-		make(map[string]prompt.MenuItem),
 		int(roomData["encounter_rate"].(int64)),
 		make(map[int]int),
 		nil,
 		make(chan bool),
 	}
 
-	// TODO: Load Permanent Items
 
 	for _, encounter := range roomData["encounters"].([]interface{}) {
 		if encounter != nil {
@@ -220,7 +218,7 @@ func (r *Room) FirstPerson() {
 			}
 		}()
 	}
-	// Resume permanent mob/item tickers
+	r.Mobs.RestartPerms()
 }
 
 func (r *Room) LastPerson() {

@@ -12,6 +12,7 @@ type mobnpcspells interface {
 	HealVital(damage int)
 	HealStam(damage int)
 	RestoreMana(damage int)
+	GetSpellMultiplier() float32
 }
 
 var Effects = map[string]func(caller mobnpcspells, target mobnpcspells, modifier int) string{
@@ -111,8 +112,7 @@ func firedamage(caller mobnpcspells, target mobnpcspells, modifier int) string {
 	} else if modifier == 7 {
 		damage = 600
 	}
-	//todo: get magical strength to do a x2 or x4 for spells or other modifiers as necessary
-	target.ReceiveDamage(damage)
+	target.ReceiveDamage(int(float32(damage)*caller.GetSpellMultiplier()))
 	return "Your spell struck for " + strconv.Itoa(damage)
 }
 
@@ -133,8 +133,7 @@ func earthdamage(caller mobnpcspells, target mobnpcspells, modifier int) string 
 	} else if modifier == 7 {
 		damage = 600
 	}
-	//todo: get magical strength to do a x2 or x4 for spells or other modifiers as necessary
-	target.ReceiveDamage(damage)
+	target.ReceiveDamage(int(float32(damage)*caller.GetSpellMultiplier()))
 	return "Your spell struck for " + strconv.Itoa(damage)
 }
 
@@ -155,8 +154,7 @@ func airdamage(caller mobnpcspells, target mobnpcspells, modifier int) string {
 	} else if modifier == 7 {
 		damage = 600
 	}
-	//todo: get magical strength to do a x2 or x4 for spells or other modifiers as necessary
-	target.ReceiveDamage(damage)
+	target.ReceiveDamage(int(float32(damage)*caller.GetSpellMultiplier()))
 	return "Your spell struck for " + strconv.Itoa(damage)
 }
 
@@ -177,8 +175,7 @@ func waterdamage(caller mobnpcspells, target mobnpcspells, modifier int) string 
 	} else if modifier == 7 {
 		damage = 600
 	}
-	//todo: get magical strength to do a x2 or x4 for spells or other modifiers as necessary
-	target.ReceiveDamage(damage)
+	target.ReceiveDamage(int(float32(damage)*caller.GetSpellMultiplier()))
 	return "Your spell struck for " + strconv.Itoa(damage)
 }
 

@@ -148,7 +148,11 @@ func (look) process(s *state) {
 	// Nice, looking at an exit.
 	if whatExit != nil {
 		if whatExit.Description == "" {
-			s.msg.Actor.SendInfo(objects.Rooms[whatExit.ToId].Look(false))
+			if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				s.msg.Actor.SendInfo(objects.Rooms[whatExit.ToId].Look(true))
+			}else{
+				s.msg.Actor.SendInfo(objects.Rooms[whatExit.ToId].Look(false))
+			}
 		} else {
 			s.msg.Actor.SendInfo(whatExit.Look())
 		}

@@ -19,7 +19,6 @@ type Character struct {
 	Object
 	io.Writer
 	PromptStyle
-	Menu   map[string]prompt.MenuItem
 	CharId int
 	// Our stuff!
 	Equipment  *Equipment
@@ -80,6 +79,7 @@ type Character struct {
 
 	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
+	Hooks map[string]map[string]*Hook
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -92,10 +92,10 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				Name:        strings.Title(charData["name"].(string)),
 				Description: charData["description"].(string),
 				Placement:   3,
+				Commands: make(map[string]prompt.MenuItem),
 			},
 			writer,
 			StyleNone,
-			make(map[string]prompt.MenuItem),
 			int(charData["character_id"].(int64)),
 			RestoreEquipment(charData["equipment"].(string)),
 			RestoreInventory(charData["inventory"].(string)),
@@ -141,6 +141,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				4: {int(charData["missileexp"].(int64))}},
 			nil,
 			make(chan bool),
+			make(map[string]map[string]*Hook),
 		}
 
 		for k, v := range charData["flags"].(map[string]interface{}) {
@@ -195,34 +196,9 @@ func (c *Character) TimerReady(timer string) (bool, string) {
 
 }
 
-// TODO:  A hooking system
-// Extend the anon scripts to bind from items and add hooks to characters
-// Rooms should take the hook system as well and invoke onActions.
-/*static_str
-static_text
-num_ranges
-num_vals
-hi_numeric // Hidden numerics
-hi_string  // Hidden string
-hi_text  // Hidden text
-hook [list]
- onaction
- onmove
- onattack
- onget
- onreset
- oncleanup
-veto*/
-
 func (c *Character) Unload() {
 	c.CharTicker.Stop()
 	c.CharTickerUnload <- true
-}
-
-func (c *Character) OnAction(act string) {
-	//TODO: Loop the actions based on the act sent
-	// Invoke functions tied to the act
-	return
 }
 
 func (c *Character) ToggleFlag(flagName string) bool {
@@ -346,7 +322,7 @@ func (c *Character) Tick() {
 		// Process Removing the effect
 		if effect.interval > 0 {
 			if effect.LastTriggerInterval() <= 0 {
-				effect.effect()
+				effect.RunEffect()
 			}
 		}
 		if effect.TimeRemaining() <= 0 {
@@ -371,18 +347,6 @@ func (c *Character) Look() (buildText string) {
 	return buildText
 }
 
-func (c *Character) EmptyMenu() {
-	for k := range c.Menu {
-		delete(c.Menu, k)
-	}
-}
-
-func (c *Character) AddMenu(menuItem string, menuCmd string) {
-	c.Menu[menuItem] = prompt.MenuItem{
-		Command: menuCmd,
-	}
-}
-
 func (c *Character) ApplyEffect(effectName string, length string, interval string, effect func(), effectOff func()) {
 	c.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
 	effect()
@@ -391,6 +355,43 @@ func (c *Character) ApplyEffect(effectName string, length string, interval strin
 func (c *Character) RemoveEffect(effectName string) {
 	c.Effects[effectName].effectOff()
 	delete(c.Effects, effectName)
+}
+
+func (c *Character) ApplyHook(effectName string, hook string, length string, interval string, effect func(), effectOff func()) {
+	c.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
+	effect()
+}
+
+func (c *Character) RemoveHook(hook string, hookName string) {
+	c.Hooks[hook][hookName].effectOff()
+	delete(c.Hooks[hook], hookName)
+}
+
+func (c *Character) RunHook(hook string){
+	/* Hook List
+	 onaction
+	 onmove
+	 onattack
+	 onget
+	 onreset
+	 oncleanup
+	 veto
+	 */
+	for name, hookInstance := range c.Hooks[hook] {
+		// Process Removing the hook
+		if hookInstance.interval > 0 {
+			if hookInstance.LastTriggerInterval() <= 0 {
+				hookInstance.RunHook()
+			}
+		}else{
+
+		}
+		if hookInstance.TimeRemaining() <= 0 {
+			c.RemoveHook(hook, name)
+			continue
+		}
+	}
+	return
 }
 
 // Return stam and vital damage
@@ -460,6 +461,16 @@ func (c *Character) HealStam(damage int) {
 
 func (c *Character) RestoreMana(damage int) {
 	c.Mana.Add(damage)
+}
+
+func (c *Character) GetSpellMultiplier() float32 {
+	if c.Tier >= 15 {
+		return 2
+	}else if c.Tier >= 20 {
+		return 4
+	}else{
+		return 1
+	}
 }
 
 func (c *Character) InflictDamage() (damage int) {

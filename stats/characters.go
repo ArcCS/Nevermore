@@ -23,8 +23,6 @@ type characterStats struct {
 
 var ActiveCharacters = &characterStats{}
 var IpMap = make(map[string]string)
-
-// TODO: Update command execution times
 var LastActMap = make(map[string]time.Time)
 
 // Add adds the specified character to the list of characters.
@@ -58,6 +56,7 @@ func (c *characterStats) Remove(character *objects.Character) {
 			c.list[len(c.list)-1] = nil
 			c.list = c.list[:len(c.list)-1]
 			delete(IpMap, character.Name)
+			delete(LastActMap, character.Name)
 			break
 		}
 	}
@@ -94,6 +93,7 @@ func (c *characterStats) List() []string {
 			continue
 		}
 
+		// TODO: Append Time information
 		if character.Title != "" {
 			list = append(list, fmt.Sprintf("%s, %s, %s", character.Name, character.ClassTitle, character.Title))
 		} else {

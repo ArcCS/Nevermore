@@ -20,11 +20,18 @@ var CombatModifiers = map[string]int{
 	"snipe":    8,
 }
 
-// TODO: Capture these attacks in their respective commands
-/*
-	Touch of Death		50% Halve Hit Points / 50% Fatal	Touch of Death
-	Turn		50% Halve Hit Points / 50% Fatal	Turn
-*/
+//Thief
+var HideChance = 15
+
+// Monk
+var TodMax = .5
+var TodFailDamage = .5
+var TodScaleDown = .1
+
+// Paladin
+var TurnMax = .5
+var TurnFailDamage = .5
+var TurnScaleDown = .1
 
 var CombatCooldown = 8
 

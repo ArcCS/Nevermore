@@ -69,7 +69,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			message = "There is currently " + strconv.Itoa(len(players)) + " player in the realms. \n"
 		}
 
-		//TODO: Add some more information to the output list AFK? Currently hunting?  RP only?
 		for _, player := range players {
 			message += "	" + player + " \n"
 		}

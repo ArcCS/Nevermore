@@ -156,6 +156,10 @@ func (m *Mob) StartTicking() {
 	}()
 }
 
+func (m *Mob) GetSpellMultiplier() float32 {
+	return 1
+}
+
 // The mob brain is this ticker
 func (m *Mob) Tick() {
 	if m.MobStunned > 0 {

@@ -43,7 +43,7 @@ func (find) process(s *state) {
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
-			s.actor.AddMenu("more", "find room name "+searchText+" "+strconv.Itoa(searchPage+1))
+			s.actor.AddCommands("more", "find room name "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else if searchType == "desc" {
 			results := data.SearchRoomDesc(searchText, config.Server.SearchResults*searchPage)
@@ -55,7 +55,7 @@ func (find) process(s *state) {
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
-			s.actor.AddMenu("more", "find room desc "+searchText+" "+strconv.Itoa(searchPage+1))
+			s.actor.AddCommands("more", "find room desc "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else {
 			s.msg.Actor.SendBad("Search which field?")
@@ -71,7 +71,7 @@ func (find) process(s *state) {
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
-			s.actor.AddMenu("more", "find mob name "+searchText+" "+strconv.Itoa(searchPage+1))
+			s.actor.AddCommands("more", "find mob name "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else if searchType == "desc" {
 			results := data.SearchMobDesc(searchText, config.Server.SearchResults*searchPage)
@@ -83,7 +83,7 @@ func (find) process(s *state) {
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
-			s.actor.AddMenu("more", "find mob desc "+searchText+" "+strconv.Itoa(searchPage+1))
+			s.actor.AddCommands("more", "find mob desc "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else {
 			s.msg.Actor.SendBad("Search which field?")
@@ -99,7 +99,7 @@ func (find) process(s *state) {
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
-			s.actor.AddMenu("more", "find item name "+searchText+" "+strconv.Itoa(searchPage+1))
+			s.actor.AddCommands("more", "find item name "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else if searchType == "desc" {
 			results := data.SearchItemDesc(searchText, config.Server.SearchResults*searchPage)
@@ -111,7 +111,7 @@ func (find) process(s *state) {
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
-			s.actor.AddMenu("more", "find item desc "+searchText+" "+strconv.Itoa(searchPage+1))
+			s.actor.AddCommands("more", "find item desc "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else {
 			s.msg.Actor.SendBad("Search which field?")

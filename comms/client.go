@@ -113,6 +113,7 @@ func (c *client) process() {
 			if config.Server.Running == false {
 				_ = c.Close()
 			}
+			//TODO:  If user is OOC and AFK, change this
 			err = c.SetReadDeadline(time.Now().Add(config.Server.IdleTimeout))
 			if in, err = s.ReadSlice('\n'); err != nil {
 				frontend.Zero(in)

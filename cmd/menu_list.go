@@ -10,5 +10,5 @@ type list cmd
 
 func (list) process(s *state) {
 	s.msg.Actor.SendInfo("WIP, coming soon.")
-
+	// TODO: List the items in this story inventory
 }

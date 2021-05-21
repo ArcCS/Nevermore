@@ -10,5 +10,5 @@ type buy cmd
 
 func (buy) process(s *state) {
 	s.msg.Actor.SendInfo("WIP, coming soon.")
-
+	// TODO: Buy items from an inventory
 }

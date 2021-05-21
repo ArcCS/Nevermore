@@ -2,6 +2,7 @@ package objects
 
 import (
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/utils"
 )
 
@@ -31,6 +32,7 @@ func NewExit(room_id int, exitData map[string]interface{}) *Exit {
 			exitData["direction"].(string),
 			description,
 			placement,
+			make(map[string]prompt.MenuItem),
 		},
 		room_id,
 		int(exitData["dest"].(int64)),
