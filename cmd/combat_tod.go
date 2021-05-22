@@ -52,6 +52,8 @@ func (tod) process(s *state) {
 			return
 		}
 
+		s.actor.RunHook("combat")
+
 		// Shortcut a missing weapon:
 		if s.actor.Equipment.Main == (*objects.Item)(nil) && s.actor.Class != 8 {
 			s.msg.Actor.SendBad("You have no weapon to attack with.")

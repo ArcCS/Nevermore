@@ -54,12 +54,14 @@ func (get) process(s *state) {
 		roomInventory := s.where.Items.Search(targetStr, targetNum)
 		if roomInventory != nil {
 			if roomInventory.ItemType == 10 {
+				s.actor.RunHook("act")
 				s.where.Items.Remove(roomInventory)
 				s.actor.Gold.Add(roomInventory.Value)
 				s.msg.Actor.SendGood("You picked up ", roomInventory.Name, " and put it in your gold pouch.")
 				s.msg.Observers.SendInfo("You see ", s.actor.Name, " get ", roomInventory.Name, ".")
 				return
 			} else if (s.actor.Inventory.TotalWeight + roomInventory.GetWeight()) <= s.actor.MaxWeight() {
+				s.actor.RunHook("act")
 				s.actor.Inventory.Lock()
 				s.where.Items.Remove(roomInventory)
 				s.actor.Inventory.Add(roomInventory)
@@ -82,6 +84,7 @@ func (get) process(s *state) {
 			whereInventory := where.Storage.Search(targetStr, targetNum)
 			if whereInventory != nil {
 				if whereInventory.ItemType == 10 {
+					s.actor.RunHook("act")
 					where.Storage.Lock()
 					where.Storage.Remove(whereInventory)
 					s.actor.Gold.Add(whereInventory.Value)
@@ -90,6 +93,7 @@ func (get) process(s *state) {
 					where.Storage.Unlock()
 					return
 				} else if (s.actor.Inventory.TotalWeight + whereInventory.GetWeight()) <= s.actor.MaxWeight() {
+					s.actor.RunHook("act")
 					where.Storage.Lock()
 					s.actor.Inventory.Lock()
 					where.Storage.Remove(whereInventory)

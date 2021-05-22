@@ -27,6 +27,7 @@ func (act) process(s *state) {
 		return
 	}
 
+	s.actor.RunHook("act")
 	action := strings.Join(s.input, " ")
 
 	s.msg.Actor.SendInfo(s.actor.Name, " ", action)

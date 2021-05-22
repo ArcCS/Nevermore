@@ -46,6 +46,7 @@ func (closeExit) process(s *state) {
 		return
 	}
 
+	s.actor.RunHook("act")
 	what.Close()
 
 	if s.actor.Flags["invisible"] == false {

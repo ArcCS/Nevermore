@@ -41,6 +41,7 @@ func (peek) process(s *state) {
 
 	//TODO: Peek players inventory if PvP flag is set
 
+	//TODO: There should be a chance to fail
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, false)
 	if whatMob != nil {

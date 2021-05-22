@@ -44,6 +44,7 @@ func (give) process(s *state) {
 		if amount64, err := strconv.ParseInt(strings.Trim(targetStr, "$"), 10, 64); err == nil {
 			amount := int(amount64)
 			if s.actor.Gold.CanSubtract(amount) {
+				s.actor.RunHook("act")
 				s.actor.Gold.SubIfCan(amount)
 				who.Gold.Add(amount)
 				s.msg.Actor.SendGood("You give ", targetStr, " to ", who.Name, ".")
@@ -68,6 +69,7 @@ func (give) process(s *state) {
 	}
 
 	if (who.Inventory.TotalWeight + target.GetWeight()) <= who.MaxWeight() {
+		s.actor.RunHook("act")
 		s.actor.Inventory.Lock()
 		who.Inventory.Lock()
 		s.actor.Inventory.Remove(target)

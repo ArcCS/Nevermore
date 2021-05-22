@@ -26,6 +26,8 @@ func (move) process(s *state) {
 		return
 	}
 
+	s.actor.RunHook("gridmove")
+
 	previous := s.actor.Placement
 	if s.cmd == "SPRINT" || s.cmd == "SPR" {
 		direction := string(s.words[0][0])

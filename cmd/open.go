@@ -45,6 +45,8 @@ func (open) process(s *state) {
 		return
 	}
 
+	s.actor.RunHook("act")
+
 	what.Open()
 
 	if s.actor.Flags["invisible"] == false {

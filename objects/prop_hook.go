@@ -11,21 +11,21 @@ type Hook struct {
 	length    time.Duration
 
 	lastTrigger time.Time
-	interval    time.Duration
+	interval    int
 
 	effect    func()
 	effectOff func()
 }
 
-func NewHook(executions int, length string, interval string, effect func(), effectOff func()) *Hook {
+//NewHook Use -1 for unlimited executions, create a new hook.
+func NewHook(executions int, length string, interval int, effect func(), effectOff func()) *Hook {
 	lengthTime, _ := strconv.Atoi(length)
 	parseLength := time.Duration(lengthTime) * time.Second
-	parseInterval, _ := time.ParseDuration(interval)
 	return &Hook{ executions,
 		time.Now(),
 		parseLength,
 		time.Now(),
-		parseInterval,
+		interval,
 		effect,
 		effectOff}
 }
@@ -33,6 +33,9 @@ func NewHook(executions int, length string, interval string, effect func(), effe
 func (s *Hook) RunHook(){
 	s.effect()
 	s.lastTrigger = time.Now()
+	if s.remainingExecutions >= 1 {
+		s.remainingExecutions -= 1
+	}
 }
 
 func (s *Hook) Reset(t time.Duration) {
@@ -46,6 +49,5 @@ func (s *Hook) TimeRemaining() float64 {
 }
 
 func (s *Hook) LastTriggerInterval() float64 {
-	calc := s.interval - (time.Now().Sub(s.lastTrigger))
-	return calc.Minutes()
+	return float64(s.interval) - time.Now().Sub(s.lastTrigger).Minutes()
 }

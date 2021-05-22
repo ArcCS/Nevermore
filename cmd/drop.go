@@ -42,6 +42,7 @@ func (drop) process(s *state) {
 		return
 	}
 
+	s.actor.RunHook("act")
 	where := s.where.Items
 
 	s.actor.Inventory.Lock()

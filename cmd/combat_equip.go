@@ -34,6 +34,7 @@ func (equip) process(s *state) {
 
 	what := s.actor.Inventory.Search(name, nameNum)
 	if what != nil {
+		s.actor.RunHook("combat")
 		if utils.IntIn(what.ItemType, []int{0, 1, 2, 3, 4}) &&
 			!s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			if !config.CanWield(s.actor.Tier, s.actor.Class, utils.RollMax(what.SidesDice, what.NumDice, what.PlusDice)) {

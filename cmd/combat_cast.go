@@ -52,6 +52,8 @@ func (cast) process(s *state) {
 			return
 		}
 
+		s.actor.RunHook("combat")
+
 		// Try Mobs First
 		var whatMob *objects.Mob
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {

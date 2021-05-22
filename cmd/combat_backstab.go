@@ -41,6 +41,8 @@ func (backstab) process(s *state) {
 		return
 	}
 
+	s.actor.RunHook("combat")
+
 	name := s.input[0]
 	nameNum := 1
 

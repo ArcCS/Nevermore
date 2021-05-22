@@ -80,6 +80,8 @@ func (put) process(s *state) {
 		return
 	}
 
+	s.actor.RunHook("act")
+
 	s.actor.Inventory.Lock()
 	where.Storage.Lock()
 	s.actor.Inventory.Remove(target)

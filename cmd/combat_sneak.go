@@ -13,6 +13,7 @@ type sneak cmd
 
 func (sneak) process(s *state) {
 	//TODO Finish sneak
+	s.actor.RunHook("sneak")
 	s.msg.Actor.SendInfo("Where ya sneakin'??")
 	s.ok = true
 }

@@ -79,6 +79,7 @@ func (godir) process(s *state) {
 		}
 	}
 	if toE, ok := from.Exits[exitTxt]; ok {
+		s.actor.RunHook("move")
 		// Check that the room ID exists
 		if to, ok := objects.Rooms[toE.ToId]; ok {
 			// Apply a lock

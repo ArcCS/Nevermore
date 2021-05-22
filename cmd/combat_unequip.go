@@ -30,6 +30,7 @@ func (unequip) process(s *state) {
 	}
 
 	*/
+	s.actor.RunHook("combat")
 	_, what := s.actor.Equipment.Unequip(name)
 	if what != nil {
 		s.actor.Inventory.Lock()

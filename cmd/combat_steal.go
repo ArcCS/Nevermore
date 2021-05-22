@@ -44,6 +44,7 @@ func (steal) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, false)
 	if whatMob != nil {
+		s.actor.RunHook("steal")
 		inv := whatMob.Inventory.List()
 		s.msg.Actor.SendInfo("In their inventory:")
 		if len(inv) == 0 {

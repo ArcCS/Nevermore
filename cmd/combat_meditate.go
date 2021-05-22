@@ -29,7 +29,7 @@ func (meditate) process(s *state) {
 			return
 		}
 	}
-	ready, msg := s.actor.TimerReady("combat_berserk")
+	ready, msg := s.actor.TimerReady("combat_meditate")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
 		return

@@ -22,7 +22,7 @@ type slam cmd
 func (slam) process(s *state) {
 	//TODO: Finish Shield Slam
 	if len(s.input) < 1 {
-		s.msg.Actor.SendBad("Bash what exactly?")
+		s.msg.Actor.SendBad("Slam what exactly?")
 		return
 	}
 	if s.actor.Tier < 5 {
@@ -54,7 +54,7 @@ func (slam) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, true)
 	if whatMob != nil {
-
+		s.actor.RunHook("combat")
 		// Shortcut a missing weapon:
 		if s.actor.Equipment.Main == nil {
 			s.msg.Actor.SendBad("You have no weapon to attack with.")

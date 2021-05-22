@@ -30,7 +30,7 @@ func (snipe) process(s *state) {
 		return
 	}
 	// Check some timers
-	ready, msg := s.actor.TimerReady("combat_bash")
+	ready, msg := s.actor.TimerReady("combat_snipe")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
 		return
@@ -55,6 +55,7 @@ func (snipe) process(s *state) {
 	whatMob = s.where.Mobs.Search(name, nameNum, true)
 	if whatMob != nil {
 
+		s.actor.RunHook("combat")
 		// Shortcut a missing weapon:
 		if s.actor.Equipment.Main == nil {
 			s.msg.Actor.SendBad("You have no weapon to attack with.")

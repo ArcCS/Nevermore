@@ -9,6 +9,7 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"io"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -143,7 +144,14 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				4: {int(charData["missileexp"].(int64))}},
 			nil,
 			make(chan bool),
-			make(map[string]map[string]*Hook),
+			map[string]map[string]*Hook{
+				"act": make(map[string]*Hook),
+				"combat": make(map[string]*Hook),
+				"peek": make(map[string]*Hook),
+				"gridmove": make(map[string]*Hook),
+				"move": make(map[string]*Hook),
+				"say": make(map[string]*Hook),
+			},
 			time.Now(),
 		}
 
@@ -360,44 +368,48 @@ func (c *Character) RemoveEffect(effectName string) {
 	delete(c.Effects, effectName)
 }
 
-func (c *Character) ApplyHook(effectName string, hook string, length string, interval string, effect func(), effectOff func()) {
-	c.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
-	effect()
+func (c *Character) ApplyHook(hook string, hookName string, executions int, length string, interval int, effect func(), effectOff func()) {
+	c.Hooks[hook][hookName] = NewHook(executions, length, interval, effect, effectOff)
 }
 
 func (c *Character) RemoveHook(hook string, hookName string) {
 	c.Hooks[hook][hookName].effectOff()
-	delete(c.Hooks[hook], hookName)
+	valPresent := false
+	for k, _ := range c.Hooks{
+		valPresent = false
+		for hName, _ := range c.Hooks[k] {
+			if hName == hookName {
+				valPresent = true
+			}
+		}
+		if valPresent {
+			delete(c.Hooks[k], hookName)
+		}
+	}
 }
 
 func (c *Character) RunHook(hook string){
-	/* Hook List
-	 onaction
-	 onmove
-	 onattack
-	 onget
-	 onreset
-	 oncleanup
-	 veto
-	 */
 	for name, hookInstance := range c.Hooks[hook] {
 		// Process Removing the hook
+		if hookInstance.TimeRemaining() == 0 {
+			c.RemoveHook(hook, name)
+			continue
+		}
 		if hookInstance.interval > 0 {
+			log.Println("Executing Hook", hook)
+			log.Println(hookInstance.LastTriggerInterval())
 			if hookInstance.LastTriggerInterval() <= 0 {
 				hookInstance.RunHook()
 			}
-		}else{
-
-		}
-		if hookInstance.TimeRemaining() <= 0 {
-			c.RemoveHook(hook, name)
-			continue
+		}else if hookInstance.interval == -1 {
+			log.Println("Executing Hook", hook)
+			hookInstance.RunHook()
 		}
 	}
 	return
 }
 
-// Return stam and vital damage
+// ReceiveDamage Return stam and vital damage
 func (c *Character) ReceiveDamage(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
 	resist := int(math.Ceil(float64(damage) * (float64(c.Equipment.Armor/config.ArmorReductionPoints) * config.ArmorReduction)))

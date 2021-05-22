@@ -13,5 +13,5 @@ type whisper cmd
 
 func (whisper) process(s *state) {
 	s.msg.Actor.SendInfo("WIP, coming soon.")
-
+	//TODO Need to do the whispering
 }

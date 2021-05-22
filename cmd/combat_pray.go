@@ -18,18 +18,18 @@ type pray cmd
 func (pray) process(s *state) {
 	//TODO: Finish Pray
 	// Check some timers
-	if s.actor.Tier < 10 {
+	if s.actor.Tier < 5 {
 		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
 		return
 	}
-	berz, ok := s.actor.Flags["berserk"]
+	berz, ok := s.actor.Flags["pray"]
 	if ok {
 		if berz {
-			s.msg.Actor.SendBad("You're already in the grips of the red rage!")
+			s.msg.Actor.SendBad("You are already overflowing with faith.'")
 			return
 		}
 	}
-	ready, msg := s.actor.TimerReady("combat_berserk")
+	ready, msg := s.actor.TimerReady("combat_pray")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
 		return
@@ -39,6 +39,8 @@ func (pray) process(s *state) {
 		s.msg.Actor.SendBad(msg)
 		return
 	}
+
+	s.actor.RunHook("combat")
 
 	s.actor.ApplyEffect("berserk", "60", "0",
 		func() {

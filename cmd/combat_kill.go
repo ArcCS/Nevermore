@@ -43,6 +43,7 @@ func (kill) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, true)
 	if whatMob != nil {
+
 		// This is an override for a GM to delete a mob
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendInfo("You smashed ", whatMob.Name, " out of existence.")
@@ -50,6 +51,8 @@ func (kill) process(s *state) {
 			whatMob = nil
 			return
 		}
+
+		s.actor.RunHook("combat")
 
 		// Shortcut a missing weapon:
 		if s.actor.Equipment.Main == (*objects.Item)(nil) && s.actor.Class != 8 {

@@ -39,6 +39,8 @@ func (berserk) process(s *state) {
 		return
 	}
 
+	s.actor.RunHook("combat")
+
 	s.actor.ApplyEffect("berserk", "60", "0",
 		func() {
 			s.actor.ToggleFlagAndMsg("berserk", text.Red+"The red rage grips you!!!\n")
