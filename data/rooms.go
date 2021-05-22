@@ -63,7 +63,10 @@ func LoadRoom(room_id int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	data, err := execRead("MATCH (r:room {room_id: $room_id}) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
 		`{room_id: r.room_id, creator: r.creator, name: r.name, description: r.description, encounter_rate: r.encounter_rate, 
-	encounters: collect({chance: s.change, mob_id: m.mob_id}), exits: collect({direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
+	encounters: collect({chance: s.change, mob_id: m.mob_id}),
+	mobs: "",
+	inventory: "",
+	exits: collect({direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
 	flags:{closeable: e.closeable,
 	closed: e.closed,
 	autoclose: e.autoclose,

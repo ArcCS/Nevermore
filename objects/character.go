@@ -25,6 +25,7 @@ type Character struct {
 	Inventory  *ItemInventory
 	Permission permissions.Permissions
 
+	// Invisible, Hidden, Resists, OOC, AFK
 	Flags         map[string]bool
 	Effects       map[string]*Effect
 	HiddenEffects map[string]*Effect
@@ -80,6 +81,7 @@ type Character struct {
 	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
 	Hooks map[string]map[string]*Hook
+	LastAction time.Time
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -142,6 +144,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			nil,
 			make(chan bool),
 			make(map[string]map[string]*Hook),
+			time.Now(),
 		}
 
 		for k, v := range charData["flags"].(map[string]interface{}) {

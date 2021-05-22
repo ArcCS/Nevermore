@@ -336,6 +336,7 @@ func (m *Mob) DropInventory() string {
 		}
 	}
 	if m.Gold > 0 {
+		// TODO: Variable drop rate for gold here
 		newGold := Item{}
 		copier.Copy(&newGold, Items[3456])
 		newGold.Name = strconv.Itoa(m.Gold) + " gold pieces"

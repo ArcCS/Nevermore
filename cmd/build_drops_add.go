@@ -39,6 +39,7 @@ func (adddrop) process(s *state) {
 		log.Println(err3)
 	}
 
+	// TODO: Add a limit of 10 items to a drop table.
 	if _, ok := objects.Mobs[mob_id]; ok {
 		if _, ok := objects.Items[item_id]; ok {
 			if drop_rate <= 100 {

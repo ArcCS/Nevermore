@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/spells"
 	"github.com/ArcCS/Nevermore/stats"
@@ -16,9 +17,6 @@ func init() {
 		"Rooms: you must be in the room you wish to edit name not required\n"+
 		"Exits:  it must be already created in the room you are standing in \n"+
 		"Items: You must edit the item in your inventory.\n"+
-		"  -->  If you wish to save it as the template for that item, use the 'savetemplate item' command\n"+
-		"Mob: You must summon the mob into the room you are in to edit it. \n"+
-		"  -->  If you wish to save it as the template for that item, use the 'savetemplate mob' command\n\n"+
 		"Change value:   edit room description Here is a new description \n\n"+
 		"Toggle flag(s):   edit exit north toggle unpickable closed hidden\n",
 		permissions.Builder,
@@ -28,7 +26,7 @@ func init() {
 type edit cmd
 
 func (edit) process(s *state) {
-	// Check arguements
+	// Check arguments
 	if len(s.words) < 3 {
 		s.msg.Actor.SendInfo("Edit what, how?")
 		return
@@ -206,6 +204,7 @@ func (edit) process(s *state) {
 				}
 			}
 			item.Save()
+			objects.Items[item.ItemId], _ = objects.LoadItem(data.LoadItem(item.ItemId))
 		} else {
 			s.msg.Actor.SendBad("Item not found.")
 		}
@@ -318,6 +317,7 @@ func (edit) process(s *state) {
 				}
 			}
 			mob.Save()
+			objects.Mobs[mob.MobId], _ = objects.LoadMob(data.LoadMob(mob.MobId))
 		} else {
 			s.msg.Actor.SendBad("Mob not found.")
 		}
