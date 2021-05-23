@@ -22,6 +22,11 @@ var CombatModifiers = map[string]int{
 
 //Thief
 var HideChance = 15
+var SneakChance = 15
+var StealChance = 15
+var HideChancePerPoint = 3
+var SneakChancePerPoint = 2
+var StealChancePerPoint = 2
 
 // Monk
 var TodMax = .5

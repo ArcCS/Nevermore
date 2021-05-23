@@ -30,7 +30,7 @@ func (hide) process(s *state) {
 		return
 	}
 
-	s.actor.SetTimer("combat", config.CombatCooldown)
+	s.actor.SetTimer("global", config.CombatCooldown)
 
 	// base chance is 15% to hide
 	curChance := config.HideChance

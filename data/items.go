@@ -190,7 +190,7 @@ func CreateDrop(dropData map[string]interface{}) bool {
 		"MATCH (m:mob), (i:item) WHERE "+
 			"i.item_id = $itemId AND m.mob_id = $mobId "+
 			`CREATE (m)-[d:drops]->(i) SET 
-	s.chance=$chance`,
+	d.chance=$chance`,
 		map[string]interface{}{
 			"mobId":  dropData["mobId"],
 			"itemId": dropData["itemId"],
@@ -212,7 +212,7 @@ func UpdateDrop(mobData map[string]interface{}) bool {
 	results, err := execWrite(
 		"MATCH (m:mob)-[d:drops]->(i:item) WHERE "+
 			"m.mob_id=$mob_id AND i.item_id=$item_id SET "+
-			`s.chance=$chance`,
+			`d.chance=$chance`,
 		map[string]interface{}{
 			"item_id": mobData["item_id"],
 			"mob_id":  mobData["mob_id"],

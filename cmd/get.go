@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
-	"log"
 	"strconv"
 )
 
@@ -78,7 +77,7 @@ func (get) process(s *state) {
 
 	// Try to find the where if it's not the room
 	if whereStr != "" {
-		log.Println("Looking elsewhere for ", targetStr)
+		//log.Println("Looking elsewhere for ", targetStr)
 		where := s.where.Items.Search(whereStr, whereNum)
 		if where != nil && where.ItemType == 9 {
 			whereInventory := where.Storage.Search(targetStr, targetNum)
