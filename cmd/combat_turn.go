@@ -11,7 +11,7 @@ func init() {
 	addHandler(turn{},
 		"Usage:  turn target # \n\n Channel the power of your faith into an undead target, instilling"+
 			"fear and potentially destroying them completely.",
-		permissions.Cleric&permissions.Paladin,
+		permissions.Cleric|permissions.Paladin,
 		"turn")
 }
 

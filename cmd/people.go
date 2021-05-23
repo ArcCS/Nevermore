@@ -18,6 +18,7 @@ func init() {
 type people cmd
 
 func (people) process(s *state) {
+	//TODO This should list some health and stuff
 	var others []string
 	// Pick whether it's a GM or a user looking and go for it.
 	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {

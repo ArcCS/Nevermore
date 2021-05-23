@@ -11,7 +11,7 @@ import (
 func init() {
 	addHandler(sneak{},
 		"Usage:  sneak (ExitName) # \n\n Attempt to sneak into another area",
-		permissions.Thief&permissions.Ranger&permissions.Monk,
+		permissions.Thief|permissions.Ranger|permissions.Monk,
 		"sneak")
 }
 

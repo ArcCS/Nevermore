@@ -52,3 +52,14 @@ func CalcMana(tier int, intel int, class int) int {
 	}
 	return (tier * Classes[AvailableClasses[class]].Mana) + (tier * ((intel / IntManaPoolDiv) * IntManaPool))
 }
+
+func CalcHaste(tier int) int {
+	if tier < 10 {
+		return 2
+	}else if tier >=10 && tier < 15 {
+		return 3
+	}else if tier > 15 {
+		return 4
+	}
+	return 0
+}

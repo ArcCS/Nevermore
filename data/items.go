@@ -285,3 +285,24 @@ func SearchItemDesc(searchStr string, skip int) []interface{} {
 	}
 	return searchList
 }
+
+func SearchItemMaxDamage(searchStr string, skip int) []interface{} {
+	results, err := execRead("MATCH (i:item) WHERE i.ndice*i.sdice+i.pdice <= toInteger($search) and i.type <=4 RETURN {name:i.name, type:i.type, item_id: i.item_id, max_damage: i.ndice*i.sdice+i.pdice}  SKIP $skip LIMIT $limit",
+		map[string]interface{}{
+			"search": searchStr,
+			"skip":   skip,
+			"limit":  config.Server.SearchResults,
+		},
+	)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	searchList := make([]interface{}, len(results))
+	for _, row := range results {
+		searchList = append(searchList, row.Values[0].(map[string]interface{}))
+	}
+	return searchList
+}
+
+

@@ -7,7 +7,7 @@ import (
 
 func init() {
 	addHandler(haste{},
-		"Usage:  haste \n\n Hasten your actions temporarily",
+		"Usage:  haste \n\n Hasten your actions temporarily increasing your dex and your combat actions",
 		permissions.Ranger,
 		"haste")
 }
@@ -15,14 +15,14 @@ func init() {
 type haste cmd
 
 func (haste) process(s *state) {
-	if s.actor.Tier < 10 {
+	if s.actor.Tier < 5 {
 		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
 		return
 	}
-	berz, ok := s.actor.Flags["haste"]
+	haste, ok := s.actor.Flags["haste"]
 	if ok {
-		if berz {
-			s.msg.Actor.SendBad("You've already hastened your actions!!")
+		if haste {
+			s.msg.Actor.SendBad("You're already moving quickly!")
 			return
 		}
 	}
@@ -47,7 +47,7 @@ func (haste) process(s *state) {
 			s.actor.Dex.Current -= 5
 		})
 	s.msg.Observers.SendInfo(s.actor.Name + " begins moving faster!")
-	s.actor.SetTimer("combat_berserk", 60*10)
+	s.actor.SetTimer("combat_haste", 60*10)
 
 	s.ok = true
 }

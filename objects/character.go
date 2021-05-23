@@ -186,6 +186,14 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 }
 
 func (c *Character) SetTimer(timer string, seconds int) {
+	if timer == "combat" {
+		if hasted, ok := c.Flags["haste"]; ok {
+			if hasted {
+				c.Timers[timer] = time.Now().Add(time.Duration(seconds - config.CalcHaste(c.Tier)) * time.Second)
+				return
+			}
+		}
+	}
 	c.Timers[timer] = time.Now().Add(time.Duration(seconds) * time.Second)
 }
 

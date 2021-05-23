@@ -10,7 +10,7 @@ import (
 
 func init() {
 	addHandler(find{},
-		"Usage:  find (room|mob|item) name|desc (text) (page #) \n \n Use this command to search the database and find a list of matching items",
+		"Usage:  find (room|mob|item) name|desc (text) (page #) \n \n Use this command to search the database and find a list of matching items \n Items can also be replace name or desc with maxdam example: \n find item maxdam 25 \n To find a weapon with a maximum damage associated with it. ",
 		permissions.Player,
 		"find")
 }
@@ -112,6 +112,18 @@ func (find) process(s *state) {
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
 			s.actor.AddCommands("more", "find item desc "+searchText+" "+strconv.Itoa(searchPage+1))
+			return
+		} else if searchType == "maxdam" {
+			results := data.SearchItemMaxDamage(searchText, config.Server.SearchResults*searchPage)
+			s.msg.Actor.SendGood("===== Search Results =====")
+			for _, item := range results {
+				if item != nil {
+					itemData := item.(map[string]interface{})
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["item_id"].(int64))) + ")(" + config.ItemTypes[int(itemData["type"].(int64))] + ") " + itemData["name"].(string) + " Max Damage: " + strconv.Itoa(int(itemData["max_damage"].(int64))))
+				}
+			}
+			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
+			s.actor.AddCommands("more", "find item maxdam "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else {
 			s.msg.Actor.SendBad("Search which field?")
