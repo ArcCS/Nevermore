@@ -5,7 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 )
 
 func init() {
@@ -48,48 +47,50 @@ func (hide) process(s *state) {
 			func(){
 				s.actor.Flags["hidden"] = false
 				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
+				s.actor.RemoveHook("act", "hide")
 				return
 			},
 			func(){
 				s.actor.Flags["hidden"] = false
-				s.actor.RemoveHook("act", "hide")
 			},
 		)
 		s.actor.ApplyHook("say", "hide", -1, "10", -1,
 			func(){
 				s.actor.Flags["hidden"] = false
 				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
+				s.actor.RemoveHook("say", "hide")
 				return
 			},
 			func(){
 				s.actor.Flags["hidden"] = false
-				s.actor.RemoveHook("say", "hide")
+				return
 			},
 		)
 		s.actor.ApplyHook("combat", "hide", -1, "10", -1,
 			func(){
 				s.actor.Flags["hidden"] = false
 				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
+				s.actor.RemoveHook("combat", "hide")
 				return
 			},
 			func(){
 				s.actor.Flags["hidden"] = false
-				s.actor.RemoveHook("combat", "hide")
+				return
 			},
 			)
 		s.actor.ApplyHook("move", "hide", -1, "10", -1,
 			func(){
 				s.actor.Flags["hidden"] = false
+				s.actor.RemoveHook("move", "hide")
 				return
 			},
 			func(){
-				s.actor.RemoveHook("move", "hide")
+				s.actor.Flags["hidden"] = false
 				return
 			},
 		)
 		s.actor.ApplyHook("gridmove", "hide", -1, "10", -1,
 			func(){
-				log.Println("Executing hook..")
 				// base chance is 15% to hide
 				curChance := config.HideChance
 
@@ -101,6 +102,7 @@ func (hide) process(s *state) {
 				if utils.Roll(100, 1, 0) >= curChance {
 					s.actor.Flags["hidden"] = false
 					s.actor.Write([]byte(text.Bad + "You stumble out of the shadows while changing your position." + text.Reset + "\n"))
+					s.actor.RemoveHook("gridmove", "hide")
 					return
 				}else {
 					s.actor.Write([]byte(text.Good + "You stay in the shadows while moving." + text.Reset + "\n"))
@@ -108,7 +110,7 @@ func (hide) process(s *state) {
 				}
 			},
 			func(){
-				s.actor.RemoveHook("gridmove", "hide")
+				s.actor.Flags["hidden"] = false
 				return
 			},
 		)
