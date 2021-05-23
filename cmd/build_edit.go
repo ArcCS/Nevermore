@@ -37,6 +37,7 @@ func (edit) process(s *state) {
 	// Handle Rooms
 	case "room":
 		// Toggle Flags
+		s.where.LastPerson()
 		if strings.ToLower(s.words[1]) == "toggle" {
 			for _, flag := range s.input[2:] {
 				if (s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster)) || flag != "active" {
@@ -62,6 +63,7 @@ func (edit) process(s *state) {
 			}
 		}
 		s.where.Save()
+		s.where.FirstPerson()
 		return
 
 	// Handle Exits

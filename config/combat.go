@@ -24,9 +24,14 @@ var CombatModifiers = map[string]int{
 var HideChance = 15
 var SneakChance = 15
 var StealChance = 15
+var BackStabChance = 15
 var HideChancePerPoint = 3
 var SneakChancePerPoint = 2
 var StealChancePerPoint = 2
+var BackStabChancePerPoint = 2
+
+var MobBSRevengeVitalChance = 10
+var VitalStrikeScale = 2
 
 // Monk
 var TodMax = .5

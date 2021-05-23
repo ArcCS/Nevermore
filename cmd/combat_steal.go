@@ -24,8 +24,13 @@ func (steal) process(s *state) {
 		return
 	}
 
-	if len(s.words) == 0 {
-		s.msg.Actor.SendInfo("You go to get.. uh??")
+	if s.actor.Flags["hidden"] != true {
+		s.msg.Actor.SendBad("You can't steal while standing out in the open.")
+		return
+	}
+
+	if s.actor.Tier < 7 {
+		s.msg.Actor.SendBad("You must be level 5 before you can steal.")
 		return
 	}
 
@@ -67,8 +72,10 @@ func (steal) process(s *state) {
 			return
 		}
 
-
-
+		if len(whatMob.ThreatTable) > 0 && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			s.msg.Actor.SendBad("This mob is already in combat, you can't get a clear access to steal from it!")
+			return
+		}
 
 		what := whatMob.Inventory.Search(nameStr, nameNum)
 		if what != nil {
@@ -90,7 +97,7 @@ func (steal) process(s *state) {
 					s.actor.Inventory.Add(what)
 					whatMob.Inventory.Unlock()
 					s.actor.Inventory.Unlock()
-					s.msg.Actor.SendGood("You steal: ", what.Name, " from ", whatMob.Name, ".")
+					s.msg.Actor.SendGood("You steal a ", what.Name, " from ", whatMob.Name, ".")
 					return
 				}else{
 					s.msg.Actor.SendBad("You failed to steal from", whatMob.Name, ", they are now angry at you.")

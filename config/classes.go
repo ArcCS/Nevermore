@@ -9,7 +9,7 @@ var StartingGear = make(map[int][]int, 9)
 func init() {
 	AvailableClasses[0] = "fighter"
 	AvailableClasses[1] = "barbarian"
-	//AvailableClasses[2] = "thief"
+	AvailableClasses[2] = "thief"
 	//AvailableClasses[3] = "ranger"
 	//AvailableClasses[4] = "mage"
 	//AvailableClasses[5] = "cleric"
@@ -19,16 +19,17 @@ func init() {
 
 	ClassPerms[0] = permissions.Fighter
 	ClassPerms[1] = permissions.Barbarian
-	//ClassPerms[2] = "thief"
-	//ClassPerms[3] = "ranger"
-	//ClassPerms[4] = "mage"
-	//ClassPerms[5] = "cleric"
-	//ClassPerms[6] = "paladin"
-	//ClassPerms[7] = "bard"
-	//ClassPerms[8] = "monk"
+	ClassPerms[2] = permissions.Thief
+	//ClassPerms[3] = permissions.Ranger
+	//ClassPerms[4] = permissions.Mage
+	//ClassPerms[5] = permissions.Cleric
+	//ClassPerms[6] = permissions.Paladin
+	//ClassPerms[7] = permissions.Bard
+	//ClassPerms[8] = permissions.Monk
 
 	StartingGear[0] = []int{2628, 1088}
 	StartingGear[1] = []int{2628, 1088}
+	StartingGear[2] = []int{2628, 1088}
 }
 
 type classDef struct {
