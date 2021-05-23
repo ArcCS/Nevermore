@@ -305,7 +305,7 @@ func UpdateEncounter(mobData map[string]interface{}) bool {
 }
 
 func DeleteEncounter(mobId int, roomId int) bool {
-	results, err := execWrite("MATCH (r:room)-[s:spawns]->(m:mob) WHERE r.room_id=$room_id AND s.mob_id=$mob_id DELETE s",
+	results, err := execWrite("MATCH (r:room)-[s:spawns]->(m:mob) WHERE r.room_id=$room_id AND m.mob_id=$mob_id DELETE s",
 		map[string]interface{}{
 			"room_id": roomId,
 			"mob_id":  mobId,
