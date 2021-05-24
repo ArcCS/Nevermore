@@ -1,11 +1,24 @@
 package spells
 
-import "strconv"
+import (
+	"github.com/ArcCS/Nevermore/objects"
+	"log"
+	"reflect"
+	"strconv"
+)
+
+var (
+	teleportTable = []int{117}
+	defaultDuration = 600
+)
 
 type mobnpcspells interface {
 	ChangePlacement(place int) bool
 	ApplyEffect(effectname string, length string, interval string, effect func(), effectoff func())
 	RemoveEffect(effectname string)
+	//ApplyHook
+	//RemoveHook
+	//RunHook
 	ReceiveDamage(damage int) (int, int)
 	ReceiveVitalDamage(damage int) int
 	Heal(damage int) (int, int)
@@ -13,9 +26,12 @@ type mobnpcspells interface {
 	HealStam(damage int)
 	RestoreMana(damage int)
 	GetSpellMultiplier() float32
+	GetInt() int
+	ToggleFlag(flagName string) bool
+	ToggleFlagAndMsg(flagName string, msg string)
 }
 
-var Effects = map[string]func(caller mobnpcspells, target mobnpcspells, modifier int) string{
+var CharEffects = map[string]func(caller mobnpcspells, target mobnpcspells, modifier int) string{
 	"heal-stam":        healstam,
 	"heal-vit":         healvit,
 	"heal":             heal,
@@ -58,6 +74,73 @@ var Effects = map[string]func(caller mobnpcspells, target mobnpcspells, modifier
 	"dodge":            dodge,
 	"resist-acid":      resistacid,
 	"embolden":         embolden,
+}
+
+var MobEffects = map[string]func(caller mobnpcspells, target mobnpcspells, modifier int) string{
+	"heal-stam":        mobhealstam,
+	"heal-vit":         mobhealvit,
+	"heal":             mobheal,
+	"heal-all":         mobhealall,
+	"fire-damage":      mobfiredamage,
+	"earth-damage":     mobearthdamage,
+	"air-damage":       mobairdamage,
+	"water-damage":     mobwaterdamage,
+	"light":            moblight,
+	"curepoison":       mobcurepoison,
+	"bless":            mobbless,
+	"protection":       mobprotection,
+	"invisibility":     mobinvisibility,
+	"detect-invisible": mobdetectinvisible,
+	"teleport":         mobteleport,
+	"stun":             mobstun,
+	"enchant":          mobenchant,
+	"recall":           mobrecall,
+	"summon":           mobsummon,
+	"wizard-walk":      mobwizardwalk,
+	"levitate":         moblevitate,
+	"resist-fire":      mobresistfire,
+	"resist-magic":     mobresistmagic,
+	"remove-curse":     mobremovecurse,
+	"resist-air":       mobresistair,
+	"resist-water":     mobresistwater,
+	"resist-earth":     mobresistearth,
+	"clairvoyance":     mobclairvoyance,
+	"remove-disease":   mobremovedisease,
+	"cure-blindness":   mobcureblindness,
+	"polymorph":        mobpolymorph,
+	"attraction":       mobattraction,
+	"inertial-barrier": mobinertialbarrier,
+	"surge":            mobsurge,
+	"resist-poison":    mobresistpoison,
+	"resilient-aura":   mobresilientaura,
+	"resist-disease":   mobresistdisease,
+	"disrupt-magic":    mobdisruptmagic,
+	"reflection":       mobreflection,
+	"dodge":            mobdodge,
+	"resist-acid":      mobresistacid,
+	"embolden":         mobembolden,
+}
+
+/*
+A robust casting system requires multiple entry and pass around points for casting on mobs and players
+as they are technically handled differently.  It's easier to redirect and cast, and then as needed
+create a spell invocation for both target types
+ */
+
+func MobCast(caller objects.Mob, target interface{}, spell string, modifiers map[string]int) {
+
+}
+
+func PlayerCast(caller objects.Character, target interface{}, spell string, modifiers map[string]int) {
+
+}
+
+func TargetPlayer(target objects.Character, spell string, modifiers map[string]int) {
+
+}
+
+func TargetMob(target objects.Mob, spell string, modifiers map[string]int) {
+
 }
 
 func healstam(caller mobnpcspells, target mobnpcspells, modifier int) string {
@@ -179,7 +262,10 @@ func waterdamage(caller mobnpcspells, target mobnpcspells, modifier int) string 
 	return "Your spell struck for " + strconv.Itoa(damage)
 }
 
-func light(caller mobnpcspells, target mobnpcspells, modifier int) string { return "" }
+func light(caller mobnpcspells, target mobnpcspells, modifier int) string {
+	log.Println(reflect.TypeOf(caller))
+	return "true"
+}
 
 func curepoison(caller mobnpcspells, target mobnpcspells, modifier int) string { return "" }
 
@@ -245,4 +331,7 @@ func dodge(caller mobnpcspells, target mobnpcspells, modifier int) string { retu
 
 func resistacid(caller mobnpcspells, target mobnpcspells, modifier int) string { return "" }
 
-func embolden(caller mobnpcspells, target mobnpcspells, modifier int) string { return "" }
+func embolden(caller mobnpcspells, target mobnpcspells, modifier int) string {
+	target.RemoveEffect("fear")
+	return "true"
+}

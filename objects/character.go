@@ -197,6 +197,10 @@ func (c *Character) SetTimer(timer string, seconds int) {
 	c.Timers[timer] = time.Now().Add(time.Duration(seconds) * time.Second)
 }
 
+func (c *Character) GetInt() int {
+	return c.Int.Current
+}
+
 func (c *Character) TimerReady(timer string) (bool, string) {
 	// Always check Global:
 	remaining := int(c.Timers["global"].Sub(time.Now()) / time.Second)

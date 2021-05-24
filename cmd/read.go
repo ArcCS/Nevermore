@@ -6,7 +6,7 @@ func init() {
 	addHandler(read{},
 		"Usage:  read item_name # \n \n Read the specified scroll into your spellbook",
 		permissions.Player,
-		"READ")
+		"READ", "STUDY")
 }
 
 type read cmd
@@ -26,19 +26,19 @@ func (read) process(s *state) {
 
 	// Was item to read found?
 	if what == nil {
-		s.msg.Actor.SendBad("You have no '", name, "' to read.")
+		s.msg.Actor.SendBad("You couldn't find anything like that to study.")
 		return
+	}else{
+		if what.ItemType == 7 {
+			s.msg.Actor.SendGood("You study ", what.Name, " and learn the spell " + what.Spell)
+			s.actor.Spells = append(s.actor.Spells, what.Spell)
+			s.msg.Observers.SendInfo("You see ", s.actor.Name, " study a ", name, ".")
+			s.msg.Actor.SendInfo("The " + what.Name + "disintegrates.")
+			return
+		}else{
+			s.msg.Actor.SendBad("That's not a scroll.")
+		}
 	}
-
-	// Get item's proper name
-	name = what.Name
-
-	// Make sure that this is a scroll
-
-	s.msg.Actor.Send("You study ", name, " and learn ")
-
-	who := s.actor.Name
-	s.msg.Observers.SendInfo("You see ", who, " read ", name, ".")
 
 	s.ok = true
 }

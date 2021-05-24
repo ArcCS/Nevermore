@@ -22,6 +22,7 @@ type Mob struct {
 	ItemList  map[int]int
 	Flags     map[string]bool
 	Effects   map[string]*Effect
+	Hooks map[string]map[string]*Hook
 
 	// ParentId is the room id for the room
 	ParentId   int
@@ -87,6 +88,14 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		make(map[int]int),
 		make(map[string]bool),
 		make(map[string]*Effect),
+		map[string]map[string]*Hook{
+			"act": make(map[string]*Hook),
+			"combat": make(map[string]*Hook),
+			"peek": make(map[string]*Hook),
+			"gridmove": make(map[string]*Hook),
+			"move": make(map[string]*Hook),
+			"say": make(map[string]*Hook),
+		},
 		-1,
 		int(mobData["gold"].(int64)),
 		int(mobData["experience"].(int64)),
@@ -372,6 +381,52 @@ func (m *Mob) RemoveEffect(effectName string) {
 	delete(m.Effects, effectName)
 }
 
+
+func (m *Mob) ApplyHook(hook string, hookName string, executions int, length string, interval int, effect func(), effectOff func()) {
+	m.Hooks[hook][hookName] = NewHook(executions, length, interval, effect, effectOff)
+}
+
+func (m *Mob) RemoveHook(hook string, hookName string) {
+	m.Hooks[hook][hookName].effectOff()
+	valPresent := false
+	for k, _ := range m.Hooks{
+		valPresent = false
+		for hName, _ := range m.Hooks[k] {
+			if hName == hookName {
+				valPresent = true
+			}
+		}
+		if valPresent {
+			delete(m.Hooks[k], hookName)
+		}
+	}
+}
+
+func (m *Mob) RunHook(hook string){
+	for name, hookInstance := range m.Hooks[hook] {
+		// Process Removing the hook
+		if hookInstance.TimeRemaining() == 0 {
+			m.RemoveHook(hook, name)
+			continue
+		}
+		if hookInstance.interval > 0 {
+			log.Println("Executing Hook", hook)
+			log.Println(hookInstance.LastTriggerInterval())
+			if hookInstance.LastTriggerInterval() <= 0 {
+				hookInstance.RunHook()
+			}
+		}else if hookInstance.interval == -1 {
+			log.Println("Executing Hook", hook)
+			hookInstance.RunHook()
+		}
+	}
+	return
+}
+
+func (m *Mob) GetInt() int {
+	return m.Int.Current
+}
+
 func (m *Mob) ToggleFlag(flagName string) bool {
 	if val, exists := m.Flags[flagName]; exists {
 		m.Flags[flagName] = !val
@@ -379,6 +434,15 @@ func (m *Mob) ToggleFlag(flagName string) bool {
 	} else {
 		return false
 	}
+}
+
+func (m *Mob) ToggleFlagAndMsg(flagName string, msg string) {
+	if val, exists := m.Flags[flagName]; exists {
+		m.Flags[flagName] = !val
+	} else {
+		m.Flags[flagName] = true
+	}
+	log.Println(m.Name, " informed: ", msg)
 }
 
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
