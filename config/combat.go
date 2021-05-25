@@ -40,10 +40,17 @@ var TodMax = .5
 var TodFailDamage = .5
 var TodScaleDown = .1
 
-// Paladin
-var TurnMax = .5
-var TurnFailDamage = .5
-var TurnScaleDown = .1
+
+// Paladin/Cleric
+var TurnMax = 50
+var TurnFailDamage = 50
+var TurnScaleDown = 10
+var DisintegrateChance = 5
+var TurnTimer = 300
+
+var SlamTimer = 30
+var ShieldDamage = 10
+var ShieldStun = 2
 
 var CombatCooldown = 8
 

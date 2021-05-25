@@ -17,8 +17,6 @@ func init() {
 		"USE")
 }
 
-//TODO: Map out the use of items and the effect they map to under spells
-
 type use cmd
 
 func (use) process(s *state) {

@@ -5,8 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
-	"github.com/ArcCS/Nevermore/utils"
-	"math"
 	"strconv"
 )
 
@@ -20,17 +18,16 @@ func init() {
 type slam cmd
 
 func (slam) process(s *state) {
-	//TODO: Finish Shield Slam
 	if len(s.input) < 1 {
 		s.msg.Actor.SendBad("Slam what exactly?")
 		return
 	}
 	if s.actor.Tier < 5 {
-		s.msg.Actor.SendBad("You must be at least tier 5 to use this skill.")
+		s.msg.Actor.SendBad("You must be at least tier 10 to use this skill.")
 		return
 	}
 	// Check some timers
-	ready, msg := s.actor.TimerReady("combat_bash")
+	ready, msg := s.actor.TimerReady("combat_shieldslam")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
 		return
@@ -56,14 +53,14 @@ func (slam) process(s *state) {
 	if whatMob != nil {
 		s.actor.RunHook("combat")
 		// Shortcut a missing weapon:
-		if s.actor.Equipment.Main == nil {
-			s.msg.Actor.SendBad("You have no weapon to attack with.")
+		if s.actor.Equipment.Off == nil {
+			s.msg.Actor.SendBad("You have nothing equipped in your offhand!")
 			return
 		}
 
 		// Shortcut weapon not being blunt
-		if s.actor.Equipment.Main.ItemType != 2 {
-			s.msg.Actor.SendBad("You can only bash with a blunt weapon.")
+		if s.actor.Equipment.Off.ItemType != 23 {
+			s.msg.Actor.SendBad("You can only bash with a shield!")
 			return
 		}
 
@@ -73,29 +70,11 @@ func (slam) process(s *state) {
 			return
 		}
 
-		//TODO: Parry/Miss/Resist being bashed?
-
-		// Check the rolls in reverse order from hardest to lowest for bash rolls.
-		damageModifier := 1
-		stunModifier := 1
-		if utils.Roll(config.ThunkRoll, 1, 0) == 1 { // Thunk
-			damageModifier = config.CombatModifiers["thunk"]
-			s.msg.Actor.SendGood("Thunk!!")
-		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Crushing
-			damageModifier = config.CombatModifiers["crushing"]
-			s.msg.Actor.SendGood("Craaackk!!")
-		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Thwomp
-			damageModifier = config.CombatModifiers["thwomp"]
-			s.msg.Actor.SendGood("Thwomp!!")
-		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Thump
-			stunModifier = 2
-			s.msg.Actor.SendGood("Thump!!")
-		}
-		whatMob.MobStunned = config.BashStuns * stunModifier
-		actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
+		actualDamage, _ := whatMob.ReceiveDamage(int(s.actor.GetStat("str")*config.ShieldDamage))
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor.Name)
-		s.msg.Actor.SendInfo("You bashed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
-		s.msg.Observers.SendInfo(s.actor.Name + " bashes " + whatMob.Name)
+		whatMob.MobStunned += config.ShieldStun*s.actor.GetStat("pie")
+		s.msg.Actor.SendInfo("You slammed the " + whatMob.Name + " with your shield for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
+		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.TextPosPronoun[s.actor.Gender] + " shield into "+ whatMob.Name)
 		if whatMob.Stam.Current <= 0 {
 			s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
 			s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
@@ -110,11 +89,11 @@ func (slam) process(s *state) {
 			objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
 			whatMob = nil
 		}
-		s.actor.SetTimer("combat_bash", config.BashTimer)
+		s.actor.SetTimer("combat_shieldslam", config.SlamTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return
 	}
 
-	s.msg.Actor.SendInfo("Bash what?")
+	s.msg.Actor.SendInfo("Slam what?")
 	s.ok = true
 }

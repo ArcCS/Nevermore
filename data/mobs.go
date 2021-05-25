@@ -37,6 +37,7 @@ func LoadMobs() []interface{} {
 	water_resistance:m.water_resistance, 
 	drops: collect({chance: d.chance, item_id: i.item_id}),
 	flags:{
+	undead: m.undead,
 	hide_encounter: m.hide_encounter, 
 	invisible:m.invisible, 
 	permanent:m.permanent,
@@ -84,6 +85,7 @@ func LoadMob(mobId int) map[string]interface{} {
 	water_resistance:m.water_resistance, 
 	drops: collect({chance: d.chance, item_id: i.item_id}),
 	flags:{
+	undead: m.undead,
 	hide_encounter: m.hide_encounter, 
 	invisible:m.invisible, 
 	permanent:m.permanent,
@@ -131,6 +133,7 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		m.earth_resistance= 0, 
 		m.water_resistance= 0, 
 		m.hide_encounter=  0, 
+		m.undead= 0, 
 		m.invisible= 0, 
 		m.permanent= 0,
 		m.hostile=0`,
@@ -180,6 +183,7 @@ func UpdateMob(mobData map[string]interface{}) bool {
 		m.fire_resistance=$fire_resistance, 
 		m.earth_resistance=$earth_resistance, 
 		m.water_resistance=$water_resistance, 
+		m.undead=$undead,
 		m.hide_encounter=$hide_encounter, 
 		m.invisible=$invisible, 
 		m.permanent=$permanent,
@@ -216,6 +220,7 @@ func UpdateMob(mobData map[string]interface{}) bool {
 			"invisible":           mobData["invisible"],
 			"permanent":           mobData["permanent"],
 			"hostile":             mobData["hostile"],
+			"undead":			   mobData["undead"],
 		},
 	)
 	if err != nil {

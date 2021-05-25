@@ -1,14 +1,13 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/spells"
 )
 
 func init() {
 	addHandler(pray{},
-		"Usage:  pray \n\n Pray to your god and be rewarded for your focus and devotion",
+		"Usage:  pray \n\n Focus your attention on your faith and be overwhelmed with piousness.",
 		permissions.Cleric|permissions.Paladin,
 		"pray")
 }
@@ -16,16 +15,14 @@ func init() {
 type pray cmd
 
 func (pray) process(s *state) {
-	//TODO: Finish Pray
-	// Check some timers
 	if s.actor.Tier < 5 {
 		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
 		return
 	}
-	berz, ok := s.actor.Flags["pray"]
+	haste, ok := s.actor.Flags["pray"]
 	if ok {
-		if berz {
-			s.msg.Actor.SendBad("You are already overflowing with faith.'")
+		if haste {
+			s.msg.Actor.SendBad("You've recently prayed.'")
 			return
 		}
 	}
@@ -40,26 +37,10 @@ func (pray) process(s *state) {
 		return
 	}
 
-	s.actor.RunHook("combat")
-
-	s.actor.ApplyEffect("berserk", "60", "0",
-		func() {
-			s.actor.ToggleFlagAndMsg("pray", "pray", text.Red+"The red rage grips you!!!\n")
-			_, ok := s.actor.Modifiers["base_damage"]
-			if ok {
-				s.actor.Modifiers["base_damage"] += s.actor.Str.Current * config.CombatModifiers["berserk"]
-			} else {
-				s.actor.Modifiers["base_damage"] = s.actor.Str.Current * config.CombatModifiers["berserk"]
-			}
-			s.actor.Str.Current += 5
-		},
-		func() {
-			s.actor.ToggleFlagAndMsg("pray", "pray", text.Cyan+"The tension releases and your rage fades...\n")
-			s.actor.Str.Current -= 5
-			s.actor.Modifiers["base_damage"] -= s.actor.Str.Current * config.CombatModifiers["berserk"]
-		})
-	s.msg.Observers.SendInfo(s.actor.Name + " goes berserk!")
-	s.actor.SetTimer("combat_berserk", 60*10)
+	spells.CharEffects["pray"](s.actor, map[string]interface{}{})
+	s.msg.Observers.SendInfo(s.actor.Name + " prays.")
+	s.actor.SetTimer("combat_pray", 60*10)
 
 	s.ok = true
 }
+

@@ -55,7 +55,6 @@ type Mob struct {
 	EarthResistance int
 
 	//Threat table attacker -> damage
-	//TODO These are crappy short cuts,  we should use a target shim, or direct object pointers
 	TotalThreatDamage int
 	ThreatTable       map[string]int
 	CurrentTarget     string
@@ -528,5 +527,6 @@ func (m *Mob) Save() {
 	mobData["invisible"] = utils.Btoi(m.Flags["invisible"])
 	mobData["permanent"] = utils.Btoi(m.Flags["permanent"])
 	mobData["hostile"] = utils.Btoi(m.Flags["hostile"])
+	mobData["undead"] = utils.Btoi(m.Flags["undead"])
 	data.UpdateMob(mobData)
 }

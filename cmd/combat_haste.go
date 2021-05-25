@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/spells"
 )
 
 func init() {
@@ -37,15 +37,7 @@ func (haste) process(s *state) {
 		return
 	}
 
-	s.actor.ApplyEffect("haste", "60", "0",
-		func() {
-			s.actor.ToggleFlagAndMsg("haste", "haste", text.Red+"Your muscles tighten and your reflexes hasten!!!\n")
-			s.actor.Dex.Current += 5
-		},
-		func() {
-			s.actor.ToggleFlagAndMsg("haste", "haste", text.Cyan+"Your reflexes return to normal.\n")
-			s.actor.Dex.Current -= 5
-		})
+	spells.CharEffects["haste"](s.actor, map[string]interface{}{})
 	s.msg.Observers.SendInfo(s.actor.Name + " begins moving faster!")
 	s.actor.SetTimer("combat_haste", 60*10)
 

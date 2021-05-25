@@ -17,6 +17,8 @@ var (
 
 var CharEffects = map[string]func(target *objects.Character, modifiers map[string]interface{}) string{
 	"berserk": 			berserk,
+	"haste":			haste,
+	"pray":				pray,
 	"heal-stam":        healstam,
 	"heal-vit":         healvit,
 	"heal":             heal,
@@ -169,7 +171,33 @@ func berserk(target *objects.Character, modifiers map[string]interface{}) string
 			target.SetModifier("base_damage",  -target.GetStat("str") * config.CombatModifiers["berserk"])
 			target.SetModifier("str", -5)
 		})
-	return "You begin to berserk"
+	return ""
+}
+
+func haste(target *objects.Character, modifiers map[string]interface{}) string {
+	target.ApplyEffect("haste", "60", "0",
+		func() {
+			target.ToggleFlagAndMsg("haste", "haste", text.Info+"Your muscles tighten and your reflexes hasten!!!\n")
+			target.SetModifier("dex", 5)
+		},
+		func() {
+			target.ToggleFlagAndMsg("haste", "haste", text.Cyan+"Your reflexes return to normal.\n")
+			target.SetModifier("dex", -5)
+		})
+	return ""
+}
+
+func pray(target *objects.Character, modifiers map[string]interface{}) string {
+	target.ApplyEffect("pray", "300", "0",
+		func() {
+			target.ToggleFlagAndMsg("pray", "pray", text.Red+"Your faith fills your being.\n")
+			target.SetModifier("pie", 5)
+		},
+		func() {
+			target.ToggleFlagAndMsg("pray", "pray", text.Cyan+"Your piousness returns to normal.\n")
+			target.SetModifier("pie", -5)
+		})
+	return ""
 }
 
 func healstam(target *objects.Character, modifiers map[string]interface{}) string {
