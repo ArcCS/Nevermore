@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/spells"
 )
 
 func init() {
@@ -40,23 +39,7 @@ func (berserk) process(s *state) {
 	}
 
 	s.actor.RunHook("combat")
-
-	s.actor.ApplyEffect("berserk", "60", "0",
-		func() {
-			s.actor.ToggleFlagAndMsg("berserk", "berserk", text.Red+"The red rage grips you!!!\n")
-			_, ok := s.actor.Modifiers["base_damage"]
-			if ok {
-				s.actor.Modifiers["base_damage"] += s.actor.Str.Current * config.CombatModifiers["berserk"]
-			} else {
-				s.actor.Modifiers["base_damage"] = s.actor.Str.Current * config.CombatModifiers["berserk"]
-			}
-			s.actor.Str.Current += 5
-		},
-		func() {
-			s.actor.ToggleFlagAndMsg("berserk", "berserk", text.Cyan+"The tension releases and your rage fades...\n")
-			s.actor.Str.Current -= 5
-			s.actor.Modifiers["base_damage"] -= s.actor.Str.Current * config.CombatModifiers["berserk"]
-		})
+	spells.CharEffects["berserk"](s.actor, map[string]interface{}{})
 	s.msg.Observers.SendInfo(s.actor.Name + " goes berserk!")
 	s.actor.SetTimer("combat_berserk", 60*10)
 

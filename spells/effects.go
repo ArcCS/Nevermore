@@ -2,9 +2,12 @@ package spells
 
 import (
 	"fmt"
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/text"
+	"math/rand"
 	"strconv"
+	"time"
 )
 
 var (
@@ -13,6 +16,7 @@ var (
 )
 
 var CharEffects = map[string]func(target *objects.Character, modifiers map[string]interface{}) string{
+	"berserk": 			berserk,
 	"heal-stam":        healstam,
 	"heal-vit":         healvit,
 	"heal":             heal,
@@ -133,11 +137,11 @@ func PlayerCast(caller *objects.Character, target interface{}, spell string, mod
 	// Pass some of the player data to the spell
 	modifiers["name"] = caller.Name
 	modifiers["tier"] = caller.Tier
-	modifiers["int"] = caller.Int.Current
-	modifiers["str"] = caller.Str.Current
-	modifiers["dex"] = caller.Dex.Current
-	modifiers["pie"] = caller.Pie.Current
-	modifiers["con"] = caller.Con.Current
+	modifiers["int"] = caller.GetStat("int")
+	modifiers["str"] = caller.GetStat("str")
+	modifiers["dex"] = caller.GetStat("dex")
+	modifiers["pie"] = caller.GetStat("pie")
+	modifiers["con"] = caller.GetStat("con")
 	modifiers["multiplier"] = 1
 
 	switch v := target.(type) {
@@ -150,6 +154,22 @@ func PlayerCast(caller *objects.Character, target interface{}, spell string, mod
 		fmt.Printf("Strange behavior attempting to player cast a spell on %T!\n", v)
 		return "The spell fizzles."
 	}
+}
+
+
+func berserk(target *objects.Character, modifiers map[string]interface{}) string{
+	target.ApplyEffect("berserk", "60", "0",
+		func() {
+			target.ToggleFlagAndMsg("berserk", "berserk", text.Red+"The red rage grips you!!!\n")
+			target.SetModifier("str", 5)
+			target.SetModifier("base_damage",  target.GetStat("str") * config.CombatModifiers["berserk"])
+		},
+		func() {
+			target.ToggleFlagAndMsg("berserk", "berserk", text.Cyan+"The tension releases and your rage fades...\n")
+			target.SetModifier("base_damage",  -target.GetStat("str") * config.CombatModifiers["berserk"])
+			target.SetModifier("str", -5)
+		})
+	return "You begin to berserk"
 }
 
 func healstam(target *objects.Character, modifiers map[string]interface{}) string {
@@ -283,21 +303,77 @@ func waterdamage(target *objects.Character, modifiers map[string]interface{}) st
 }
 
 func light(target *objects.Character, modifiers map[string]interface{}) string {
-
-	return "true"
+	duration := 300 + config.IntSpellEffectDuration*modifiers["int"].(int)
+	target.ApplyEffect("light", strconv.Itoa(duration), "0",
+		func() {
+			target.ToggleFlagAndMsg("light", "light_spell", text.Info +"A small orb of light flits next to you.\n")
+		},
+		func() {
+			target.ToggleFlagAndMsg("light", "light_spell", text.Cyan+"The orb of light fades away\n")
+		})
+	return ""
 }
 
-func curepoison(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func curepoison(target *objects.Character, modifiers map[string]interface{}) string {
+	target.RemoveEffect("poison")
+	return ""
+}
 
-func bless(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func bless(target *objects.Character, modifiers map[string]interface{}) string {
+	duration := 300 + config.IntSpellEffectDuration*modifiers["int"].(int)
+	target.ApplyEffect("bless", strconv.Itoa(duration),"0",
+		func() {
+			target.ToggleFlagAndMsg("bless", "bless_spell", text.Info +"The devotion to Gods fills your soul.\n")
+		},
+		func() {
+			target.ToggleFlagAndMsg("bless", "bless_spell", text.Cyan+"The blessing fades from you.\n")
+		})
+	return ""
+}
 
-func protection(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func protection(target *objects.Character, modifiers map[string]interface{}) string {
+	duration := 300 + config.IntSpellEffectDuration*modifiers["int"].(int)
+	target.ApplyEffect("protection", strconv.Itoa(duration), "0",
+		func() {
+			target.ToggleFlagAndMsg("protection", "protection_spell", text.Info +"Your aura flows from you, protecting you. \n")
+			target.SetModifier("armor", 25)
+		},
+		func() {
+			target.ToggleFlagAndMsg("protection", "protection_spell", text.Cyan+"Your aura returns to normal.\n")
+			target.SetModifier("armor", -25)
+		})
+	return ""
+}
 
-func invisibility(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func invisibility(target *objects.Character, modifiers map[string]interface{}) string {
+	duration := 30 + (config.IntSpellEffectDuration/2)*modifiers["int"].(int)
+	target.ApplyEffect("invisibility", strconv.Itoa(duration), "0",
+		func() {
+			target.ToggleFlagAndMsg("invisibility", "invisibility_spell", text.Info +"Light flows around you. \n")
+		},
+		func() {
+			target.ToggleFlagAndMsg("invisibility", "invisibility_spell", text.Cyan+"The cloak falls and you become visible.\n")
+		})
+	return ""
+}
 
-func detectinvisible(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func detectinvisible(target *objects.Character, modifiers map[string]interface{}) string {
+	duration := 30 + (config.IntSpellEffectDuration/2)*modifiers["int"].(int)
+	target.ApplyEffect("detectinvisibile", strconv.Itoa(duration), "0",
+		func() {
+			target.ToggleFlagAndMsg("detectinvisibile", "detectinvisibile_spell", text.Info +"Your senses are magnified, detecting the unseen.\n")
+		},
+		func() {
+			target.ToggleFlagAndMsg("detectinvisibile", "detectinvisibile_spell", text.Cyan+"Your invisibility detection fades away.\n")
+		})
+	return ""
+}
 
-func teleport(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func teleport(target *objects.Character, modifiers map[string]interface{}) string {
+	rand.Seed(time.Now().Unix())
+	newRoom := teleportTable[rand.Intn(len(teleportTable))]
+	return "$CRIPT $TELEPORT " + strconv.Itoa(newRoom)
+}
 
 func stun(target *objects.Character, modifiers map[string]interface{}) string { return "" }
 

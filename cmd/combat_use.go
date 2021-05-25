@@ -30,6 +30,7 @@ func (use) process(s *state) {
 	ready, msg := s.actor.TimerReady("use")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
+		return
 	}
 
 	itemName := s.words[0]

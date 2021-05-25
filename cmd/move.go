@@ -17,6 +17,7 @@ type move cmd
 func (move) process(s *state) {
 	if s.cmd != "F" && s.cmd != "B" && len(s.words) < 1 {
 		s.msg.Actor.SendInfo("You wanted to move where?")
+		return
 	}
 
 	// Check some timers

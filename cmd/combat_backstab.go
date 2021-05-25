@@ -32,6 +32,7 @@ func (backstab) process(s *state) {
 
 	if s.actor.Flags["hidden"] != true {
 		s.msg.Actor.SendBad("You must be hidden to backstab.")
+		return
 	}
 
 	ready, msg := s.actor.TimerReady("combat")

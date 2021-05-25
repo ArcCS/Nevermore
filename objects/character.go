@@ -138,7 +138,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			map[string]time.Time{"global": time.Now(), "use": time.Now(), "combat": time.Now()},
 			int(charData["played"].(int64)),
 			make(map[string]interface{}),
-			strings.Split(charData["spells"].(string), ","),
+			[]string{},
 			map[int]*Accumulator{0: {int(charData["sharpexp"].(int64))},
 				1: {int(charData["thrustexp"].(int64))},
 				2: {int(charData["bluntexp"].(int64))},
@@ -155,6 +155,12 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				"say": make(map[string]*Hook),
 			},
 			time.Now(),
+		}
+
+		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
+			if spellN != "" {
+				FilledCharacter.Spells = append(FilledCharacter.Spells, spellN)
+			}
 		}
 
 		for k, v := range charData["flags"].(map[string]interface{}) {
@@ -197,10 +203,6 @@ func (c *Character) SetTimer(timer string, seconds int) {
 		}
 	}
 	c.Timers[timer] = time.Now().Add(time.Duration(seconds) * time.Second)
-}
-
-func (c *Character) GetInt() int {
-	return c.Int.Current
 }
 
 func (c *Character) TimerReady(timer string) (bool, string) {
@@ -253,6 +255,50 @@ func (c *Character) ToggleFlag(flagName string, provider string) {
 func (c *Character) ToggleFlagAndMsg(flagName string, provider string, msg string) {
 	c.ToggleFlag(flagName, provider)
 	c.Write([]byte(msg))
+}
+
+// SerialSaveEffects serializes all current user effects, removes them, and saves them to the database
+func (c *Character) SerialSaveEffects(){
+
+}
+
+func (c *Character) SerialRestoreEffects(effectsBlob string){
+
+}
+
+func (c *Character) GetModifier(modifier string) int{
+	if mod, ok := c.Modifiers[modifier]; ok {
+		return mod
+	}else{
+		return 0
+	}
+}
+
+func (c *Character) SetModifier(modifier string, value int) {
+	if _, ok := c.Modifiers[modifier]; ok {
+		c.Modifiers[modifier] += value
+	}else{
+		c.Modifiers[modifier] = value
+	}
+}
+
+func (c *Character) GetStat(stat string) int {
+	switch stat {
+	case "int":
+		return c.Int.Current + c.Modifiers["int"]
+	case "str":
+		return c.Str.Current + c.Modifiers["str"]
+	case "dex":
+		return c.Dex.Current + c.Modifiers["dex"]
+	case "pie":
+		return c.Pie.Current + c.Modifiers["pie"]
+	case "con":
+		return c.Con.Current + c.Modifiers["con"]
+	case "armor":
+		return c.Equipment.Armor + c.Modifiers["armor"]
+	default:
+		return 0
+	}
 }
 
 func (c *Character) Save() {
@@ -377,7 +423,7 @@ func (c *Character) Died() {
 	c.Write([]byte(text.Cyan + "## Your vitality, stamina, and mana were restored to max." + text.Reset + "\n"))
 }
 
-// Drop out the description of this character
+// Look Drop out the description of this character
 func (c *Character) Look() (buildText string) {
 	buildText = "You see " + c.Name + ", the young, " + config.TextGender[c.Gender] + ", " + config.AvailableRaces[c.Race] + " " + c.ClassTitle + "."
 	return buildText
@@ -389,8 +435,10 @@ func (c *Character) ApplyEffect(effectName string, length string, interval strin
 }
 
 func (c *Character) RemoveEffect(effectName string) {
-	c.Effects[effectName].effectOff()
-	delete(c.Effects, effectName)
+	if _, ok := c.Effects[effectName]; ok {
+		c.Effects[effectName].effectOff()
+		delete(c.Effects, effectName)
+	}
 }
 
 func (c *Character) ApplyHook(hook string, hookName string, executions int, length string, interval int, effect func(), effectOff func()) {
@@ -437,7 +485,7 @@ func (c *Character) RunHook(hook string){
 // ReceiveDamage Return stam and vital damage
 func (c *Character) ReceiveDamage(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
-	resist := int(math.Ceil(float64(damage) * (float64(c.Equipment.Armor/config.ArmorReductionPoints) * config.ArmorReduction)))
+	resist := int(math.Ceil(float64(damage) * (float64(c.GetStat("armor")/config.ArmorReductionPoints) * config.ArmorReduction)))
 	finalDamage := damage - resist
 	if finalDamage > c.Stam.Current {
 		stamDamage = c.Stam.Current
@@ -458,7 +506,7 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 }
 
 func (c *Character) ReceiveVitalDamage(damage int) int {
-	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(c.Equipment.Armor/config.ArmorReductionPoints) * config.ArmorReduction))))
+	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(c.GetStat("armor")/config.ArmorReductionPoints) * config.ArmorReduction))))
 	if finalDamage > c.Vit.Current {
 		finalDamage = c.Vit.Current
 		c.Vit.Current = 0

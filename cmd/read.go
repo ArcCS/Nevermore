@@ -33,7 +33,8 @@ func (read) process(s *state) {
 			s.msg.Actor.SendGood("You study ", what.Name, " and learn the spell " + what.Spell)
 			s.actor.Spells = append(s.actor.Spells, what.Spell)
 			s.msg.Observers.SendInfo("You see ", s.actor.Name, " study a ", name, ".")
-			s.msg.Actor.SendInfo("The " + what.Name + "disintegrates.")
+			s.actor.Inventory.Remove(what)
+			s.msg.Actor.SendInfo("The " + what.Name + " disintegrates.")
 			return
 		}else{
 			s.msg.Actor.SendBad("That's not a scroll.")

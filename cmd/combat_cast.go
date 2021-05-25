@@ -29,6 +29,7 @@ func (cast) process(s *state) {
 	ready, msg := s.actor.TimerReady("combat")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
+		return
 	}
 	if len(s.words) > 1 {
 		name := s.input[1]
@@ -70,7 +71,12 @@ func (cast) process(s *state) {
 				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 				s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatMob.Name)
 				s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatMob.Name)
-				s.msg.Actor.SendGood(msg)
+				if strings.Contains(msg, "$CRIPT"){
+					strings.Replace(msg, "$CRIPT ", "",1)
+					//s.scriptActor(msg)
+				}else if msg != "" {
+					s.msg.Actor.SendGood(msg)
+				}
 				if whatMob.Stam.Current <= 0 {
 					s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
 					s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
@@ -106,14 +112,19 @@ func (cast) process(s *state) {
 				return
 			}
 			msg = spells.PlayerCast(s.actor, whatChar, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
-			s.actor.SetTimer("combat", 8)
+			s.actor.SetTimer("combat", config.CombatCooldown)
 			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 			s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatChar.Name)
 			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatChar.Name)
 			s.participant = whatChar
 			s.msg.Participant.SendInfo(s.actor.Name + " cast a " + spellInstance.Name + "spell on you")
-			s.msg.Actor.SendGood(msg)
+			if strings.Contains(msg, "$CRIPT"){
+				strings.Replace(msg, "$CRIPT ", "",1)
+				Script(whatChar, msg)
+			}else if msg != "" {
+				s.msg.Actor.SendGood(msg)
+			}
 			return
 		}
 	} else {
@@ -140,7 +151,11 @@ func (cast) process(s *state) {
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 		s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
 		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + config.TextDescPronoun[s.actor.Gender] + "self.")
-		s.msg.Actor.SendGood(msg)
+		if strings.Contains(msg, "$CRIPT"){
+			s.scriptActor(strings.Replace(msg, "$CRIPT ", "",1))
+		}else if msg != "" {
+			s.msg.Actor.SendGood(msg)
+		}
 		return
 	}
 
