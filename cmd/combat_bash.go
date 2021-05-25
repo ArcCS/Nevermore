@@ -85,10 +85,10 @@ func (bash) process(s *state) {
 		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Crushing
 			damageModifier = config.CombatModifiers["crushing"]
 			s.msg.Actor.SendGood("Craaackk!!")
-		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Thwomp
+		} else if utils.Roll(config.ThwompRoll, 1, 0) == 1 { // Thwomp
 			damageModifier = config.CombatModifiers["thwomp"]
 			s.msg.Actor.SendGood("Thwomp!!")
-		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Thump
+		} else if utils.Roll(config.ThumpRoll, 1, 0) == 1 { // Thump
 			stunModifier = 2
 			s.msg.Actor.SendGood("Thump!!")
 		}

@@ -29,7 +29,7 @@ func (steal) process(s *state) {
 		return
 	}
 
-	if s.actor.Tier < 7 {
+	if s.actor.Tier < 5 {
 		s.msg.Actor.SendBad("You must be level 5 before you can steal.")
 		return
 	}

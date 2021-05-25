@@ -336,11 +336,7 @@ func (edit) process(s *state) {
 			stats.ActiveCharacters.Lock()
 			if strings.ToLower(s.input[1]) == "toggle" {
 				for _, flag := range s.input[3:] {
-					if character.ToggleFlag(strings.ToLower(flag)) {
-						s.msg.Actor.SendGood("Toggled " + flag)
-					} else {
-						s.msg.Actor.SendBad("Failed to toggle " + flag + ".  Is it an actual flag?")
-					}
+					character.ToggleFlag(strings.ToLower(flag), "")
 				}
 
 				// Set a variable

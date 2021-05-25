@@ -64,7 +64,7 @@ func (cast) process(s *state) {
 		// It was a mob!
 		if whatMob != nil {
 			if s.actor.Mana.Current > spellInstance.Cost || s.actor.Class == 100 {
-				msg = spells.Effects[spellInstance.Effect](s.actor, whatMob, spellInstance.Magnitude)
+				msg = spells.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 				s.actor.SetTimer("combat", 8)
 				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
@@ -105,7 +105,7 @@ func (cast) process(s *state) {
 				s.msg.Actor.SendBad("No PVP implemented yet. ")
 				return
 			}
-			msg = spells.Effects[spellInstance.Effect](s.actor, whatChar, spellInstance.Magnitude)
+			msg = spells.PlayerCast(s.actor, whatChar, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 			s.actor.SetTimer("combat", 8)
 			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 			s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
@@ -134,7 +134,7 @@ func (cast) process(s *state) {
 			return
 		}
 
-		msg = spells.Effects[spellInstance.Effect](s.actor, s.actor, spellInstance.Magnitude)
+		msg = spells.PlayerCast(s.actor, s.actor, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 		s.actor.SetTimer("combat", 8)
 		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")

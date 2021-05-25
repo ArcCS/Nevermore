@@ -88,7 +88,7 @@ func (use) process(s *state) {
 				}
 				// It was a mob!
 				if whatMob != nil {
-					msg = spells.Effects[spellInstance.Effect](s.actor, whatMob, spellInstance.Magnitude)
+					msg = spells.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatMob.Name)
 					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
 					s.msg.Actor.SendGood(msg)
@@ -122,9 +122,9 @@ func (use) process(s *state) {
 						s.msg.Actor.SendBad("No PVP implemented yet. ")
 						return
 					}
-					msg = spells.Effects[spellInstance.Effect](s.actor, whatChar, spellInstance.Magnitude)
+					msg = spells.PlayerCast(s.actor, whatChar, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatChar.Name)
-					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
+					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatChar.Name)
 					s.msg.Actor.SendGood(msg)
 					s.participant = whatChar
 					s.msg.Participant.SendInfo(s.actor.Name + " used a " + what.Name + " on you")
@@ -132,10 +132,9 @@ func (use) process(s *state) {
 					return
 				}
 			} else {
-				log.Println("Arrived here")
-				msg = spells.Effects[spellInstance.Effect](s.actor, s.actor, spellInstance.Magnitude)
-				s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
-				s.msg.Actor.SendGood(msg)
+				msg = spells.PlayerCast(s.actor, s.actor, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+				//s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
+				//s.msg.Actor.SendGood(msg)
 				return
 			}
 		}

@@ -28,6 +28,7 @@ type Character struct {
 
 	// Invisible, Hidden, Resists, OOC, AFK
 	Flags         map[string]bool
+	FlagProviders map[string][]string
 	Effects       map[string]*Effect
 	HiddenEffects map[string]*Effect
 	Modifiers     map[string]int
@@ -104,6 +105,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			RestoreInventory(charData["inventory"].(string)),
 			0,
 			make(map[string]bool),
+			make(map[string][]string),
 			make(map[string]*Effect),
 			make(map[string]*Effect),
 			make(map[string]int),
@@ -224,21 +226,32 @@ func (c *Character) Unload() {
 	c.CharTickerUnload <- true
 }
 
-func (c *Character) ToggleFlag(flagName string) bool {
-	if val, exists := c.Flags[flagName]; exists {
-		c.Flags[flagName] = !val
-		return true
-	} else {
-		return false
+func (c *Character) ToggleFlag(flagName string, provider string) {
+	if _, exists := c.Flags[flagName]; exists {
+		if c.Flags[flagName] == true && len(c.FlagProviders[flagName]) > 1{
+			c.FlagProviders[flagName][utils.IndexOf(provider, c.FlagProviders[flagName])] = c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] // Copy last element to index i.
+			c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] = ""   // Erase last element (write zero value).
+			c.FlagProviders[flagName] = c.FlagProviders[flagName][:len(c.FlagProviders[flagName])-1]   // Truncate slice.
+		}else if c.Flags[flagName] == true && len(c.FlagProviders[flagName]) == 1 {
+			c.Flags[flagName] = false
+			c.FlagProviders[flagName] = []string{}
+		}else if c.Flags[flagName] == false && provider == ""{
+			c.Flags[flagName] = true
+		}else if c.Flags[flagName] == true && provider == "" {
+			c.Flags[flagName] = false
+			c.FlagProviders[flagName] = []string{provider}
+		}else if c.Flags[flagName] == false && provider != "" {
+			c.Flags[flagName] = true
+			c.FlagProviders[flagName] = []string{provider}
+		}
+	}else{
+		c.Flags[flagName] = true
+		c.FlagProviders[flagName] = []string{provider}
 	}
 }
 
-func (c *Character) ToggleFlagAndMsg(flagName string, msg string) {
-	if val, exists := c.Flags[flagName]; exists {
-		c.Flags[flagName] = !val
-	} else {
-		c.Flags[flagName] = true
-	}
+func (c *Character) ToggleFlagAndMsg(flagName string, provider string, msg string) {
+	c.ToggleFlag(flagName, provider)
 	c.Write([]byte(msg))
 }
 
@@ -490,11 +503,15 @@ func (c *Character) RestoreMana(damage int) {
 	c.Mana.Add(damage)
 }
 
-func (c *Character) GetSpellMultiplier() float32 {
-	if c.Tier >= 15 {
-		return 2
-	}else if c.Tier >= 20 {
-		return 4
+func (c *Character) GetSpellMultiplier() int {
+	if c.Class == 4 {
+		if c.Tier >= 15 {
+			return 2
+		} else if c.Tier >= 20 {
+			return 4
+		} else {
+			return 1
+		}
 	}else{
 		return 1
 	}

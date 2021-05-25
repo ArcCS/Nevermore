@@ -39,11 +39,11 @@ func (haste) process(s *state) {
 
 	s.actor.ApplyEffect("haste", "60", "0",
 		func() {
-			s.actor.ToggleFlagAndMsg("berserk", text.Red+"Your muscles tighten and your reflexes hasten!!!\n")
+			s.actor.ToggleFlagAndMsg("haste", "haste", text.Red+"Your muscles tighten and your reflexes hasten!!!\n")
 			s.actor.Dex.Current += 5
 		},
 		func() {
-			s.actor.ToggleFlagAndMsg("haste", text.Cyan+"Your reflexes return to normal.\n")
+			s.actor.ToggleFlagAndMsg("haste", "haste", text.Cyan+"Your reflexes return to normal.\n")
 			s.actor.Dex.Current -= 5
 		})
 	s.msg.Observers.SendInfo(s.actor.Name + " begins moving faster!")

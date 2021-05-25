@@ -43,7 +43,7 @@ func (berserk) process(s *state) {
 
 	s.actor.ApplyEffect("berserk", "60", "0",
 		func() {
-			s.actor.ToggleFlagAndMsg("berserk", text.Red+"The red rage grips you!!!\n")
+			s.actor.ToggleFlagAndMsg("berserk", "berserk", text.Red+"The red rage grips you!!!\n")
 			_, ok := s.actor.Modifiers["base_damage"]
 			if ok {
 				s.actor.Modifiers["base_damage"] += s.actor.Str.Current * config.CombatModifiers["berserk"]
@@ -53,7 +53,7 @@ func (berserk) process(s *state) {
 			s.actor.Str.Current += 5
 		},
 		func() {
-			s.actor.ToggleFlagAndMsg("berserk", text.Cyan+"The tension releases and your rage fades...\n")
+			s.actor.ToggleFlagAndMsg("berserk", "berserk", text.Cyan+"The tension releases and your rage fades...\n")
 			s.actor.Str.Current -= 5
 			s.actor.Modifiers["base_damage"] -= s.actor.Str.Current * config.CombatModifiers["berserk"]
 		})
