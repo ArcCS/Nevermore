@@ -15,7 +15,7 @@ import (
 
 func init() {
 	addHandler(examine{},
-		"Usage:  examine (room|mob|object|exit|character) (name|#####) \n\n  Examine will display the subject and all of it's modifiable properties",
+		"Usage:  examine (room|mob|item|exit|char) (name|#####) \n\n  Examine will display the subject and all of it's modifiable properties",
 		permissions.Builder,
 		"examine")
 }

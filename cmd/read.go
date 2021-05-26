@@ -1,6 +1,9 @@
 package cmd
 
-import "github.com/ArcCS/Nevermore/permissions"
+import (
+	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/spells"
+)
 
 func init() {
 	addHandler(read{},
@@ -30,6 +33,14 @@ func (read) process(s *state) {
 		return
 	}else{
 		if what.ItemType == 7 {
+			if what.Spell == "" {
+				s.msg.Actor.SendBad("You study the scroll but find that it contains no spell.")
+				return
+			}
+			if _, ok := spells.CharEffects[what.Spell]; !ok {
+				s.msg.Actor.SendBad("The spell contained does not exist in this world.")
+				return
+			}
 			s.msg.Actor.SendGood("You study ", what.Name, " and learn the spell " + what.Spell)
 			s.actor.Spells = append(s.actor.Spells, what.Spell)
 			s.msg.Observers.SendInfo("You see ", s.actor.Name, " study a ", name, ".")

@@ -171,16 +171,18 @@ func RestoreInventory(jsonString string) *ItemInventory {
 	}
 	for _, item := range obj {
 		newItem := Item{}
-		copier.Copy(&newItem, Items[int(item["itemId"].(float64))])
-		newItem.Name = item["name"].(string)
-		newItem.MaxUses = int(item["uses"].(float64))
-		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
-		newItem.Spell = item["spell"].(string)
-		newItem.Armor = int(item["armor"].(float64))
-		if newItem.ItemType == 9 {
-			newItem.Storage = RestoreInventory(item["contents"].(string))
+		err = copier.Copy(&newItem, Items[int(item["itemId"].(float64))])
+		if err == nil {
+			newItem.Name = item["name"].(string)
+			newItem.MaxUses = int(item["uses"].(float64))
+			newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
+			newItem.Spell = item["spell"].(string)
+			newItem.Armor = int(item["armor"].(float64))
+			if newItem.ItemType == 9 {
+				newItem.Storage = RestoreInventory(item["contents"].(string))
+			}
+			NewInventory.Add(&newItem)
 		}
-		NewInventory.Add(&newItem)
 	}
 	return NewInventory
 }

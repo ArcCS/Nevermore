@@ -47,7 +47,7 @@ func (shutdown) process(s *state) {
 	} else if minutes, err := strconv.Atoi(s.words[0]); err == nil {
 		s.msg.Actor.SendInfo("Shutting down in " + strconv.Itoa(minutes) + " minutes")
 		tickerShutdown := time.NewTicker(60 * time.Second)
-		stats.ActiveCharacters.MessageAll("The server will shut down in " + strconv.Itoa(minutes) + " minutes minutes.  Please save your character and exit the game.")
+		stats.ActiveCharacters.MessageAll("The server will shut down in " + strconv.Itoa(minutes) + " minutes.  Please save your character and exit the game.")
 		countCapture := 0
 		go func() {
 			for {

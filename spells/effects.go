@@ -494,6 +494,7 @@ func mobfiredamage(target *objects.Mob, modifiers map[string]interface{}) string
 		damage = 600
 	}
 	target.ReceiveDamage(damage*modifiers["multiplier"].(int))
+	target.AddThreatDamage(damage*modifiers["multiplier"].(int), modifiers["name"].(string))
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " fire damage."
 }
 
@@ -515,6 +516,7 @@ func mobearthdamage(target *objects.Mob, modifiers map[string]interface{}) strin
 		damage = 600
 	}
 	target.ReceiveDamage(damage*modifiers["multiplier"].(int))
+	target.AddThreatDamage(damage*modifiers["multiplier"].(int), modifiers["name"].(string))
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " earth damage."
 }
 
@@ -536,6 +538,7 @@ func mobairdamage(target *objects.Mob, modifiers map[string]interface{}) string 
 		damage = 600
 	}
 	target.ReceiveDamage(damage*modifiers["multiplier"].(int))
+	target.AddThreatDamage(damage*modifiers["multiplier"].(int), modifiers["name"].(string))
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " air damage."
 }
 
@@ -557,6 +560,7 @@ func mobwaterdamage(target *objects.Mob, modifiers map[string]interface{}) strin
 		damage = 600
 	}
 	target.ReceiveDamage(damage*modifiers["multiplier"].(int))
+	target.AddThreatDamage(damage*modifiers["multiplier"].(int), modifiers["name"].(string))
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " water damage."
 }
 

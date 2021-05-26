@@ -19,13 +19,13 @@ type who cmd
 
 func (who) process(s *state) {
 	var players []string
-	if s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		players = stats.ActiveCharacters.GMList()
 	} else {
 		players = stats.ActiveCharacters.List()
 	}
 
-	if len(players)-1 == 0 {
+	if len(players)-1 <= 0 {
 		s.msg.Actor.SendInfo("You are all alone in this world.")
 		return
 	}

@@ -317,7 +317,7 @@ func (a *newCharacter) selectStatsProcess() {
 		a.pie, _ = strconv.Atoi(stats[4])
 		a.confirmSelections()
 	default:
-		a.buf.Send(text.Info, "Unrecognized input, please try again. \n", text.Reset)
+		a.buf.Send(text.Info, "Invalid stats were entered, please review.  \n", text.Reset)
 		a.nextFunc = a.selectStatsProcess
 	}
 }
@@ -492,7 +492,7 @@ func (a *newCharacter) fastStep2Process() {
 		a.pie, _ = strconv.Atoi(stats[4])
 		a.confirmFastSelections()
 	default:
-		a.buf.Send(text.Info, "Unrecognized input, please try again. \n", text.Reset)
+		a.buf.Send(text.Info, "Invalid stats were entered, please review. \n", text.Reset)
 		a.nextFunc = a.fastStep2Process
 	}
 }
@@ -653,6 +653,9 @@ func validateFastStep(choiceInput string) bool {
 func (a *newCharacter) validateStats(statInput string) bool {
 
 	stats := parseStats(statInput)
+	if stats[0]+stats[1]+stats[2]+stats[3]+stats[4] > 50 {
+		return false
+	}
 	if config.RaceDefs[config.AvailableRaces[a.race]].StrMin > stats[0] || stats[0] > config.RaceDefs[config.AvailableRaces[a.race]].StrMax {
 		return false
 	}
