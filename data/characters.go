@@ -148,7 +148,7 @@ func CreateChar(charData map[string]interface{}) bool {
 			"CREATE (a)-[o:owns]->(c) RETURN o",
 		map[string]interface{}{
 			"aname": charData["account"],
-			"cname": charData["name"],
+			"cname": strings.Title(charData["name"].(string)),
 		},
 	)
 	if oerr != nil {
