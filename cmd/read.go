@@ -37,7 +37,7 @@ func (read) process(s *state) {
 				s.msg.Actor.SendBad("You study the scroll but find that it contains no spell.")
 				return
 			}
-			if _, ok := spells.CharEffects[what.Spell]; !ok {
+			if _, ok := spells.Spells[what.Spell]; !ok {
 				s.msg.Actor.SendBad("The spell contained does not exist in this world.")
 				return
 			}
