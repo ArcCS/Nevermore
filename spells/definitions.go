@@ -38,6 +38,15 @@ var Spells = map[string]Spell{
 		Effect:      "heal-all",
 		Classes:     map[string]int{"cleric": 8, "paladin": 12},
 	},
+	"restore": {
+		Name:        "restore",
+		Description: "A specialized use of power from the weave of life by paladins and bards.  The spell causes energy to build around the target and absorb into them restoring their mana.  The strange mixture of drawing energy from the weave of life to restore mana to the target prevents the casts from using this spell on themselves. ",
+		Cost:        30,
+		Chant:       "Mystical energy build and return!",
+		Magnitude:   1,
+		Effect:      "restore",
+		Classes:     map[string]int{"bard": 14, "paladin": 13},
+	},
 	"detraumatize": {
 		Name:        "detraumatize",
 		Description: "the spell calls directly upon the caster's (who must be cleric, paladin or bard) faith to power the spell, drawing into the caster a small portion of the power of their deity. the caster yells their deity's name, and concentrates inwardly upon the power of the their faith. as they do, a visible aura surrounds them, as the strong healing energies fill their being. the caster then need only point their hands at the target, who can be up to three zones away. the target's pain and tiredness are washed away as the spell instantly knits bone and tissue, attempting to render the target whole. as can be seen by the spell's name, this spell was created by the cleric lordewok, who wanted nothing more than to hone his already superior healing skills in his battle to protect the realms. ",

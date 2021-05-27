@@ -34,7 +34,7 @@ func (say) process(s *state) {
 	}
 
 	msg := strings.Join(s.input, " ")
-
+	s.actor.RunHook("say")
 	if msg[len(msg)-1:] == "?" {
 		s.msg.Actor.SendGood("You ask: \"", msg, "\"")
 		s.msg.Observers.SendInfo(who, " asks: \"", msg, "\"")

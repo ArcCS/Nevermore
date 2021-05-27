@@ -100,8 +100,9 @@ func (steal) process(s *state) {
 					s.msg.Actor.SendGood("You steal a ", what.Name, " from ", whatMob.Name, ".")
 					return
 				}else{
-					s.msg.Actor.SendBad("You failed to steal from", whatMob.Name, ", they are now angry at you.")
-					whatMob.AddThreatDamage(50, s.actor.Name)
+					s.msg.Actor.SendBad("You failed to steal from ", whatMob.Name, ", and stumble out of the shadows.")
+					s.actor.RemoveHook("combat", "hide")
+					whatMob.AddThreatDamage(whatMob.Stam.Max/4, s.actor.Name)
 					return
 				}
 			} else {

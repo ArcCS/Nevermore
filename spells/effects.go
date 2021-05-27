@@ -21,6 +21,7 @@ var CharEffects = map[string]func(target *objects.Character, modifiers map[strin
 	"pray":				pray,
 	"heal-stam":        healstam,
 	"heal-vit":         healvit,
+	"restore":          restore,
 	"heal":             heal,
 	"heal-all":         healall,
 	"fire-damage":      firedamage,
@@ -67,6 +68,7 @@ var MobEffects = map[string]func(target *objects.Mob, modifiers map[string]inter
 	"heal-stam":        mobheal,
 	"heal-vit":         mobheal,
 	"heal":             mobheal,
+	"restore":			mobrestore,
 	"heal-all":         mobhealall,
 	"fire-damage":      mobfiredamage,
 	"earth-damage":     mobearthdamage,
@@ -233,6 +235,12 @@ func heal(target *objects.Character, modifiers map[string]interface{}) string {
 	stamDam, vitDam := target.Heal(damage)
 	target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"))
 	return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
+}
+
+func restore(target *objects.Character, modifiers map[string]interface{}) string {
+	target.Mana.Current = target.Mana.Max
+	target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Mana.Current) + " mana" + text.Reset + "\n"))
+	return "You cast a restore on " + target.Name + " and replenish their mana stores."
 }
 
 func healall(target *objects.Character, modifiers map[string]interface{}) string {
@@ -472,8 +480,13 @@ func mobheal(target *objects.Mob, modifiers map[string]interface{}) string {
 }
 
 func mobhealall(target *objects.Mob, modifiers map[string]interface{}) string {
-	target.Heal(2000)
+	target.Heal(target.Stam.Max)
 	return "You heal " + target.Name + " for 2000 health"
+}
+
+func mobrestore(target *objects.Mob, modifiers map[string]interface{}) string {
+	target.Mana.Current = target.Mana.Max
+	return "You cast a restore on " + target.Name + " and replenish their mana stores."
 }
 
 func mobfiredamage(target *objects.Mob, modifiers map[string]interface{}) string {
