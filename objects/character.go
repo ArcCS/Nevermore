@@ -390,15 +390,15 @@ const (
 
 func (c *Character) Tick() {
 	// TODO: Fix Tick, The tick is affected by all things around the character and any currently applied effects
-	/* if Rooms[c.ParentId].Flags["heal_fast"] {
-		c.Stam.Add(c.Con.Current * 2)
-		c.Vit.Add(c.Con.Current * 2)
-		c.Mana.Add(c.Pie.Current * 2)
+	if Rooms[c.ParentId].Flags["heal_fast"] {
+		c.Stam.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod*2)))
+		c.Vit.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod*2)))
+		c.Mana.Add(c.Pie.Current * int(math.Round(config.PieRegenMod*2)))
 	} else {
-		c.Stam.Add(c.Con.Current)
-		c.Mana.Add(c.Pie.Current)
+		c.Stam.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod)))
+		c.Vit.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod)))
+		c.Mana.Add(c.Pie.Current * int(math.Round(config.PieRegenMod)))
 	}
-	*/
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
 		// Process Removing the effect

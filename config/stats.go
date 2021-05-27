@@ -9,6 +9,7 @@ var StrDamageMod = .01 // Per Point
 var ConArmorMod = .01
 var ConBonusHealth = 1
 var ConBonusHealthDiv = 5
+var ConHealRegenMod = .3
 
 // Dex Mods
 var DexDodgeMod = .0025 //Chance to dodge
@@ -25,8 +26,8 @@ var IntEvalDailyDiv = 3
 var BaseEvals = 3
 
 // Piety Mods
-var PieRegenMod = .01 // Regen Mana per tick
-var PieHealMod = .01  // Per point
+var PieRegenMod = .3 // Regen Mana per tick
+var PieHealMod = .3  // Per point
 
 func MaxWeight(str int) int {
 	return BaseCarryWeight + (str * StrCarryMod)
