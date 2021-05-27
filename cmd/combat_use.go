@@ -71,6 +71,7 @@ func (use) process(s *state) {
 	if what != nil {
 		s.actor.RunHook("use")
 		//log.Println("Arrived here", what.Name, what.Spell)
+		s.actor.SetTimer("use", 8)
 		if what.Spell != "" && what.MaxUses > 1 {
 			spellInstance, ok := spells.Spells[strings.ToLower(what.Spell)]
 			if !ok {

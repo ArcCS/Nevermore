@@ -52,6 +52,10 @@ func (get) process(s *state) {
 	if whereStr == "" {
 		roomInventory := s.where.Items.Search(targetStr, targetNum)
 		if roomInventory != nil {
+			if roomInventory.Placement != s.actor.Placement {
+				s.msg.Actor.SendBad("You must be next to the item to get it.")
+				return
+			}
 			if roomInventory.ItemType == 10 {
 				s.actor.RunHook("act")
 				s.where.Items.Remove(roomInventory)
@@ -80,6 +84,10 @@ func (get) process(s *state) {
 		//log.Println("Looking elsewhere for ", targetStr)
 		where := s.where.Items.Search(whereStr, whereNum)
 		if where != nil && where.ItemType == 9 {
+			if where.Placement != s.actor.Placement {
+				s.msg.Actor.SendBad("You must be next to the chest to get items from it.")
+				return
+			}
 			whereInventory := where.Storage.Search(targetStr, targetNum)
 			if whereInventory != nil {
 				if whereInventory.ItemType == 10 {

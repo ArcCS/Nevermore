@@ -65,6 +65,7 @@ func (cast) process(s *state) {
 		// It was a mob!
 		if whatMob != nil {
 			if s.actor.Mana.Current > spellInstance.Cost || s.actor.Class == 100 {
+				s.actor.Mana.Subtract(spellInstance.Cost)
 				msg = spells.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 				s.actor.SetTimer("combat", 8)
 				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")

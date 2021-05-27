@@ -322,7 +322,6 @@ func (m *Mob) CalculateInventory() {
 	if len(m.ItemList) > 0 {
 		for k, v := range m.ItemList {
 			if utils.Roll(100, 1, 0) <= v {
-				log.Println("Adding inventory!!")
 				// Successful roll!  Add this item to the inventory!
 				newItem := Item{}
 				copier.Copy(&newItem, Items[k])
@@ -336,10 +335,16 @@ func (m *Mob) DropInventory() string {
 	var drops []string
 	if len(m.Inventory.Contents) > 0 {
 		for _, item := range m.Inventory.Contents {
-			m.Inventory.Remove(item)
-			if item.Name != "" {
-				Rooms[m.ParentId].Items.Add(item)
-				drops = append(drops, item.Name)
+			if item != nil {
+				if err := m.Inventory.Remove(item); err == nil {
+					if len(Rooms[m.ParentId].Items.Contents) < 15 {
+						item.Placement = m.Placement
+						Rooms[m.ParentId].Items.Add(item)
+						drops = append(drops, item.Name)
+					}else{
+						Rooms[m.ParentId].MessageAll(item.Name + " falls on top of other items and rolls away.")
+					}
+				}
 			}
 		}
 	}

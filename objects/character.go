@@ -571,7 +571,7 @@ func (c *Character) InflictDamage() (damage int) {
 		c.Equipment.Main.NumDice,
 		c.Equipment.Main.PlusDice)
 
-	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod * float64(c.Str.Current))))
+	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod * float64(c.GetStat("str")))))
 	// Add any modified base damage
 	baseDamage, ok := c.Modifiers["base_damage"]
 	if !ok {

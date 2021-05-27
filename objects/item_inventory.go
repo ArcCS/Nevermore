@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/jinzhu/copier"
+	"log"
 	"strings"
 	"sync"
 )
@@ -35,7 +36,14 @@ func (i *ItemInventory) Add(o *Item) {
 }
 
 // Pass character as a pointer, compare and remove
-func (i *ItemInventory) Remove(o *Item) {
+func (i *ItemInventory) Remove(o *Item) (err error) {
+	defer func() (err error) {
+		if r := recover(); r != nil {
+			log.Println("Item inventory removal recovery, failed to process", r)
+			return r.(error)
+		}
+		return nil
+	}()
 	for c, p := range i.Contents {
 		if p == o {
 			copy(i.Contents[c:], i.Contents[c+1:])
@@ -48,6 +56,7 @@ func (i *ItemInventory) Remove(o *Item) {
 		i.Contents = make([]*Item, 0, 0)
 	}
 	i.TotalWeight -= o.GetWeight()
+	return nil
 }
 
 // Clear all non permanent
@@ -136,7 +145,7 @@ func (i *ItemInventory) Jsonify() string {
 	}
 }
 
-// List the items in this MobInventory
+// List the items in this inentory
 func (i *ItemInventory) ReducedList() string {
 	items := make(map[string]int, 0)
 
