@@ -237,6 +237,9 @@ func (m *Mob) Tick() {
 					whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
 					Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
 				}
+				Rooms[m.ParentId].Chars.Unlock()
+				Rooms[m.ParentId].Mobs.Unlock()
+				Rooms[m.ParentId].Items.Unlock()
 				return
 			}
 
@@ -268,6 +271,9 @@ func (m *Mob) Tick() {
 						if target.Vit.Current == 0 {
 							target.Died()
 						}
+						Rooms[m.ParentId].Chars.Unlock()
+						Rooms[m.ParentId].Mobs.Unlock()
+						Rooms[m.ParentId].Items.Unlock()
 						return
 					}
 				}
@@ -292,6 +298,9 @@ func (m *Mob) Tick() {
 				if target.Vit.Current == 0 {
 					target.Died()
 				}
+				Rooms[m.ParentId].Chars.Unlock()
+				Rooms[m.ParentId].Mobs.Unlock()
+				Rooms[m.ParentId].Items.Unlock()
 				return
 			}
 
@@ -329,6 +338,9 @@ func (m *Mob) Tick() {
 							Rooms[m.ParentId].MessageAll(m.Name + " dies.")
 							target.Write([]byte(text.White + m.DropInventory()))
 							go Rooms[m.ParentId].ClearMob(m)
+							Rooms[m.ParentId].Chars.Unlock()
+							Rooms[m.ParentId].Mobs.Unlock()
+							Rooms[m.ParentId].Items.Unlock()
 							return
 						}
 						m.MobStunned = config.ParryStuns
