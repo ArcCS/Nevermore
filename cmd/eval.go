@@ -83,61 +83,6 @@ func (evaluate) process(s *state) {
 		return
 	}
 
-/*
-TODO: There are more mob flags to be implemented
-
-
-   You study the Cloud Giant Leader in your minds eye....
-
-   It currently has 3,503 hits points remaining.
-   It is worth 67,000 experience points.
-   It is quick reacting.
-   It breathes Lightning.
-   It is permanent.
-   It is hostile.
-   It guards treasure.
-   It block exits.
-   It cannot be stolen from.
-   It can cast spells.
-   It can see invisibles.
-   It can only be harmed by magical weapons.
-   It resists magic.
-   It cannot be stunned.
-   It has a long ranged missile attack.
-   It is carrying a Storm Cloud
-
-   You study the Bullfrog in your minds eye....
-
-   It currently has 1,000 hits points remaining.
-   It is worth 2,000 experience points.
-   It is quick reacting.
-   It guards treasure.
-   It flees.
-   It picks up treasure.
-   It causes disease.
-   It has a long ranged missile attack.
-   You are unable to discern what its carrying.
-
-   You see an Orcish Battle-Savant, large, twenty-second level.
-   A blood-soaked orcish warrior with his entire face tattooed wielding a
-     massive claymore.
-   He is standing a couple steps in front of you.
-   He appears to be magical!
-   He looks hostile!
-
-   You study the Orcish Battle-Savant in your minds eye....
-
-   It currently has 2,800 hits points remaining.
-   It is worth 24,444 experience points.
-   It is quick reacting.
-   It is hostile.
-   It block exits.
-   It can only be harmed by magical weapons.
-   It has a corrosive touch.
-   It causes blindness.
-   You are unable to discern what its carrying.
-
-
 You study the Eye of the Lich in your minds eye....
 
 It is a device.

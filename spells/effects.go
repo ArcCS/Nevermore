@@ -33,7 +33,7 @@ var CharEffects = map[string]func(target *objects.Character, modifiers map[strin
 	"bless":            bless,
 	"protection":       protection,
 	"invisibility":     invisibility,
-	"detect-invisible": detectinvisible,
+	"detect-invisible": detect_invisible,
 	"teleport":         teleport,
 	"stun":             stun,
 	"enchant":          enchant,
@@ -79,7 +79,7 @@ var MobEffects = map[string]func(target *objects.Mob, modifiers map[string]inter
 	"bless":            mobbless,
 	"protection":       mobprotection,
 	"invisibility":     mobinvisibility,
-	"detect-invisible": mobdetectinvisible,
+	"detect-invisible": mobdetect_invisible,
 	"teleport":         mobteleport,
 	"stun":             mobstun,
 	"enchant":          mobenchant,
@@ -393,7 +393,7 @@ func invisibility(target *objects.Character, modifiers map[string]interface{}) s
 	return ""
 }
 
-func detectinvisible(target *objects.Character, modifiers map[string]interface{}) string {
+func detect_invisible(target *objects.Character, modifiers map[string]interface{}) string {
 	duration := 30 + (config.IntSpellEffectDuration/2)*modifiers["int"].(int)
 	target.ApplyEffect("detectinvisibile", strconv.Itoa(duration), "0",
 		func() {
@@ -589,7 +589,7 @@ func mobprotection(target *objects.Mob, modifiers map[string]interface{}) string
 
 func mobinvisibility(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobdetectinvisible(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobdetect_invisible(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
 
 func mobteleport(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
 

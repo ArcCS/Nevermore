@@ -53,6 +53,7 @@ type Mob struct {
 	AirResistance   int
 	FireResistance  int
 	EarthResistance int
+	BreathWeapon string
 
 	//Threat table attacker -> damage
 	TotalThreatDamage int
@@ -111,11 +112,12 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		int(mobData["sdice"].(int64)),
 		int(mobData["pdice"].(int64)),
 		int(mobData["casting_probability"].(int64)),
-		strings.Split(mobData["spells"].(string), " "),
+		[]string{},
 		int(mobData["water_resistance"].(int64)),
 		int(mobData["air_resistance"].(int64)),
 		int(mobData["fire_resistance"].(int64)),
 		int(mobData["earth_resistance"].(int64)),
+		mobData["breathes"].(string),
 		0,
 		nil,
 		"",
@@ -125,6 +127,12 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		nil,
 		nil,
 		0,
+	}
+
+	for _, spellN := range strings.Split(mobData["spells"].(string), ",") {
+		if spellN != "" {
+			newMob.Spells = append(newMob.Spells, spellN)
+		}
 	}
 
 	for _, drop := range mobData["drops"].([]interface{}) {
@@ -150,8 +158,13 @@ func (m *Mob) StartTicking() {
 	m.CalculateInventory()
 	m.ThreatTable = make(map[string]int)
 	m.MobTickerUnload = make(chan bool)
-	//TODO Modify this ticker if the mob is especially fast moving
-	m.MobTicker = time.NewTicker(8 * time.Second)
+	tickModifier := 0
+	if fastMoving, ok := m.Flags["fast_moving"]; ok {
+		if fastMoving {
+			tickModifier = 2
+		}
+	}
+	m.MobTicker = time.NewTicker(time.Duration(8-tickModifier) * time.Second)
 	go func() {
 		for {
 			select {
@@ -212,8 +225,7 @@ func (m *Mob) Tick() {
 				}
 			}
 
-			// TODO: Do I pick stuff up off the ground?
-			//log.Println(m.Name + "My target is: :" + m.CurrentTarget )
+
 			if m.CurrentTarget == "" && m.Placement != 3 {
 				oldPlacement := m.Placement
 				if m.Placement > 3 {
@@ -533,5 +545,21 @@ func (m *Mob) Save() {
 	mobData["permanent"] = utils.Btoi(m.Flags["permanent"])
 	mobData["hostile"] = utils.Btoi(m.Flags["hostile"])
 	mobData["undead"] = utils.Btoi(m.Flags["undead"])
+	mobData["breathes"] = m.BreathWeapon
+	mobData["fast_moving"] = utils.Btoi(m.Flags["fast_moving"])
+	mobData["guard_treasure"] = utils.Btoi(m.Flags["guard_treasure"])
+	mobData["take_treasure"] = utils.Btoi(m.Flags["take_treasure"])
+	mobData["steals"] = utils.Btoi(m.Flags["steals"])
+	mobData["block_exit"] = utils.Btoi(m.Flags["block_exit"])
+	mobData["follows"] = utils.Btoi(m.Flags["block_exit"])
+	mobData["no_steal"] = utils.Btoi(m.Flags["no_steal"])
+	mobData["detect_invisible"] = utils.Btoi(m.Flags["detect_invisible"])
+	mobData["no_stun"] = utils.Btoi(m.Flags["no_stun"])
+	mobData["diseases"] = utils.Btoi(m.Flags["diseases"])
+	mobData["poisons"] = utils.Btoi(m.Flags["poisons"])
+	mobData["spits_acid"] = utils.Btoi(m.Flags["spits_acid"])
+	mobData["ranged_attack"] = utils.Btoi(m.Flags["ranged_attack"])
+	mobData["flees"] = utils.Btoi(m.Flags["flees"])
+	mobData["blinds"] = utils.Btoi(m.Flags["blinds"])
 	data.UpdateMob(mobData)
 }

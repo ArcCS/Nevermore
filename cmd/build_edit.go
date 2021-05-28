@@ -18,7 +18,7 @@ func init() {
 		"Exits:  it must be already created in the room you are standing in \n"+
 		"Items: You must edit the item in your inventory.\n"+
 		"Change value:   edit room description Here is a new description \n\n"+
-		"Toggle flag(s):   edit exit north toggle unpickable closed hidden\n",
+		"Toggle flag(s):   edit exit toggle north unpickable closed hidden\n",
 		permissions.Builder,
 		"edit", "modify")
 }
@@ -306,14 +306,41 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					mob.WimpyValue = value
 					s.msg.Actor.SendGood("Changed value that mob tries to flee")
-				/*case "placement":
-				intKey, _ :=  strconv.Atoi(s.words[3])
-				if intKey >= 1 && intKey <= 5 {
-					exit.KeyId = intKey
-					s.msg.Actor.SendGood("Changed placement")
-				}else{
-					s.msg.Actor.SendBad("Placement Id not valid. ")
-				}*/
+				case "spells":
+					spellName := strings.ToLower(s.words[3])
+					if _, ok := spells.Spells[spellName]; ok {
+						if utils.StringIn(spellName, mob.Spells){
+							// Deleting
+							mob.Spells[utils.IndexOf(spellName, mob.Spells)] = mob.Spells[len(mob.Spells)-1]
+							mob.Spells = mob.Spells[:len(mob.Spells)-1]
+							s.msg.Actor.SendGood(spellName + " deleted from mob spellbook")
+						}else{
+							// Adding
+							mob.Spells = append(mob.Spells, spellName)
+							s.msg.Actor.SendGood(spellName + " add to mob spellbook")
+						}
+					}else{
+						s.msg.Actor.SendBad(spellName + " not found in spell definitions.")
+						return
+					}
+				case "breathes":
+					spellName := strings.ToLower(s.words[3])
+					if utils.StringIn(spellName, []string{"lightning", "fire", "water", "earth"}){
+						mob.BreathWeapon = spellName
+						s.msg.Actor.SendGood("Mob BreathWeapon set to " + s.words[3])
+					}else{
+						s.msg.Actor.SendBad("Not a valid BreathWeapon.")
+						return
+					}
+				case "placement":
+					intPlacement, _ :=  strconv.Atoi(s.words[3])
+					if intPlacement >= 1 && intPlacement <= 5 {
+						mob.Placement = intPlacement
+						s.msg.Actor.SendGood("Changed placement")
+						return
+					}else{
+						s.msg.Actor.SendBad("Placement Id not valid. ")
+					}
 				default:
 					s.msg.Actor.SendBad("Property not found.")
 				}
