@@ -197,7 +197,7 @@ func (m *Mob) Tick() {
 			Rooms[m.ParentId].Items.Lock()
 			// Am I hostile?  Should I pick a target?
 			if m.CurrentTarget == "" && m.Flags["hostile"] {
-				potentials := Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], false)
+				potentials := Rooms[m.ParentId].Chars.MobList(m)
 				if len(potentials) > 0 {
 					rand.Seed(time.Now().Unix())
 					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
@@ -207,7 +207,7 @@ func (m *Mob) Tick() {
 			}
 
 			if m.CurrentTarget != "" {
-				if !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], true)) {
+				if !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.MobList(m)) {
 					m.CurrentTarget = ""
 				}
 			}
@@ -217,7 +217,7 @@ func (m *Mob) Tick() {
 				rankedThreats := utils.RankMapStringInt(m.ThreatTable)
 				if m.CurrentTarget != rankedThreats[0] {
 					if utils.Roll(3, 1, 0) == 1 {
-						if utils.StringIn(rankedThreats[0], Rooms[m.ParentId].Chars.MobList(m.Flags["detect_invisible"], true)) {
+						if utils.StringIn(rankedThreats[0], Rooms[m.ParentId].Chars.MobList(m)) {
 							m.CurrentTarget = rankedThreats[0]
 							Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + "\n" + text.Reset)
 						}
@@ -244,9 +244,9 @@ func (m *Mob) Tick() {
 			}
 
 			if m.CurrentTarget != "" && m.ChanceCast > 0 &&
-				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) >= 1) {
+				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) >= 1) {
 				// Try to cast a spell first
-				target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
+				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
 				spellSelected := false
 				selectSpell := ""
 				if utils.Roll(100, 1, 0) <= m.ChanceCast {
@@ -280,8 +280,8 @@ func (m *Mob) Tick() {
 			}
 
 			if m.CurrentTarget != "" && m.Flags["ranged_attack"] &&
-				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) >= 1) {
-				target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
+				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) >= 1) {
+				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
 				// If we made it here, default out and do a range hit.
 				stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
 				buildString := ""
@@ -305,11 +305,11 @@ func (m *Mob) Tick() {
 			}
 
 			if (m.CurrentTarget != "" &&
-				m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
+				m.Placement != Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement) ||
 				(m.CurrentTarget != "" &&
-					(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1)) {
+					(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) > 1)) {
 				oldPlacement := m.Placement
-				if m.Placement > Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
+				if m.Placement > Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement {
 					m.Placement--
 				} else {
 					m.Placement++
@@ -320,9 +320,9 @@ func (m *Mob) Tick() {
 				}
 				// Next to attack
 			} else if m.CurrentTarget != "" &&
-				m.Placement == Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
+				m.Placement == Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement {
 				// Am I against a fighter and they succeed in a parry roll?
-				target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
+				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
 				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(target.Skills[target.Equipment.Main.ItemType].Value) {
 					if target.Tier >= 10 {
 						// It's a riposte
@@ -332,8 +332,8 @@ func (m *Mob) Tick() {
 							Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
 							stringExp := strconv.Itoa(m.Experience)
 							for k := range m.ThreatTable {
-								Rooms[m.ParentId].Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
-								Rooms[m.ParentId].Chars.Search(k, true).Experience.Add(m.Experience)
+								Rooms[m.ParentId].Chars.MobSearch(k, m).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
+								Rooms[m.ParentId].Chars.MobSearch(k, m).Experience.Add(m.Experience)
 							}
 							Rooms[m.ParentId].MessageAll(m.Name + " dies.")
 							target.Write([]byte(text.White + m.DropInventory()))

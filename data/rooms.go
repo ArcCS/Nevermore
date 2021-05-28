@@ -228,7 +228,7 @@ func CreateExit(exitData map[string]interface{}) bool {
 
 // ExitExists Does this exit exist?
 func ExitExists(exitName string, room_id int) bool {
-	data, err := execRead("MATCH (r:room)-(e:exit)->() WHERE r.room_id=$room_id AND e.name=$name RETURN e",
+	data, err := execRead("MATCH (r:room)-[e:exit]->() WHERE r.room_id=$room_id AND e.name=$name RETURN e",
 		map[string]interface{}{
 			"room_id": room_id,
 			"name":    exitName,

@@ -2,6 +2,7 @@ package objects
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"strconv"
 	"strings"
@@ -15,7 +16,7 @@ type MobInventory struct {
 	Flags map[string]bool
 }
 
-// New MobInventory returns a new basic MobInventory structure
+// NewMobInventory returns a new basic MobInventory structure
 func NewMobInventory(ParentID int, o ...*Mob) *MobInventory {
 	i := &MobInventory{
 		ParentId: ParentID,
@@ -78,7 +79,7 @@ func (i *MobInventory) RestartPerms() {
 }
 
 // Search the MobInventory to return a specific instance of something
-func (i *MobInventory) Search(alias string, num int, gm bool) *Mob {
+func (i *MobInventory) Search(alias string, num int, observer *Character) *Mob {
 	if i == nil {
 		return nil
 	}
@@ -86,10 +87,17 @@ func (i *MobInventory) Search(alias string, num int, gm bool) *Mob {
 	pass := 1
 	for _, c := range i.Contents {
 		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
-			//log.Println("Searching for mob on pass " + strconv.Itoa(pass) + " looking for " + strconv.Itoa(num))
 			if pass == num {
-				if i.Flags["invisible"] == false || gm {
-					return c
+				if c.Flags["hidden"] == false ||
+					(c.Flags["hidden"] == true &&
+						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
+
+					if c.Flags["invisible"] == false ||
+						(c.Flags["invisible"] == true &&
+							observer.Flags["detect_invisible"]) ||
+						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+						return c
+					}
 				}
 			} else {
 				pass++
@@ -100,7 +108,7 @@ func (i *MobInventory) Search(alias string, num int, gm bool) *Mob {
 	return nil
 }
 
-// Search the MobInventory to return a specific instance of something
+// GetNumber Search the MobInventory to return a specific instance of something
 func (i *MobInventory) GetNumber(o *Mob) int {
 	pass := 1
 	for _, c := range i.Contents {
@@ -114,40 +122,36 @@ func (i *MobInventory) GetNumber(o *Mob) int {
 }
 
 // List the items in this MobInventory
-func (i *MobInventory) List(seeInvisible bool, gm bool) []string {
+func (i *MobInventory) List(observer *Character) []string {
 	items := make([]string, 0)
 
-	for _, o := range i.Contents {
-		// List all
-		if seeInvisible && gm {
-			items = append(items, o.Name)
-			// List non-hiddens invis
-		} else if seeInvisible && !gm {
-			if o.Flags["hidden"] != true {
-				items = append(items, o.Name)
-			}
-			// List non-hiddens
-		} else {
-			if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
-				items = append(items, o.Name)
+	for _, c := range i.Contents {
+		if c.Flags["hidden"] == false ||
+			(c.Flags["hidden"] == true &&
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
+
+			if c.Flags["invisible"] == false ||
+				(c.Flags["invisible"] == true &&
+					observer.Flags["detect_invisible"]) ||
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+				items = append(items, c.Name)
 			}
 		}
 	}
-
 	return items
 }
 
 // List the items in this MobInventory
-func (i *MobInventory) ListAttackers(seeInvisible bool, gm bool) string {
+func (i *MobInventory) ListAttackers(observer *Character) string {
 	items := ""
 
 	for _, o := range i.Contents {
 		if o.CurrentTarget != "" {
 			// List all
-			if seeInvisible && gm {
+			if observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + o.CurrentTarget + "!\n"
 				// List non-hiddens invis
-			} else if seeInvisible && !gm {
+			} else if observer.Flags["detect_invisible"] {
 				if o.Flags["hidden"] != true {
 					items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + o.CurrentTarget + "!\n"
 				}
@@ -164,34 +168,23 @@ func (i *MobInventory) ListAttackers(seeInvisible bool, gm bool) string {
 }
 
 // List the items in this MobInventory
-func (i *MobInventory) ReducedList(seeInvisible bool, gm bool) string {
+func (i *MobInventory) ReducedList(observer *Character) string {
 	items := make(map[string]int, 0)
 
-	for _, o := range i.Contents {
-		// List all
-		_, inMap := items[o.Name]
-		if seeInvisible && gm {
-			if inMap {
-				items[o.Name]++
-			} else {
-				items[o.Name] = 1
-			}
-			// List non-hiddens invis
-		} else if seeInvisible && !gm {
-			if o.Flags["hidden"] != true {
+	for _, c := range i.Contents {
+		_, inMap := items[c.Name]
+		if c.Flags["hidden"] == false ||
+			(c.Flags["hidden"] == true &&
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
+
+			if c.Flags["invisible"] == false ||
+				(c.Flags["invisible"] == true &&
+					observer.Flags["detect_invisible"]) ||
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
 				if inMap {
-					items[o.Name]++
+					items[c.Name]++
 				} else {
-					items[o.Name] = 1
-				}
-			}
-			// List non-hiddens
-		} else {
-			if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
-				if inMap {
-					items[o.Name]++
-				} else {
-					items[o.Name] = 1
+					items[c.Name] = 1
 				}
 			}
 		}

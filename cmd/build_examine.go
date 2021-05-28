@@ -83,7 +83,7 @@ func (examine) process(s *state) {
 				nameNum = val
 			}
 		}
-		mobRef := s.where.Mobs.Search(s.words[1], nameNum, true)
+		mobRef := s.where.Mobs.Search(s.words[1], nameNum, s.actor)
 		if mobRef != nil {
 
 			t := table.NewWriter()

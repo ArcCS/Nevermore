@@ -43,7 +43,7 @@ func (peek) process(s *state) {
 
 	//TODO: There should be a chance to fail
 	var whatMob *objects.Mob
-	whatMob = s.where.Mobs.Search(name, nameNum, false)
+	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
 		inv := whatMob.Inventory.List()
 		s.msg.Actor.SendInfo("In their inventory:")

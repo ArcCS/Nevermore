@@ -11,7 +11,6 @@ type Equipment struct {
 	Armor        int
 	Weight       int
 	DamageIgnore int
-	// TODO: Eventually create an effect system for equipment
 
 	Head  *Item
 	Chest *Item

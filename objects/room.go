@@ -92,11 +92,11 @@ func (r *Room) Crowded() (crowded bool) {
 }
 
 // Drop out the description of this room
-func (r *Room) Look(gm bool) (buildText string) {
+func (r *Room) Look(looker *Character) (buildText string) {
 	invis := ""
 	hidden := ""
 	inactive := ""
-	if !gm {
+	if !looker.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		buildText += r.Description + "\n"
 		if len(r.Exits) > 0 {
 			exitText := make([]string, 0)
@@ -213,7 +213,39 @@ func (r *Room) FirstPerson() {
 							}
 						}
 					}
-					//TODO: Do some elemental damage
+					if r.Flags["earth"] || r.Flags["fire"] || r.Flags["air"] || r.Flags["water"] {
+						for _, c := range r.Chars.Contents {
+							if r.Flags["earth"] {
+								if !c.Flags["resist_earth"] {
+									c.Write([]byte(text.Brown + "The earth swells up around you." + "\n"))
+									c.ReceiveMagicDamage(50)
+								} else {
+									c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n"))
+								}
+							}else if r.Flags["fire"] {
+								if !c.Flags["resist_fire"] {
+									c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n"))
+									c.ReceiveMagicDamage(50)
+								} else {
+									c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n"))
+								}
+							}else if r.Flags["water"] {
+								if !c.Flags["resist_water"] {
+									c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n"))
+									c.ReceiveMagicDamage(50)
+								} else {
+									c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n"))
+								}
+							}else if r.Flags["air"] {
+								if !c.Flags["resist_air"] {
+									c.Write([]byte(text.Brown + "The icy air buffets you." + "\n"))
+									c.ReceiveMagicDamage(50)
+								}else{
+									c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n"))
+								}
+							}
+						}
+					}
 				}
 			}
 		}()

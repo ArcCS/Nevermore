@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 	"sync"
 )
@@ -53,13 +54,37 @@ func (i *CharInventory) Remove(o *Character) {
 }
 
 // Search the CharInventory to return a specific instance of something
-func (i *CharInventory) Search(alias string, gm bool) *Character {
+func (i *CharInventory) Search(alias string, observer *Character) *Character {
 	if i == nil {
 		return nil
 	}
 
 	for _, c := range i.Contents {
-		if c.Flags["invisible"] == false || gm {
+		if c.Flags["invisible"] == false ||
+			(c.Flags["invisible"] == true &&
+				observer.Flags["detect_invisible"] &&
+				!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
+			observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+			if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
+				return c
+			}
+		}
+	}
+
+	return nil
+}
+
+// Search the CharInventory to return a specific instance of something
+func (i *CharInventory) MobSearch(alias string, observer *Mob) *Character {
+	if i == nil {
+		return nil
+	}
+
+	for _, c := range i.Contents {
+		if c.Flags["invisible"] == false ||
+			(c.Flags["invisible"] == true &&
+				observer.Flags["detect_invisible"] &&
+				!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
 			if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
 				return c
 			}
@@ -70,29 +95,23 @@ func (i *CharInventory) Search(alias string, gm bool) *Character {
 }
 
 // List the items in this CharInventory
-func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude string, gm bool) []string {
+func (i *CharInventory) List(observer *Character) []string {
 	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
 	items := make([]string, 0)
 
-	for _, o := range i.Contents {
+	for _, c := range i.Contents {
 		// List all
-		if strings.ToLower(o.Name) != strings.ToLower(exclude) {
-			if gm {
-				items = append(items, o.Name)
-			} else if seeInvisible && !ignoreHidden {
-				items = append(items, o.Name)
-				// List non-hiddens
-			} else if seeInvisible {
-				if o.Flags["hidden"] != true {
-					items = append(items, o.Name)
-				}
-			} else if ignoreHidden {
-				if o.Flags["invisible"] != true {
-					items = append(items, o.Name)
-				}
-			} else {
-				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
-					items = append(items, o.Name)
+		if strings.ToLower(c.Name) != strings.ToLower(observer.Name) {
+			if c.Flags["hidden"] == false ||
+				(c.Flags["hidden"] == true &&
+					observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
+
+				if c.Flags["invisible"] == false ||
+					(c.Flags["invisible"] == true &&
+						observer.Flags["detect_invisible"] &&
+						!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
+					observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+						items = append(items, c.Name)
 				}
 			}
 		}
@@ -100,31 +119,18 @@ func (i *CharInventory) List(seeInvisible bool, ignoreHidden bool, exclude strin
 	return items
 }
 
-// List the items in this CharInventory
-func (i *CharInventory) MobList(seeInvisible bool, ignoreHidden bool) []string {
+// MobList lists characters for a mobs point of view
+func (i *CharInventory) MobList(observer *Mob) []string {
 	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
 	items := make([]string, 0)
 
-	for _, o := range i.Contents {
-		// List all
-		if o.Class == 100 {
-			continue
-		} else {
-			if seeInvisible && !ignoreHidden {
-				items = append(items, o.Name)
-				// List non-hiddens
-			} else if seeInvisible {
-				if o.Flags["hidden"] != true {
-					items = append(items, o.Name)
-				}
-			} else if ignoreHidden {
-				if o.Flags["invisible"] != true {
-					items = append(items, o.Name)
-				}
-			} else {
-				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
-					items = append(items, o.Name)
-				}
+	// List all
+	for _, c := range i.Contents {
+		if c.Flags["hidden"] == false {
+			if c.Flags["invisible"] == false ||
+				(c.Flags["invisible"] == true &&
+					observer.Flags["detect_invisible"]){
+				items = append(items, c.Name)
 			}
 		}
 	}

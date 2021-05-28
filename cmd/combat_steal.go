@@ -65,7 +65,7 @@ func (steal) process(s *state) {
 	//TODO: Steal from players inventory if PvP flag is set
 
 	var whatMob *objects.Mob
-	whatMob = s.where.Mobs.Search(targetStr, targetNum, false)
+	whatMob = s.where.Mobs.Search(targetStr, targetNum, s.actor)
 	if whatMob != nil {
 		if whatMob.Placement != s.actor.Placement {
 			s.msg.Actor.SendBad("You are too far away to steal from ", whatMob.Name)

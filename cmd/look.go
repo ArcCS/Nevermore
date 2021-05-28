@@ -29,21 +29,11 @@ func (look) process(s *state) {
 	var mobs string
 	var mobAttacking string
 	if len(s.input) == 0 {
-		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(true))
-		} else {
-			s.msg.Actor.SendInfo(objects.Rooms[s.actor.ParentId].Look(false))
-		}
-		// Pick whether it's a GM or a user looking and go for it.
-		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			others = objects.Rooms[s.actor.ParentId].Chars.List(true, true, s.actor.Name, true)
-			mobs = objects.Rooms[s.actor.ParentId].Mobs.ReducedList(true, true)
-			mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(true, true)
-		} else {
-			others = objects.Rooms[s.actor.ParentId].Chars.List(false, false, s.actor.Name, false)
-			mobs = objects.Rooms[s.actor.ParentId].Mobs.ReducedList(false, false)
-			mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(false, false)
-		}
+		roomLook := objects.Rooms[s.actor.ParentId]
+		s.msg.Actor.SendInfo(roomLook.Look(s.actor))
+		others = objects.Rooms[s.actor.ParentId].Chars.List(s.actor)
+		mobs = objects.Rooms[s.actor.ParentId].Mobs.ReducedList(s.actor)
+		mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(s.actor)
 		if len(others) == 1 {
 			s.msg.Actor.SendInfo(strings.Join(others, ", "), " is also here.")
 		} else if len(others) > 1 {
@@ -52,7 +42,7 @@ func (look) process(s *state) {
 		if len(mobs) > 0 {
 			s.msg.Actor.SendInfo("You see " + mobs)
 		}
-		items := s.where.Items.ReducedList()
+		items := roomLook.Items.ReducedList()
 		if len(items) > 0 {
 			s.msg.Actor.SendInfo("On the ground you see " + items)
 		}
@@ -74,11 +64,7 @@ func (look) process(s *state) {
 
 	var whatChar *objects.Character
 	// Check characters in the room first.
-	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		whatChar = s.where.Chars.Search(name, true)
-	} else {
-		whatChar = s.where.Chars.Search(name, false)
-	}
+	whatChar = s.where.Chars.Search(name, s.actor)
 	// It was a person!
 	if whatChar != nil {
 		s.msg.Actor.SendInfo(whatChar.Look())
@@ -148,11 +134,7 @@ func (look) process(s *state) {
 	// Nice, looking at an exit.
 	if whatExit != nil {
 		if whatExit.Description == "" {
-			if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-				s.msg.Actor.SendInfo(objects.Rooms[whatExit.ToId].Look(true))
-			}else{
-				s.msg.Actor.SendInfo(objects.Rooms[whatExit.ToId].Look(false))
-			}
+			s.msg.Actor.SendInfo(objects.Rooms[whatExit.ToId].Look(s.actor))
 		} else {
 			s.msg.Actor.SendInfo(whatExit.Look())
 		}
@@ -161,11 +143,7 @@ func (look) process(s *state) {
 
 	// Check mobs
 	var whatMob *objects.Mob
-	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		whatMob = s.where.Mobs.Search(name, nameNum, true)
-	} else {
-		whatMob = s.where.Mobs.Search(name, nameNum, false)
-	}
+	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	// It was a mob!
 	if whatMob != nil {
 		s.msg.Actor.SendInfo(whatMob.Look())

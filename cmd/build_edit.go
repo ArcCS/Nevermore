@@ -216,7 +216,7 @@ func (edit) process(s *state) {
 	case "mob":
 		// Toggle Flags
 		mobName := s.input[2]
-		mob := s.where.Mobs.Search(mobName, 1, true)
+		mob := s.where.Mobs.Search(mobName, 1, s.actor)
 
 		if mob != nil {
 			if strings.ToLower(s.input[1]) == "toggle" {

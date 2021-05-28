@@ -389,7 +389,6 @@ const (
 )
 
 func (c *Character) Tick() {
-	// TODO: Fix Tick, The tick is affected by all things around the character and any currently applied effects
 	if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Stam.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod*2)))
 		c.Vit.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod*2)))

@@ -36,11 +36,7 @@ func (sayto) process(s *state) {
 	}
 
 	var who *objects.Character
-	if s.actor.Permission.HasFlag(permissions.Dungeonmaster) || s.actor.Permission.HasFlag(permissions.Gamemaster) {
-		who = s.where.Chars.Search(whoStr, true)
-	} else {
-		who = s.where.Chars.Search(whoStr, false)
-	}
+	who = s.where.Chars.Search(whoStr, s.actor)
 	if who == nil {
 		s.msg.Actor.SendInfo("Give who what???")
 		return

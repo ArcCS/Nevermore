@@ -51,7 +51,7 @@ func (turn) process(s *state) {
 	}
 
 	var whatMob *objects.Mob
-	whatMob = s.where.Mobs.Search(name, nameNum, true)
+	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
 
 		if whatMob.Flags["undead"] != true {
@@ -82,8 +82,8 @@ func (turn) process(s *state) {
 			//TODO Calculate experience
 			stringExp := strconv.Itoa(whatMob.Experience)
 			for k := range whatMob.ThreatTable {
-				s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-				s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
+				s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+				s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
 			}
 			s.msg.Actor.SendInfo(whatMob.DropInventory())
 			objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)

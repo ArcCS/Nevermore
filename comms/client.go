@@ -113,8 +113,15 @@ func (c *client) process() {
 			if config.Server.Running == false {
 				_ = c.Close()
 			}
-			//TODO:  If user is OOC and AFK, change this
-			err = c.SetReadDeadline(time.Now().Add(config.Server.IdleTimeout))
+			useTime := config.Server.IdleTimeout
+			if ok := c.frontend.GetCharacter(); ok != nil {
+				if c.frontend.GetCharacter().Flags["AFK"] {
+					useTime = config.Server.AFKTimeout
+				} else if c.frontend.GetCharacter().Flags["OOC"] {
+					useTime = config.Server.OOCTimeout
+				}
+			}
+			err = c.SetReadDeadline(time.Now().Add(useTime))
 			if in, err = s.ReadSlice('\n'); err != nil {
 				frontend.Zero(in)
 

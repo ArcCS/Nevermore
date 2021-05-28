@@ -40,7 +40,7 @@ func (hamstring) process(s *state) {
 	}
 
 	var whatMob *objects.Mob
-	whatMob = s.where.Mobs.Search(name, nameNum, true)
+	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
 
 		s.actor.RunHook("combat")

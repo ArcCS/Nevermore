@@ -93,11 +93,19 @@ func (c *characterStats) List() []string {
 			continue
 		}
 
-		//TODO: Append OOC, AFK
 		calc := time.Now().Sub(character.LastAction)
 		charState := ""
 		if calc.Minutes() > 2 {
 			charState = fmt.Sprintf("[idle: %s]", strconv.Itoa(int(calc.Minutes())))
+		}
+		if character.Flags["OOC"] {
+			charState += " [OOC] "
+		}
+		if character.Flags["AFK"] {
+			charState += " [AFK]"
+		}
+		if charState != "" {
+			charState = "/" + charState
 		}
 		if character.Title != "" {
 			list = append(list, fmt.Sprintf("%s, %s, %s, %s", character.Name, character.ClassTitle, character.Title, charState))

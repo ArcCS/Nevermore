@@ -81,9 +81,9 @@ func (use) process(s *state) {
 			if name != "" {
 				var whatMob *objects.Mob
 				if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-					whatMob = s.where.Mobs.Search(name, nameNum, true)
+					whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 				} else {
-					whatMob = s.where.Mobs.Search(name, nameNum, false)
+					whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 				}
 				// It was a mob!
 				if whatMob != nil {
@@ -97,8 +97,8 @@ func (use) process(s *state) {
 						//TODO Calculate experience
 						stringExp := strconv.Itoa(whatMob.Experience)
 						for k := range whatMob.ThreatTable {
-							s.where.Chars.Search(k, true).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-							s.where.Chars.Search(k, true).Experience.Add(whatMob.Experience)
+							s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+							s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
 						}
 						s.msg.Observers.SendInfo(whatMob.Name + " dies.")
 						s.msg.Actor.SendInfo(whatMob.DropInventory())
@@ -110,11 +110,7 @@ func (use) process(s *state) {
 
 				// Are we casting on a character
 				var whatChar *objects.Character
-				if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-					whatChar = s.where.Chars.Search(name, true)
-				} else {
-					whatChar = s.where.Chars.Search(name, false)
-				}
+				whatChar = s.where.Chars.Search(name, s.actor)
 				// It was a person!
 				if whatChar != nil {
 					if strings.Contains(spellInstance.Effect, "damage") {
