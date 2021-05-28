@@ -1,4 +1,4 @@
-package spells
+package objects
 
 var songs = map[string]map[string]string{
 	"celebration-night": {

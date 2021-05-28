@@ -4,7 +4,6 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/spells"
 	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
@@ -151,7 +150,7 @@ func (edit) process(s *state) {
 					item.Name = strings.Join(s.input[3:], " ")
 					s.msg.Actor.SendGood("Name changed.")
 				case "spell":
-					if _, ok := spells.Spells[s.input[3]]; ok {
+					if _, ok := objects.Spells[s.input[3]]; ok {
 						item.Spell = s.input[3]
 						s.msg.Actor.SendGood("Spell changed.")
 					} else {
@@ -308,7 +307,7 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendGood("Changed value that mob tries to flee")
 				case "spells":
 					spellName := strings.ToLower(s.words[3])
-					if _, ok := spells.Spells[spellName]; ok {
+					if _, ok := objects.Spells[spellName]; ok {
 						if utils.StringIn(spellName, mob.Spells){
 							// Deleting
 							mob.Spells[utils.IndexOf(spellName, mob.Spells)] = mob.Spells[len(mob.Spells)-1]

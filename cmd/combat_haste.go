@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/spells"
 )
 
 func init() {
@@ -37,7 +37,7 @@ func (haste) process(s *state) {
 		return
 	}
 
-	spells.CharEffects["haste"](s.actor, map[string]interface{}{})
+	objects.CharEffects["haste"](s.actor, map[string]interface{}{})
 	s.msg.Observers.SendInfo(s.actor.Name + " begins moving faster!")
 	s.actor.SetTimer("combat_haste", 60*10)
 

@@ -1,9 +1,8 @@
-package spells
+package objects
 
 import (
 	"fmt"
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/text"
 	"math/rand"
 	"strconv"
@@ -15,10 +14,10 @@ var (
 	defaultDuration = 600
 )
 
-var CharEffects = map[string]func(target *objects.Character, modifiers map[string]interface{}) string{
-	"berserk": 			berserk,
-	"haste":			haste,
-	"pray":				pray,
+var CharEffects = map[string]func(target *Character, modifiers map[string]interface{}) string{
+	"berserk":          berserk,
+	"haste":            haste,
+	"pray":             pray,
 	"heal-stam":        healstam,
 	"heal-vit":         healvit,
 	"restore":          restore,
@@ -64,11 +63,11 @@ var CharEffects = map[string]func(target *objects.Character, modifiers map[strin
 	"embolden":         embolden,
 }
 
-var MobEffects = map[string]func(target *objects.Mob, modifiers map[string]interface{}) string{
+var MobEffects = map[string]func(target *Mob, modifiers map[string]interface{}) string{
 	"heal-stam":        mobheal,
 	"heal-vit":         mobheal,
 	"heal":             mobheal,
-	"restore":			mobrestore,
+	"restore":          mobrestore,
 	"heal-all":         mobhealall,
 	"fire-damage":      mobfiredamage,
 	"earth-damage":     mobearthdamage,
@@ -116,7 +115,7 @@ as they are technically handled differently.  It's easier to redirect and cast, 
 create a spell invocation for both target types
  */
 
-func MobCast(caller *objects.Mob, target interface{}, spell string, modifiers map[string]interface{}) {
+func MobCast(caller *Mob, target interface{}, spell string, modifiers map[string]interface{}) {
 	// Pass some of the player data to the spell
 	modifiers["name"] = caller.Name
 	modifiers["tier"] = caller.Level
@@ -128,16 +127,16 @@ func MobCast(caller *objects.Mob, target interface{}, spell string, modifiers ma
 	modifiers["multiplier"] = 1
 
 	switch v := target.(type) {
-	case *objects.Character:
-		CharEffects[spell](target.(*objects.Character), modifiers)
-	case *objects.Mob:
-		MobEffects[spell](target.(*objects.Mob), modifiers)
+	case *Character:
+		CharEffects[spell](target.(*Character), modifiers)
+	case *Mob:
+		MobEffects[spell](target.(*Mob), modifiers)
 	default:
 		fmt.Printf("Strange behavior attempting to player cast a spell on %T!\n", v)
 	}
 }
 
-func PlayerCast(caller *objects.Character, target interface{}, spell string, modifiers map[string]interface{}) string {
+func PlayerCast(caller *Character, target interface{}, spell string, modifiers map[string]interface{}) string {
 	// Pass some of the player data to the spell
 	modifiers["name"] = caller.Name
 	modifiers["tier"] = caller.Tier
@@ -149,11 +148,11 @@ func PlayerCast(caller *objects.Character, target interface{}, spell string, mod
 	modifiers["multiplier"] = 1
 
 	switch v := target.(type) {
-	case *objects.Character:
-		return CharEffects[spell](target.(*objects.Character), modifiers)
-	case *objects.Mob:
+	case *Character:
+		return CharEffects[spell](target.(*Character), modifiers)
+	case *Mob:
 		modifiers["multiplier"] = caller.GetSpellMultiplier()
-		return MobEffects[spell](target.(*objects.Mob), modifiers)
+		return MobEffects[spell](target.(*Mob), modifiers)
 	default:
 		fmt.Printf("Strange behavior attempting to player cast a spell on %T!\n", v)
 		return "The spell fizzles."
@@ -161,7 +160,7 @@ func PlayerCast(caller *objects.Character, target interface{}, spell string, mod
 }
 
 
-func berserk(target *objects.Character, modifiers map[string]interface{}) string{
+func berserk(target *Character, modifiers map[string]interface{}) string{
 	target.ApplyEffect("berserk", "60", "0",
 		func() {
 			target.ToggleFlagAndMsg("berserk", "berserk", text.Red+"The red rage grips you!!!\n")
@@ -176,7 +175,7 @@ func berserk(target *objects.Character, modifiers map[string]interface{}) string
 	return ""
 }
 
-func haste(target *objects.Character, modifiers map[string]interface{}) string {
+func haste(target *Character, modifiers map[string]interface{}) string {
 	target.ApplyEffect("haste", "60", "0",
 		func() {
 			target.ToggleFlagAndMsg("haste", "haste", text.Info+"Your muscles tighten and your reflexes hasten!!!\n")
@@ -189,7 +188,7 @@ func haste(target *objects.Character, modifiers map[string]interface{}) string {
 	return ""
 }
 
-func pray(target *objects.Character, modifiers map[string]interface{}) string {
+func pray(target *Character, modifiers map[string]interface{}) string {
 	target.ApplyEffect("pray", "300", "0",
 		func() {
 			target.ToggleFlagAndMsg("pray", "pray", text.Red+"Your faith fills your being.\n")
@@ -202,7 +201,7 @@ func pray(target *objects.Character, modifiers map[string]interface{}) string {
 	return ""
 }
 
-func healstam(target *objects.Character, modifiers map[string]interface{}) string {
+func healstam(target *Character, modifiers map[string]interface{}) string {
 	/*vigor devices seemed to be very low 4-10?
 	mend-wounds devices were around 5-15.
 	detraum devices seemed around 38-50.
@@ -218,14 +217,14 @@ func healstam(target *objects.Character, modifiers map[string]interface{}) strin
 	return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " stamina"
 }
 
-func healvit(target *objects.Character, modifiers map[string]interface{}) string {
+func healvit(target *Character, modifiers map[string]interface{}) string {
 	damage := 10
 	target.HealVital(damage)
 	target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"))
 	return "You heal " + target.Name + " for " + strconv.Itoa(damage)  +" vitality."
 }
 
-func heal(target *objects.Character, modifiers map[string]interface{}) string {
+func heal(target *Character, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 50
@@ -237,20 +236,20 @@ func heal(target *objects.Character, modifiers map[string]interface{}) string {
 	return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
 }
 
-func restore(target *objects.Character, modifiers map[string]interface{}) string {
+func restore(target *Character, modifiers map[string]interface{}) string {
 	target.Mana.Current = target.Mana.Max
 	target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Mana.Current) + " mana" + text.Reset + "\n"))
 	return "You cast a restore on " + target.Name + " and replenish their mana stores."
 }
 
-func healall(target *objects.Character, modifiers map[string]interface{}) string {
+func healall(target *Character, modifiers map[string]interface{}) string {
 	stamDam, vitDam := target.Heal(2000)
 	target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"))
 	return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
 
 }
 
-func firedamage(target *objects.Character, modifiers map[string]interface{}) string {
+func firedamage(target *Character, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 10
@@ -272,7 +271,7 @@ func firedamage(target *objects.Character, modifiers map[string]interface{}) str
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " fire damage."
 }
 
-func earthdamage(target *objects.Character, modifiers map[string]interface{}) string {
+func earthdamage(target *Character, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 10
@@ -294,7 +293,7 @@ func earthdamage(target *objects.Character, modifiers map[string]interface{}) st
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " earth damage."
 }
 
-func airdamage(target *objects.Character, modifiers map[string]interface{}) string {
+func airdamage(target *Character, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 10
@@ -316,7 +315,7 @@ func airdamage(target *objects.Character, modifiers map[string]interface{}) stri
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " air damage."
 }
 
-func waterdamage(target *objects.Character, modifiers map[string]interface{}) string {
+func waterdamage(target *Character, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 10
@@ -338,7 +337,7 @@ func waterdamage(target *objects.Character, modifiers map[string]interface{}) st
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " fire damage."
 }
 
-func light(target *objects.Character, modifiers map[string]interface{}) string {
+func light(target *Character, modifiers map[string]interface{}) string {
 	duration := 300 + config.IntSpellEffectDuration*modifiers["int"].(int)
 	target.ApplyEffect("light", strconv.Itoa(duration), "0",
 		func() {
@@ -350,12 +349,12 @@ func light(target *objects.Character, modifiers map[string]interface{}) string {
 	return ""
 }
 
-func curepoison(target *objects.Character, modifiers map[string]interface{}) string {
+func curepoison(target *Character, modifiers map[string]interface{}) string {
 	target.RemoveEffect("poison")
 	return ""
 }
 
-func bless(target *objects.Character, modifiers map[string]interface{}) string {
+func bless(target *Character, modifiers map[string]interface{}) string {
 	duration := 300 + config.IntSpellEffectDuration*modifiers["int"].(int)
 	target.ApplyEffect("bless", strconv.Itoa(duration),"0",
 		func() {
@@ -367,7 +366,7 @@ func bless(target *objects.Character, modifiers map[string]interface{}) string {
 	return ""
 }
 
-func protection(target *objects.Character, modifiers map[string]interface{}) string {
+func protection(target *Character, modifiers map[string]interface{}) string {
 	duration := 300 + config.IntSpellEffectDuration*modifiers["int"].(int)
 	target.ApplyEffect("protection", strconv.Itoa(duration), "0",
 		func() {
@@ -381,7 +380,7 @@ func protection(target *objects.Character, modifiers map[string]interface{}) str
 	return ""
 }
 
-func invisibility(target *objects.Character, modifiers map[string]interface{}) string {
+func invisibility(target *Character, modifiers map[string]interface{}) string {
 	duration := 30 + (config.IntSpellEffectDuration/2)*modifiers["int"].(int)
 	target.ApplyEffect("invisibility", strconv.Itoa(duration), "0",
 		func() {
@@ -393,7 +392,7 @@ func invisibility(target *objects.Character, modifiers map[string]interface{}) s
 	return ""
 }
 
-func detect_invisible(target *objects.Character, modifiers map[string]interface{}) string {
+func detect_invisible(target *Character, modifiers map[string]interface{}) string {
 	duration := 30 + (config.IntSpellEffectDuration/2)*modifiers["int"].(int)
 	target.ApplyEffect("detectinvisibile", strconv.Itoa(duration), "0",
 		func() {
@@ -405,70 +404,70 @@ func detect_invisible(target *objects.Character, modifiers map[string]interface{
 	return ""
 }
 
-func teleport(target *objects.Character, modifiers map[string]interface{}) string {
+func teleport(target *Character, modifiers map[string]interface{}) string {
 	rand.Seed(time.Now().Unix())
 	newRoom := teleportTable[rand.Intn(len(teleportTable))]
 	return "$CRIPT $TELEPORT " + strconv.Itoa(newRoom)
 }
 
-func stun(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func stun(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func enchant(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func enchant(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func recall(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func recall(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func summon(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func summon(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func wizardwalk(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func wizardwalk(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func levitate(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func levitate(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func resistfire(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func resistfire(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func resistmagic(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func resistmagic(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func removecurse(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func removecurse(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func resistair(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func resistair(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func resistwater(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func resistwater(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func resistearth(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func resistearth(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func clairvoyance(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func clairvoyance(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func removedisease(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func removedisease(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func cureblindness(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func cureblindness(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func polymorph(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func polymorph(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func attraction(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func attraction(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func inertialbarrier(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func inertialbarrier(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func surge(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func surge(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func resistpoison(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func resistpoison(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func resilientaura(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func resilientaura(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func resistdisease(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func resistdisease(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func disruptmagic(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func disruptmagic(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func reflection(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func reflection(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func dodge(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func dodge(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func resistacid(target *objects.Character, modifiers map[string]interface{}) string { return "" }
+func resistacid(target *Character, modifiers map[string]interface{}) string { return "" }
 
-func embolden(target *objects.Character, modifiers map[string]interface{}) string {
+func embolden(target *Character, modifiers map[string]interface{}) string {
 	target.RemoveEffect("fear")
 	return "true"
 }
 
-func mobheal(target *objects.Mob, modifiers map[string]interface{}) string {
+func mobheal(target *Mob, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 50
@@ -479,17 +478,17 @@ func mobheal(target *objects.Mob, modifiers map[string]interface{}) string {
 	return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " health"
 }
 
-func mobhealall(target *objects.Mob, modifiers map[string]interface{}) string {
+func mobhealall(target *Mob, modifiers map[string]interface{}) string {
 	target.Heal(target.Stam.Max)
 	return "You heal " + target.Name + " for 2000 health"
 }
 
-func mobrestore(target *objects.Mob, modifiers map[string]interface{}) string {
+func mobrestore(target *Mob, modifiers map[string]interface{}) string {
 	target.Mana.Current = target.Mana.Max
 	return "You cast a restore on " + target.Name + " and replenish their mana stores."
 }
 
-func mobfiredamage(target *objects.Mob, modifiers map[string]interface{}) string {
+func mobfiredamage(target *Mob, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 10
@@ -511,7 +510,7 @@ func mobfiredamage(target *objects.Mob, modifiers map[string]interface{}) string
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " fire damage."
 }
 
-func mobearthdamage(target *objects.Mob, modifiers map[string]interface{}) string {
+func mobearthdamage(target *Mob, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 10
@@ -533,7 +532,7 @@ func mobearthdamage(target *objects.Mob, modifiers map[string]interface{}) strin
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " earth damage."
 }
 
-func mobairdamage(target *objects.Mob, modifiers map[string]interface{}) string {
+func mobairdamage(target *Mob, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 10
@@ -555,7 +554,7 @@ func mobairdamage(target *objects.Mob, modifiers map[string]interface{}) string 
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " air damage."
 }
 
-func mobwaterdamage(target *objects.Mob, modifiers map[string]interface{}) string {
+func mobwaterdamage(target *Mob, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
 		damage = 10
@@ -577,75 +576,75 @@ func mobwaterdamage(target *objects.Mob, modifiers map[string]interface{}) strin
 	return "Your spell struck "+ target.Name +" for " + strconv.Itoa(damage) + " water damage."
 }
 
-func moblight(target *objects.Mob, modifiers map[string]interface{}) string {
+func moblight(target *Mob, modifiers map[string]interface{}) string {
 	return ""
 }
 
-func mobcurepoison(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobcurepoison(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobbless(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobbless(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobprotection(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobprotection(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobinvisibility(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobinvisibility(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobdetect_invisible(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobdetect_invisible(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobteleport(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobteleport(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobstun(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobstun(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobenchant(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobenchant(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobrecall(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobrecall(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobsummon(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobsummon(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobwizardwalk(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobwizardwalk(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func moblevitate(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func moblevitate(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobresistfire(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobresistfire(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobresistmagic(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobresistmagic(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobremovecurse(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobremovecurse(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobresistair(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobresistair(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobresistwater(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobresistwater(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobresistearth(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobresistearth(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobclairvoyance(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobclairvoyance(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobremovedisease(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobremovedisease(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobcureblindness(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobcureblindness(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobpolymorph(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobpolymorph(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobattraction(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobattraction(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobinertialbarrier(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobinertialbarrier(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobsurge(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobsurge(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobresistpoison(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobresistpoison(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobresilientaura(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobresilientaura(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobresistdisease(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobresistdisease(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobdisruptmagic(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobdisruptmagic(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobreflection(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobreflection(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobdodge(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobdodge(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobresistacid(target *objects.Mob, modifiers map[string]interface{}) string { return "" }
+func mobresistacid(target *Mob, modifiers map[string]interface{}) string { return "" }
 
-func mobembolden(target *objects.Mob, modifiers map[string]interface{}) string {
+func mobembolden(target *Mob, modifiers map[string]interface{}) string {
 	target.RemoveEffect("fear")
 	return "true"
 }

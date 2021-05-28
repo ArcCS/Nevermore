@@ -4,7 +4,6 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/spells"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
@@ -42,7 +41,7 @@ func (cast) process(s *state) {
 			}
 		}
 
-		spellInstance, ok := spells.Spells[strings.ToLower(s.input[0])]
+		spellInstance, ok := objects.Spells[strings.ToLower(s.input[0])]
 		if !ok {
 			s.msg.Actor.SendBad("What spell do you want to cast?")
 			return
@@ -66,7 +65,7 @@ func (cast) process(s *state) {
 		if whatMob != nil {
 			if s.actor.Mana.Current > spellInstance.Cost || s.actor.Class == 100 {
 				s.actor.Mana.Subtract(spellInstance.Cost)
-				msg = spells.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+				msg = objects.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 				s.actor.SetTimer("combat", 8)
 				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
@@ -112,7 +111,7 @@ func (cast) process(s *state) {
 				s.msg.Actor.SendBad("No PVP implemented yet. ")
 				return
 			}
-			msg = spells.PlayerCast(s.actor, whatChar, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+			msg = objects.PlayerCast(s.actor, whatChar, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 			s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
@@ -130,7 +129,7 @@ func (cast) process(s *state) {
 		}
 	} else {
 
-		spellInstance, ok := spells.Spells[strings.ToLower(s.input[0])]
+		spellInstance, ok := objects.Spells[strings.ToLower(s.input[0])]
 		if !ok {
 			s.msg.Actor.SendBad("What spell do you want to cast?")
 			return
@@ -146,7 +145,7 @@ func (cast) process(s *state) {
 			return
 		}
 
-		msg = spells.PlayerCast(s.actor, s.actor, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+		msg = objects.PlayerCast(s.actor, s.actor, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 		s.actor.SetTimer("combat", 8)
 		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")

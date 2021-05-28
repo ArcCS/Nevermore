@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/spells"
 	"github.com/ArcCS/Nevermore/text"
 	"log"
 	"strconv"
@@ -73,7 +72,7 @@ func (use) process(s *state) {
 		//log.Println("Arrived here", what.Name, what.Spell)
 		s.actor.SetTimer("use", 8)
 		if what.Spell != "" && what.MaxUses > 1 {
-			spellInstance, ok := spells.Spells[strings.ToLower(what.Spell)]
+			spellInstance, ok := objects.Spells[strings.ToLower(what.Spell)]
 			if !ok {
 				s.msg.Actor.SendBad("Spell doesn't exist in this world. ")
 				return
@@ -88,7 +87,7 @@ func (use) process(s *state) {
 				}
 				// It was a mob!
 				if whatMob != nil {
-					msg = spells.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+					msg = objects.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatMob.Name)
 					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
 					s.msg.Actor.SendGood(msg)
@@ -122,7 +121,7 @@ func (use) process(s *state) {
 						s.msg.Actor.SendBad("No PVP implemented yet. ")
 						return
 					}
-					msg = spells.PlayerCast(s.actor, whatChar, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+					msg = objects.PlayerCast(s.actor, whatChar, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatChar.Name)
 					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatChar.Name)
 					s.msg.Actor.SendGood(msg)
@@ -132,7 +131,7 @@ func (use) process(s *state) {
 					return
 				}
 			} else {
-				msg = spells.PlayerCast(s.actor, s.actor, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+				msg = objects.PlayerCast(s.actor, s.actor, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 				//s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
 				//s.msg.Actor.SendGood(msg)
 				return

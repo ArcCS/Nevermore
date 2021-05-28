@@ -237,9 +237,67 @@ func (m *Mob) Tick() {
 					whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
 					Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
 				}
-			} else if (m.CurrentTarget != "" && !m.Flags["ranged"] &&
+				return
+			}
+
+			if m.CurrentTarget != "" && m.ChanceCast > 0 &&
+				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) >= 1) {
+				// Try to cast a spell first
+				target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
+				spellSelected := false
+				selectSpell := ""
+				if utils.Roll(100, 1, 0) <= m.ChanceCast {
+					for _ = range m.Spells {
+						rand.Seed(time.Now().Unix())
+						selectSpell = m.Spells[rand.Intn(len(m.Spells))]
+						if selectSpell != "" {
+							if utils.StringIn(selectSpell, OffensiveSpells) {
+								spellSelected = true
+							}
+						}
+					}
+
+					if spellSelected {
+						spellInstance, ok := Spells[selectSpell]
+						if !ok {
+							spellSelected = false
+						}
+						Rooms[m.ParentId].MessageAll(m.Name + " chants: " + spellInstance.Chant + "\n")
+						Rooms[m.ParentId].MessageAll(m.Name + " cast a " + spellInstance.Name + " spell on " + target.Name + "\n")
+						MobCast(m, target, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+						if target.Vit.Current == 0 {
+							target.Died()
+						}
+						return
+					}
+				}
+			}
+
+			if m.CurrentTarget != "" && m.Flags["ranged_attack"] &&
+				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) >= 1) {
+				target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
+				// If we made it here, default out and do a range hit.
+				stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
+				buildString := ""
+				if stamDamage != 0 {
+					buildString += strconv.Itoa(stamDamage) + " stamina"
+				}
+				if stamDamage != 0 && vitDamage != 0 {
+					buildString += " and "
+				}
+				if vitDamage != 0 {
+					buildString += strconv.Itoa(vitDamage) + " vitality"
+				}
+				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
+				if target.Vit.Current == 0 {
+					target.Died()
+				}
+				return
+			}
+
+			if (m.CurrentTarget != "" &&
 				m.Placement != Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement) ||
-				(m.CurrentTarget != "" && m.Flags["ranged"] &&
+				(m.CurrentTarget != "" &&
 					(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1)) {
 				oldPlacement := m.Placement
 				if m.Placement > Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
@@ -252,7 +310,7 @@ func (m *Mob) Tick() {
 					Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
 				}
 				// Next to attack
-			} else if m.CurrentTarget != "" && !m.Flags["ranged"] &&
+			} else if m.CurrentTarget != "" &&
 				m.Placement == Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement {
 				// Am I against a fighter and they succeed in a parry roll?
 				target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
@@ -299,27 +357,7 @@ func (m *Mob) Tick() {
 						target.Died()
 					}
 				}
-			} else if m.CurrentTarget != "" && m.Flags["ranged"] &&
-				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false).Placement)) > 1) {
-				target := Rooms[m.ParentId].Chars.Search(m.CurrentTarget, false)
-				stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
-				buildString := ""
-				if stamDamage != 0 {
-					buildString += strconv.Itoa(stamDamage) + " stamina"
-				}
-				if stamDamage != 0 && vitDamage != 0 {
-					buildString += " and "
-				}
-				if vitDamage != 0 {
-					buildString += strconv.Itoa(vitDamage) + " vitality"
-				}
-				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
-				if target.Vit.Current == 0 {
-					target.Died()
-				}
 			}
-
-			// TODO: Can I cast spells.
 
 			Rooms[m.ParentId].Chars.Unlock()
 			Rooms[m.ParentId].Mobs.Unlock()
@@ -361,7 +399,6 @@ func (m *Mob) DropInventory() string {
 		}
 	}
 	if m.Gold > 0 {
-		// TODO: Variable drop rate for gold here
 		newGold := Item{}
 		copier.Copy(&newGold, Items[3456])
 		newGold.Name = strconv.Itoa(m.Gold) + " gold pieces"
@@ -462,7 +499,6 @@ func (m *Mob) ToggleFlagAndMsg(flagName string, msg string) {
 }
 
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
-	//TODO: Review the numbers for armor here
 	finalDamage := math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction)))
 	m.Stam.Subtract(int(finalDamage))
 	return int(finalDamage), 0

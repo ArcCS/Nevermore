@@ -1,4 +1,4 @@
-package spells
+package objects
 
 type Spell struct {
 	Name        string
@@ -640,4 +640,85 @@ var Spells = map[string]Spell{
 		Effect:      "embolden",
 		Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 8, "ranger": 8, "bard": 10, "thief": 12, "fighter": 15, "monk": 9},
 	},
+}
+
+var OffensiveSpells = []string{
+	"hurt",
+	"rumble",
+	"burn",
+	"blister",
+	"dustgust",
+	"stonecrush",
+	"fireball",
+	"waterbolt",
+	"shockbolt",
+	"shatterstone",
+	"burstflame",
+	"steamblast",
+	"lightning",
+	"engulf",
+	"immolate",
+	"bloodboil",
+	"thunderbolt",
+	"earthquake",
+	"flamefill",
+	"iceblade",
+	"inferno",
+	"acidify",
+	"thunderstorm",
+	"frostspikes",
+	"venom",
+	"hellfire",
+	"disintegrate",
+	"ionize",
+	"frostbite",
+	"putrify",
+	"disrupt-magic",
+}
+
+var HealingSpells = []string{
+	"vigor",
+	"mend",
+	"heal",
+	"restore",
+	"detraumatize",
+	"renewal",
+}
+
+var SupportSpells = []string{
+	"curepoison",
+	"bless",
+	"protection",
+	"invisibility",
+	"detect-invisible",
+	"resist-fire",
+	"resist-magic",
+	"remove-curse",
+	"resist-air",
+	"resist-water",
+	"resist-earth",
+	"remove-disease",
+	"remove-blindness",
+	"inertial-barrier",
+	"surge",
+	"resist-poison",
+	"resilient-aura",
+	"resist-disease",
+	"reflection",
+	"dodge",
+	"resist-acid",
+	"embolden",
+}
+
+var MiscSpells = []string{
+	"teleport",
+	"stun",
+	"enchant",
+	"word of recall",
+	"summon",
+	"wizard-walk",
+	"levitate",
+	"clairvoyance",
+	"polymorph",
+	"attraction",
 }

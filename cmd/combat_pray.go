@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/spells"
 )
 
 func init() {
@@ -37,7 +37,7 @@ func (pray) process(s *state) {
 		return
 	}
 
-	spells.CharEffects["pray"](s.actor, map[string]interface{}{})
+	objects.CharEffects["pray"](s.actor, map[string]interface{}{})
 	s.msg.Observers.SendInfo(s.actor.Name + " prays.")
 	s.actor.SetTimer("combat_pray", 60*10)
 

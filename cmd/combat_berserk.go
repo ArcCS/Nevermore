@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/spells"
 )
 
 func init() {
@@ -39,7 +39,7 @@ func (berserk) process(s *state) {
 	}
 
 	s.actor.RunHook("combat")
-	spells.CharEffects["berserk"](s.actor, map[string]interface{}{})
+	objects.CharEffects["berserk"](s.actor, map[string]interface{}{})
 	s.msg.Observers.SendInfo(s.actor.Name + " goes berserk!")
 	s.actor.SetTimer("combat_berserk", 60*10)
 
