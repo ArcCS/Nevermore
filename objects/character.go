@@ -591,6 +591,10 @@ func (c *Character) MaxWeight() int {
 	return config.MaxWeight(c.Str.Current)
 }
 
+func (c *Character) Refresh() {
+	//TODO: Add refresh for heals/broadcast/enchants
+}
+
 func (c *Character) WriteMovement(previous int, new int, subject string) {
 	mvAmnt := math.Abs(float64(previous - new))
 	color := text.Yellow

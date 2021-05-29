@@ -21,8 +21,7 @@ func (broadcast) process(s *state) {
 		return
 	}
 
-	/* TODO: Uncomment this block after Beta
-	if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster {
+	if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster) {
 		if s.actor.Broadcasts < 1 {
 			s.msg.Actor.SendBad("You're out of broadcasts today.")
 		}else{
@@ -30,9 +29,8 @@ func (broadcast) process(s *state) {
 			stats.ActiveCharacters.MessageAll("### " + s.actor.Name + ": " + strings.Join(s.input, " "))
 		}
 	}else {
-	*/
-	stats.ActiveCharacters.MessageAll("### " + s.actor.Name + ": " + strings.Join(s.input, " "))
-	//}
+		stats.ActiveCharacters.MessageAll("### " + s.actor.Name + ": " + strings.Join(s.input, " "))
+	}
 
 	s.ok = true
 	return

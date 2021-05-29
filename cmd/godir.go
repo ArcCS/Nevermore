@@ -90,7 +90,7 @@ func (godir) process(s *state) {
 			} else {
 				if !toE.Flags["placement_dependent"] {
 					//  Next room needs to be active
-					if !objects.Rooms[toE.ToId].Flags["active"] {
+					if !objects.Rooms[toE.ToId].Flags["active"] && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 						s.msg.Actor.SendBad("Go where?")
 						return
 					}
