@@ -59,7 +59,7 @@ func (cast) process(s *state) {
 		whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 		// It was a mob!
 		if whatMob != nil {
-			if s.actor.Mana.Current > spellInstance.Cost || s.actor.Class == 100 {
+			if s.actor.Mana.Current >= spellInstance.Cost || s.actor.Class == 100 {
 				s.actor.Mana.Subtract(spellInstance.Cost)
 				msg = objects.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
 				s.actor.SetTimer("combat", 8)

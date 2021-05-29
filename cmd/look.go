@@ -68,8 +68,8 @@ func (look) process(s *state) {
 	// It was a person!
 	if whatChar != nil {
 		s.msg.Actor.SendInfo(whatChar.Look())
-		equip_template := "{{.Sub_pronoun}} is currently wearing..." +
-			" {{if .Chest}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Chest}} about {{.Pos_pronoun}} body{{end}}" +
+		s.msg.Actor.SendInfo(text.Gray + whatChar.Description + "\n")
+		equip_template := "{{if .Chest}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Chest}} about {{.Pos_pronoun}} body{{end}}" +
 			" {{if .Neck}}\n{{.Sub_pronoun}} {{.Isare}} a {{.Neck}} around {{.Pos_pronoun}} neck.{{end}}" +
 			" {{if .Main}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Main}} in {{.Pos_pronoun}} main hand.{{end}}" +
 			" {{if .Offhand}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Offhand}} in {{.Pos_pronoun}} off hand.{{end}}" +

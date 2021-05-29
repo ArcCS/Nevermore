@@ -65,6 +65,12 @@ var ThwompRoll = 50
 var CrushingRoll = 500
 var ThunkRoll = 1000
 
+// Mob Things
+var MobBlock = 70
+var MobBlockPerLevel = 10
+var MobFollow = 60
+var MobFollowPerLevel = 5
+
 // Double Damage is out of 100
 var Parry = []int{
 	0,

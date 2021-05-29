@@ -44,8 +44,10 @@ func (give) process(s *state) {
 				s.actor.Gold.SubIfCan(amount)
 				who.Gold.Add(amount)
 				s.msg.Actor.SendGood("You give ", targetStr, " to ", who.Name, ".")
-				s.msg.Participant.SendGood(s.actor.Name + " gives you " + targetStr)
-				s.msg.Observers.SendInfo("You see ", s.actor.Name, " give ", who.Name, " some gold.")
+				if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+					s.msg.Participant.SendGood(s.actor.Name + " gives you " + targetStr)
+					s.msg.Observers.SendInfo("You see ", s.actor.Name, " give ", who.Name, " some gold.")
+				}
 			} else {
 				s.msg.Actor.SendInfo("You don't have that much gold.")
 				return
@@ -78,8 +80,10 @@ func (give) process(s *state) {
 	}
 
 	s.msg.Actor.SendGood("You give ", target.Name, " to ", who.Name, ".")
-	s.msg.Participant.SendGood(s.actor.Name + " gives you " + target.Name)
-	s.msg.Observers.SendInfo("You see ", s.actor.Name, " give ", target.Name, " to ", who.Name, ".")
+	if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		s.msg.Participant.SendGood(s.actor.Name + " gives you " + target.Name)
+		s.msg.Observers.SendInfo("You see ", s.actor.Name, " give ", target.Name, " to ", who.Name, ".")
+	}
 
 	s.ok = true
 }

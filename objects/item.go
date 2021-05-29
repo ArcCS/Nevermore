@@ -3,7 +3,6 @@ package objects
 import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 )
 
 type Item struct {
@@ -64,8 +63,6 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 }
 
 func (i *Item) GetWeight() int {
-	log.Println("Processing item weight:")
-	log.Println(i.Name)
 	if i.ItemType == 9 && !i.Flags["weightless_chest"] {
 		return i.Weight + i.Storage.TotalWeight
 	} else {

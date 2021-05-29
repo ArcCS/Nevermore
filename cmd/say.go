@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
@@ -21,12 +22,13 @@ func (say) process(s *state) {
 		return
 	}
 
-	/*// TODO: Finish Get all location inventories within 1 move of current location
 	for _, loc := range s.where.Exits {
-		room := rooms.Rooms[loc.ToId]
-		s.AddCharLock(int(room.RoomId))
+		room := objects.Rooms[loc.ToId]
+		room.Chars.Lock()
+		room.MessageAll("You hear someone speaking nearby.")
+		room.Chars.Unlock()
 	}
-	*/
+
 	who := s.actor.Name
 
 	if s.actor.Flags["invisible"] {

@@ -595,6 +595,8 @@ func (m *Mob) Save() {
 	mobData["undead"] = utils.Btoi(m.Flags["undead"])
 	mobData["breathes"] = m.BreathWeapon
 	mobData["fast_moving"] = utils.Btoi(m.Flags["fast_moving"])
+	mobData["night_only"] = utils.Btoi(m.Flags["night_only"])
+	mobData["day_only"] = utils.Btoi(m.Flags["day_only"])
 	mobData["guard_treasure"] = utils.Btoi(m.Flags["guard_treasure"])
 	mobData["take_treasure"] = utils.Btoi(m.Flags["take_treasure"])
 	mobData["steals"] = utils.Btoi(m.Flags["steals"])

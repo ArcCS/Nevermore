@@ -137,6 +137,8 @@ func (examine) process(s *state) {
 				{"T", "permanent", strconv.FormatBool(mobRef.Flags["permanent"]), "Does not despawn from room"},
 				{"T", "hostile", strconv.FormatBool(mobRef.Flags["hostile"]), "Mob is hostile"},
 				{"T", "undead", strconv.FormatBool(mobRef.Flags["undead"]), "Mob is undead"},
+				{"T", "day_only", strconv.FormatBool(mobRef.Flags["day_only"]), "Mob will only spawn during the day."},
+				{"T", "night_only", strconv.FormatBool(mobRef.Flags["undead"]), "Mob will only spawn during the night."},
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 			s.msg.Actor.SendGood(t.Render())

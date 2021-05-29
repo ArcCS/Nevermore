@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
@@ -14,12 +15,12 @@ func init() {
 		"N", "NE", "E", "SE", "S", "SW", "W", "NW", "U", "D",
 		"NORTH", "NORTHEAST", "EAST", "SOUTHEAST",
 		"SOUTH", "SOUTHWEST", "WEST", "NORTHWEST",
-		"UP", "DOWN", "GO")
+		"UP", "DOWN", "GO", "OUT")
 }
 
 var (
 	directionals = []string{"N", "NE", "E", "SE", "S", "SW", "W", "NW", "U", "D", "NORTH", "NORTHEAST",
-		"EAST", "SOUTHEAST", "SOUTH", "SOUTHWEST", "WEST", "NORTHWEST", "UP", "DOWN"}
+		"EAST", "SOUTHEAST", "SOUTH", "SOUTHWEST", "WEST", "NORTHWEST", "UP", "DOWN", "OUT"}
 
 	directionIndex = map[string]string{
 		"N":         "NORTH",
@@ -88,9 +89,41 @@ func (godir) process(s *state) {
 				return
 			} else {
 				if !toE.Flags["placement_dependent"] {
-					//TODO Check various exit flags,  perform mob blocking
+					//  Next room needs to be active
+					if !objects.Rooms[toE.ToId].Flags["active"] {
+						s.msg.Actor.SendBad("Go where?")
+						return
+					}
+					//TODO: Night/Day/Level Checks
+
 					//log.Println(rooms.Rooms[toE.ToId].Crowded())
 					if !objects.Rooms[toE.ToId].Crowded() {
+						for _ , mob := range s.where.Mobs.Contents {
+							// Check if a mob blocks.
+							if mob.Flags["block_exit"] {
+								curChance := config.MobBlock - ((s.actor.Tier - mob.Level)*config.MobBlockPerLevel)
+								if curChance > 85 {
+									curChance = 85
+								}
+								if utils.Roll(100, 1, 0) <= curChance{
+									s.msg.Actor.SendBad(mob.Name + " blocks your way.")
+									return
+								}
+							}
+							if mob.Flags["follows"] {
+								curChance := config.MobFollow - ((s.actor.Tier - mob.Level)*config.MobFollowPerLevel)
+								if curChance > 85 {
+									curChance = 85
+								}
+								if utils.Roll(100, 1, 0) <= curChance{
+									s.msg.Actor.SendBad(mob.Name + " follows you!")
+									from.Mobs.Remove(mob)
+									//TODO Calculate Vital?
+									to.Mobs.Add(mob)
+									mob.CurrentTarget = s.actor.Name
+								}
+							}
+						}
 						from.Chars.Remove(s.actor)
 						to.Chars.Add(s.actor)
 						s.actor.Placement = 3

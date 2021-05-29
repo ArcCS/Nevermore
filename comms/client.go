@@ -9,6 +9,7 @@ import (
 	"bufio"
 	"bytes"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/stats"
 	"io"
 	"log"
@@ -115,7 +116,9 @@ func (c *client) process() {
 			}
 			useTime := config.Server.IdleTimeout
 			if ok := c.frontend.GetCharacter(); ok != nil {
-				if c.frontend.GetCharacter().Flags["AFK"] {
+				if c.frontend.GetCharacter().Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+					useTime = 30 * time.Minute
+				}else if c.frontend.GetCharacter().Flags["AFK"] {
 					useTime = config.Server.AFKTimeout
 				} else if c.frontend.GetCharacter().Flags["OOC"] {
 					useTime = config.Server.OOCTimeout

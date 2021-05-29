@@ -102,6 +102,8 @@ func LoadMob(mobId int) map[string]interface{} {
 	breathes: m.breathes,
 	drops: collect({chance: d.chance, item_id: i.item_id}),
 	flags:{
+	day_only: m.day_only,
+	night_only: m.night_only,
 	fast_moving: m.fast_moving,
 	guard_treasure: m.guard_treasure,
 	take_treasure: m.take_treasure,
@@ -183,6 +185,8 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		m.spits_acid = 0,
 		m.ranged_attack = 0,
 		m.flees = 0,
+		m.day_only = 0,
+		m.night_only =0,
 		m.blinds = 0,
 		m.hostile=0`,
 		map[string]interface{}{
@@ -250,6 +254,8 @@ func UpdateMob(mobData map[string]interface{}) bool {
 		m.spits_acid=$spits_acid,
 		m.ranged_attack=$ranged_attack,
 		m.flees=$flees,
+		m.day_only=$day_only,
+		m.night_only=$night_only,
 		m.blinds=$blinds,
 		m.hostile=$hostile`,
 		map[string]interface{}{
@@ -300,6 +306,8 @@ func UpdateMob(mobData map[string]interface{}) bool {
 			"ranged_attack": 	   mobData["ranged_attack"],
 			"flees": 			   mobData["flees"],
 			"blinds": 			   mobData["blinds"],
+			"night_only":		   mobData["night_only"],
+			"day_only":		   	   mobData["day_only"],
 			"undead":			   mobData["undead"],
 		},
 	)

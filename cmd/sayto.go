@@ -17,17 +17,18 @@ func init() {
 type sayto cmd
 
 func (sayto) process(s *state) {
-	if len(s.words) < 2 {
+	if len(s.input) < 1 {
 		s.msg.Actor.SendInfo("What did you want to say?")
 		return
 	}
 
-	/*// TODO: Finish Get all location inventories within 1 move of current location
 	for _, loc := range s.where.Exits {
-		room := rooms.Rooms[loc.ToId]
-		s.AddCharLock(int(room.RoomId))
+		room := objects.Rooms[loc.ToId]
+		room.Chars.Lock()
+		room.MessageAll("You hear someone speaking nearby.")
+		room.Chars.Unlock()
 	}
-	*/
+
 	whoSays := s.actor.Name
 	whoStr := s.words[0]
 

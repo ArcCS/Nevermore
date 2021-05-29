@@ -33,6 +33,7 @@ const (
 	BGMagenta = "\033[45m"
 	BGCyan    = "\033[46m"
 	BGWhite   = "\033[47m"
+	Gray 	  = "\u001b[38;5;36m"
 
 	// Setup brown as an alias for yellow
 	Brown   = Yellow

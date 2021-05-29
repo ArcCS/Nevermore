@@ -55,7 +55,90 @@ func dispatchHandler(s *state) {
 		}
 		s.actor.EmptyCommands()
 
-		// TODO: Check the items in the players inventory
+		for _, i := range s.actor.Inventory.Contents {
+			// Check the room stack for a command second:
+			if val, ok := i.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Head != nil {
+			if val, ok := s.actor.Equipment.Head.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Chest != nil {
+			if val, ok := s.actor.Equipment.Chest.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Neck != nil {
+			if val, ok := s.actor.Equipment.Neck.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Legs != nil {
+			if val, ok := s.actor.Equipment.Legs.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Feet != nil {
+			if val, ok := s.actor.Equipment.Feet.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Arms != nil {
+			if val, ok := s.actor.Equipment.Arms.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Hands != nil {
+			if val, ok := s.actor.Equipment.Hands.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Ring1 != nil {
+			if val, ok := s.actor.Equipment.Ring1.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Ring2 != nil {
+			if val, ok := s.actor.Equipment.Ring2.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Main != nil {
+			if val, ok := s.actor.Equipment.Main.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
+
+		if s.actor.Equipment.Off != nil {
+			if val, ok := s.actor.Equipment.Off.Commands[s.cmd]; ok {
+				s.scriptAll(val.Command, strings.Join(s.input, " "))
+				return
+			}
+		}
 
 		// Check the room stack for a command second:
 		if val, ok := s.where.Commands[s.cmd]; ok {
@@ -63,7 +146,17 @@ func dispatchHandler(s *state) {
 			return
 		}
 
-		// TODO: Check the permanent items in the room
+		for _, i := range s.where.Items.Contents {
+			// Check the room stack for a command second:
+			if i.Flags["permanent"] {
+				if i.Placement == s.actor.Placement {
+					if val, ok := i.Commands[s.cmd]; ok {
+						s.scriptAll(val.Command, strings.Join(s.input, " "))
+						return
+					}
+				}
+			}
+		}
 
 		switch handler, valid := handlers[s.cmd]; {
 		case valid:

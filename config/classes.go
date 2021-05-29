@@ -212,6 +212,7 @@ func ClassTitle(class int, gender string, tier int) string {
 
 }
 
+
 var TextGender = map[string]string{"m": "male", "f": "female"}
 var TextSubPronoun = map[string]string{"m": "he", "f": "she"}
 var TextPosPronoun = map[string]string{"m": "his", "f": "her"}
