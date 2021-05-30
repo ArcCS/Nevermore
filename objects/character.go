@@ -645,18 +645,20 @@ func (c *Character) LoseParty(){
 }
 
 func (c *Character) Unfollow(){
-	for i, char := range c.PartyFollow.PartyFollowers {
-		if char == c {
-			copy(c.PartyFollow.PartyFollowers[i:], c.PartyFollow.PartyFollowers[i+1:])
-			c.PartyFollow.PartyFollowers[len(c.PartyFollow.PartyFollowers)-1] = nil
-			c.PartyFollow.PartyFollowers = c.PartyFollow.PartyFollowers[:len(c.PartyFollow.PartyFollowers)-1]
+	if c.PartyFollow != nil {
+		for i, char := range c.PartyFollow.PartyFollowers {
+			if char == c {
+				copy(c.PartyFollow.PartyFollowers[i:], c.PartyFollow.PartyFollowers[i+1:])
+				c.PartyFollow.PartyFollowers[len(c.PartyFollow.PartyFollowers)-1] = nil
+				c.PartyFollow.PartyFollowers = c.PartyFollow.PartyFollowers[:len(c.PartyFollow.PartyFollowers)-1]
+			}
 		}
+		if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			c.PartyFollow.Write([]byte(text.Info + c.Name + " stops following you."))
+		}
+		c.Write([]byte(text.Info + "You stop following " + c.PartyFollow.Name))
+		c.PartyFollow = nil
 	}
-	if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		c.PartyFollow.Write([]byte(text.Info + c.Name + " stops following you."))
-	}
-	c.Write([]byte(text.Info + "You stop following " + c.PartyFollow.Name))
-	c.PartyFollow = nil
 }
 
 func (c *Character) MessageParty(msg string){
