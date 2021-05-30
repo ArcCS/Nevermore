@@ -49,7 +49,7 @@ func (create) process(s *state) {
 			objects.Mobs[mobId], _ = objects.LoadMob(data.LoadMob(mobId))
 			newMob := objects.Mob{}
 			copier.Copy(&newMob, objects.Mobs[mobId])
-			s.where.Mobs.Add(&newMob)
+			s.where.Mobs.Add(&newMob, false)
 			newMob.StartTicking()
 			s.msg.Actor.SendGood(newMob.Name + " added to the room.")
 		}

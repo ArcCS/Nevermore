@@ -39,7 +39,7 @@ func (spawn) process(s *state) {
 		//log.Println("Copying mob")
 		newMob := objects.Mob{}
 		copier.Copy(&newMob, objects.Mobs[mobId])
-		s.where.Mobs.Add(&newMob)
+		s.where.Mobs.Add(&newMob,false)
 		newMob.StartTicking()
 	case "item":
 		itemId, err := strconv.Atoi(s.words[1])

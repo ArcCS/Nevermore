@@ -10,7 +10,7 @@ func init() {
 	addHandler(act{},
 		"Usage:  act performs for all to see \n \n Perform actions.",
 		permissions.Player,
-		"act", "emote", "thumbsup", "thumbsdown", "crossfingers", "crossarms", "wink", "blink", "frown", "smile", "laugh", "nod", "shrug", "clap", "confused", "jump", "hiccup", "cackle", "burp", "sneeze", "cough", "dance", "shake", "whistle", "snap")
+		"act", "emote", "thumbsup", "thumbsdown", "crossfingers", "crossarms", "blink", "frown", "smile", "laugh", "nod", "shrug", "clap", "confused", "jump", "hiccup", "cackle", "burp", "sneeze", "cough", "dance", "shake", "whistle", "snap")
 }
 
 /*

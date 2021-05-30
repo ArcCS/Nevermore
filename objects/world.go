@@ -14,21 +14,8 @@ var Items = map[int]*Item{}
 
 // Load fills the world with love.
 func Load() {
-	log.Printf("Loading rooms")
-	preparse := data.LoadRooms()
-	for _, room := range preparse {
-		if room != nil {
-			roomData := room.(map[string]interface{})
-			Rooms[int(roomData["room_id"].(int64))], _ = LoadRoom(roomData)
-		}
-
-	}
-
-	log.Printf("Finished loading %d rooms.", len(Rooms))
-	preparse = nil
-
 	log.Printf("Loading mobs")
-	preparse = data.LoadMobs()
+	preparse := data.LoadMobs()
 	for _, mob := range preparse {
 		if mob != nil {
 			mobData := mob.(map[string]interface{})
@@ -50,6 +37,20 @@ func Load() {
 	}
 	log.Printf("Finished loading %d items.", len(Items))
 	preparse = nil
+
+	log.Printf("Loading rooms")
+	preparse = data.LoadRooms()
+	for _, room := range preparse {
+		if room != nil {
+			roomData := room.(map[string]interface{})
+			Rooms[int(roomData["room_id"].(int64))], _ = LoadRoom(roomData)
+		}
+
+	}
+
+	log.Printf("Finished loading %d rooms.", len(Rooms))
+	preparse = nil
+
 	runtime.GC()
 
 }

@@ -189,8 +189,10 @@ func (m *Mob) Tick() {
 		// We're kind of managing our own state...  set all the locks
 		m.TicksAlive++
 		if m.TicksAlive >= m.NumWander && m.CurrentTarget == "" {
-			go Rooms[m.ParentId].WanderMob(m)
-			return
+			if !m.Flags["permanent"] {
+				go Rooms[m.ParentId].WanderMob(m)
+				return
+			}
 		} else {
 			Rooms[m.ParentId].Chars.Lock()
 			Rooms[m.ParentId].Mobs.Lock()
@@ -557,6 +559,19 @@ func (m *Mob) Look() string {
 		buildText += "\n It looks hostile!"
 	}
 	return buildText
+}
+
+// Function to return only the modifiable properties
+func ReturnMobInstanceProps(mob *Mob) map[string]interface{} {
+	serialList := map[string]interface{}{
+		"mobId": mob.MobId,
+		"health":   mob.Stam.Current,
+		"mana":	mob.Mana.Current,
+		"placement": mob.Placement,
+		"inventory": mob.Inventory.Jsonify(),
+
+	}
+	return serialList
 }
 
 func (m *Mob) Save() {

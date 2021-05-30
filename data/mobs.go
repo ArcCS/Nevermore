@@ -170,7 +170,7 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		m.undead= 0, 
 		m.invisible= 0, 
 		m.permanent= 0,
-		m.breathes: "",
+		m.breathes = "",
 		m.fast_moving = 0,
 		m.guard_treasure = 0,
 		m.take_treasure = 0,
@@ -200,9 +200,9 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		return -1, false
 	}
 	if results.Counters().ContainsUpdates() {
-		return mob_id, true
+		return mob_id, false
 	} else {
-		return -1, false
+		return -1, true
 	}
 }
 

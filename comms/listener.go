@@ -11,6 +11,7 @@ import (
 	"github.com/ArcCS/Nevermore/jarvoral"
 	"log"
 	"net"
+	"os"
 	"runtime"
 )
 
@@ -63,7 +64,7 @@ func Listen(host, port string) {
 	}
 
 	log.Println("Shutting down the server...")
-	jarvoral.StopJarvoral()
 	data.DRIVER.Close()
-
+	jarvoral.StopJarvoral()
+	os.Exit(0)
 }

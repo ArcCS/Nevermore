@@ -84,6 +84,10 @@ type Character struct {
 	CharTickerUnload chan bool
 	Hooks map[string]map[string]*Hook
 	LastAction time.Time
+
+	//Party Stuff
+	PartyFollow *Character
+	PartyFollowers []*Character
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -155,6 +159,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				"say": make(map[string]*Hook),
 			},
 			time.Now(),
+			nil,
+			nil,
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
@@ -624,5 +630,39 @@ func (c *Character) WriteMovement(previous int, new int, subject string) {
 		c.Write([]byte(color + subject + " sprints forwards, away from you." + text.Reset + "\n"))
 	} else if (previous < new) && (mvAmnt == 2) && (new == c.Placement) {
 		c.Write([]byte(color + subject + " sprints forwards, next to you." + text.Reset + "\n"))
+	}
+}
+
+func (c *Character) LoseParty(){
+	if len(c.PartyFollowers) > 0 {
+		for _, player := range c.PartyFollowers {
+			player.PartyFollow = nil
+			player.Write([]byte(text.Info + c.Name + " loses you."))
+		}
+		c.PartyFollowers = nil
+	}
+	return
+}
+
+func (c *Character) Unfollow(){
+	for i, char := range c.PartyFollow.PartyFollowers {
+		if char == c {
+			copy(c.PartyFollow.PartyFollowers[i:], c.PartyFollow.PartyFollowers[i+1:])
+			c.PartyFollow.PartyFollowers[len(c.PartyFollow.PartyFollowers)-1] = nil
+			c.PartyFollow.PartyFollowers = c.PartyFollow.PartyFollowers[:len(c.PartyFollow.PartyFollowers)-1]
+		}
+	}
+	if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		c.PartyFollow.Write([]byte(text.Info + c.Name + " stops following you."))
+	}
+	c.Write([]byte(text.Info + "You stop following " + c.PartyFollow.Name))
+	c.PartyFollow = nil
+}
+
+func (c *Character) MessageParty(msg string){
+	if len(c.PartyFollowers) > 0 {
+		for _, char := range c.PartyFollowers {
+			char.Write([]byte(text.Info + c.Name + " party flashes# \"" + msg + "\"\n"))
+		}
 	}
 }

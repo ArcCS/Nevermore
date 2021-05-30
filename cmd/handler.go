@@ -41,7 +41,7 @@ func addHandler(h handler, helpString string, permission permissions.Permissions
 func dispatchHandler(s *state) {
 
 	if len(s.cmd) > 0 {
-		log.Println(s.actor.Name + " sent " + s.cmd + " with + " + strings.Join(s.input, " "))
+		log.Println(s.actor.Name + " sent " + s.cmd + " " + strings.Join(s.input, " "))
 		s.actor.LastAction = time.Now()
 		if s.cmd[0] == '$' && !s.scripting {
 			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (2)")

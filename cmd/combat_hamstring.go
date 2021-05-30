@@ -10,7 +10,7 @@ import (
 func init() {
 	addHandler(hamstring{},
 		"Usage:  hamstring target # \n\n Try to hamstring a mob to generate a large amount of threat",
-		permissions.Fighter, //TODO: Add Barbarian here
+		permissions.Fighter,
 		"hamstring", "ham")
 }
 

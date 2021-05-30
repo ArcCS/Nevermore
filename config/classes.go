@@ -30,7 +30,7 @@ func init() {
 	StartingGear[0] = []int{129, 1088}
 	StartingGear[1] = []int{227, 1088}
 	StartingGear[2] = []int{2628, 1088}
-	StartingGear[3] = []int{255, 1088}
+	StartingGear[3] = []int{665, 1088}
 	StartingGear[4] = []int{242, 1180, 3343, 1088, 2287}
 	StartingGear[5] = []int{227, 1179 , 242, 1088, 2287}
 	StartingGear[6] = []int{129, 1180, 1088, 2287}

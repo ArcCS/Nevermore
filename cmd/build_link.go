@@ -53,6 +53,10 @@ func (link) process(s *state) {
 					return
 				}
 				exitData := data.LoadExit(strings.ToLower(s.words[0]), roomRef, s.where.RoomId)
+				if exitData == nil {
+					s.msg.Actor.SendBad("Exit back creation failed.")
+					return
+				}
 				room.Exits[strings.ToLower(s.words[0])] = objects.NewExit(room.RoomId, exitData)
 			}
 			s.msg.Actor.SendGood("Exits created and loaded into game.")

@@ -60,9 +60,6 @@ func (sayto) process(s *state) {
 		s.msg.Observers.SendInfo(whoSays, " says to "+who.Name+": \"", msg, "\"")
 	}
 
-	// We need to calculate nearby locations in order to do this.
-	// Notify observers in near by locations
-	//s.msg.Observers.SendInfo("You hear talking nearby.")
 
 	s.ok = true
 	return

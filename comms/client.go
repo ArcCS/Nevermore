@@ -228,6 +228,8 @@ func (c *client) close() {
 		// Sometimes these disconnects are a little messy,  need to add some extra cleanup
 		if c.frontend.GetCharacter() != nil {
 			c.frontend.GetCharacter().Save()
+			c.frontend.GetCharacter().Unfollow()
+			c.frontend.GetCharacter().LoseParty()
 			stats.ActiveCharacters.Remove(c.frontend.GetCharacter())
 			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
 			c.frontend.GetCharacter().Unload()

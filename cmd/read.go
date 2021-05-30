@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 )
@@ -37,8 +38,16 @@ func (read) process(s *state) {
 				s.msg.Actor.SendBad("You study the scroll but find that it contains no spell.")
 				return
 			}
-			if _, ok := objects.Spells[what.Spell]; !ok {
+			spellInstance, ok := objects.Spells[what.Spell]
+			if !ok {
 				s.msg.Actor.SendBad("The spell contained does not exist in this world.")
+				return
+			}
+			if minLevel, ok :=  spellInstance.Classes[config.AvailableClasses[s.actor.Class]]; !ok {
+				s.msg.Actor.SendBad("The comprehension of this spell is beyond you.")
+				return
+			}else if s.actor.Tier < minLevel {
+				s.msg.Actor.SendBad("You are not high enough level to learn this spell.")
 				return
 			}
 			s.msg.Actor.SendGood("You study ", what.Name, " and learn the spell " + what.Spell)

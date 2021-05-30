@@ -12,8 +12,8 @@ func LoadRooms() []interface{} {
 	data, err := execRead("MATCH (r:room) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
 		`{room_id: r.room_id, creator: r.creator, name: r.name, description: r.description, encounter_rate: r.encounter_rate, 
 	encounters: collect({chance: s.chance, mob_id: m.mob_id}),
-	mobs: "",
-	inventory: "",
+	mobs: r.mobs,
+	inventory: r.inventory,
 	exits: collect({direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
 	flags:{closeable: e.closeable,
 	closed: e.closed,
@@ -64,8 +64,8 @@ func LoadRoom(room_id int) map[string]interface{} {
 	data, err := execRead("MATCH (r:room {room_id: $room_id}) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
 		`{room_id: r.room_id, creator: r.creator, name: r.name, description: r.description, encounter_rate: r.encounter_rate, 
 	encounters: collect({chance: s.change, mob_id: m.mob_id}),
-	mobs: "",
-	inventory: "",
+	mobs: r.mobs,
+	inventory: r.inventory,
 	exits: collect({direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
 	flags:{closeable: e.closeable,
 	closed: e.closed,
@@ -135,6 +135,9 @@ func LoadExit(exitName string, room_id int, toId int) map[string]interface{} {
 		log.Println(err)
 		return nil
 	}
+	if len(data) == 0 {
+		return nil
+	}
 	return data[0].Values[0].(map[string]interface{})
 }
 
@@ -171,6 +174,8 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 			"r.earth = 0, "+
 			"r.active = 0, "+
 			"r.train = 0, "+
+			"r.mobs = '[]', "+
+			"r.inventory = '[]', "+
 			"r.wind = 0",
 		map[string]interface{}{
 			"room_id":  room_id,
@@ -293,6 +298,8 @@ func UpdateRoom(roomData map[string]interface{}) bool {
 			"r.earth = $earth, "+
 			"r.active = $active, "+
 			"r.train = $train,"+
+			"r.mobs = $mobs, "+
+			"r.inventory = $inventory, "+
 			"r.wind = $wind",
 		map[string]interface{}{
 			"room_id":           roomData["room_id"],
@@ -323,6 +330,8 @@ func UpdateRoom(roomData map[string]interface{}) bool {
 			"wind":              roomData["wind"],
 			"active":            roomData["active"],
 			"train":             roomData["train"],
+			"mobs":             roomData["mobs"],
+			"inventory":       	roomData["inventory"],
 		},
 	)
 

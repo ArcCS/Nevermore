@@ -206,7 +206,7 @@ func (r *Room) FirstPerson() {
 									newMob := Mob{}
 									copier.Copy(&newMob, Mobs[mob])
 									newMob.Placement = 5
-									r.Mobs.Add(&newMob)
+									r.Mobs.Add(&newMob, false)
 									newMob.StartTicking()
 									break
 								}
@@ -342,8 +342,7 @@ func (r *Room) Save() {
 	roomData["wind"] = utils.Btoi(r.Flags["wind"])
 	roomData["active"] = utils.Btoi(r.Flags["active"])
 	roomData["train"] = utils.Btoi(r.Flags["train"])
+	roomData["mobs"] = r.Mobs.Jsonify()
+	roomData["inventory"] = r.Items.Jsonify()
 	data.UpdateRoom(roomData)
-
-	// TODO: Save permanent items
-	// TODO: save permanent mobs
 }

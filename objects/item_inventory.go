@@ -35,7 +35,7 @@ func (i *ItemInventory) Add(o *Item) {
 	i.TotalWeight += o.GetWeight()
 }
 
-// Pass character as a pointer, compare and remove
+// Pass item as a pointer to be removed
 func (i *ItemInventory) Remove(o *Item) (err error) {
 	defer func() (err error) {
 		if r := recover(); r != nil {

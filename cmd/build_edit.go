@@ -223,12 +223,20 @@ func (edit) process(s *state) {
 				for _, flag := range s.input[3:] {
 					if mob.ToggleFlag(strings.ToLower(flag)) {
 						s.msg.Actor.SendGood("Toggled " + flag)
+						if flag == "permanent" {
+							log.Println("Executing Last Person")
+							s.where.LastPerson()
+							log.Println("Executing Save")
+							s.where.Save()
+							log.Println("Executing first person..")
+							s.where.FirstPerson()
+						}
 					} else {
 						s.msg.Actor.SendBad("Failed to toggle " + flag + ".  Is it an actual flag?")
 					}
 				}
-
-				// Set a variable
+				return
+			// Set a variable
 			} else {
 				switch strings.ToLower(s.input[1]) {
 				case "description":

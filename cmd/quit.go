@@ -28,6 +28,8 @@ func (quit) process(s *state) {
 	s.where.Chars.Remove(s.actor)
 	s.msg.Actor.SendGood("You leave this world behind.")
 	s.actor.Save()
+	s.actor.Unfollow()
+	s.actor.LoseParty()
 	stats.ActiveCharacters.Remove(s.actor)
 	s.ok = true
 }

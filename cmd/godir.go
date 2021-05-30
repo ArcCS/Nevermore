@@ -43,6 +43,7 @@ var (
 		"UP":        "UP",
 		"D":         "DOWN",
 		"DOWN":      "DOWN",
+		"OUT":		"OUT",
 	}
 )
 
@@ -96,53 +97,59 @@ func (godir) process(s *state) {
 					}
 					//TODO: Night/Day/Level Checks
 
-					//log.Println(rooms.Rooms[toE.ToId].Crowded())
-					if !objects.Rooms[toE.ToId].Crowded() {
-						for _ , mob := range s.where.Mobs.Contents {
+					if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+						if objects.Rooms[toE.ToId].Crowded() {
+							s.msg.Actor.SendInfo("That area is crowded.")
+							s.ok = true
+							return
+						}
+						for _, mob := range s.where.Mobs.Contents {
 							// Check if a mob blocks.
 							if mob.Flags["block_exit"] {
-								curChance := config.MobBlock - ((s.actor.Tier - mob.Level)*config.MobBlockPerLevel)
+								curChance := config.MobBlock - ((s.actor.Tier - mob.Level) * config.MobBlockPerLevel)
 								if curChance > 85 {
 									curChance = 85
 								}
-								if utils.Roll(100, 1, 0) <= curChance{
+								if utils.Roll(100, 1, 0) <= curChance {
 									s.msg.Actor.SendBad(mob.Name + " blocks your way.")
 									return
 								}
 							}
 							if mob.Flags["follows"] {
-								curChance := config.MobFollow - ((s.actor.Tier - mob.Level)*config.MobFollowPerLevel)
+								curChance := config.MobFollow - ((s.actor.Tier - mob.Level) * config.MobFollowPerLevel)
 								if curChance > 85 {
 									curChance = 85
 								}
-								if utils.Roll(100, 1, 0) <= curChance{
+								if utils.Roll(100, 1, 0) <= curChance {
 									s.msg.Actor.SendBad(mob.Name + " follows you!")
 									from.Mobs.Remove(mob)
 									//TODO Calculate Vital?
-									to.Mobs.Add(mob)
+									to.Mobs.Add(mob, false)
 									mob.CurrentTarget = s.actor.Name
 								}
 							}
 						}
-						from.Chars.Remove(s.actor)
-						to.Chars.Add(s.actor)
-						s.actor.Placement = 3
-						s.actor.ParentId = toE.ToId
-						// Broadcast leaving and arrival notifications
-						if s.actor.Flags["invisible"] == false {
-							s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(to.Name), ".")
-							s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
-						}
-						s.scriptActor("LOOK")
-						s.ok = true
-						return
-					} else {
-						s.msg.Actor.SendInfo("That area is crowded.")
-						s.ok = true
-						return
 					}
-				}
 
+					from.Chars.Remove(s.actor)
+					to.Chars.Add(s.actor)
+					s.actor.Placement = 3
+					s.actor.ParentId = toE.ToId
+					// Broadcast leaving and arrival notifications
+					if s.actor.Flags["invisible"] == false {
+						s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
+						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
+					}
+					if len(s.actor.PartyFollowers) > 0 {
+						for _, party := range s.actor.PartyFollowers{
+
+							go Script(party, s.cmd + " " + strings.Join(s.input, " "))
+						}
+					}
+					s.scriptActor("LOOK")
+					s.ok = true
+					return
+				}
 			}
 		}
 	} else {
@@ -150,5 +157,4 @@ func (godir) process(s *state) {
 		s.ok = true
 		return
 	}
-
 }

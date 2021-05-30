@@ -60,7 +60,7 @@ func (get) process(s *state) {
 				s.actor.RunHook("act")
 				s.where.Items.Remove(roomInventory)
 				s.actor.Gold.Add(roomInventory.Value)
-				s.msg.Actor.SendGood("You picked up ", roomInventory.Name, " and put it in your gold pouch.")
+				s.msg.Actor.SendGood("You picked up ", strconv.Itoa(roomInventory.Value), " gold pieces.")
 				s.msg.Observers.SendInfo("You see ", s.actor.Name, " get ", roomInventory.Name, ".")
 				return
 			} else if (s.actor.Inventory.TotalWeight + roomInventory.GetWeight()) <= s.actor.MaxWeight() {
@@ -108,7 +108,9 @@ func (get) process(s *state) {
 					where.Storage.Unlock()
 					s.actor.Inventory.Unlock()
 					s.msg.Actor.SendGood("You take ", whereInventory.Name, " from ", where.Name, ".")
-					s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " take ", where.Name, ".")
+					if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+						s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " take ", where.Name, ".")
+					}
 					return
 				} else {
 					s.msg.Actor.SendInfo("That item weighs too much for you to add to your inventory.")

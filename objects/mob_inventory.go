@@ -1,9 +1,11 @@
 package objects
 
 import (
+	"encoding/json"
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
+	"github.com/jinzhu/copier"
 	"strconv"
 	"strings"
 	"sync"
@@ -24,20 +26,22 @@ func NewMobInventory(ParentID int, o ...*Mob) *MobInventory {
 	}
 
 	for _, ob := range o {
-		i.Add(ob)
+		i.Add(ob, false)
 	}
 
 	return i
 }
 
 // Add adds the specified Mob to the Contents.
-func (i *MobInventory) Add(o *Mob) {
+func (i *MobInventory) Add(o *Mob, silent bool) {
 	o.ParentId = i.ParentId
 	i.Contents = append(i.Contents, o)
-	if o.Flags["invisible"] {
-		Rooms[i.ParentId].MessageVisible(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
-	} else if !o.Flags["hidden"] {
-		Rooms[i.ParentId].MessageAll(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
+	if !silent {
+		if o.Flags["invisible"] {
+			Rooms[i.ParentId].MessageVisible(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
+		} else if !o.Flags["hidden"] {
+			Rooms[i.ParentId].MessageAll(text.Magenta + "You encounter: " + o.Name + text.Reset + "\n")
+		}
 	}
 }
 
@@ -214,13 +218,32 @@ func (i *MobInventory) Free() {
 	}
 }
 
+func (i *MobInventory) Jsonify() string {
+	mobList := make([]map[string]interface{}, 0)
+
+	if len(i.Contents) == 0 {
+		return "[]"
+	}
+
+	for _, o := range i.Contents {
+		if o.Flags["permanent"] {
+			mobList = append(mobList, ReturnMobInstanceProps(o))
+		}
+	}
+
+	data, err := json.Marshal(mobList)
+	if err != nil {
+		return "[]"
+	} else {
+		return string(data)
+	}
+}
+
 func RestoreMobs(ParentID int, jsonString string) *MobInventory {
-	// TODO: Needs implementation
 	NewInventory := &MobInventory{
 		ParentId: ParentID,
 		Contents: make([]*Mob, 0, 0),
 	}
-	/*
 	obj := make([]map[string]interface{}, 0)
 	err := json.Unmarshal([]byte(jsonString), &obj)
 	if err != nil {
@@ -229,17 +252,12 @@ func RestoreMobs(ParentID int, jsonString string) *MobInventory {
 	for _, mob := range obj {
 		newMob := Mob{}
 		copier.Copy(&newMob, Mobs[int(mob["mobId"].(float64))])
-		newMob.Name = mob["name"].(string)
-
-		newItem.MaxUses = int(item["uses"].(float64))
-		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
-		newItem.Spell = item["spell"].(string)
-		newItem.Armor = int(item["armor"].(float64))
-
-
-		NewInventory.Add(&newMob)
+		newMob.Stam.Current = int(mob["health"].(float64))
+		newMob.Mana.Current = int(mob["mana"].(float64))
+		newMob.Placement = int(mob["placement"].(float64))
+		newMob.Inventory = RestoreInventory(mob["inventory"].(string))
+		NewInventory.Add(&newMob, true)
 
 	}
-	 */
 	return NewInventory
 }

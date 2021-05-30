@@ -26,10 +26,10 @@ func (tell) process(s *state) {
 	who := stats.ActiveCharacters.Find(whoStr)
 	if who != nil {
 		stats.ActiveCharacters.Lock()
-		who.Write([]byte(text.White + s.actor.Name + " flashes#, " + message + text.Reset + "\n"))
+		who.Write([]byte(text.White + s.actor.Name + " flashes#, \"" + message + "\"" + text.Reset + "\n"))
 		stats.ActiveCharacters.Unlock()
 		if !who.Flags["invisible"] {
-			s.msg.Actor.SendGood("You sent#, " + message + ", to " + who.Name)
+			s.msg.Actor.SendGood("You sent#, \"" + message + "\", to " + who.Name)
 		} else {
 			s.msg.Actor.SendBad("Send what to who?")
 		}

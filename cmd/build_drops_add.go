@@ -39,19 +39,23 @@ func (adddrop) process(s *state) {
 		log.Println(err3)
 	}
 
-	// TODO: Add a limit of 10 items to a drop table.
 	if _, ok := objects.Mobs[mob_id]; ok {
 		if _, ok := objects.Items[item_id]; ok {
-			if drop_rate <= 100 {
-				data.CreateDrop(map[string]interface{}{
-					"mobId":  mob_id,
-					"itemId": item_id,
-					"chance": drop_rate})
-				objects.Mobs[mob_id].ItemList[item_id] = drop_rate
-				s.msg.Actor.SendGood("Drop added to mob drops")
-			} else {
-				s.msg.Actor.SendBad("You can't set a drop to more than 100%")
+			if len(objects.Mobs[mob_id].ItemList) > 10 {
+				if drop_rate <= 100 {
+					data.CreateDrop(map[string]interface{}{
+						"mobId":  mob_id,
+						"itemId": item_id,
+						"chance": drop_rate})
+					objects.Mobs[mob_id].ItemList[item_id] = drop_rate
+					s.msg.Actor.SendGood("Drop added to mob drops")
+				} else {
+					s.msg.Actor.SendBad("You can't set a drop to more than 100%")
+				}
+			}else{
+				s.msg.Actor.SendBad("There are already 10 items in this mobs drop list.")
 			}
+
 		} else {
 			s.msg.Actor.SendBad("That item ID doesn't exist.")
 		}
