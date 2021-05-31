@@ -3,12 +3,14 @@ package cmd
 import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
-	addHandler(buy{}, "", permissions.Player, "$BUY")
+	addHandler(create_menu{}, "",
+	permissions.Builder,
+	"create_menu")
 }
 
-type buy cmd
+type create_menu cmd
 
-func (buy) process(s *state) {
+func (create_menu) process(s *state) {
 	s.msg.Actor.SendInfo("WIP, coming soon.")
 	// TODO: Buy items from an inventory
 }

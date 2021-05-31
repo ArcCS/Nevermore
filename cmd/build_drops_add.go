@@ -41,7 +41,7 @@ func (adddrop) process(s *state) {
 
 	if _, ok := objects.Mobs[mob_id]; ok {
 		if _, ok := objects.Items[item_id]; ok {
-			if len(objects.Mobs[mob_id].ItemList) > 10 {
+			if len(objects.Mobs[mob_id].ItemList) < 10 {
 				if drop_rate <= 100 {
 					data.CreateDrop(map[string]interface{}{
 						"mobId":  mob_id,

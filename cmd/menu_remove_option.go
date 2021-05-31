@@ -3,12 +3,15 @@ package cmd
 import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
-	addHandler(list{}, "", permissions.Player, "$LIST")
+	addHandler(remove_option{},
+	"",
+	permissions.Builder,
+	"remove_option")
 }
 
-type list cmd
+type remove_option cmd
 
-func (list) process(s *state) {
+func (remove_option) process(s *state) {
 	s.msg.Actor.SendInfo("WIP, coming soon.")
 	// TODO: List the items in this story inventory
 }
