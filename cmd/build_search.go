@@ -10,7 +10,7 @@ import (
 
 func init() {
 	addHandler(find{},
-		"Usage:  find (room|mob|item) name|desc (text) (page #) \n \n Use this command to search the database and find a list of matching items \n Items can also be replace name or desc with maxdam example: \n find item maxdam 25 \n To find a weapon with a maximum damage associated with it. ",
+		"Usage:  find (room|mob|item) name|desc|maxdam|range (text) (page #) \n \n Use this command to search the database and find a list of matching items \n Items can also be replace name or desc with maxdam example: \n find item maxdam 25 \n To find a weapon with a maximum damage associated with it. \n Mobs/Items can also be replace name or desc with range example: \n find item range 225-250 \n To find all mobs in a specific id range. ",
 		permissions.Player,
 		"find")
 }
@@ -85,6 +85,25 @@ func (find) process(s *state) {
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
 			s.actor.AddCommands("more", "find mob desc "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
+		} else if searchType == "range" {
+			idRange := strings.Split(searchText, "-")
+			loId, _ := strconv.Atoi(idRange[0])
+			hiId, _ := strconv.Atoi(idRange[1])
+			if loId > hiId {
+				s.msg.Actor.SendBad("Bad ID Range")
+				return
+			}
+			results := data.SearchMobRange(loId, hiId, config.Server.SearchResults*searchPage)
+			s.msg.Actor.SendGood("===== Search Results =====")
+			for _, item := range results {
+				if item != nil {
+					itemData := item.(map[string]interface{})
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["mob_id"].(int64))) + ")(" + strconv.Itoa(int(itemData["level"].(int64))) + ") " + itemData["name"].(string))
+				}
+			}
+			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
+			s.actor.AddCommands("more", "find mob range "+searchText+" "+strconv.Itoa(searchPage+1))
+			return
 		} else {
 			s.msg.Actor.SendBad("Search which field?")
 		}
@@ -123,7 +142,26 @@ func (find) process(s *state) {
 				}
 			}
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
-			s.actor.AddCommands("more", "find item maxdam "+searchText+" "+strconv.Itoa(searchPage+1))
+			s.actor.AddCommands("more", "find item range "+searchText+" "+strconv.Itoa(searchPage+1))
+			return
+		}else if searchType == "range" {
+			idRange := strings.Split(searchText, "-")
+			loId, _ := strconv.Atoi(idRange[0])
+			hiId, _ := strconv.Atoi(idRange[1])
+			if loId > hiId {
+				s.msg.Actor.SendBad("Bad ID Range")
+				return
+			}
+			results := data.SearchItemRange(loId, hiId, config.Server.SearchResults*searchPage)
+			s.msg.Actor.SendGood("===== Search Results =====")
+			for _, item := range results {
+				if item != nil {
+					itemData := item.(map[string]interface{})
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["item_id"].(int64))) + ")(" + config.ItemTypes[int(itemData["type"].(int64))] + ") " + itemData["name"].(string))
+				}
+			}
+			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
+			s.actor.AddCommands("more", "find item range "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else {
 			s.msg.Actor.SendBad("Search which field?")

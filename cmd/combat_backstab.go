@@ -89,18 +89,23 @@ func (backstab) process(s *state) {
 
 		curChance += s.actor.Dex.Current * config.BackStabChancePerPoint
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor.Name)
+		s.actor.Victim = whatMob
 		if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["backstab"]))))
 			s.msg.Actor.SendInfo("You backstabbed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
-			s.msg.Observers.SendInfo(s.actor.Name + " bashes " + whatMob.Name)
+			s.msg.Observers.SendInfo(s.actor.Name + " backstabs " + whatMob.Name)
 			if whatMob.Stam.Current <= 0 {
 				s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
 				s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
 				//TODO Calculate experience
 				stringExp := strconv.Itoa(whatMob.Experience)
 				for k := range whatMob.ThreatTable {
-					s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-					s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
+					charClean := s.where.Chars.Search(k, s.actor)
+					charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+					charClean.Experience.Add(whatMob.Experience)
+					if charClean.Victim == whatMob {
+						charClean.Victim = nil
+					}
 				}
 				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
 				s.msg.Actor.SendInfo(whatMob.DropInventory())

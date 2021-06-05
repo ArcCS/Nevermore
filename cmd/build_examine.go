@@ -51,6 +51,7 @@ func (examine) process(s *state) {
 		t.AppendHeader(table.Row{"Type", "Variable Name", "Value", "Description"})
 		t.AppendRows([]table.Row{
 			{"V", "name", roomRef.Name, "Title/Name of the room"},
+			{"V", "storeowner", roomRef.StoreOwner, "If this is a store, who is the owner that can add items?"},
 			{"T", "repair", strconv.FormatBool(roomRef.Flags["repair"]), "Can repair items here."},
 			{"T", "mana_drain", strconv.FormatBool(roomRef.Flags["mana_drain"]), "Drains mana per tick"},
 			{"T", "no_summon", strconv.FormatBool(roomRef.Flags["no_summon"]), "Blocks summon"},
@@ -116,13 +117,13 @@ func (examine) process(s *state) {
 				{"V", "fire_resistance", mobRef.FireResistance, "Resists fire damage %."},
 				{"V", "water_resistance", mobRef.WaterResistance, "Resists water damage %."},
 				{"V", "breathes", mobRef.BreathWeapon, "Element breath, earth air fire lightning"},
-				{"V", "spells", strings.Join(mobRef.Spells, ", "), "Available spells"},
+				{"V", "spells", text.WrapSoft(strings.Join(mobRef.Spells, ", "), rowLength/5), "Available spells"},
 				{"T", "fast_moving", strconv.FormatBool(mobRef.Flags["fast_moving"]), "Mob is moves quickly"},
 				{"T", "guard_treasure", strconv.FormatBool(mobRef.Flags["guard_treasure"]), "Mob guards treasure."},
 				{"T", "take_treasure", strconv.FormatBool(mobRef.Flags["take_treasure"]), "Mob takes treasure."},
 				{"T", "steals", strconv.FormatBool(mobRef.Flags["steals"]), "Mob will steal from target."},
 				{"T", "block_exit", strconv.FormatBool(mobRef.Flags["block_exit"]), "Mob will block exits"},
-				{"T", "follows", strconv.FormatBool(mobRef.Flags["block_exit"]), "Mob will follow exiting target."},
+				{"T", "follows", strconv.FormatBool(mobRef.Flags["follows"]), "Mob will follow exiting target."},
 				{"T", "no_steal", strconv.FormatBool(mobRef.Flags["no_steal"]), "Cannot be stolen from."},
 				{"T", "detect_invisible", strconv.FormatBool(mobRef.Flags["detect_invisible"]), "Can see past invisibility."},
 				{"T", "no_stun", strconv.FormatBool(mobRef.Flags["no_stun"]), "Mob cannot be stunned."},
@@ -138,7 +139,7 @@ func (examine) process(s *state) {
 				{"T", "hostile", strconv.FormatBool(mobRef.Flags["hostile"]), "Mob is hostile"},
 				{"T", "undead", strconv.FormatBool(mobRef.Flags["undead"]), "Mob is undead"},
 				{"T", "day_only", strconv.FormatBool(mobRef.Flags["day_only"]), "Mob will only spawn during the day."},
-				{"T", "night_only", strconv.FormatBool(mobRef.Flags["undead"]), "Mob will only spawn during the night."},
+				{"T", "night_only", strconv.FormatBool(mobRef.Flags["night_only"]), "Mob will only spawn during the night."},
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 			s.msg.Actor.SendGood(t.Render())

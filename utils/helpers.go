@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"math"
 	"os"
 	"sort"
 	"strings"
@@ -109,4 +110,29 @@ func Btoi(val bool) int {
 	} else {
 		return 0
 	}
+}
+
+func WhereAt(subLoc int, charLoc int) string {
+	// Moving backwards
+	if subLoc == charLoc {
+		return " next to you."
+	}
+	diff := math.Abs(float64(subLoc - charLoc))
+	steps := ""
+	direction := ""
+	if subLoc > charLoc {
+		direction = "in front of you."
+	} else {
+		direction = "behind you."
+	}
+	if diff == 1 {
+		steps = " a couple steps "
+	} else if diff == 2 {
+		steps = " a dozen steps "
+	} else if diff == 3 {
+		steps = " many steps "
+	} else if diff == 4 {
+		steps = " at the other end of the room "
+	}
+	return steps + direction
 }

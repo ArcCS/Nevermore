@@ -49,7 +49,7 @@ func (circle) process(s *state) {
 	if whatMob != nil {
 
 		s.actor.RunHook("combat")
-
+		s.actor.Victim = whatMob
 		// Shortcut a missing weapon:
 		if s.actor.Equipment.Main == nil {
 			s.msg.Actor.SendBad("You have no weapon to attack with.")

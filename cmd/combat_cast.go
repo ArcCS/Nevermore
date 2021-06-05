@@ -66,6 +66,7 @@ func (cast) process(s *state) {
 		whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 		// It was a mob!
 		if whatMob != nil {
+			s.actor.Victim = whatMob
 			if s.actor.Mana.Current >= spellInstance.Cost || s.actor.Class == 100 {
 				s.actor.Mana.Subtract(spellInstance.Cost)
 				msg = objects.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
@@ -86,8 +87,12 @@ func (cast) process(s *state) {
 					//TODO Calculate experience
 					stringExp := strconv.Itoa(whatMob.Experience)
 					for k := range whatMob.ThreatTable {
-						s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-						s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
+					charClean := s.where.Chars.Search(k, s.actor)
+					charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+					charClean.Experience.Add(whatMob.Experience)
+					if charClean.Victim == whatMob {
+						charClean.Victim = nil
+					}
 					}
 					s.msg.Observers.SendInfo(whatMob.Name + " dies.")
 					s.msg.Actor.SendInfo(whatMob.DropInventory())
@@ -105,6 +110,7 @@ func (cast) process(s *state) {
 		whatChar = s.where.Chars.Search(name, s.actor)
 		// It was a person!
 		if whatChar != nil {
+			s.actor.Victim = whatChar
 			if strings.Contains(spellInstance.Effect, "damage") {
 				//TODO PVP flags etc.
 				s.msg.Actor.SendBad("No PVP implemented yet. ")

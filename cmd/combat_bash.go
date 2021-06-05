@@ -76,6 +76,7 @@ func (bash) process(s *state) {
 
 		//TODO: Parry/Miss/Resist being bashed?
 
+		s.actor.Victim = whatMob
 		// Check the rolls in reverse order from hardest to lowest for bash rolls.
 		damageModifier := 1
 		stunModifier := 1
@@ -100,11 +101,14 @@ func (bash) process(s *state) {
 		if whatMob.Stam.Current <= 0 {
 			s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
 			s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
-			//TODO Calculate experience
 			stringExp := strconv.Itoa(whatMob.Experience)
 			for k := range whatMob.ThreatTable {
-				s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-				s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
+				charClean := s.where.Chars.Search(k, s.actor)
+				charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+				charClean.Experience.Add(whatMob.Experience)
+				if charClean.Victim == whatMob {
+					charClean.Victim = nil
+				}
 			}
 			s.msg.Observers.SendInfo(whatMob.Name + " dies.")
 			s.msg.Actor.SendInfo(whatMob.DropInventory())

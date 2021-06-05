@@ -22,6 +22,7 @@ func LoadItems() []interface{} {
 	sdice:i.sdice,
 	value:i.value,
 	spell:i.spell,
+	commands: i.commands,
 	flags: {always_crit: i.always_crit, permanent:i.permanent,
 	magic:i.magic,
 	no_take: i.no_take,
@@ -56,6 +57,7 @@ func LoadItem(itemId int) map[string]interface{} {
 	sdice:i.sdice,
 	value:i.value,
 	spell:i.spell,
+	commands: i.commands,
 	flags: {always_crit: i.always_crit,permanent:i.permanent,
 	magic:i.magic,
 	no_take: i.no_take,
@@ -86,6 +88,7 @@ func CreateItem(itemData map[string]interface{}) (int, bool) {
 		i.pdice = 1,
 		i.armor = 0,
 		i.max_uses = 1,
+		i.commands = '[]',
 		i.name = $name,
 		i.sdice = 1,
 		i.spell = "",
@@ -129,6 +132,7 @@ func UpdateItem(itemData map[string]interface{}) bool {
 		i.sdice = $sdice,
 		i.value = $value,
 		i.spell = $spell,
+		i.commands = $commands,
 		i.always_crit = $always_crit,
 		i.permanent = $permanent,
 		i.no_take = $no_take,
@@ -155,6 +159,7 @@ func UpdateItem(itemData map[string]interface{}) bool {
 			"light":            itemData["light"],
 			"no_take":          itemData["no_take"],
 			"weightless_chest": itemData["weightless_chest"],
+			"commands": 		itemData["commands"],
 		},
 	)
 	if err != nil {
@@ -305,4 +310,22 @@ func SearchItemMaxDamage(searchStr string, skip int) []interface{} {
 	return searchList
 }
 
-
+func SearchItemRange(loId int, hiId int, skip int) []interface{} {
+	results, err := execRead("MATCH (i:item) WHERE i.item_id >= $loid AND i.item_id <= $hiid RETURN {name: i.name, item_id: i.item_id} ORDER BY m.name SKIP $skip LIMIT $limit",
+		map[string]interface{}{
+			"loid": loId,
+			"hiId": hiId,
+			"skip":   skip,
+			"limit":  config.Server.SearchResults,
+		},
+	)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	searchList := make([]interface{}, len(results))
+	for _, row := range results {
+		searchList = append(searchList, row.Values[0].(map[string]interface{}))
+	}
+	return searchList
+}

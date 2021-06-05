@@ -56,7 +56,7 @@ func (snipe) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
-
+		s.actor.Victim = whatMob
 		// Shortcut a missing weapon:
 		if s.actor.Equipment.Main == nil {
 			s.msg.Actor.SendBad("You have no weapon to attack with.")
@@ -101,8 +101,12 @@ func (snipe) process(s *state) {
 				//TODO Calculate experience
 				stringExp := strconv.Itoa(whatMob.Experience)
 				for k := range whatMob.ThreatTable {
-					s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-					s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
+					charClean := s.where.Chars.Search(k, s.actor)
+					charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+					charClean.Experience.Add(whatMob.Experience)
+					if charClean.Victim == whatMob {
+						charClean.Victim = nil
+					}
 				}
 				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
 				s.msg.Actor.SendInfo(whatMob.DropInventory())

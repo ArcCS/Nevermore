@@ -6,8 +6,8 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
-	"math"
 	"strconv"
 	"strings"
 	"text/template"
@@ -147,7 +147,8 @@ func (look) process(s *state) {
 	// It was a mob!
 	if whatMob != nil {
 		s.msg.Actor.SendInfo(whatMob.Look())
-		s.msg.Actor.SendInfo("It is standing" + WhereAt(whatMob.Placement, s.actor.Placement))
+		s.msg.Actor.SendInfo("It is standing" + utils.WhereAt(whatMob.Placement, s.actor.Placement))
+		s.msg.Actor.SendInfo("It" + whatMob.ReturnState() + ".")
 		//log.Println(whatMob.ThreatTable)
 		_, ok := whatMob.ThreatTable[s.actor.Name]
 		if !ok {
@@ -169,7 +170,7 @@ func (look) process(s *state) {
 	// Item in the room?
 	if what != nil {
 		s.msg.Actor.SendInfo(what.Look())
-		s.msg.Actor.SendInfo("It is on the ground " + WhereAt(what.Placement, s.actor.Placement))
+		s.msg.Actor.SendInfo("It is on the ground " + utils.WhereAt(what.Placement, s.actor.Placement))
 		return
 	}
 
@@ -195,27 +196,3 @@ func (look) process(s *state) {
 	}
 }
 
-func WhereAt(subLoc int, charLoc int) string {
-	// Moving backwards
-	if subLoc == charLoc {
-		return " next to you."
-	}
-	diff := math.Abs(float64(subLoc - charLoc))
-	steps := ""
-	direction := ""
-	if subLoc > charLoc {
-		direction = "in front of you."
-	} else {
-		direction = "behind you."
-	}
-	if diff == 1 {
-		steps = " a couple steps "
-	} else if diff == 2 {
-		steps = " a dozen steps "
-	} else if diff == 3 {
-		steps = " many steps "
-	} else if diff == 4 {
-		steps = " at the other end of the room "
-	}
-	return steps + direction
-}

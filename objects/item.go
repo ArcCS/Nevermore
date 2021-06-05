@@ -19,6 +19,7 @@ type Item struct {
 	MaxUses      int
 	Value        int
 	Spell        string
+	StorePrice 	int
 
 	Storage *ItemInventory
 	Weight  int
@@ -36,6 +37,7 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 			Name:        itemData["name"].(string),
 			Description: description,
 			Placement:   3,
+			Commands: DeserializeCommands(itemData["commands"].(string)),
 		},
 		0,
 		int(itemData["item_id"].(int64)),
@@ -49,6 +51,7 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 		int(itemData["max_uses"].(int64)),
 		int(itemData["value"].(int64)),
 		itemData["spell"].(string),
+		0,
 		&ItemInventory{},
 		int(itemData["weight"].(int64)),
 	}
@@ -107,6 +110,7 @@ func (i *Item) Save() {
 	itemData["light"] = utils.Btoi(i.Flags["light"])
 	itemData["no_take"] = utils.Btoi(i.Flags["no_take"])
 	itemData["weightless_chest"] = utils.Btoi(i.Flags["weightless_chest"])
+	itemData["commands"] = i.SerializeCommands()
 	data.UpdateItem(itemData)
 	return
 }
@@ -120,6 +124,12 @@ func ReturnItemInstanceProps(item *Item) map[string]interface{} {
 		"magic":  utils.Btoi(item.Flags["magic"]),
 		"spell":  item.Spell,
 		"armor":  item.Armor,
+	}
+	if _, ok := item.Flags["infinite"]; ok {
+		serialList["infinite"] = utils.Btoi(item.Flags["infinite"])
+	}
+	if item.StorePrice != 0 {
+		serialList["store_price"] = item.StorePrice
 	}
 	if item.ItemType == 9 {
 		serialList["contents"] = item.Storage.Jsonify()

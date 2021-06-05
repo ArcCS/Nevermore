@@ -252,6 +252,8 @@ func healall(target *Character, modifiers map[string]interface{}) string {
 func firedamage(target *Character, modifiers map[string]interface{}) string {
 	damage := 0
 	if modifiers["magnitude"].(int) == 1 {
+		// 7 + (45/int)*(roll 2*3)
+
 		damage = 10
 	} else if modifiers["magnitude"].(int) == 2 {
 		damage = 30

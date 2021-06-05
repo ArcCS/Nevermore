@@ -14,6 +14,9 @@ func LoadRooms() []interface{} {
 	encounters: collect({chance: s.chance, mob_id: m.mob_id}),
 	mobs: r.mobs,
 	inventory: r.inventory,
+	store_owner: r.store_owner,
+	store_inventory: r.store_inventory,
+	commands: r.commands,
 	exits: collect({direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
 	flags:{closeable: e.closeable,
 	closed: e.closed,
@@ -66,6 +69,9 @@ func LoadRoom(room_id int) map[string]interface{} {
 	encounters: collect({chance: s.change, mob_id: m.mob_id}),
 	mobs: r.mobs,
 	inventory: r.inventory,
+	store_owner: r.store_owner,
+	store_inventory: r.store_inventory,
+	commands: r.commands,
 	exits: collect({direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
 	flags:{closeable: e.closeable,
 	closed: e.closed,
@@ -149,6 +155,9 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 			"r.room_id = $room_id, "+
 			"r.name = $name, "+
 			"r.description = 'This is a nice room you made here... needs a description though.', "+
+			"r.commands = '[]', " +
+			"r.store_owner = '', " +
+			"r.store_inventory = '[]', " +
 			"r.encounter_rate = 0,"+
 			"r.creator = $creator, "+
 			"r.repair = 0, "+
@@ -277,6 +286,9 @@ func UpdateRoom(roomData map[string]interface{}) bool {
 			"r.repair = $repair, "+
 			"r.mana_drain = $mana_drain, "+
 			"r.no_summon = $no_summon, "+
+			"r.commands = $commands, "+
+			"r.store_owner = $store_owner, "+
+			"r.store_inventory = $store_inventory, "+
 			"r.encounter_rate = $encounter_rate,"+
 			"r.heal_fast = $heal_fast, "+
 			"r.no_teleport = $no_teleport, "+
@@ -332,6 +344,9 @@ func UpdateRoom(roomData map[string]interface{}) bool {
 			"train":             roomData["train"],
 			"mobs":             roomData["mobs"],
 			"inventory":       	roomData["inventory"],
+			"commands": 		roomData["commands"],
+			"store_owner":		roomData["store_owner"],
+			"store_inventory":  roomData["store_inventory"],
 		},
 	)
 

@@ -3,8 +3,10 @@ package objects
 // Everyone's an object,  put all the basics here and then everyone gets to ride this train
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/ArcCS/Nevermore/prompt"
+	"strings"
 )
 
 /*
@@ -33,9 +35,13 @@ func (o *Object) EmptyCommands() {
 }
 
 func (o *Object) AddCommands(cmdItem string, cmdCmd string) {
-	o.Commands[cmdItem] = prompt.MenuItem{
-		Command: cmdCmd,
+	o.Commands[strings.ToUpper(cmdItem)] = prompt.MenuItem{
+		Command: strings.ToUpper(cmdCmd),
 	}
+}
+
+func (o *Object) RemoveCommand(cmdItem string) {
+	delete(o.Commands, strings.ToUpper(cmdItem))
 }
 
 func (o *Object) String() string {
@@ -52,4 +58,37 @@ func (o *Object) ChangePlacement(place int) bool {
 		return true
 	}
 	return false
+}
+
+func (o *Object) SerializeCommands() string {
+	cmdList := make(map[string]string, 0)
+
+	if len(o.Commands) == 0 {
+		return "[]"
+	}
+
+	for key, val := range o.Commands {
+		cmdList[key] = val.Command
+	}
+
+	data, err := json.Marshal(cmdList)
+	if err != nil {
+		return "[]"
+	} else {
+		return string(data)
+	}
+}
+
+func DeserializeCommands(jsonVals string) map[string]prompt.MenuItem {
+	commandList := make(map[string]prompt.MenuItem)
+	obj := make(map[string]string, 0)
+	err := json.Unmarshal([]byte(jsonVals), &obj)
+	if err != nil {
+		//log.Println("Error deserializing Command list" + err.Error())
+		return commandList
+	}
+	for key, cmdString := range obj {
+		commandList[key] = prompt.MenuItem{Command: cmdString}
+	}
+	return commandList
 }

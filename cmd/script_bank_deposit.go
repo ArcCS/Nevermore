@@ -6,17 +6,17 @@ import (
 )
 
 func init() {
-	addHandler(withdraw{},
+	addHandler(deposit{},
 	"",
 	permissions.Player,
-	"$WITHDRAW")
+	"$DEPOSIT")
 }
 
-type withdraw cmd
+type deposit cmd
 
-func (withdraw) process(s *state) {
+func (deposit) process(s *state) {
 	if len(s.words) < 1 {
-		s.msg.Actor.SendBad("What value would you like to withdraw?")
+		s.msg.Actor.SendBad("What value would you like to deposit?")
 		return
 	}
 
@@ -24,14 +24,14 @@ func (withdraw) process(s *state) {
 
 	if amount64, err := strconv.Atoi(value); err == nil {
 		amount := amount64
-		if s.actor.BankGold.CanSubtract(amount) {
+		if s.actor.Gold.CanSubtract(amount) {
 			s.actor.RunHook("act")
-			s.actor.BankGold.SubIfCan(amount)
-			s.actor.Gold.Add(amount)
-			s.msg.Actor.SendGood("You withdraw ", value, " from your bank account. \n ====")
+			s.actor.Gold.SubIfCan(amount)
+			s.actor.BankGold.Add(amount)
+			s.msg.Actor.SendGood("You deposit ", value, " into you bank account. \n ====")
 			s.msg.Actor.SendGood("Your bank account currently has " + strconv.Itoa(s.actor.BankGold.Value) + " gold marks.")
 		} else {
-			s.msg.Actor.SendInfo("You don't have that much gold in your bank account.")
+			s.msg.Actor.SendInfo("You don't have that much gold.")
 			return
 		}
 	}else{

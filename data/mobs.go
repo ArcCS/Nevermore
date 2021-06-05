@@ -36,6 +36,7 @@ func LoadMobs() []interface{} {
 	earth_resistance:m.earth_resistance, 
 	water_resistance:m.water_resistance, 
 	breathes: m.breathes,
+	commands: m.commands,
 	drops: collect({chance: d.chance, item_id: i.item_id}),
 	flags:{
 	fast_moving: m.fast_moving,
@@ -54,6 +55,8 @@ func LoadMobs() []interface{} {
 	flees: m.flees,
 	blinds: m.blinds,
 	undead: m.undead,
+	day_only: m.day_only,
+	night_only: m.night_only,
 	hide_encounter: m.hide_encounter, 
 	invisible:m.invisible, 
 	permanent:m.permanent,
@@ -100,6 +103,7 @@ func LoadMob(mobId int) map[string]interface{} {
 	earth_resistance:m.earth_resistance, 
 	water_resistance:m.water_resistance, 
 	breathes: m.breathes,
+	commands: m.commands,
 	drops: collect({chance: d.chance, item_id: i.item_id}),
 	flags:{
 	day_only: m.day_only,
@@ -157,6 +161,7 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		m.sdice= 1, 
 		m.ndice= 1, 
 		m.pdice= 0, 
+		m.commands = '[]',
 		m.spells= "", 
 		m.casting_probability= 0, 
 		m.armor= 0, 
@@ -240,6 +245,7 @@ func UpdateMob(mobData map[string]interface{}) bool {
 		m.invisible=$invisible, 
 		m.permanent=$permanent,
 		m.breathes=$breathes,
+		m.commands=$commands,
 		m.fast_moving=$fast_moving,
 		m.guard_treasure=$guard_treasure,
 		m.take_treasure=$take_treasure,
@@ -309,6 +315,7 @@ func UpdateMob(mobData map[string]interface{}) bool {
 			"night_only":		   mobData["night_only"],
 			"day_only":		   	   mobData["day_only"],
 			"undead":			   mobData["undead"],
+			"commands":			   mobData["commands"],
 		},
 	)
 	if err != nil {
@@ -438,6 +445,26 @@ func SearchMobDesc(searchStr string, skip int) []interface{} {
 	results, err := execRead("MATCH (m:mob) WHERE toLower(m.description) CONTAINS toLower($search) RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.name SKIP $skip LIMIT $limit",
 		map[string]interface{}{
 			"search": searchStr,
+			"skip":   skip,
+			"limit":  config.Server.SearchResults,
+		},
+	)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	searchList := make([]interface{}, len(results))
+	for _, row := range results {
+		searchList = append(searchList, row.Values[0].(map[string]interface{}))
+	}
+	return searchList
+}
+
+func SearchMobRange(loId int, hiId int, skip int) []interface{} {
+	results, err := execRead("MATCH (m:mob) WHERE m.mob_id >= $loid AND m.mob_id <= $hiid RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.name SKIP $skip LIMIT $limit",
+		map[string]interface{}{
+			"loid": loId,
+			"hiId": hiId,
 			"skip":   skip,
 			"limit":  config.Server.SearchResults,
 		},

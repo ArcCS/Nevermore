@@ -395,6 +395,18 @@ func (m *Mob) CalculateInventory() {
 	}
 }
 
+func (m *Mob) ReturnState() string{
+	stamStatus := "healthy"
+	if m.Stam.Current < (m.Stam.Max - int(.25 * float32(m.Stam.Max))) {
+		stamStatus = "badly injured"
+	}else if m.Stam.Current < (m.Stam.Max - int(.5 * float32(m.Stam.Max))) {
+		stamStatus = "injured"
+	}else if m.Stam.Current < (m.Stam.Max - int(.75 * float32(m.Stam.Max))) {
+		stamStatus = "slightly injured"
+	} 
+	return " looks " + stamStatus
+}
+
 func (m *Mob) DropInventory() string {
 	var drops []string
 	if len(m.Inventory.Contents) > 0 {
@@ -417,6 +429,7 @@ func (m *Mob) DropInventory() string {
 		copier.Copy(&newGold, Items[3456])
 		newGold.Name = strconv.Itoa(m.Gold) + " gold pieces"
 		newGold.Value = m.Gold
+		newGold.Placement = m.Placement
 		Rooms[m.ParentId].Items.Add(&newGold)
 		drops = append(drops, newGold.Name)
 	}
@@ -627,4 +640,30 @@ func (m *Mob) Save() {
 	mobData["flees"] = utils.Btoi(m.Flags["flees"])
 	mobData["blinds"] = utils.Btoi(m.Flags["blinds"])
 	data.UpdateMob(mobData)
+}
+
+func (m *Mob) IsDead(char *Character){
+	return
+	/*
+	if m.Stam.Current <= 0 {
+		Rooms[m.ParentId].Chars.Lock()
+		Rooms[m.ParentId].Mobs.Lock()
+		Rooms[m.ParentId].Items.Lock()
+		char.Write([]byte(text.Info + "You killed " + m.Name + text.Reset + "\n"))
+		s.msg.Observers.SendInfo(char.Name + " killed " + whatMob.Name + text.Reset)
+		stringExp := strconv.Itoa(whatMob.Experience)
+		for k := range whatMob.ThreatTable {
+			s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+			s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
+		}
+		s.msg.Observers.SendInfo(whatMob.Name + " dies.")
+		s.msg.Actor.SendInfo(whatMob.DropInventory())
+		objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
+		whatMob = nil
+		Rooms[m.ParentId].Chars.Unlock()
+		Rooms[m.ParentId].Mobs.Unlock()
+		Rooms[m.ParentId].Items.Unlock()
+	}
+
+	 */
 }

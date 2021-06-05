@@ -42,7 +42,7 @@ func (hamstring) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
-
+		s.actor.Victim = whatMob
 		s.actor.RunHook("combat")
 
 		// Shortcut a missing weapon:

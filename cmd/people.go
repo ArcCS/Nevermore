@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"strings"
+	"github.com/ArcCS/Nevermore/utils"
 )
 
 // Overloaded Look object for all of your looking pleasure
@@ -18,15 +18,10 @@ func init() {
 type people cmd
 
 func (people) process(s *state) {
-	//TODO This should list some health and stuff
-	var others []string
-	others = objects.Rooms[s.actor.ParentId].Chars.List(s.actor)
-	if len(others) == 1 {
-		s.msg.Actor.SendInfo(strings.Join(others, ", "), " is also here.")
-	} else if len(others) > 1 {
-		s.msg.Actor.SendInfo(strings.Join(others, ", "), " are also here.")
-	}
 
+	for _, char := range objects.Rooms[s.actor.ParentId].Chars.ListChars(s.actor) {
+		s.msg.Actor.SendInfo(char.Name + char.ReturnState() + ", " + utils.WhereAt(char.Placement, s.actor.Placement))
+	}
 	s.ok = true
 
 	return

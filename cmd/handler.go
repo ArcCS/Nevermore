@@ -49,7 +49,11 @@ func dispatchHandler(s *state) {
 		}
 
 		// Check the player stack for the command first
-		if val, ok := s.actor.Commands[strings.ToLower(s.cmd)]; ok {
+		completeCommand := s.cmd + " " + strings.Join(s.input, " ")
+		if val, ok := s.actor.Commands[completeCommand]; ok {
+			s.scriptActor(val.Command)
+			return
+		}else if val, ok := s.actor.Commands[s.cmd]; ok {
 			s.scriptActor(val.Command, strings.Join(s.input, " "))
 			return
 		}
@@ -57,91 +61,130 @@ func dispatchHandler(s *state) {
 
 		for _, i := range s.actor.Inventory.Contents {
 			// Check the room stack for a command second:
-			if val, ok := i.Commands[s.cmd]; ok {
+			if val, ok := i.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := i.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Head != nil {
-			if val, ok := s.actor.Equipment.Head.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Head.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Head.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Chest != nil {
-			if val, ok := s.actor.Equipment.Chest.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Chest.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Chest.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Neck != nil {
-			if val, ok := s.actor.Equipment.Neck.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Neck.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Neck.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Legs != nil {
-			if val, ok := s.actor.Equipment.Legs.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Legs.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Legs.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Feet != nil {
-			if val, ok := s.actor.Equipment.Feet.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Feet.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Feet.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Arms != nil {
-			if val, ok := s.actor.Equipment.Arms.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Arms.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Arms.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Hands != nil {
-			if val, ok := s.actor.Equipment.Hands.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Hands.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Hands.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Ring1 != nil {
-			if val, ok := s.actor.Equipment.Ring1.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Ring1.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Ring1.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Ring2 != nil {
-			if val, ok := s.actor.Equipment.Ring2.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Ring2.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Ring2.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Main != nil {
-			if val, ok := s.actor.Equipment.Main.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Main.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Main.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		if s.actor.Equipment.Off != nil {
-			if val, ok := s.actor.Equipment.Off.Commands[s.cmd]; ok {
+			if val, ok := s.actor.Equipment.Off.Commands[completeCommand]; ok {
+				s.scriptAll(val.Command)
+				return
+			}else if val, ok := s.actor.Equipment.Off.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
 		}
 
 		// Check the room stack for a command second:
-		if val, ok := s.where.Commands[s.cmd]; ok {
+		if val, ok := s.where.Commands[completeCommand]; ok {
+			s.scriptAll(val.Command)
+			return
+		}else if val, ok := s.where.Commands[s.cmd]; ok {
 			s.scriptAll(val.Command, strings.Join(s.input, " "))
 			return
 		}
@@ -150,7 +193,25 @@ func dispatchHandler(s *state) {
 			// Check the room stack for a command second:
 			if i.Flags["permanent"] {
 				if i.Placement == s.actor.Placement {
-					if val, ok := i.Commands[s.cmd]; ok {
+					if val, ok := i.Commands[completeCommand]; ok {
+						s.scriptAll(val.Command)
+						return
+					}else if val, ok := i.Commands[s.cmd]; ok {
+						s.scriptAll(val.Command, strings.Join(s.input, " "))
+						return
+					}
+				}
+			}
+		}
+
+		for _, i := range s.where.Mobs.Contents {
+			// Check the room stack for a command second:
+			if i.Flags["permanent"] {
+				if i.Placement == s.actor.Placement {
+					if val, ok := i.Commands[completeCommand]; ok {
+						s.scriptAll(val.Command)
+						return
+					}else if val, ok := i.Commands[s.cmd]; ok {
 						s.scriptAll(val.Command, strings.Join(s.input, " "))
 						return
 					}

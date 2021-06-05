@@ -4,7 +4,6 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
@@ -30,6 +29,8 @@ type Room struct {
 	EncounterTable   map[int]int
 	roomTicker       *time.Ticker
 	roomTickerUnload chan bool
+	StoreOwner string
+	StoreInventory  *ItemInventory
 }
 
 // Pop the room data
@@ -39,7 +40,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 			Name:        roomData["name"].(string),
 			Description: roomData["description"].(string),
 			Placement:   3,
-			Commands: make(map[string]prompt.MenuItem),
+			Commands: DeserializeCommands(roomData["commands"].(string)),
 		},
 		int(roomData["room_id"].(int64)),
 		roomData["creator"].(string),
@@ -52,6 +53,8 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		make(map[int]int),
 		nil,
 		make(chan bool),
+		roomData["store_owner"].(string),
+		RestoreInventory(roomData["store_inventory"].(string)),
 	}
 
 
@@ -213,6 +216,7 @@ func (r *Room) FirstPerson() {
 							}
 						}
 					}
+					// TODO: Move this to a different ticker.  This is too often.
 					if r.Flags["earth"] || r.Flags["fire"] || r.Flags["air"] || r.Flags["water"] {
 						for _, c := range r.Chars.Contents {
 							if r.Flags["earth"] {
@@ -312,6 +316,29 @@ func (r *Room) ClearMob(o *Mob) {
 	o = nil
 }
 
+func (r *Room) AddStoreItem(item *Item, price int, infinite bool) {
+	if infinite {
+		item.Flags["infinite"] = true
+	}
+	item.StorePrice = price
+	r.StoreInventory.Add(item)
+}
+
+func (r *Room) BuyStoreItem(item *Item) *Item {
+	if infinite, ok := item.Flags["infinite"]; ok {
+		if infinite {
+			newItem := Item{}
+			copier.Copy(&newItem, Items[item.ItemId])
+			delete(newItem.Flags, "infinite")
+			newItem.StorePrice = 0
+			return &newItem
+		}
+	}
+	r.StoreInventory.Remove(item)
+	item.StorePrice = 0
+	return item
+}
+
 func (r *Room) Save() {
 	roomData := make(map[string]interface{})
 	roomData["room_id"] = r.RoomId
@@ -344,5 +371,8 @@ func (r *Room) Save() {
 	roomData["train"] = utils.Btoi(r.Flags["train"])
 	roomData["mobs"] = r.Mobs.Jsonify()
 	roomData["inventory"] = r.Items.Jsonify()
+	roomData["commands"] = r.SerializeCommands()
+	roomData["store_owner"] = r.StoreOwner
+	roomData["store_inventory"] = r.StoreInventory.Jsonify()
 	data.UpdateRoom(roomData)
 }

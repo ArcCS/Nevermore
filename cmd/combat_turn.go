@@ -53,7 +53,6 @@ func (turn) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
-
 		if whatMob.Flags["undead"] != true {
 			s.msg.Actor.SendBad("Your target isn't undead!")
 		}
@@ -62,6 +61,7 @@ func (turn) process(s *state) {
 			s.msg.Actor.SendBad("You are too far away to turn them.")
 			return
 		}
+		s.actor.Victim = whatMob
 
 		s.actor.RunHook("combat")
 		s.actor.SetTimer("combat_turn", config.TurnTimer)
@@ -82,8 +82,12 @@ func (turn) process(s *state) {
 			//TODO Calculate experience
 			stringExp := strconv.Itoa(whatMob.Experience)
 			for k := range whatMob.ThreatTable {
-				s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-				s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
+				charClean := s.where.Chars.Search(k, s.actor)
+				charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
+				charClean.Experience.Add(whatMob.Experience)
+				if charClean.Victim == whatMob {
+					charClean.Victim = nil
+				}
 			}
 			s.msg.Actor.SendInfo(whatMob.DropInventory())
 			objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)

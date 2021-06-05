@@ -1,6 +1,5 @@
 package objects
 
-import "C"
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
@@ -88,6 +87,7 @@ type Character struct {
 	//Party Stuff
 	PartyFollow *Character
 	PartyFollowers []*Character
+	Victim interface{}
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -159,6 +159,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				"say": make(map[string]*Hook),
 			},
 			time.Now(),
+			nil,
 			nil,
 			nil,
 		}
@@ -385,6 +386,50 @@ func (c *Character) Write(b []byte) (n int, err error) {
 		n, err = c.Writer.Write(b)
 	}
 	return
+}
+
+func (c *Character) ReturnVictim() string {
+	switch c.Victim.(type) {
+	case *Character:
+		target := c.Victim.(*Character)
+		return target.Name + target.ReturnState() + "," + utils.WhereAt(target.Placement, c.Placement)
+	case *Mob:
+		target := c.Victim.(*Mob)
+		return target.Name + target.ReturnState() + "," + utils.WhereAt(target.Placement, c.Placement)
+	default:
+		return "No victim."
+	}
+}
+
+func (c *Character) ReturnState() string{
+	stamStatus := "energetic "
+	vitStatus := "healthy"
+	if c.Stam.Current < (c.Stam.Current - int(.25 * float32(c.Stam.Current))) {
+		stamStatus = "exhausted"
+	}else if c.Stam.Current < (c.Stam.Current - int(.5 * float32(c.Stam.Current))) {
+		stamStatus = "fatigued"
+	}else if c.Stam.Current < (c.Stam.Current - int(.75 * float32(c.Stam.Current))) {
+		stamStatus = "slightly fatigued"
+	}
+
+	if c.Vit.Current < (c.Vit.Current - int(.25 * float32(c.Vit.Current))) {
+		vitStatus = "mortally wounded"
+	}else if c.Vit.Current < (c.Vit.Current - int(.5 * float32(c.Vit.Current))) {
+		vitStatus = "injured"
+	}else if c.Vit.Current < (c.Vit.Current - int(.75 * float32(c.Vit.Current))) {
+		vitStatus = "slightly injured"
+	}
+
+	return " looks " + stamStatus + " and " + vitStatus
+	// energetic
+	// slightly fatigued
+	// fatigued
+	// exhausted
+	// healthy
+	// slightly injured
+	// injured
+	// mortally wounded / badly injured
+
 }
 
 type PromptStyle int
