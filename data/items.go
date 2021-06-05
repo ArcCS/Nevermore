@@ -314,7 +314,7 @@ func SearchItemRange(loId int, hiId int, skip int) []interface{} {
 	results, err := execRead("MATCH (i:item) WHERE i.item_id >= $loid AND i.item_id <= $hiid RETURN {name: i.name, item_id: i.item_id} ORDER BY m.name SKIP $skip LIMIT $limit",
 		map[string]interface{}{
 			"loid": loId,
-			"hiId": hiId,
+			"hiid": hiId,
 			"skip":   skip,
 			"limit":  config.Server.SearchResults,
 		},

@@ -464,7 +464,7 @@ func SearchMobRange(loId int, hiId int, skip int) []interface{} {
 	results, err := execRead("MATCH (m:mob) WHERE m.mob_id >= $loid AND m.mob_id <= $hiid RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.name SKIP $skip LIMIT $limit",
 		map[string]interface{}{
 			"loid": loId,
-			"hiId": hiId,
+			"hiid": hiId,
 			"skip":   skip,
 			"limit":  config.Server.SearchResults,
 		},

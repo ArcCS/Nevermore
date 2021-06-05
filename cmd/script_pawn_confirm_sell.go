@@ -35,6 +35,7 @@ func (sell_confirm) process(s *state) {
 		((utils.Roll(10, 1)/10) * (.25*target.Value))*/
 		finalValue := int(.65*float64(target.Value))
 		s.actor.Inventory.Remove(target)
+		s.actor.Gold.Add(finalValue)
 		s.msg.Actor.SendGood("The pawn broker gives you ", strconv.Itoa(finalValue), " for ", target.Name, ".")
 
 	}else{

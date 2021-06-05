@@ -334,13 +334,19 @@ func (edit) process(s *state) {
 						return
 					}
 				case "breathes":
-					spellName := strings.ToLower(s.words[3])
-					if utils.StringIn(spellName, []string{"lightning", "fire", "water", "earth"}){
-						mob.BreathWeapon = spellName
-						s.msg.Actor.SendGood("Mob BreathWeapon set to " + s.words[3])
+					spellName := ""
+					if len(s.words) >= 4 {
+						spellName = strings.ToLower(s.words[3])
+						if utils.StringIn(spellName, []string{"lightning", "fire", "water", "earth"}) {
+							mob.BreathWeapon = spellName
+							s.msg.Actor.SendGood("Mob BreathWeapon set to " + s.words[3])
+						} else {
+							s.msg.Actor.SendBad("Not a valid BreathWeapon.")
+							return
+						}
 					}else{
-						s.msg.Actor.SendBad("Not a valid BreathWeapon.")
-						return
+						mob.BreathWeapon = ""
+						s.msg.Actor.SendGood("Mob BreathWeapon unset")
 					}
 				case "placement":
 					intPlacement, _ :=  strconv.Atoi(s.words[3])
