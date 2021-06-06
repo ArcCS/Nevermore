@@ -311,7 +311,7 @@ func SearchItemMaxDamage(searchStr string, skip int) []interface{} {
 }
 
 func SearchItemRange(loId int, hiId int, skip int) []interface{} {
-	results, err := execRead("MATCH (i:item) WHERE i.item_id >= $loid AND i.item_id <= $hiid RETURN {name: i.name, item_id: i.item_id} ORDER BY m.name SKIP $skip LIMIT $limit",
+	results, err := execRead("MATCH (i:item) WHERE i.item_id >= $loid AND i.item_id <= $hiid RETURN {name: i.name, item_id: i.item_id, type: i.type} ORDER BY i.item_id SKIP $skip LIMIT $limit",
 		map[string]interface{}{
 			"loid": loId,
 			"hiid": hiId,

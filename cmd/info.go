@@ -24,6 +24,11 @@ func (information) process(s *state) {
 	if !ok {
 		berz = false
 	}
+	monk := false
+	if s.actor.Class == 8 {
+		monk = true
+	}
+
 
 	char_template := "{{.Charname}}, the {{.Tier}} tier {{.Race}} {{.Title}}\n" +
 		"----------------------------------------------------------------------\n" +
@@ -31,7 +36,7 @@ func (information) process(s *state) {
 		"You have an armor resistance of {{.Armor_resistance}} with a damage ignore of {{.Damage_ignore}}.\n" +
 		"{{if .God}} You bear the mark of a devotee of {{.God}}.\n{{end}}" +
 		"{{if .Berz}}" + text.Red + "The red rage grips you!" + text.Good +
-		"{{else}}You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.{{end}}\n" +
+		"{{else}}You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
 		"You require {{.Next_level}} additional experience pts for your next tier.\n" +
 		"You are carrying {{.Gold}} gold marks in your coin purse.\n" +
 		"{{if .Dark_vision}} You can see in the dark naturally. \n{{end}}" +
@@ -66,6 +71,7 @@ func (information) process(s *state) {
 		Max_health       int
 		Mana             int
 		Max_mana         int
+		Monk			 bool
 		Next_level       int
 		Gold             int
 		Dark_vision      bool
@@ -102,6 +108,7 @@ func (information) process(s *state) {
 		s.actor.Vit.Max,
 		s.actor.Mana.Current,
 		s.actor.Mana.Max,
+		monk,
 		config.TierExpLevels[s.actor.Tier+1] - s.actor.Experience.Value,
 		s.actor.Gold.Value,
 		false,

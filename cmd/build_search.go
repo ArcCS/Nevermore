@@ -151,6 +151,7 @@ func (find) process(s *state) {
 		}else if searchType == "range" {
 			if !strings.Contains(searchText, "-"){
 				s.msg.Actor.SendBad("Dash in range not optional, examples: 250-280 3000-3500")
+				return
 			}
 			idRange := strings.Split(searchText, "-")
 			loId, _ := strconv.Atoi(idRange[0])

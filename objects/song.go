@@ -1,6 +1,6 @@
 package objects
 
-var songs = map[string]map[string]string{
+var Songs = map[string]map[string]string{
 	"celebration-night": {
 		"desc":   "similar to casting vigor on all adventurers in the room.",
 		"verse":  " let your spirits soar on the wings of eagles, let music wash the sleep from your eyes.",

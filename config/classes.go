@@ -105,7 +105,7 @@ var Classes = map[string]classDef{
 		Races:             "Human, Dwarven",
 		Health:            11,
 		Stamina:           15,
-		Mana:              5,
+		Mana:              2,
 		WeaponAdvancement: .5,
 	},
 	"paladin": {

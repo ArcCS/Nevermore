@@ -31,6 +31,7 @@ type Room struct {
 	roomTickerUnload chan bool
 	StoreOwner string
 	StoreInventory  *ItemInventory
+	Songs map[string]string
 }
 
 // Pop the room data
@@ -55,6 +56,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		make(chan bool),
 		roomData["store_owner"].(string),
 		RestoreInventory(roomData["store_inventory"].(string)),
+		make(map[string]string),
 	}
 
 
@@ -337,6 +339,18 @@ func (r *Room) BuyStoreItem(item *Item) *Item {
 	r.StoreInventory.Remove(item)
 	item.StorePrice = 0
 	return item
+}
+
+func (r *Room) SongPlaying(songName string) bool {
+	songPlaying := false
+	if _, ok := Songs[songName]; ok {
+		for _, song := range r.Songs {
+			if song == songName {
+				songPlaying = true
+			}
+		}
+	}
+	return songPlaying
 }
 
 func (r *Room) Save() {

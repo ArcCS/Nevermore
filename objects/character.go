@@ -404,31 +404,23 @@ func (c *Character) ReturnVictim() string {
 func (c *Character) ReturnState() string{
 	stamStatus := "energetic "
 	vitStatus := "healthy"
-	if c.Stam.Current < (c.Stam.Current - int(.25 * float32(c.Stam.Current))) {
+	if c.Stam.Current < (c.Stam.Max - int(.25 * float32(c.Stam.Max))) {
 		stamStatus = "exhausted"
-	}else if c.Stam.Current < (c.Stam.Current - int(.5 * float32(c.Stam.Current))) {
+	}else if c.Stam.Current < (c.Stam.Max - int(.5 * float32(c.Stam.Max))) {
 		stamStatus = "fatigued"
-	}else if c.Stam.Current < (c.Stam.Current - int(.75 * float32(c.Stam.Current))) {
+	}else if c.Stam.Current < (c.Stam.Max - int(.75 * float32(c.Stam.Max))) {
 		stamStatus = "slightly fatigued"
 	}
 
-	if c.Vit.Current < (c.Vit.Current - int(.25 * float32(c.Vit.Current))) {
+	if c.Vit.Current < (c.Vit.Max - int(.25 * float32(c.Vit.Max))) {
 		vitStatus = "mortally wounded"
-	}else if c.Vit.Current < (c.Vit.Current - int(.5 * float32(c.Vit.Current))) {
+	}else if c.Vit.Current < (c.Vit.Max - int(.5 * float32(c.Vit.Max))) {
 		vitStatus = "injured"
-	}else if c.Vit.Current < (c.Vit.Current - int(.75 * float32(c.Vit.Current))) {
+	}else if c.Vit.Current < (c.Vit.Max - int(.75 * float32(c.Vit.Max))) {
 		vitStatus = "slightly injured"
 	}
 
 	return " looks " + stamStatus + " and " + vitStatus
-	// energetic
-	// slightly fatigued
-	// fatigued
-	// exhausted
-	// healthy
-	// slightly injured
-	// injured
-	// mortally wounded / badly injured
 
 }
 

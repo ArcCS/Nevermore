@@ -51,7 +51,7 @@ func (examine) process(s *state) {
 		t.AppendHeader(table.Row{"Type", "Variable Name", "Value", "Description"})
 		t.AppendRows([]table.Row{
 			{"V", "name", roomRef.Name, "Title/Name of the room"},
-			{"V", "storeowner", roomRef.StoreOwner, "If this is a store, who is the owner that can add items?"},
+			{"V", "storeowner", roomRef.StoreOwner, "Owner that can add items."},
 			{"T", "repair", strconv.FormatBool(roomRef.Flags["repair"]), "Can repair items here."},
 			{"T", "mana_drain", strconv.FormatBool(roomRef.Flags["mana_drain"]), "Drains mana per tick"},
 			{"T", "no_summon", strconv.FormatBool(roomRef.Flags["no_summon"]), "Blocks summon"},
