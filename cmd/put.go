@@ -44,8 +44,10 @@ func (put) process(s *state) {
 	whereStr := s.words[argParse]
 	whereNum := 1
 
-	if val, err := strconv.Atoi(s.words[argParse+1]); err == nil {
-		whereNum = val
+	if len(s.words) >= argParse+2 {
+		if val, err := strconv.Atoi(s.words[argParse+1]); err == nil {
+			whereNum = val
+		}
 	}
 
 	target := s.actor.Inventory.Search(targetStr, targetNum)
@@ -75,7 +77,7 @@ func (put) process(s *state) {
 	}
 
 	// is it a chest?
-	if !where.Flags["chest"] {
+	if where.ItemType != 9 {
 		s.msg.Actor.SendInfo("You can't put anything in that.")
 		return
 	}
@@ -87,7 +89,7 @@ func (put) process(s *state) {
 	s.actor.Inventory.Remove(target)
 	where.Storage.Add(target)
 	s.actor.Inventory.Unlock()
-	where.Storage.Lock()
+	where.Storage.Unlock()
 
 	s.msg.Actor.SendGood("You put ", target.Name, " into ", where.Name, ".")
 	s.msg.Observers.SendInfo("You see ", s.actor.Name, " put ", target.Name, " into ", where.Name, ".")

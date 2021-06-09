@@ -43,7 +43,7 @@ func (act) process(s *state) {
 	} else if cmdStr == "frown" {
 		action = "frowns."
 	} else if cmdStr == "smile" {
-		action = "smiles broudly."
+		action = "smiles broadly."
 	} else if cmdStr == "laugh" {
 		action = "laughs."
 	} else if cmdStr == "nod" {

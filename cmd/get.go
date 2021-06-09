@@ -7,7 +7,7 @@ import (
 
 func init() {
 	addHandler(get{},
-		"Usage:  get [container_name] itemName # \n \n Get the specified item.",
+		"Usage:  get itemName [container_name] # \n \n Get the specified item.",
 		permissions.Player,
 		"GET", "TAKE", "G")
 }
@@ -56,6 +56,10 @@ func (get) process(s *state) {
 				s.msg.Actor.SendBad("You must be next to the item to get it.")
 				return
 			}
+			if roomInventory.Flags["no_take"] && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				s.msg.Actor.SendBad("You cannot take that!")
+				return
+			}
 			if roomInventory.ItemType == 10 {
 				s.actor.RunHook("act")
 				s.where.Items.Remove(roomInventory)
@@ -77,17 +81,22 @@ func (get) process(s *state) {
 				return
 			}
 		}
-	}
-
-	// Try to find the where if it's not the room
-	if whereStr != "" {
-		//log.Println("Looking elsewhere for ", targetStr)
+	}else{
 		where := s.where.Items.Search(whereStr, whereNum)
+
 		if where != nil && where.ItemType == 9 {
 			if where.Placement != s.actor.Placement {
 				s.msg.Actor.SendBad("You must be next to the chest to get items from it.")
 				return
 			}
+		}
+
+		// If we didn't find it in the room, look on the person.
+		if where == nil {
+			where = s.actor.Inventory.Search(whereStr, whereNum)
+		}
+
+		if where != nil {
 			whereInventory := where.Storage.Search(targetStr, targetNum)
 			if whereInventory != nil {
 				if whereInventory.ItemType == 10 {

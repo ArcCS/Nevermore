@@ -70,13 +70,14 @@ func (look) process(s *state) {
 		s.msg.Actor.SendInfo(whatChar.Look())
 		s.msg.Actor.SendInfo(text.Gray + whatChar.Description + "\n")
 		equip_template := "{{if .Chest}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Chest}} about {{.Pos_pronoun}} body{{end}}" +
-			" {{if .Neck}}\n{{.Sub_pronoun}} {{.Isare}} a {{.Neck}} around {{.Pos_pronoun}} neck.{{end}}" +
+			" {{if .Neck}}\n{{.Sub_pronoun}} {{.Isare}} wearing a {{.Neck}} around {{.Pos_pronoun}} neck.{{end}}" +
 			" {{if .Main}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Main}} in {{.Pos_pronoun}} main hand.{{end}}" +
 			" {{if .Offhand}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Offhand}} in {{.Pos_pronoun}} off hand.{{end}}" +
 			" {{if .Arms}}\n{{.Sub_pronoun}} {{.Isare}} wearing some {{.Arms}} on {{.Pos_pronoun}} arms.{{end}}" +
 			" {{if .Finger1}}\n{{.Sub_pronoun}} {{.HasHave}} a {{.Finger1}} on {{.Pos_pronoun}} finger.{{end}}" +
 			" {{if .Finger2}}\n{{.Sub_pronoun}} {{.HasHave}} a {{.Finger2}} on {{.Pos_pronoun}} finger.{{end}}" +
 			" {{if .Legs}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Legs}} on {{.Pos_pronoun}} legs.{{end}}" +
+			" {{if .Hands}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Hands}} on {{.Pos_pronoun}} hands.{{end}}" +
 			" {{if .Feet}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Feet}} on {{.Pos_pronoun}} feet.{{end}}" +
 			" {{if .Head}}\n{{.Sub_pronoun}} {{.Isare}} wearing a {{.Head}}.{{end}}" +
 			text.Reset
@@ -94,6 +95,7 @@ func (look) process(s *state) {
 			Finger1     string
 			Finger2     string
 			Legs        string
+			Hands       string
 			Feet        string
 			Head        string
 		}{
@@ -109,6 +111,7 @@ func (look) process(s *state) {
 			whatChar.Equipment.GetText("ring1"),
 			whatChar.Equipment.GetText("ring2"),
 			whatChar.Equipment.GetText("legs"),
+			whatChar.Equipment.GetText("hands"),
 			whatChar.Equipment.GetText("feet"),
 			whatChar.Equipment.GetText("head"),
 		}

@@ -142,7 +142,6 @@ func (godir) process(s *state) {
 					}
 					if len(s.actor.PartyFollowers) > 0 {
 						for _, party := range s.actor.PartyFollowers{
-
 							go Script(party, s.cmd + " " + strings.Join(s.input, " "))
 						}
 					}

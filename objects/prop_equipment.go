@@ -218,77 +218,77 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 func (e *Equipment) Unequip(alias string) (ok bool, item *Item) {
 	ok = false
 
-	if e.Head != (*Item)(nil) {
+	if e.Head != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Head.Name), strings.ToLower(alias)) {
 			item = e.Head
 			e.Head = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Chest != (*Item)(nil) {
+	if e.Chest != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Chest.Name), strings.ToLower(alias)) {
 			item = e.Chest
 			e.Chest = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Neck != (*Item)(nil) {
+	if e.Neck != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Neck.Name), strings.ToLower(alias)) {
 			item = e.Neck
 			e.Neck = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Legs != (*Item)(nil) {
+	if e.Legs != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Legs.Name), strings.ToLower(alias)) {
 			item = e.Legs
 			e.Legs = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Feet != (*Item)(nil) {
+	if e.Feet != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Feet.Name), strings.ToLower(alias)) {
 			item = e.Feet
 			e.Feet = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Arms != (*Item)(nil) {
+	if e.Arms != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Arms.Name), strings.ToLower(alias)) {
 			item = e.Arms
 			e.Arms = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Hands != (*Item)(nil) {
+	if e.Hands != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Hands.Name), strings.ToLower(alias)) {
 			item = e.Hands
 			e.Hands = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Ring1 != (*Item)(nil) {
+	if e.Ring1 != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Ring1.Name), strings.ToLower(alias)) {
 			item = e.Ring1
 			e.Ring1 = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Ring2 != (*Item)(nil) {
+	if e.Ring2 != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Ring2.Name), strings.ToLower(alias)) {
 			item = e.Ring2
 			e.Ring2 = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Main != (*Item)(nil) {
+	if e.Main != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Main.Name), strings.ToLower(alias)) {
 			item = e.Main
 			e.Main = (*Item)(nil)
 			ok = true
 		}
 	}
-	if e.Off != (*Item)(nil) {
+	if e.Off != (*Item)(nil) && ok == false {
 		if strings.Contains(strings.ToLower(e.Off.Name), strings.ToLower(alias)) {
 			item = e.Off
 			e.Off = (*Item)(nil)

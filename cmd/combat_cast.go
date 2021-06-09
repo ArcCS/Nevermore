@@ -51,12 +51,13 @@ func (cast) process(s *state) {
 			s.msg.Actor.SendBad("You do not have that spell in your spellbook.")
 			return
 		}
-
-		if minLevel, ok :=  spellInstance.Classes[config.AvailableClasses[s.actor.Class]]; !ok {
-			s.msg.Actor.SendBad("The comprehension of this spell is beyond you.")
-			return
-		}else if s.actor.Tier < minLevel {
-			s.msg.Actor.SendBad("You are not high enough level to cast this spell.")
+		if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			if minLevel, ok := spellInstance.Classes[config.AvailableClasses[s.actor.Class]]; !ok {
+				s.msg.Actor.SendBad("The comprehension of this spell is beyond you.")
+				return
+			} else if s.actor.Tier < minLevel {
+				s.msg.Actor.SendBad("You are not high enough level to cast this spell.")
+			}
 		}
 
 		s.actor.RunHook("combat")

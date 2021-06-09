@@ -3,6 +3,7 @@ package objects
 import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/utils"
+	"strconv"
 )
 
 type Item struct {
@@ -74,7 +75,14 @@ func (i *Item) GetWeight() int {
 }
 
 func (i *Item) Look() string {
-	return i.Description
+	resString := i.Description + "\n\n"
+	if i.ItemType==9 {
+		items := i.Storage.ReducedList()
+		if len(items) > 0 {
+			resString += "The " + i.Name + " contains " + strconv.Itoa(len(i.Storage.Contents)) + " items: \n" + items
+		}
+	}
+	return resString
 }
 
 func (i *Item) Use(parentId int, target int) {
