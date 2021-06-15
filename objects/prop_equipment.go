@@ -71,37 +71,37 @@ func (e *Equipment) List() []*Item {
 
 func (e *Equipment) GetText(ref string) string {
 	if ref == "head" && e.Head != (*Item)(nil) {
-		return e.Head.Name
+		return e.Head.DisplayName()
 	}
 	if ref == "chest" && e.Chest != (*Item)(nil) {
-		return e.Chest.Name
+		return e.Chest.DisplayName()
 	}
 	if ref == "neck" && e.Neck != (*Item)(nil) {
-		return e.Neck.Name
+		return e.Neck.DisplayName()
 	}
 	if ref == "legs" && e.Legs != (*Item)(nil) {
-		return e.Legs.Name
+		return e.Legs.DisplayName()
 	}
 	if ref == "feet" && e.Feet != (*Item)(nil) {
-		return e.Feet.Name
+		return e.Feet.DisplayName()
 	}
 	if ref == "arms" && e.Arms != (*Item)(nil) {
-		return e.Arms.Name
+		return e.Arms.DisplayName()
 	}
 	if ref == "hands" && e.Hands != (*Item)(nil) {
-		return e.Hands.Name
+		return e.Hands.DisplayName()
 	}
 	if ref == "ring1" && e.Ring1 != (*Item)(nil) {
-		return e.Ring1.Name
+		return e.Ring1.DisplayName()
 	}
 	if ref == "ring2" && e.Ring2 != (*Item)(nil) {
-		return e.Ring2.Name
+		return e.Ring2.DisplayName()
 	}
 	if ref == "main" && e.Main != (*Item)(nil) {
-		return e.Main.Name
+		return e.Main.DisplayName()
 	}
 	if ref == "off" && e.Off != (*Item)(nil) {
-		return e.Off.Name
+		return e.Off.DisplayName()
 	}
 	return ""
 }

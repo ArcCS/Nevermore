@@ -21,6 +21,7 @@ type Item struct {
 	Value        int
 	Spell        string
 	StorePrice 	int
+	Adjustment int
 
 	Storage *ItemInventory
 	Weight  int
@@ -53,6 +54,7 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 		int(itemData["value"].(int64)),
 		itemData["spell"].(string),
 		0,
+		int(itemData["adjustment"].(int64)),
 		&ItemInventory{},
 		int(itemData["weight"].(int64)),
 	}
@@ -85,8 +87,38 @@ func (i *Item) Look() string {
 	return resString
 }
 
-func (i *Item) Use(parentId int, target int) {
-	return
+// DisplayName Return a display name with numerics
+func (i *Item) DisplayName() string{
+	typeReturn := 0
+	// Mapping value definitions
+	switch i.ItemType{
+		case 0:  typeReturn = 1
+		case 1:  typeReturn = 1
+		case 2:  typeReturn = 1
+		case 3:  typeReturn = 1
+		case 4:  typeReturn = 1
+		case 5:  typeReturn = 2
+		case 15: typeReturn = 1
+		case 16: typeReturn = 1
+		case 19: typeReturn = 2
+		case 20: typeReturn = 2
+		case 21: typeReturn = 2
+		case 22: typeReturn = 2
+		case 23: typeReturn = 2
+		case 24: typeReturn = 2
+		case 25: typeReturn = 2
+		case 26: typeReturn = 2
+	}
+	if typeReturn == 1 {
+		return i.Name + " (" + strconv.Itoa(i.Adjustment) + ")"
+	}else if typeReturn == 2 {
+		if i.Armor > 0 {
+			return i.Name + " (" + strconv.Itoa(i.Armor) + ")"
+		}else{
+			return i.Name
+		}
+	}
+	return i.Name
 }
 
 func (i *Item) ToggleFlag(flagName string) bool {
@@ -118,6 +150,7 @@ func (i *Item) Save() {
 	itemData["light"] = utils.Btoi(i.Flags["light"])
 	itemData["no_take"] = utils.Btoi(i.Flags["no_take"])
 	itemData["weightless_chest"] = utils.Btoi(i.Flags["weightless_chest"])
+	itemData["adjustment"] = i.Adjustment
 	itemData["commands"] = i.SerializeCommands()
 	data.UpdateItem(itemData)
 	return

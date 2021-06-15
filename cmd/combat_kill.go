@@ -91,10 +91,12 @@ func (kill) process(s *state) {
 				stringExp := strconv.Itoa(whatMob.Experience)
 				for k := range whatMob.ThreatTable {
 					charClean := s.where.Chars.Search(k, s.actor)
+					if charClean != nil {
 					charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
 					charClean.Experience.Add(whatMob.Experience)
 					if charClean.Victim == whatMob {
 						charClean.Victim = nil
+					}
 					}
 				}
 				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
@@ -150,11 +152,15 @@ func (kill) process(s *state) {
 				stringExp := strconv.Itoa(whatMob.Experience)
 				for k := range whatMob.ThreatTable {
 					charClean := s.where.Chars.Search(k, s.actor)
+					
+					if charClean != nil {
 					charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
 					charClean.Experience.Add(whatMob.Experience)
 					if charClean.Victim == whatMob {
 						charClean.Victim = nil
 					}
+					}
+					
 				}
 				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
 				s.msg.Actor.SendInfo(whatMob.DropInventory())

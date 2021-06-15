@@ -83,7 +83,7 @@ func (i *ItemInventory) Search(alias string, num int) *Item {
 
 	pass := 1
 	for _, c := range i.Contents {
-		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
+		if strings.Contains(strings.ToLower(c.DisplayName()), strings.ToLower(alias)) {
 			if pass == num {
 				return c
 			} else {
@@ -105,8 +105,8 @@ func (i *ItemInventory) List() []string {
 	}
 
 	for _, o := range i.Contents {
-		if strings.TrimSpace(o.Name) != "" {
-			items = append(items, o.Name)
+		if strings.TrimSpace(o.DisplayName()) != "" {
+			items = append(items, o.DisplayName())
 		}
 	}
 
@@ -145,17 +145,73 @@ func (i *ItemInventory) Jsonify() string {
 	}
 }
 
-// List the items in this inentory
+// PermanentReducedList the items in this inentory
+func (i *ItemInventory) PermanentReducedList() string {
+	items := make(map[string]int, 0)
+
+	for _, o := range i.Contents {
+		if o.Flags["permanent"] {
+			// List all
+			_, inMap := items[o.DisplayName()]
+			if inMap {
+				items[o.DisplayName()]++
+			} else {
+				items[o.DisplayName()] = 1
+			}
+		}
+	}
+
+	stringify := make([]string, 0)
+	for k, v := range items {
+		if v == 1 {
+			stringify = append(stringify, "a "+k)
+		} else {
+			stringify = append(stringify, config.TextNumbers[v]+" "+k+"s")
+		}
+	}
+
+	return strings.Join(stringify, ", ")
+}
+
+// RoomReducedList the items in this inentory
+func (i *ItemInventory) RoomReducedList() string {
+	items := make(map[string]int, 0)
+
+	for _, o := range i.Contents {
+		if !o.Flags["permanent"] {
+			// List all
+			_, inMap := items[o.DisplayName()]
+			if inMap {
+				items[o.DisplayName()]++
+			} else {
+				items[o.DisplayName()] = 1
+			}
+		}
+	}
+
+	stringify := make([]string, 0)
+	for k, v := range items {
+		if v == 1 {
+			stringify = append(stringify, "a "+k)
+		} else {
+			stringify = append(stringify, config.TextNumbers[v]+" "+k+"s")
+		}
+	}
+
+	return strings.Join(stringify, ", ")
+}
+
+// ReducedList the items in this inentory
 func (i *ItemInventory) ReducedList() string {
 	items := make(map[string]int, 0)
 
 	for _, o := range i.Contents {
 		// List all
-		_, inMap := items[o.Name]
+		_, inMap := items[o.DisplayName()]
 		if inMap {
-			items[o.Name]++
+			items[o.DisplayName()]++
 		} else {
-			items[o.Name] = 1
+			items[o.DisplayName()] = 1
 		}
 	}
 

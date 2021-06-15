@@ -111,7 +111,7 @@ func (edit) process(s *state) {
 				case "placement":
 					intKey, _ := strconv.Atoi(s.words[3])
 					if intKey >= 1 && intKey <= 5 {
-						exit.KeyId = intKey
+						exit.Placement = intKey
 						s.msg.Actor.SendGood("Changed placement")
 					} else {
 						s.msg.Actor.SendBad("Placement Id not valid. ")
@@ -187,6 +187,10 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					item.PlusDice = value
 					s.msg.Actor.SendGood("Changed plus dice")
+				case "adjustment":
+					value, _ := strconv.Atoi(s.words[3])
+					item.Adjustment = value
+					s.msg.Actor.SendGood("Changed adjustment to damage")
 				case "sdice":
 					value, _ := strconv.Atoi(s.words[3])
 					item.SidesDice = value

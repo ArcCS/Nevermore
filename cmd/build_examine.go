@@ -150,6 +150,10 @@ func (examine) process(s *state) {
 
 	case "item":
 		nameNum := 1
+		if len(s.words) < 2 {
+			s.msg.Actor.SendBad("What item do you want to examine?")
+			return
+		}
 		if len(s.words) > 2 {
 			// Try to snag a number off the list
 			if val, err := strconv.Atoi(s.words[2]); err == nil {
@@ -175,6 +179,7 @@ func (examine) process(s *state) {
 				{"V", "ndice", strconv.Itoa(objRef.NumDice), "Number of Dice to Roll"},
 				{"V", "sdice", strconv.Itoa(objRef.SidesDice), "Sides of Dice Being Rolled"},
 				{"V", "pdice", strconv.Itoa(objRef.PlusDice), "Additional value to add to roll."},
+				{"V", "adjustment", strconv.Itoa(objRef.Adjustment), "Adjustment to final roll damage"},
 				{"V", "spell", objRef.Spell, "Spell cast when used."},
 				{"T", "always_crit", strconv.FormatBool(objRef.Flags["always_crit"]), "Always criticals when used"},
 				{"T", "permanent", strconv.FormatBool(objRef.Flags["permanent"]), "Does not despawn on ground"},

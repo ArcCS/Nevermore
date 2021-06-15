@@ -42,7 +42,11 @@ func (look) process(s *state) {
 		if len(mobs) > 0 {
 			s.msg.Actor.SendInfo("You see " + mobs)
 		}
-		items := roomLook.Items.ReducedList()
+		permItems := roomLook.Items.PermanentReducedList()
+		if len(permItems) > 0 {
+			s.msg.Actor.SendInfo("You see " + permItems)
+		}
+		items := roomLook.Items.RoomReducedList()
 		if len(items) > 0 {
 			s.msg.Actor.SendInfo("On the ground you see " + items)
 		}

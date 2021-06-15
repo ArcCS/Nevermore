@@ -42,7 +42,7 @@ func (link) process(s *state) {
 			}
 			exitData := data.LoadExit(strings.ToLower(s.words[0]), s.where.RoomId, roomRef)
 			s.where.Exits[strings.ToLower(s.words[0])] = objects.NewExit(s.where.RoomId, exitData)
-			if len(s.input[0]) == 3 {
+			if len(s.input) == 3 {
 				createBack := data.CreateExit(map[string]interface{}{
 					"name":   strings.ToLower(s.words[1]),
 					"fromId": roomRef,

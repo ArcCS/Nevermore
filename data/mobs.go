@@ -278,7 +278,7 @@ func UpdateMob(mobData map[string]interface{}) bool {
 			"piety":               mobData["piety"],
 			"mpmax":               mobData["mpmax"],
 			"mpcur":               mobData["mpcur"],
-			"hpcur":               mobData["hpcur"],
+			"hpcur":               mobData["hpmax"],
 			"hpmax":               mobData["hpmax"],
 			"sdice":               mobData["sdice"],
 			"ndice":               mobData["ndice"],

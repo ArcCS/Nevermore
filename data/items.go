@@ -22,6 +22,7 @@ func LoadItems() []interface{} {
 	sdice:i.sdice,
 	value:i.value,
 	spell:i.spell,
+	adjustment:i.adjustment,
 	commands: i.commands,
 	flags: {always_crit: i.always_crit, permanent:i.permanent,
 	magic:i.magic,
@@ -57,6 +58,7 @@ func LoadItem(itemId int) map[string]interface{} {
 	sdice:i.sdice,
 	value:i.value,
 	spell:i.spell,
+	adjustment:i.adjustment,
 	commands: i.commands,
 	flags: {always_crit: i.always_crit,permanent:i.permanent,
 	magic:i.magic,
@@ -96,6 +98,7 @@ func CreateItem(itemData map[string]interface{}) (int, bool) {
 		i.always_crit = 0,
 		i.permanent = 0,
 		i.magic = 0,
+		i.adjustment = 0,
 		i.no_take = 0,
 		i.light = 0,
 		i.weightless_chest = 0`,
@@ -137,6 +140,7 @@ func UpdateItem(itemData map[string]interface{}) bool {
 		i.permanent = $permanent,
 		i.no_take = $no_take,
 		i.light = $light,
+		i.adjustment = $adjustment,
 		i.weightless_chest = $weightless_chest,
 		i.magic = $magic`,
 		map[string]interface{}{
@@ -160,6 +164,7 @@ func UpdateItem(itemData map[string]interface{}) bool {
 			"no_take":          itemData["no_take"],
 			"weightless_chest": itemData["weightless_chest"],
 			"commands": 		itemData["commands"],
+			"adjustment":		itemData["adjustment"],
 		},
 	)
 	if err != nil {

@@ -44,8 +44,8 @@ func (equip) process(s *state) {
 		}
 		s.actor.Inventory.Lock()
 		if s.actor.Equipment.Equip(what) {
-			s.msg.Actor.SendGood("You equip " + what.Name)
-			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.Name)
+			s.msg.Actor.SendGood("You equip " + what.DisplayName())
+			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.DisplayName())
 			s.actor.Inventory.Remove(what)
 		} else {
 			s.msg.Actor.SendBad("You already have something equipped there.")

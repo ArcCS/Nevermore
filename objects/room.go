@@ -271,6 +271,13 @@ func (r *Room) LastPerson() {
 		r.roomTicker.Stop()
 	}
 
+	// Relock all the exits.
+	for _, exit := range r.Exits {
+		if exit.Flags["lockable"] {
+			exit.Flags["locked"] = true
+		}
+	}
+
 }
 
 func (r *Room) MessageAll(Message string) {

@@ -49,6 +49,9 @@ func (drop) process(s *state) {
 	s.actor.Inventory.Remove(target)
 	where.Add(target)
 	s.actor.Inventory.Unlock()
+	if target.Flags["permanent"] {
+		s.where.Save()
+	}
 
 	s.msg.Actor.SendGood("You drop ", target.Name, ".")
 	if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {

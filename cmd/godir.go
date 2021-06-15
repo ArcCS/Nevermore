@@ -89,7 +89,10 @@ func (godir) process(s *state) {
 				s.AddCharLock(toE.ToId)
 				return
 			} else {
-				if !toE.Flags["placement_dependent"] {
+				if toE.Flags["placement_dependent"] && s.actor.Placement != s.where.Placement{
+					s.msg.Actor.SendBad("You must be next to the exit to use it.")
+					return
+				}else{
 					//  Next room needs to be active
 					if !objects.Rooms[toE.ToId].Flags["active"] && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 						s.msg.Actor.SendBad("Go where?")
