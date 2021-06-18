@@ -149,7 +149,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				1: {int(charData["thrustexp"].(int64))},
 				2: {int(charData["bluntexp"].(int64))},
 				3: {int(charData["poleexp"].(int64))},
-				4: {int(charData["missileexp"].(int64))}},
+				4: {int(charData["missileexp"].(int64))},
+				5: {int(charData["handexp"].(int64))}},
 			map[string]*Accumulator{
 				"fire": {0},
 				"earth": {0},
@@ -164,6 +165,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				"gridmove": make(map[string]*Hook),
 				"move": make(map[string]*Hook),
 				"say": make(map[string]*Hook),
+				"use": make(map[string]*Hook),
 			},
 			time.Now(),
 			nil,
@@ -327,6 +329,7 @@ func (c *Character) Save() {
 	charData["thrustexp"] = c.Skills[1].Value
 	charData["bluntexp"] = c.Skills[2].Value
 	charData["missileexp"] = c.Skills[4].Value
+	charData["handexp"] = c.Skills[5].Value
 	charData["poleexp"] = c.Skills[3].Value
 	charData["sharpexp"] = c.Skills[0].Value
 	charData["bankgold"] = c.BankGold.Value
@@ -539,9 +542,7 @@ func (c *Character) AdvanceSkillExp(amount int){
 }
 
 func (c *Character) AdvanceElementalExp(amount int){
-	if c.Equipment.Main != nil {
-		c.Skills[c.Equipment.Main.ItemType].Add(amount)
-	}
+	return
 }
 
 // ReceiveDamage Return stam and vital damage

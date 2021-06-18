@@ -51,6 +51,7 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"bluntexp: a.bluntexp, "+
 		"poleexp: a.poleexp, "+
 		"missileexp: a.missileexp, "+
+		"handexp: a.handexp, " +
 		"spells: a.spells, "+
 		"equipment: a.equipment, "+
 		"inventory: a.inventory, "+
@@ -114,6 +115,7 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.poleexp = 0,"+
 			"a.thrustexp = 0,"+
 			"a.missileexp = 0,"+
+			"a.handexp = 0,"+
 			"a.spells = '',"+
 			"a.equipment = '[]',"+
 			"a.inventory = '[]',"+
@@ -194,6 +196,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.poleexp = $poleexp,"+
 			"a.thrustexp = $thrustexp,"+
 			"a.missileexp = $missileexp,"+
+			"a.handexp = $handexp, " +
 			"a.spells = $spells,"+
 			"a.equipment = $equipment,"+
 			"a.inventory = $inventory,"+
@@ -210,6 +213,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"missileexp":  charData["missileexp"],
 			"poleexp":     charData["poleexp"],
 			"sharpexp":    charData["sharpexp"],
+			"handexp":	   charData["handexp"],
 			"bankgold":    charData["bankgold"],
 			"gold":        charData["gold"],
 			"evals":       charData["evals"],

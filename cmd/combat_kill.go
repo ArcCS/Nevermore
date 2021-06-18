@@ -132,7 +132,7 @@ func (kill) process(s *state) {
 			}
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
 			whatMob.AddThreatDamage(actualDamage, s.actor)
-			s.actor.AdvanceSkillExp(int((whatMob.Stam.Max/actualDamage) * whatMob.Experience))
+			s.actor.AdvanceSkillExp((whatMob.Stam.Max/actualDamage) * whatMob.Experience)
 			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			go whatMob.DeathCheck(s.actor)
 		}

@@ -124,15 +124,6 @@ func pray(caller interface{}, target interface{}, magnitude int) string {
 }
 
 func healstam(caller interface{}, target interface{}, magnitude int) string {
-	/*vigor devices seemed to be very low 4-10?
-	mend-wounds devices were around 5-15.
-	detraum devices seemed around 38-50.
-	renew devices seemed around 60-80 (less sure on this)
-	casting vigor with a l14 int 25 priest was around 45-49, whilst casting vigor with a l14 int 30 wiz was around 20ish
-	casting detraum with l14 priest was  80-100ish
-	casting renewal with l14 priest was approx 150
-	casting detraum with bard was around 45?
-	casting renewal with bard was approx 60-80? */
 	damage := 10
 	switch caller := caller.(type) {
 	case *Character:

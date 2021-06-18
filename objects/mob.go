@@ -444,7 +444,7 @@ func (m *Mob) DeathCheck(actor *Character) {
 			if charClean != nil {
 				if threat > 0 {
 					if m.Level < charClean.Tier {
-						totalExperience = m.Experience / (6 - (charClean.Tier - m.Level))
+						totalExperience = int(math.Abs(float64(m.Experience / (6 + (charClean.Tier - m.Level)))))
 					} else {
 						if threat >= m.Stam.Max/2 {
 							totalExperience = m.Experience
