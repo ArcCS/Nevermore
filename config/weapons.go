@@ -59,6 +59,18 @@ var WeaponExpLevels = map[int]int{
 	11: 15000000,
 }
 
+var SkillAdvancement = map[int]float32{
+	0:	1,
+	1:	.7,
+	2:	.7,
+	3:	.7,
+	6:	.7,
+	8:	.5,
+	7:	.5,
+	5:	.4,
+	4:	.4,
+}
+
 type WeaponClass struct {
 	Title          string
 	DoubleDamage   float64
@@ -80,7 +92,7 @@ var WeaponTitles = []string{
 	"Grandmaster",
 }
 
-func WeaponExpTitle(exp int) string {
+func WeaponExpTitle(exp int, class int) string {
 	switch {
 	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
 		return WeaponTitles[0]
@@ -105,13 +117,17 @@ func WeaponExpTitle(exp int) string {
 	case exp > WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
 		return WeaponTitles[10]
 	case exp >= WeaponExpLevels[11]:
-		return WeaponTitles[11]
+		if class == 0 {
+			return WeaponTitles[11]
+		}else{
+			return WeaponTitles[10]
+		}
 	default:
 		return WeaponTitles[0]
 	}
 }
 
-func WeaponLevel(exp int) int {
+func WeaponLevel(exp int, class int) int {
 	switch {
 	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
 		return 0
@@ -136,7 +152,11 @@ func WeaponLevel(exp int) int {
 	case exp > WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
 		return 10
 	case exp >= WeaponExpLevels[11]:
-		return 11
+		if class==0 {
+			return 11
+		}else{
+			return 10
+		}
 	default:
 		return 0
 	}

@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/text"
 	"log"
 	"strconv"
 	"strings"
@@ -87,23 +86,16 @@ func (use) process(s *state) {
 				}
 				// It was a mob!
 				if whatMob != nil {
-					msg = objects.PlayerCast(s.actor, whatMob, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+					msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
+					if strings.Contains(msg, "$CRIPT"){
+						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
+					}else if msg != "" {
+						s.msg.Actor.SendGood(msg)
+					}
 					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatMob.Name)
 					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
 					s.msg.Actor.SendGood(msg)
-					if whatMob.Stam.Current <= 0 {
-						s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
-						s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
-						stringExp := strconv.Itoa(whatMob.Experience)
-						for k := range whatMob.ThreatTable {
-							s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-							s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
-						}
-						s.msg.Observers.SendInfo(whatMob.Name + " dies.")
-						s.msg.Actor.SendInfo(whatMob.DropInventory())
-						objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
-						whatMob = nil
-					}
+					go whatMob.DeathCheck(s.actor)
 					return
 				}
 
@@ -116,7 +108,12 @@ func (use) process(s *state) {
 						s.msg.Actor.SendBad("No PVP implemented yet. ")
 						return
 					}
-					msg = objects.PlayerCast(s.actor, whatChar, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+					msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
+					if strings.Contains(msg, "$CRIPT"){
+						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
+					}else if msg != "" {
+						s.msg.Actor.SendGood(msg)
+					}
 					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatChar.Name)
 					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatChar.Name)
 					s.msg.Actor.SendGood(msg)
@@ -126,9 +123,12 @@ func (use) process(s *state) {
 					return
 				}
 			} else {
-				msg = objects.PlayerCast(s.actor, s.actor, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
-				//s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
-				//s.msg.Actor.SendGood(msg)
+				msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
+				if strings.Contains(msg, "$CRIPT"){
+					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
+				}else if msg != "" {
+					s.msg.Actor.SendGood(msg)
+				}
 				return
 			}
 		}

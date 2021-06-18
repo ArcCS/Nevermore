@@ -22,30 +22,45 @@ type skills cmd
 
 func (skills) process(s *state) {
 
-	skill_template :=
-		`Skill                Level of Mastery
+
+
+	skill_header :=
+`Skill                Level of Mastery      Experience
 -----------------------------------------------------------------
-Sharp Weapons        {{.Sharp}}
+`
+standard_skills :=
+`Sharp Weapons        {{.Sharp}}
 Thrust Weapons       {{.Thrust}}
 Blunt Weapons        {{.Blunt}}
 Pole Weapons         {{.Pole}}
 Missile Weapons      {{.Missile}}
 `
+
+monk_skills :=
+`hand-to-hand combat  {{.Unarmed}}`
+
 	data := struct {
 		Sharp   string
 		Thrust  string
 		Blunt   string
 		Pole    string
 		Missile string
+		Unarmed string
 	}{
-		config.WeaponExpTitle(s.actor.Skills[0].Value),
-		config.WeaponExpTitle(s.actor.Skills[1].Value),
-		config.WeaponExpTitle(s.actor.Skills[2].Value),
-		config.WeaponExpTitle(s.actor.Skills[3].Value),
-		config.WeaponExpTitle(s.actor.Skills[4].Value),
+		config.WeaponExpTitle(s.actor.Skills[0].Value, s.actor.Class),
+		config.WeaponExpTitle(s.actor.Skills[1].Value, s.actor.Class),
+		config.WeaponExpTitle(s.actor.Skills[2].Value, s.actor.Class),
+		config.WeaponExpTitle(s.actor.Skills[3].Value, s.actor.Class),
+		config.WeaponExpTitle(s.actor.Skills[4].Value, s.actor.Class),
+		config.WeaponExpTitle(s.actor.Skills[5].Value, s.actor.Class),
 	}
 
-	tmpl, _ := template.New("stat_info").Parse(skill_template)
+	if s.actor.Class == 8 {
+		skill_header += monk_skills
+	}else{
+		skill_header += standard_skills
+	}
+	tmpl, _ := template.New("stat_info").Parse(skill_header)
 	var output bytes.Buffer
 	err := tmpl.Execute(&output, data)
 	if err != nil {

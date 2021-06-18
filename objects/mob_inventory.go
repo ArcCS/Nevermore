@@ -146,6 +146,26 @@ func (i *MobInventory) List(observer *Character) []string {
 }
 
 // List the items in this MobInventory
+func (i *MobInventory) ListMobs(observer *Character) []*Mob {
+	items := make([]*Mob, 0)
+
+	for _, c := range i.Contents {
+		if c.Flags["hidden"] == false ||
+			(c.Flags["hidden"] == true &&
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
+
+			if c.Flags["invisible"] == false ||
+				(c.Flags["invisible"] == true &&
+					observer.Flags["detect_invisible"]) ||
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+				items = append(items, c)
+			}
+		}
+	}
+	return items
+}
+
+// List the items in this MobInventory
 func (i *MobInventory) ListAttackers(observer *Character) string {
 	items := ""
 

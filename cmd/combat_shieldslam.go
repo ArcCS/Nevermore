@@ -72,28 +72,11 @@ func (slam) process(s *state) {
 		}
 
 		actualDamage, _ := whatMob.ReceiveDamage(int(s.actor.GetStat("str")*config.ShieldDamage))
-		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor.Name)
+		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		whatMob.MobStunned += config.ShieldStun*s.actor.GetStat("pie")
 		s.msg.Actor.SendInfo("You slammed the " + whatMob.Name + " with your shield for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.TextPosPronoun[s.actor.Gender] + " shield into "+ whatMob.Name)
-		if whatMob.Stam.Current <= 0 {
-			s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
-			s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
-			//TODO Calculate experience
-			stringExp := strconv.Itoa(whatMob.Experience)
-			for k := range whatMob.ThreatTable {
-				charClean := s.where.Chars.Search(k, s.actor)
-				charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-				charClean.Experience.Add(whatMob.Experience)
-				if charClean.Victim == whatMob {
-					charClean.Victim = nil
-				}
-			}
-			s.msg.Observers.SendInfo(whatMob.Name + " dies.")
-			s.msg.Actor.SendInfo(whatMob.DropInventory())
-			objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
-			whatMob = nil
-		}
+		go whatMob.DeathCheck(s.actor)
 		s.actor.SetTimer("combat_shieldslam", config.SlamTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return

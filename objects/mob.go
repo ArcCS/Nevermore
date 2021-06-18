@@ -3,6 +3,7 @@ package objects
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
@@ -203,13 +204,13 @@ func (m *Mob) Tick() {
 				if len(potentials) > 0 {
 					rand.Seed(time.Now().Unix())
 					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-					m.AddThreatDamage(1, m.CurrentTarget)
+					m.AddThreatDamage(0, Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m))
 					Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
 				}
 			}
 
 			if m.CurrentTarget != "" {
-				if !utils.StringIn(m.CurrentTarget, Rooms[m.ParentId].Chars.MobList(m)) {
+				if Rooms[m.ParentId].Chars.SearchAll(m.CurrentTarget) == nil {
 					m.CurrentTarget = ""
 				}
 			}
@@ -252,7 +253,7 @@ func (m *Mob) Tick() {
 				spellSelected := false
 				selectSpell := ""
 				if utils.Roll(100, 1, 0) <= m.ChanceCast {
-					for _ = range m.Spells {
+					for range m.Spells {
 						rand.Seed(time.Now().Unix())
 						selectSpell = m.Spells[rand.Intn(len(m.Spells))]
 						if selectSpell != "" {
@@ -269,7 +270,10 @@ func (m *Mob) Tick() {
 						}
 						Rooms[m.ParentId].MessageAll(m.Name + " chants: " + spellInstance.Chant + "\n")
 						Rooms[m.ParentId].MessageAll(m.Name + " cast a " + spellInstance.Name + " spell on " + target.Name + "\n")
-						MobCast(m, target, spellInstance.Effect, map[string]interface{}{"magnitude": spellInstance.Magnitude})
+						result := Cast(m, target, spellInstance.Effect, spellInstance.Magnitude)
+						if strings.Contains(result,"$SCRIPT"){
+							m.MobScript(result)
+						}
 						if target.Vit.Current == 0 {
 							target.Died()
 						}
@@ -325,7 +329,7 @@ func (m *Mob) Tick() {
 				m.Placement == Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement {
 				// Am I against a fighter and they succeed in a parry roll?
 				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
-				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(target.Skills[target.Equipment.Main.ItemType].Value) {
+				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(config.WeaponLevel(target.Skills[target.Equipment.Main.ItemType].Value, target.Class)) {
 					if target.Tier >= 10 {
 						// It's a riposte
 						actualDamage, _ := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
@@ -380,6 +384,42 @@ func (m *Mob) Tick() {
 	}
 }
 
+func (m *Mob) MobScript(inputStr string){
+	input := strings.Split(inputStr, " ")
+	switch input[0]{
+	case "$TELEPORT":
+		m.MobTeleport(strings.Join(input[1:], " "))
+	}
+
+}
+
+// Special handler for handling a mobs cast of a teleport spell
+func (m *Mob) MobTeleport(target string){
+	rand.Seed(time.Now().Unix())
+	newRoom := Rooms[TeleportTable[rand.Intn(len(TeleportTable))]]
+	targetName := strings.Split(target, " ")
+	workingRoom := Rooms[m.ParentId]
+	targetChar := workingRoom.Chars.SearchAll(targetName[0])
+	if targetChar != nil {
+		if targetChar.Resist {
+			// For every 5 points of int over the target there's an extra 10% chance to teleport
+			diff := (m.Level - targetChar.Tier) * 5
+			chance := 10 + diff
+			if utils.Roll(100, 1, 0) > chance {
+				targetChar.Write([]byte(m.Name + " failed to teleport you.\n"))
+				return
+			}
+		}
+		targetChar.Write([]byte(m.Name + " teleported you.\n"))
+		newRoom.Chars.Lock()
+		workingRoom.Chars.Remove(targetChar)
+		newRoom.Chars.Add(targetChar)
+		targetChar.ParentId = newRoom.RoomId
+		targetChar.Write([]byte(newRoom.Look(targetChar)))
+		newRoom.Chars.Unlock()
+	}
+}
+
 // On copy to a room calculate the inventory
 func (m *Mob) CalculateInventory() {
 	//log.Println("Attempting to add some inventory...")
@@ -392,6 +432,57 @@ func (m *Mob) CalculateInventory() {
 				m.Inventory.Add(&newItem)
 			}
 		}
+	}
+}
+
+func (m *Mob) DeathCheck(actor *Character) {
+	totalExperience := 0
+	buildActorString := ""
+	if m.Stam.Current <= 0 {
+		for k, threat := range m.ThreatTable {
+			charClean := Rooms[m.ParentId].Chars.SearchAll(k)
+			if charClean != nil {
+				if threat > 0 {
+					if m.Level < charClean.Tier {
+						totalExperience = m.Experience / (6 - (charClean.Tier - m.Level))
+					} else {
+						if threat >= m.Stam.Max/2 {
+							totalExperience = m.Experience
+						} else if threat >= m.Stam.Max/4 && threat < m.Stam.Max/2 {
+							totalExperience = m.Experience/2 + utils.Roll(m.Experience/8, 2, 0)
+						} else {
+							totalExperience = m.Experience / 8
+						}
+					}
+				} else {
+					totalExperience = 0
+				}
+				if charClean != actor {
+					buildActorString += text.Green + actor.Name + " killed " + m.Name + "\n"
+				} else {
+					buildActorString += text.Green + "You killed " + m.Name + "\n"
+				}
+				if totalExperience == 0 {
+					buildActorString += text.Cyan + "You earn no experience for the defeat of the " + m.Name + "\n"
+				} else if totalExperience <= m.Experience/8 {
+					buildActorString += text.Cyan + "You earn merely " + strconv.Itoa(totalExperience) + " experience for the defeat of the " + m.Name + "\n"
+					charClean.Experience.Add(totalExperience)
+				} else {
+					buildActorString += text.Cyan + "You earn " + strconv.Itoa(totalExperience) + " experience for the defeat of the " + m.Name + "\n"
+					charClean.Experience.Add(totalExperience)
+				}
+				if charClean == actor {
+					buildActorString += text.Green + m.DropInventory() + "\n"
+				}
+				log.Println(buildActorString)
+				charClean.Write([]byte(buildActorString+"\n"+text.Reset))
+				if charClean.Victim == m {
+					charClean.Victim = nil
+				}
+			}
+		}
+
+		Rooms[m.ParentId].Mobs.Remove(m)
 	}
 }
 
@@ -440,15 +531,12 @@ func (m *Mob) DropInventory() string {
 	}
 }
 
-// On death calculate and distribute experience
-func (m *Mob) CalculateExperience(attackerName string) {
-	return
-}
-
-func (m *Mob) AddThreatDamage(damage int, attackerName string) {
-	m.ThreatTable[attackerName] += damage
-	if m.CurrentTarget == "" {
-		m.CurrentTarget = attackerName
+func (m *Mob) AddThreatDamage(damage int, attacker *Character) {
+	if !attacker.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		m.ThreatTable[attacker.Name] += damage
+		if m.CurrentTarget == "" {
+			m.CurrentTarget = attacker.Name
+		}
 	}
 }
 

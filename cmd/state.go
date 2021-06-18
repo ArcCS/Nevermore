@@ -324,6 +324,4 @@ func (s *state) AddCharLock(i int) {
 		s.cLocks[x] = i
 		break
 	}
-
-
 }

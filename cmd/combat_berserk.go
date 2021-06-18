@@ -39,7 +39,7 @@ func (berserk) process(s *state) {
 	}
 
 	s.actor.RunHook("combat")
-	objects.CharEffects["berserk"](s.actor, map[string]interface{}{})
+	objects.Effects["berserk"](s.actor, s.actor, 0)
 	s.msg.Observers.SendInfo(s.actor.Name + " goes berserk!")
 	s.actor.SetTimer("combat_berserk", 60*10)
 

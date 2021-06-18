@@ -66,6 +66,18 @@ func (hide) process(s *state) {
 				return
 			},
 		)
+		s.actor.ApplyHook("use", "hide", -1, "10", -1,
+			func(){
+				s.actor.Flags["hidden"] = false
+				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
+				s.actor.RemoveHook("use", "hide")
+				return
+			},
+			func(){
+				s.actor.Flags["hidden"] = false
+				return
+			},
+		)
 		s.actor.ApplyHook("combat", "hide", -1, "10", -1,
 			func(){
 				s.actor.Flags["hidden"] = false

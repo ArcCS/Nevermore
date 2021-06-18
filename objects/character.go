@@ -73,11 +73,12 @@ type Character struct {
 	// Extra
 	MinutesPlayed int
 
-	//TODO: Class Properties Heals/Enchants
-	ClassProps map[string]interface{}
+	//TODO: Class Properties Heals/Enchants/Restores/Finales
+	ClassProps map[string]int
 
 	Spells []string
 	Skills map[int]*Accumulator
+	ElementalAffinity map[string]*Accumulator
 
 	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
@@ -88,6 +89,7 @@ type Character struct {
 	PartyFollow *Character
 	PartyFollowers []*Character
 	Victim interface{}
+	Resist bool
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -141,13 +143,18 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			int(charData["birthday"].(int64)),
 			map[string]time.Time{"global": time.Now(), "use": time.Now(), "combat": time.Now()},
 			int(charData["played"].(int64)),
-			make(map[string]interface{}),
+			make(map[string]int),
 			[]string{},
 			map[int]*Accumulator{0: {int(charData["sharpexp"].(int64))},
 				1: {int(charData["thrustexp"].(int64))},
 				2: {int(charData["bluntexp"].(int64))},
 				3: {int(charData["poleexp"].(int64))},
 				4: {int(charData["missileexp"].(int64))}},
+			map[string]*Accumulator{
+				"fire": {0},
+				"earth": {0},
+				"water": {0},
+				"air": {0}},
 			nil,
 			make(chan bool),
 			map[string]map[string]*Hook{
@@ -162,6 +169,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			nil,
 			nil,
 			nil,
+			true,
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
@@ -522,6 +530,18 @@ func (c *Character) RunHook(hook string){
 		}
 	}
 	return
+}
+
+func (c *Character) AdvanceSkillExp(amount int){
+	if c.Equipment.Main != nil {
+		c.Skills[c.Equipment.Main.ItemType].Add(amount)
+	}
+}
+
+func (c *Character) AdvanceElementalExp(amount int){
+	if c.Equipment.Main != nil {
+		c.Skills[c.Equipment.Main.ItemType].Add(amount)
+	}
 }
 
 // ReceiveDamage Return stam and vital damage

@@ -39,7 +39,7 @@ var VitalStrikeScale = 2
 var TodMax = .5
 var TodFailDamage = .5
 var TodScaleDown = .1
-
+var MonkArmorPerLevel = 15
 
 // Paladin/Cleric
 var TurnMax = 50

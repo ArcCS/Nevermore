@@ -95,26 +95,10 @@ func (bash) process(s *state) {
 		}
 		whatMob.MobStunned = config.BashStuns * stunModifier
 		actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
-		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor.Name)
+		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		s.msg.Actor.SendInfo("You bashed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 		s.msg.Observers.SendInfo(s.actor.Name + " bashes " + whatMob.Name)
-		if whatMob.Stam.Current <= 0 {
-			s.msg.Actor.SendInfo("You killed " + whatMob.Name + text.Reset)
-			s.msg.Observers.SendInfo(s.actor.Name + " killed " + whatMob.Name + text.Reset)
-			stringExp := strconv.Itoa(whatMob.Experience)
-			for k := range whatMob.ThreatTable {
-				charClean := s.where.Chars.Search(k, s.actor)
-				charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-				charClean.Experience.Add(whatMob.Experience)
-				if charClean.Victim == whatMob {
-					charClean.Victim = nil
-				}
-			}
-			s.msg.Observers.SendInfo(whatMob.Name + " dies.")
-			s.msg.Actor.SendInfo(whatMob.DropInventory())
-			objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
-			whatMob = nil
-		}
+		go whatMob.DeathCheck(s.actor)
 		s.actor.SetTimer("combat_bash", config.BashTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return

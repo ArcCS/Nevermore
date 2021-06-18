@@ -10,6 +10,7 @@ var ConArmorMod = .01
 var ConBonusHealth = 1
 var ConBonusHealthDiv = 5
 var ConHealRegenMod = .3
+var ConMonkArmor = 2 // 2 Armor Extra Per Con
 
 // Dex Mods
 var DexDodgeMod = .0025 //Chance to dodge

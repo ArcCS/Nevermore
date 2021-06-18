@@ -11,26 +11,26 @@ import (
 
 // Variables used for command line parameters
 var (
-	dg  *discordgo.Session
+	DiscordSession  *discordgo.Session
 	err error
 )
 
 func StartJarvoral() {
 	// Create a new Discord session using the provided bot token.
-	dg, err = discordgo.New("Bot " + os.Getenv("DISCORDTOKEN"))
+	DiscordSession, err = discordgo.New("Bot " + os.Getenv("DISCORDTOKEN"))
 	if err != nil {
 		fmt.Println("Discord session was not created: \n,", err)
 		return
 	}
 
 	// Register the messageCreate func as a callback for MessageCreate events.
-	dg.AddHandler(messageCreate)
+	DiscordSession.AddHandler(messageCreate)
 
 	// In this example, we only care about receiving message events.
-	dg.Identify.Intents = discordgo.IntentsGuildMessages
+	DiscordSession.Identify.Intents = discordgo.IntentsGuildMessages
 
 	// Open a websocket connection to Discord and begin listening.
-	err = dg.Open()
+	err = DiscordSession.Open()
 	if err != nil {
 		fmt.Println("error opening connection,", err)
 		return
@@ -40,7 +40,7 @@ func StartJarvoral() {
 }
 
 func StopJarvoral() {
-	dg.Close()
+	DiscordSession.Close()
 }
 
 // This function will be called (due to AddHandler above) every time a new
@@ -59,6 +59,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		players := stats.ActiveCharacters.List()
 
 		if len(players) == 0 {
+			//log.Println(m.ChannelID)
 			s.ChannelMessageSend(m.ChannelID, "There is currently no one visibly playing.")
 			return
 		}

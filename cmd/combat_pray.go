@@ -37,7 +37,7 @@ func (pray) process(s *state) {
 		return
 	}
 
-	objects.CharEffects["pray"](s.actor, map[string]interface{}{})
+	objects.Effects["pray"](s.actor, s.actor, 0)
 	s.msg.Observers.SendInfo(s.actor.Name + " prays.")
 	s.actor.SetTimer("combat_pray", 60*10)
 

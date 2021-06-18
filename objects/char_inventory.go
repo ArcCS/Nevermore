@@ -54,6 +54,22 @@ func (i *CharInventory) Remove(o *Character) {
 }
 
 // Search the CharInventory to return a specific instance of something
+func (i *CharInventory) SearchAll(alias string) *Character {
+	if i == nil {
+		return nil
+	}
+
+	for _, c := range i.Contents {
+		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
+			return c
+		}
+	}
+
+	return nil
+}
+
+
+// Search the CharInventory to return a specific instance of something
 func (i *CharInventory) Search(alias string, observer *Character) *Character {
 	if i == nil {
 		return nil

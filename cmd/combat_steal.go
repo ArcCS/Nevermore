@@ -102,7 +102,7 @@ func (steal) process(s *state) {
 				}else{
 					s.msg.Actor.SendBad("You failed to steal from ", whatMob.Name, ", and stumble out of the shadows.")
 					s.actor.RemoveHook("combat", "hide")
-					whatMob.AddThreatDamage(whatMob.Stam.Max/4, s.actor.Name)
+					whatMob.AddThreatDamage(whatMob.Stam.Max/4, s.actor)
 					return
 				}
 			} else {

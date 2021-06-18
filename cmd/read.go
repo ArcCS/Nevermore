@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/utils"
 )
 
 func init() {
@@ -21,6 +22,7 @@ func (read) process(s *state) {
 		s.msg.Actor.SendInfo("You need to specify a scroll to read from")
 		return
 	}
+	s.ok=true
 
 	name := s.words[0]
 	nameNum := 1
@@ -50,6 +52,10 @@ func (read) process(s *state) {
 				s.msg.Actor.SendBad("You are not high enough level to learn this spell.")
 				return
 			}
+			if utils.StringIn(what.Spell, s.actor.Spells){
+				s.msg.Actor.SendBad("You already know this spell.")
+				return
+			}
 			s.msg.Actor.SendGood("You study ", what.Name, " and learn the spell " + what.Spell)
 			s.actor.Spells = append(s.actor.Spells, what.Spell)
 			s.msg.Observers.SendInfo("You see ", s.actor.Name, " study a ", name, ".")
@@ -60,6 +66,4 @@ func (read) process(s *state) {
 			s.msg.Actor.SendBad("That's not a scroll.")
 		}
 	}
-
-	s.ok = true
 }

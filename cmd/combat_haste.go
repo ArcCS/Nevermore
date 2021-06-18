@@ -37,7 +37,7 @@ func (haste) process(s *state) {
 		return
 	}
 
-	objects.CharEffects["haste"](s.actor, map[string]interface{}{})
+	objects.Effects["haste"](s.actor, s.actor, 0)
 	s.msg.Observers.SendInfo(s.actor.Name + " begins moving faster!")
 	s.actor.SetTimer("combat_haste", 60*10)
 

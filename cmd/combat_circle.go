@@ -72,7 +72,7 @@ func (circle) process(s *state) {
 
 		//TODO: Parry/Miss/Resist being circled?
 		whatMob.MobStunned = config.CircleStuns
-		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor.Name)
+		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		s.actor.SetTimer("combat_circle", config.CircleTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		s.msg.Actor.SendInfo("You circled " + whatMob.Name)
