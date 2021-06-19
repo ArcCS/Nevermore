@@ -365,6 +365,25 @@ func SumEncounters(roomId int) int {
 	return int(results[0].Values[0].(map[string]interface{})["rate_sum"].(int64))
 }
 
+func CopyMob(mobId int) (int, bool) {
+	newMobId := nextId("mob")
+	results, err := execWrite("MATCH (m:mob{mob_id:$mobId}) CALL apoc.refactor.cloneNodes([m] YIELD output SET output.mob_id=$newId RETURN output.item_id,",
+		map[string]interface{}{
+			"mobId": mobId,
+			"newId": newMobId,
+		},
+	)
+	if err != nil {
+		log.Println(err)
+		return 0, false
+	}
+	if results.Counters().ContainsUpdates() {
+		return newMobId, true
+	} else {
+		return 0, false
+	}
+}
+
 func DeleteMob(mobId int) bool {
 	results, err := execWrite("MATCH ()-[s:spawns]->(m:mob)-[d:drops]->() WHERE m.mob_id=$mob_id DELETE s, m, d",
 		map[string]interface{}{

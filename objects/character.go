@@ -312,6 +312,9 @@ func (c *Character) GetStat(stat string) int {
 	case "con":
 		return c.Con.Current + c.Modifiers["con"]
 	case "armor":
+		if c.Class == 8 {
+			return c.Equipment.Armor + c.Modifiers["armor"] + (c.Tier*config.MonkArmorPerLevel) + (c.GetStat("con")*config.ConMonkArmor)
+		}
 		return c.Equipment.Armor + c.Modifiers["armor"]
 	default:
 		return 0
@@ -415,19 +418,19 @@ func (c *Character) ReturnVictim() string {
 func (c *Character) ReturnState() string{
 	stamStatus := "energetic "
 	vitStatus := "healthy"
-	if c.Stam.Current < (c.Stam.Max - int(.25 * float32(c.Stam.Max))) {
+	if c.Stam.Current < (c.Stam.Max - int(.75 * float32(c.Stam.Max))) {
 		stamStatus = "exhausted"
 	}else if c.Stam.Current < (c.Stam.Max - int(.5 * float32(c.Stam.Max))) {
 		stamStatus = "fatigued"
-	}else if c.Stam.Current < (c.Stam.Max - int(.75 * float32(c.Stam.Max))) {
+	}else if c.Stam.Current < (c.Stam.Max - int(.25 * float32(c.Stam.Max))) {
 		stamStatus = "slightly fatigued"
 	}
 
-	if c.Vit.Current < (c.Vit.Max - int(.25 * float32(c.Vit.Max))) {
+	if c.Vit.Current < (c.Vit.Max - int(.75 * float32(c.Vit.Max))) {
 		vitStatus = "mortally wounded"
 	}else if c.Vit.Current < (c.Vit.Max - int(.5 * float32(c.Vit.Max))) {
 		vitStatus = "injured"
-	}else if c.Vit.Current < (c.Vit.Max - int(.75 * float32(c.Vit.Max))) {
+	}else if c.Vit.Current < (c.Vit.Max - int(.25 * float32(c.Vit.Max))) {
 		vitStatus = "slightly injured"
 	}
 
@@ -538,6 +541,8 @@ func (c *Character) RunHook(hook string){
 func (c *Character) AdvanceSkillExp(amount int){
 	if c.Equipment.Main != nil {
 		c.Skills[c.Equipment.Main.ItemType].Add(amount)
+	}else if c.Class==8 {
+		c.Skills[5].Add(amount)
 	}
 }
 
@@ -629,10 +634,17 @@ func (c *Character) GetSpellMultiplier() int {
 }
 
 func (c *Character) InflictDamage() (damage int) {
-	//TODO: Monks need to not worry about weapons
-	damage = utils.Roll(c.Equipment.Main.SidesDice,
-		c.Equipment.Main.NumDice,
-		c.Equipment.Main.PlusDice)
+	if c.Class != 8 {
+		damage = utils.Roll(c.Equipment.Main.SidesDice,
+			c.Equipment.Main.NumDice,
+			c.Equipment.Main.PlusDice)
+	}else{
+		plusDamage := config.MaxWeaponDamage[c.Tier]/4
+		// Lets uses dex to determine dice.. more dex = more dice = higher lower damage threshold
+		nDice := int(math.Floor(config.MonkDexPerDice * float64(c.GetStat("dex"))))
+		sDice := (plusDamage*3)/nDice
+		damage = utils.Roll(int(sDice), int(nDice), int(plusDamage))
+	}
 
 	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod * float64(c.GetStat("str")))))
 	// Add any modified base damage

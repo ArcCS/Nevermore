@@ -114,7 +114,9 @@ func (c *client) process() {
 			if config.Server.Running == false {
 				_ = c.Close()
 			}
-			useTime := config.Server.IdleTimeout
+			//TODO: Post beta put this back to normal.
+			//useTime := config.Server.IdleTimeout
+			useTime := 30 * time.Minute
 			if ok := c.frontend.GetCharacter(); ok != nil {
 				if c.frontend.GetCharacter().Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
 					useTime = 30 * time.Minute

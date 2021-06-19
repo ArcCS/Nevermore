@@ -15,7 +15,7 @@ func init() {
 	AvailableClasses[5] = "cleric"
 	AvailableClasses[6] = "paladin"
 	//AvailableClasses[7] = "bard"
-	//AvailableClasses[8] = "monk"
+	AvailableClasses[8] = "monk"
 
 	ClassPerms[0] = permissions.Fighter
 	ClassPerms[1] = permissions.Barbarian
@@ -25,7 +25,7 @@ func init() {
 	ClassPerms[5] = permissions.Cleric
 	ClassPerms[6] = permissions.Paladin
 	//ClassPerms[7] = permissions.Bard
-	//ClassPerms[8] = permissions.Monk
+	ClassPerms[8] = permissions.Monk
 
 	StartingGear[0] = []int{129, 1088}
 	StartingGear[1] = []int{227, 1088}
@@ -34,6 +34,7 @@ func init() {
 	StartingGear[4] = []int{242, 1180, 3343, 1088, 2287}
 	StartingGear[5] = []int{227, 1179 , 242, 1088, 2287}
 	StartingGear[6] = []int{129, 1180, 1088, 2287}
+	StartingGear[8] = []int{3343, 1088}
 }
 
 type classDef struct {

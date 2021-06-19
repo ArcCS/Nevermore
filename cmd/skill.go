@@ -19,12 +19,7 @@ func init() {
 
 type skills cmd
 
-// TODO: Add experience to the display so users are aware of their current status
-
 func (skills) process(s *state) {
-
-
-
 	skill_header :=
 `Skill                Level of Mastery (Experience/NextLevel)
 -----------------------------------------------------------------

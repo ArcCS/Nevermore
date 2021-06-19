@@ -258,7 +258,9 @@ func (m *Mob) Tick() {
 						selectSpell = m.Spells[rand.Intn(len(m.Spells))]
 						if selectSpell != "" {
 							if utils.StringIn(selectSpell, OffensiveSpells) {
-								spellSelected = true
+								if m.Mana.Current > Spells[selectSpell].Cost {
+									spellSelected = true
+								}
 							}
 						}
 					}
@@ -270,6 +272,7 @@ func (m *Mob) Tick() {
 						}
 						Rooms[m.ParentId].MessageAll(m.Name + " chants: " + spellInstance.Chant + "\n")
 						Rooms[m.ParentId].MessageAll(m.Name + " cast a " + spellInstance.Name + " spell on " + target.Name + "\n")
+						m.Mana.Subtract(spellInstance.Cost)
 						result := Cast(m, target, spellInstance.Effect, spellInstance.Magnitude)
 						if strings.Contains(result,"$SCRIPT"){
 							m.MobScript(result)
@@ -488,13 +491,14 @@ func (m *Mob) DeathCheck(actor *Character) {
 
 func (m *Mob) ReturnState() string{
 	stamStatus := "healthy"
-	if m.Stam.Current < (m.Stam.Max - int(.25 * float32(m.Stam.Max))) {
+
+	if m.Stam.Current < (m.Stam.Max - int(.75 * float32(m.Stam.Max))) {
 		stamStatus = "badly injured"
 	}else if m.Stam.Current < (m.Stam.Max - int(.5 * float32(m.Stam.Max))) {
 		stamStatus = "injured"
-	}else if m.Stam.Current < (m.Stam.Max - int(.75 * float32(m.Stam.Max))) {
+	}else if m.Stam.Current < (m.Stam.Max - int(.25 * float32(m.Stam.Max))) {
 		stamStatus = "slightly injured"
-	} 
+	}
 	return " looks " + stamStatus
 }
 

@@ -29,6 +29,8 @@ type Room struct {
 	EncounterTable   map[int]int
 	roomTicker       *time.Ticker
 	roomTickerUnload chan bool
+	effectTicker       *time.Ticker
+	effectTickerUnload chan bool
 	StoreOwner string
 	StoreInventory  *ItemInventory
 	Songs map[string]string
@@ -52,6 +54,8 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		make(map[string]bool),
 		int(roomData["encounter_rate"].(int64)),
 		make(map[int]int),
+		nil,
+		make(chan bool),
 		nil,
 		make(chan bool),
 		roomData["store_owner"].(string),
@@ -189,7 +193,7 @@ func (r *Room) ToggleFlag(flagName string) bool {
 func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
 	//*
-	if r.Flags["encounters_on"] || r.Flags["fire"] || r.Flags["earth"] || r.Flags["wind"] || r.Flags["water"] {
+	if r.Flags["encounters_on"]{
 		r.roomTicker = time.NewTicker(8 * time.Second)
 		go func() {
 			for {
@@ -218,7 +222,19 @@ func (r *Room) FirstPerson() {
 							}
 						}
 					}
-					// TODO: Move this to a different ticker.  This is too often.
+				}
+			}
+		}()
+	}
+	if r.Flags["fire"] || r.Flags["earth"] || r.Flags["wind"] || r.Flags["water"] {
+		r.effectTicker = time.NewTicker(45 * time.Second)
+		go func() {
+			for {
+				select {
+				case <-r.effectTickerUnload:
+					return
+				case <-r.effectTicker.C:
+
 					if r.Flags["earth"] || r.Flags["fire"] || r.Flags["air"] || r.Flags["water"] {
 						for _, c := range r.Chars.Contents {
 							if r.Flags["earth"] {
@@ -266,9 +282,15 @@ func (r *Room) LastPerson() {
 	r.Items.RemoveNonPerms()
 
 	// Destruct the ticker
-	if r.Flags["encounters_on"] || r.Flags["fire"] || r.Flags["earth"] || r.Flags["wind"] || r.Flags["water"] {
+	if r.Flags["encounters_on"]{
 		r.roomTickerUnload <- true
 		r.roomTicker.Stop()
+	}
+
+	// Destruct the ticker
+	if r.Flags["fire"] || r.Flags["earth"] || r.Flags["wind"] || r.Flags["water"] {
+		r.effectTickerUnload <- true
+		r.effectTicker.Stop()
 	}
 
 	// Relock all the exits.

@@ -13,10 +13,6 @@ func init() {
 		"act", "emote", "thumbsup", "thumbsdown", "crossfingers", "crossarms", "blink", "frown", "smile", "laugh", "nod", "shrug", "clap", "confused", "jump", "hiccup", "cackle", "burp", "sneeze", "cough", "dance", "shake", "whistle", "snap")
 }
 
-/*
-TODO: These actions need real commands, eat drink
-TODO: Interaction emotes: taunt bow love angry glare stare tickle poke slap kick side-eye wave wink
-*/
 type act cmd
 
 func (act) process(s *state) {

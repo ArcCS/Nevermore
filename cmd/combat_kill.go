@@ -63,16 +63,23 @@ func (kill) process(s *state) {
 
 		if _, err := whatMob.ThreatTable[s.actor.Name]; !err {
 			s.msg.Actor.Send(text.White + "You engaged " + whatMob.Name + " #" + strconv.Itoa(s.where.Mobs.GetNumber(whatMob)) + " in combat.")
+			s.msg.Observers.Send(text.White + s.actor.Name + " attacks " + whatMob.Name)
 			whatMob.AddThreatDamage(0, s.actor)
 		}
 
-		// Shortcut target not being in the right location, check if it's a missile weapon, or that they are placed right.
-		if s.actor.Equipment.Main.ItemType != 4 && (s.actor.Placement != whatMob.Placement) {
-			s.msg.Actor.SendBad("You are too far away to attack.")
-			return
-		}else if s.actor.Equipment.Main.ItemType == 4 && (s.actor.Placement == whatMob.Placement){
-			s.msg.Actor.SendBad("You are too close to attack.")
-			return
+		if s.actor.Class != 8 {
+			// Shortcut target not being in the right location, check if it's a missile weapon, or that they are placed right.
+			if s.actor.Equipment.Main.ItemType != 4 && (s.actor.Placement != whatMob.Placement) {
+				s.msg.Actor.SendBad("You are too far away to attack.")
+				return
+			}else if s.actor.Equipment.Main.ItemType == 4 && (s.actor.Placement == whatMob.Placement){
+				s.msg.Actor.SendBad("You are too close to attack.")
+				return
+			}
+		}else{
+			if s.actor.Placement != whatMob.Placement {
+				s.msg.Actor.SendBad("You are too far away to attack.")
+			}
 		}
 
 		// Lets use a list of attacks,  so we can expand this later if other classes get multi style attacks
@@ -80,8 +87,10 @@ func (kill) process(s *state) {
 			1.0,
 		}
 
-		skillLevel := config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
-
+		skillLevel := config.WeaponLevel(s.actor.Skills[5].Value, s.actor.Class)
+		if s.actor.Class != 8 {
+			skillLevel = config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
+		}
 		// Kill is really the fighters realm for specialty..
 		if s.actor.Permission.HasAnyFlags(permissions.Fighter) {
 			// Did this mofo lethal?
@@ -132,7 +141,7 @@ func (kill) process(s *state) {
 			}
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
 			whatMob.AddThreatDamage(actualDamage, s.actor)
-			s.actor.AdvanceSkillExp((whatMob.Stam.Max/actualDamage) * whatMob.Experience)
+			s.actor.AdvanceSkillExp(int(float64((whatMob.Stam.Max/actualDamage) * whatMob.Experience)*config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			go whatMob.DeathCheck(s.actor)
 		}

@@ -4,8 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/text"
-	"math"
+	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 )
 
@@ -19,18 +18,26 @@ func init() {
 type tod cmd
 
 func (tod) process(s *state) {
-	//TODO Finish TOD command
 	if len(s.input) < 1 {
-		s.msg.Actor.SendBad("Attack what exactly?")
+	s.msg.Actor.SendBad("Turn what exactly?")
+	return
+}
+	if s.actor.Tier < 10 {
+		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
 		return
 	}
-
 	// Check some timers
-	ready, msg := s.actor.TimerReady("combat")
+	ready, msg := s.actor.TimerReady("combat_tod")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
 		return
 	}
+	ready, msg = s.actor.TimerReady("combat")
+	if !ready {
+		s.msg.Actor.SendBad(msg)
+		return
+	}
+
 	name := s.input[0]
 	nameNum := 1
 
@@ -44,112 +51,54 @@ func (tod) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
-		s.actor.Victim = whatMob
-		// This is an override for a GM to delete a mob
-		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			s.msg.Actor.SendInfo("You smashed ", whatMob.Name, " out of existence.")
-			objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
-			whatMob = nil
+		if whatMob.Flags["undead"] != false {
+			s.msg.Actor.SendBad("Your target is undead and unaffected by your chi!")
 			return
 		}
+
+		if s.actor.Placement != whatMob.Placement {
+			s.msg.Actor.SendBad("You are too far away to perform a touch of death on them.")
+			return
+		}
+
+		if s.actor.Mana.Current < config.TodCost {
+			s.msg.Actor.SendBad("You do not have enough chi to perform that.")
+			return
+		}
+		s.actor.Victim = whatMob
 
 		s.actor.RunHook("combat")
-
-		// Shortcut a missing weapon:
-		if s.actor.Equipment.Main == (*objects.Item)(nil) && s.actor.Class != 8 {
-			s.msg.Actor.SendBad("You have no weapon to attack with.")
-			return
-		}
-
-		if _, err := whatMob.ThreatTable[s.actor.Name]; !err {
-			s.msg.Actor.Send(text.White + "You engaged " + whatMob.Name + " #" + strconv.Itoa(s.where.Mobs.GetNumber(whatMob)) + " in combat.")
-			whatMob.AddThreatDamage(0, s.actor)
-		}
-
-		// Shortcut target not being in the right location, check if it's a missile weapon, or that they are placed right.
-		if s.actor.Equipment.Main.ItemType != 4 && (s.actor.Placement != whatMob.Placement) {
-			s.msg.Actor.SendBad("You are too far away to attack.")
-			return
-		}
-
-		// Lets use a list of attacks,  so we can expand this later if other classes get multi style attacks
-		attacks := []float64{
-			1.0,
-		}
-
-		skillLevel := config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
-
-		// Kill is really the fighters realm for specialty..
-		if s.actor.Permission.HasAnyFlags(permissions.Fighter) {
-			// Did this mofo lethal?
-			if config.RollLethal(skillLevel) {
-				// Sure did.  Kill this fool and bail.
-				s.msg.Actor.SendInfo("You landed a lethal blow on the " + whatMob.Name)
-				s.msg.Observers.SendInfo(s.actor.Name + " landed a lethal blow on " + whatMob.Name)
-				// Mob died
-				//TODO Calculate experience
-				stringExp := strconv.Itoa(whatMob.Experience)
-				for k := range whatMob.ThreatTable {
-					charClean := s.where.Chars.Search(k, s.actor)
-					if charClean != nil {
-					charClean.Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-					charClean.Experience.Add(whatMob.Experience)
-					if charClean.Victim == whatMob {
-						charClean.Victim = nil
-					}
-					}
-				}
-				s.msg.Observers.SendInfo(whatMob.Name + " dies.")
-				s.msg.Actor.SendInfo(whatMob.DropInventory())
-				objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
-				whatMob = nil
-				s.actor.SetTimer("combat", 8)
-				return
-			}
-
-			if skillLevel >= 4 {
-				attacks = append(attacks, .15)
-				if skillLevel >= 5 {
-					attacks[1] = .3
-					if skillLevel >= 6 {
-						attacks = append(attacks, .15)
-						if skillLevel >= 7 {
-							attacks[2] = .30
-							if skillLevel >= 8 {
-								attacks = append(attacks, .15)
-								if skillLevel >= 9 {
-									attacks[3] = .3
-									if skillLevel >= 10 {
-										attacks = append(attacks, .30)
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Lets start executing the attacks
-		for _, mult := range attacks {
-			// Lets try to crit:
-			//TODO: Parry/Miss?
-			if config.RollCritical(skillLevel) {
-				mult *= float64(config.CombatModifiers["critical"])
-				s.msg.Actor.SendGood("Critical Strike!")
-				// TODO: Something something shattered weapons something or other
-			} else if config.RollDouble(skillLevel) {
-				mult *= float64(config.CombatModifiers["double"])
-				s.msg.Actor.SendGood("Double Damage!")
-			}
-			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
-			whatMob.AddThreatDamage(actualDamage, s.actor)
-			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
-			go whatMob.DeathCheck(s.actor)
-		}
+		s.actor.SetTimer("combat_tod", config.TodTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
-		return
+		s.actor.Mana.Subtract(config.TodCost)
+		// base chance is 15% to hide
+		curChance := config.TodMax
+		if whatMob.Level > s.actor.Tier {
+			curChance -= config.TodScaleDown * (whatMob.Level - s.actor.Tier)
+		} else if s.actor.Tier > whatMob.Level {
+			curChance += config.TodScaleDown * (s.actor.Tier - whatMob.Level)
+		}
 
+		todRoll := utils.Roll(100, 1, 0)
+		if todRoll <= config.VitalChance{
+			s.msg.Actor.SendInfo("Your chi flows through you and you perform a perfect touch of death on " + whatMob.Name + " and kill them.")
+			s.msg.Observers.SendInfo(s.actor.Name + " touches " + whatMob.Name + " and kills them.")
+			whatMob.Stam.Current = 0
+			go whatMob.DeathCheck(s.actor)
+			whatMob = nil
+		}else if curChance >= 100 || todRoll <= curChance {
+			s.msg.Actor.SendInfo("You focus your chi and perform a touch of death on " + whatMob.Name + "!")
+			s.msg.Observers.SendInfo(s.actor.Name + " performed a touch of death on " + whatMob.Name)
+			whatMob.AddThreatDamage(whatMob.Stam.Current/2, s.actor)
+			whatMob.Stam.Subtract(whatMob.Stam.Current/2)
+		}else{
+			s.msg.Actor.SendBad("You misperform the touch of death " + whatMob.Name + ".  They charge you!")
+			whatMob.CurrentTarget = s.actor.Name
+			whatMob.AddThreatDamage(whatMob.Stam.Current, s.actor)
+			s.actor.ReceiveDamage(s.actor.Stam.Max/2)
+			s.msg.Observers.SendInfo(s.actor.Name + " turn attempt fails and enrages " + whatMob.Name )
+		}
+		return
 	}
 
 	s.msg.Actor.SendInfo("Attack what?")

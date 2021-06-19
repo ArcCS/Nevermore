@@ -34,7 +34,7 @@ func (scriptTeleport) process(s *state) {
 		if target != nil {
 			if target.Resist {
 				// For every 5 points of int over the target there's an extra 10% chance to teleport
-				diff := ((s.actor.Int.Current - target.Int.Current) / 5) * 10
+				diff := ((s.actor.GetStat("int") - target.GetStat("int")) / 5) * 10
 				chance := 30 + diff
 				if utils.Roll(100, 1, 0) > chance {
 					s.msg.Actor.SendBad("You failed to teleport " + target.Name)

@@ -19,7 +19,7 @@ type peek cmd
 
 func (peek) process(s *state) {
 	if len(s.input) < 1 {
-		s.msg.Actor.SendBad("Attack what exactly?")
+		s.msg.Actor.SendBad("Peek whose inventory?")
 		return
 	}
 
@@ -52,6 +52,10 @@ func (peek) process(s *state) {
 		} else {
 			s.msg.Actor.Send("  ", strings.Join(whatMob.Inventory.List(), ", "))
 		}
+	}else{
+		s.msg.Actor.SendBad("Peek whose inventory?")
 	}
+	s.ok=true
 	return
+
 }

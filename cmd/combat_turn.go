@@ -54,6 +54,7 @@ func (turn) process(s *state) {
 	if whatMob != nil {
 		if whatMob.Flags["undead"] != true {
 			s.msg.Actor.SendBad("Your target isn't undead!")
+			return
 		}
 
 		if s.actor.Placement != whatMob.Placement {
@@ -89,7 +90,7 @@ func (turn) process(s *state) {
 			s.msg.Actor.SendBad("You fail to turn the " + whatMob.Name + ".  They charge you!")
 			whatMob.CurrentTarget = s.actor.Name
 			whatMob.AddThreatDamage(whatMob.Stam.Current, s.actor)
-			s.actor.ReceiveDamage(s.actor.Stam.Max)
+			s.actor.ReceiveDamage(s.actor.Stam.Max/2)
 			s.msg.Observers.SendInfo(s.actor.Name + " turn attempt fails and enrages " + whatMob.Name )
 		}
 		return

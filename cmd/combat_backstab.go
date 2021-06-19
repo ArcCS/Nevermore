@@ -81,7 +81,7 @@ func (backstab) process(s *state) {
 			return
 		}
 
-		curChance := config.BackStabChance
+		curChance := config.BackStabChance + (config.BackStabChancePerLevel*(s.actor.Tier - whatMob.Level))
 
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			curChance = 100
@@ -109,10 +109,12 @@ func (backstab) process(s *state) {
 				if s.actor.Vit.Current == 0 {
 					s.actor.Died()
 				}
+				s.ok=true
+				return
 			}
 		}
 	}
 
-	s.msg.Actor.SendInfo("Bash what?")
+	s.msg.Actor.SendInfo("Backstab what?")
 	s.ok = true
 }

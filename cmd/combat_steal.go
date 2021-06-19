@@ -81,7 +81,7 @@ func (steal) process(s *state) {
 		if what != nil {
 			if (s.actor.Inventory.TotalWeight + what.GetWeight()) <= s.actor.MaxWeight() {
 				// base chance is 15% to hide
-				curChance := config.StealChance
+				curChance := config.StealChance + (config.StealChancePerLevel*(s.actor.Tier - whatMob.Level))
 
 				if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					curChance = 100
@@ -90,7 +90,6 @@ func (steal) process(s *state) {
 				curChance += s.actor.Dex.Current * config.StealChancePerPoint
 
 				if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
-					s.actor.RunHook("steal")
 					whatMob.Inventory.Lock()
 					s.actor.Inventory.Lock()
 					whatMob.Inventory.Remove(what)
@@ -111,9 +110,14 @@ func (steal) process(s *state) {
 				}
 		}else{
 			s.msg.Actor.SendInfo("That item isn't on the target.")
+			return
 		}
+	}else{
+		s.msg.Actor.SendBad("What are you trying to steal from?")
+		s.ok = true
+		return
 	}
-	s.ok = true
+
 }
 
 

@@ -99,7 +99,7 @@ func (information) process(s *state) {
 		s.actor.Int.Max,
 		s.actor.GetStat("pie"),
 		s.actor.Pie.Max,
-		s.actor.Equipment.Armor,
+		s.actor.GetStat("armor"),
 		s.actor.Equipment.DamageIgnore,
 		"",
 		s.actor.Stam.Current,

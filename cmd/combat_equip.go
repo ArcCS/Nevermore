@@ -35,6 +35,17 @@ func (equip) process(s *state) {
 	what := s.actor.Inventory.Search(name, nameNum)
 	if what != nil {
 		s.actor.RunHook("combat")
+		if s.actor.Class == 8 {
+			if utils.IntIn(what.ItemType, []int{0, 1, 2, 3, 4}) {
+				s.msg.Actor.SendBad("You cannot wield weapons effectively.")
+				return
+			}else if utils.IntIn(what.ItemType, []int{5, 19, 20, 21, 22, 23, 24, 25, 26}){
+				if (s.actor.Equipment.Armor + what.Armor) > (s.actor.Tier * config.MonkArmorPerLevel){
+					s.msg.Actor.SendBad("You cannot wear that much additional armor.")
+					return
+				}
+			}
+		}
 		if utils.IntIn(what.ItemType, []int{0, 1, 2, 3, 4}) &&
 			!s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			if !config.CanWield(s.actor.Tier, s.actor.Class, utils.RollMax(what.SidesDice, what.NumDice, what.PlusDice)) {
@@ -48,7 +59,7 @@ func (equip) process(s *state) {
 			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.DisplayName())
 			s.actor.Inventory.Remove(what)
 		} else {
-			s.msg.Actor.SendBad("You already have something equipped there.")
+			s.msg.Actor.SendBad("You cannot equip that.")
 		}
 
 		s.actor.Inventory.Unlock()

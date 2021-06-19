@@ -87,14 +87,13 @@ func (use) process(s *state) {
 				// It was a mob!
 				if whatMob != nil {
 					msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
+					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatMob.Name)
+					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
 					if strings.Contains(msg, "$CRIPT"){
 						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
 					}else if msg != "" {
 						s.msg.Actor.SendGood(msg)
 					}
-					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatMob.Name)
-					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
-					s.msg.Actor.SendGood(msg)
 					go whatMob.DeathCheck(s.actor)
 					return
 				}
@@ -109,25 +108,21 @@ func (use) process(s *state) {
 						return
 					}
 					msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
+					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatChar.Name)
+					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatChar.Name)
+					s.participant = whatChar
+					s.msg.Participant.SendInfo(s.actor.Name + " used a " + what.Name + " on you")
 					if strings.Contains(msg, "$CRIPT"){
 						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
 					}else if msg != "" {
 						s.msg.Actor.SendGood(msg)
 					}
-					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatChar.Name)
-					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatChar.Name)
-					s.msg.Actor.SendGood(msg)
-					s.participant = whatChar
-					s.msg.Participant.SendInfo(s.actor.Name + " used a " + what.Name + " on you")
-					s.msg.Actor.SendGood(msg)
 					return
 				}
 			} else {
 				msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 				if strings.Contains(msg, "$CRIPT"){
 					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
-				}else if msg != "" {
-					s.msg.Actor.SendGood(msg)
 				}
 				return
 			}

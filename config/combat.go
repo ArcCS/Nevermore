@@ -24,24 +24,33 @@ var CombatModifiers = map[string]int{
 var HideChance = 15
 var SneakChance = 15
 var StealChance = 15
+var StealChancePerLevel = 5
 var BackStabChance = 15
+var BackStabChancePerLevel = 5
 var SnipeChance = 5
 var HideChancePerPoint = 3
 var SneakChancePerPoint = 2
 var StealChancePerPoint = 2
 var BackStabChancePerPoint = 2
-var SnipeChancePerPoint = 1
+var SnipeChancePerPoint = 2
+var SnipeChancePerLevel = 5
+var SnipeFumbleChance = 20
 
 var MobBSRevengeVitalChance = 10
 var VitalStrikeScale = 2
 
 // Monk
-var TodMax = .5
-var TodFailDamage = .5
-var TodScaleDown = .1
+var TodMax = 5
+var TodFailDamage = 50
+var TodScaleDown = 10
 var MonkArmorPerLevel = 15
+var TodTimer = 600
+var TodCost = 10
+var VitalChance = 15
+var MonkDexPerDice = .25
+var MeditateTime = 600
 
-// Paladin/Cleric
+// Paladin/Cleri
 var TurnMax = 50
 var TurnFailDamage = 50
 var TurnScaleDown = 10
