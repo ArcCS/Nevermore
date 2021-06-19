@@ -4,13 +4,28 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"log"
 	"runtime"
+	"time"
 )
 
 // Rooms contains all of the world rooms tagged with their room_id
 // This makes it very simple to move people by room_id and retain their connecting exit
-var Rooms = map[int]*Room{}
-var Mobs = map[int]*Mob{}
-var Items = map[int]*Item{}
+var(
+	// Game Storage
+	Rooms = map[int]*Room{}
+	Mobs = map[int]*Mob{}
+	Items = map[int]*Item{}
+
+	CurrentDay = 0
+	YearPlus = 0
+	CurrentMonth = 0
+	DayOfMonth = 0
+	CurrentHour = 0
+
+	WorldTicker *time.Ticker
+	WorldTickerUnload = make(chan bool)
+
+	DayTime = false
+)
 
 // Load fills the world with love.
 func Load() {
@@ -49,6 +64,7 @@ func Load() {
 	}
 
 	log.Printf("Finished loading %d rooms.", len(Rooms))
+
 	preparse = nil
 
 	runtime.GC()

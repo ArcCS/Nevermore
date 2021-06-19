@@ -3,7 +3,9 @@ package objects
 import (
 	"encoding/json"
 	"github.com/jinzhu/copier"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 type Equipment struct {
@@ -27,6 +29,8 @@ type Equipment struct {
 	// Hands, can hold shield or weapon
 	Main *Item
 	Off  *Item
+
+	EquipmentMap map[int]*Item
 }
 
 func (e *Equipment) List() []*Item {
@@ -102,6 +106,119 @@ func (e *Equipment) GetText(ref string) string {
 	}
 	if ref == "off" && e.Off != (*Item)(nil) {
 		return e.Off.DisplayName()
+	}
+	return ""
+}
+
+func (e *Equipment) DamageRandomArmor() string {
+	armorList := make([]string, 0)
+	if e.Head != nil {
+		armorList = append(armorList, "head")
+	}
+	if e.Chest != nil {
+		armorList = append(armorList, "chest")
+	}
+	if e.Neck  != nil {
+		armorList = append(armorList, "neck")
+	}
+	if e.Legs  != nil {
+		armorList = append(armorList, "legs")
+	}
+	if e.Feet  != nil {
+		armorList = append(armorList, "feet")
+	}
+	if e.Arms  != nil {
+		armorList = append(armorList, "arms")
+	}
+	if e.Hands != nil {
+		armorList = append(armorList, "hands")
+	}
+	if e.Ring1 != nil {
+		armorList = append(armorList, "ring1")
+	}
+	if e.Ring2 != nil {
+		armorList = append(armorList, "ring2")
+	}
+	
+	if len(armorList) > 0 {
+		rand.Seed(time.Now().Unix())
+		damageItem := armorList[rand.Intn(len(armorList))]
+		if damageItem == "head"{
+			e.Head.MaxUses -= 1
+			if e.Head.MaxUses <= 0 {
+				e.UnequipSpecific("head")
+				return "Your head armor falls apart."
+			}
+			return ""
+		}else if damageItem == "chest"{
+			e.Chest.MaxUses -= 1
+			if e.Chest.MaxUses <= 0 {
+				e.UnequipSpecific("chest")
+				return "Your chest armor falls apart."
+			}
+			return ""
+		}else if damageItem == "neck"{
+			e.Neck.MaxUses -= 1
+			if e.Neck.MaxUses <= 0 {
+				e.UnequipSpecific("neck")
+				return "The armor attached at your neckf alls apart."
+			}
+			return ""
+		}else if damageItem == "legs"{
+			e.Legs.MaxUses -= 1
+			if e.Legs.MaxUses <= 0 {
+				e.UnequipSpecific("legs")
+				return "Your leg armor falls apart."
+			}
+			return ""
+		}else if damageItem == "feet"{
+			e.Feet.MaxUses -= 1
+			if e.Feet.MaxUses <= 0 {
+				e.UnequipSpecific("feet")
+				return "Your foot armor falls apart."
+			}
+			return ""
+		}else if damageItem == "arms"{
+			e.Arms.MaxUses -= 1
+			if e.Arms.MaxUses <= 0 {
+				e.UnequipSpecific("Arms")
+				return "The armor on your arms falls apart."
+			}
+			return ""
+		}else if damageItem == "hands"{
+			e.Hands.MaxUses -= 1
+			if e.Hands.MaxUses <= 0 {
+				e.UnequipSpecific("hands")
+				return "Your hand armor falls apart."
+			}
+			return ""
+		}else if damageItem == "ring1"{
+			e.Ring1.MaxUses -= 1
+			if e.Ring1.MaxUses <= 0 {
+				e.UnequipSpecific("ring1")
+				return "Your first ring falls apart."
+			}
+			return ""
+		}else if damageItem == "ring2"{
+			e.Ring2.MaxUses -= 1
+			if e.Ring2.MaxUses <= 0 {
+				e.UnequipSpecific("ring2")
+				return "Your second ring falls apart."
+			}
+			return ""
+		}
+	}
+	
+	return ""
+}
+
+func (e *Equipment) DamageWeapon(whichHand string, damage int) string {
+	if whichHand == "main" {
+		e.Main.MaxUses -= damage
+		if e.Main.MaxUses <= 0 {
+			e.Main = nil
+			return "Your weapon shatters!"
+		}
 	}
 	return ""
 }
@@ -212,6 +329,81 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 		e.Weight += item.Weight
 	}
 	return ok
+}
+
+// UnequipSpecific removes a specific slot rather than searching for a name
+func (e *Equipment) UnequipSpecific(alias string) (ok bool, item *Item) {
+	if alias == "head"{
+		if e.Head != (*Item)(nil)  {
+			item = e.Head
+			e.Head = (*Item)(nil)  
+		}else{
+			return false, (*Item)(nil) 
+		}
+	}else if alias == "chest"{
+		if e.Chest != (*Item)(nil)  {
+			item = e.Chest
+			e.Chest = (*Item)(nil) 
+		}else{
+			return false, (*Item)(nil) 
+		}
+	}else if alias == "neck"{
+		if e.Neck != (*Item)(nil)  {
+			item = e.Neck
+			e.Neck = (*Item)(nil) 
+		}else{
+			return false, (*Item)(nil) 
+		}
+	}else if alias == "legs"{
+		if e.Legs != (*Item)(nil)  {
+			item = e.Legs
+			e.Legs = (*Item)(nil) 
+		}else{
+			return false, (*Item)(nil) 
+		}
+	}else if alias == "feet"{
+		if e.Feet != (*Item)(nil)  {
+			item = e.Feet
+			e.Feet = (*Item)(nil) 
+		}else{
+			return false, (*Item)(nil) 
+		}
+	}else if alias == "arms"{
+		if e.Arms != (*Item)(nil)  {
+			item = e.Arms
+			e.Arms = (*Item)(nil) 
+		}else{
+			return false, (*Item)(nil) 
+		}
+	}else if alias == "hands"{
+		if e.Hands != (*Item)(nil)  {
+			item = e.Hands
+			e.Hands = (*Item)(nil) 
+		}else{
+			return false, (*Item)(nil) 
+		}
+	}else if alias == "ring1"{
+		if e.Ring1 != (*Item)(nil)  {
+			item = e.Ring1
+			e.Ring1 = (*Item)(nil) 
+		}else{
+			return false, (*Item)(nil) 
+		}
+	}else if alias == "ring2"{
+		if e.Ring2 != (*Item)(nil)  {
+			item = e.Ring2
+			e.Ring2 = (*Item)(nil) 
+		}else{
+			return false, (*Item)(nil) 
+		}
+	}
+
+	// Update armor values
+	if ok && item != (*Item)(nil) {
+		e.Armor -= item.Armor
+		e.Weight -= item.Weight
+	}
+	return ok, item
 }
 
 // Attempt to unequip by name, or type

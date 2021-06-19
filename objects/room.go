@@ -209,15 +209,17 @@ func (r *Room) FirstPerson() {
 							mobCalc := 0
 							mobPick := utils.Roll(100, 1, 0)
 							for mob, chance := range r.EncounterTable {
-								mobCalc += chance
-								if mobPick <= mobCalc {
-									// This is the mob!  Put it in the room!
-									newMob := Mob{}
-									copier.Copy(&newMob, Mobs[mob])
-									newMob.Placement = 5
-									r.Mobs.Add(&newMob, false)
-									newMob.StartTicking()
-									break
+								if (DayTime && !Mobs[mob].Flags["night_only"]) || (!DayTime && !Mobs[mob].Flags["day_only"]){
+									mobCalc += chance
+									if mobPick <= mobCalc {
+										// This is the mob!  Put it in the room!
+										newMob := Mob{}
+										copier.Copy(&newMob, Mobs[mob])
+										newMob.Placement = 5
+										r.Mobs.Add(&newMob, false)
+										newMob.StartTicking()
+										break
+									}
 								}
 							}
 						}

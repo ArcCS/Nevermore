@@ -23,13 +23,13 @@ func (hide) process(s *state) {
 	}
 
 	// Check some timers
-	ready, msg := s.actor.TimerReady("combat")
+	ready, msg := s.actor.TimerReady("hide")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
 		return
 	}
 
-	s.actor.SetTimer("global", config.CombatCooldown)
+	s.actor.SetTimer("hide", config.CombatCooldown)
 
 	// base chance is 15% to hide
 	curChance := config.HideChance

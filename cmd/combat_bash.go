@@ -93,7 +93,7 @@ func (bash) process(s *state) {
 			stunModifier = 2
 			s.msg.Actor.SendGood("Thump!!")
 		}
-		whatMob.MobStunned = config.BashStuns * stunModifier
+		whatMob.Stun(config.BashStuns * stunModifier)
 		actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		s.msg.Actor.SendInfo("You bashed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)

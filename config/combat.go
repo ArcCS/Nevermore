@@ -58,8 +58,8 @@ var DisintegrateChance = 5
 var TurnTimer = 300
 
 var SlamTimer = 30
-var ShieldDamage = 10
-var ShieldStun = 2
+var ShieldDamage = 3
+var ShieldStun = 1
 
 var CombatCooldown = 8
 
@@ -80,6 +80,79 @@ var MobBlockPerLevel = 10
 var MobFollow = 60
 var MobFollowPerLevel = 5
 
+// Str Mods
+var StrCarryMod = 10 // Per Point
+var BaseCarryWeight = 40
+var StrDamageMod = .01 // Per Point
+
+// Con Mods
+var ConArmorMod = .01
+var ConBonusHealth = 1
+var ConBonusHealthDiv = 5
+var ConHealRegenMod = .3
+var ConMonkArmor = 2 // 2 Armor Extra Per Con
+
+// Dex Mods
+var DexDodgeMod = .0025 //Chance to dodge
+var DexGlobalMod = .05  // Seconds to subtract from global ticker
+
+// Int Mods
+var IntOffensiveMod = .01
+var IntManaPool = 2             // Number of points of mana to add
+var IntManaPoolDiv = 5          // Number to divide by
+var IntSpellEffectDuration = 30 // Seconds to add
+var IntBroadDaily = 1
+var IntEvalDaily = 1
+var IntEvalDailyDiv = 3
+var BaseEvals = 3
+
+// Piety Mods
+var PieRegenMod = .3 // Regen Mana per tick
+var PieHealMod = .3  // Per point
+
+// Armor Values
+var ArmorReduction = .01
+var ArmorReductionPoints = 10
+
+var MobArmorReduction = .03
+var MobArmorReductionPoints = 10
+
+func MaxWeight(str int) int {
+	return BaseCarryWeight + (str * StrCarryMod)
+}
+
+func CalcHealth(tier int, con int, class int) int {
+	if class >= 99 {
+		return 800
+	}
+	return (tier * Classes[AvailableClasses[class]].Health) + (tier * ((con / ConBonusHealthDiv) * ConBonusHealth))
+}
+
+func CalcStamina(tier int, con int, class int) int {
+	if class >= 99 {
+		return 800
+	}
+	return (tier * Classes[AvailableClasses[class]].Stamina) + (tier * ((con / ConBonusHealthDiv) * ConBonusHealth))
+}
+
+func CalcMana(tier int, intel int, class int) int {
+	if class >= 99 {
+		return 800
+	}
+	return (tier * Classes[AvailableClasses[class]].Mana) + (tier * ((intel / IntManaPoolDiv) * IntManaPool))
+}
+
+func CalcHaste(tier int) int {
+	if tier < 10 {
+		return 2
+	}else if tier >=10 && tier < 15 {
+		return 3
+	}else if tier > 15 {
+		return 4
+	}
+	return 0
+}
+
 // Double Damage is out of 100
 var Parry = []int{
 	0,
@@ -94,6 +167,7 @@ var Parry = []int{
 	18,
 	20,
 }
+
 
 func RollParry(skill int) bool {
 	if skill > 0 {

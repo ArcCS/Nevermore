@@ -71,7 +71,7 @@ func (circle) process(s *state) {
 		//skillLevel := config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value)
 
 		//TODO: Parry/Miss/Resist being circled?
-		whatMob.MobStunned = config.CircleStuns
+		whatMob.Stun(config.CircleStuns)
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		s.actor.SetTimer("combat_circle", config.CircleTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)

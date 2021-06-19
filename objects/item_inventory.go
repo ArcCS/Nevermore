@@ -59,6 +59,16 @@ func (i *ItemInventory) Remove(o *Item) (err error) {
 	return nil
 }
 
+func (i *ItemInventory) ItemUse(item *Item) string {
+	item.MaxUses -= 1
+	if item.MaxUses <= 0 {
+		ret := "Your " + item.Name + " disintegrates."
+		i.Remove(item)
+		return ret
+	}
+	return ""
+}
+
 // Clear all non permanent
 func (i *ItemInventory) RemoveNonPerms() {
 	newContents := make([]*Item, 0, 0)

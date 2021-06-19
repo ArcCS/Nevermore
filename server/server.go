@@ -35,5 +35,46 @@ func main() {
 
 	go jarvoral.StartJarvoral()
 	objects.Load()
+	log.Println("Starting time...")
+	StartTime()
 	comms.Listen(config.Server.Host, config.Server.Port)
+}
+
+func StartTime(){
+	SyncTime()
+	objects.WorldTicker = time.NewTicker(1 * time.Minute)
+	go func() {
+		for {
+			select {
+			case <-objects.WorldTickerUnload:
+				return
+			case <-objects.WorldTicker.C:
+				SyncTime()
+			}
+		}
+	}()
+}
+
+func SyncTime() {
+	// Sync Time
+	diffHours, diffDays, diffMonths, diffYears := config.SyncCurrentTime()
+	objects.YearPlus = diffYears
+	objects.CurrentDay = diffDays % 9
+	if diffDays % 30 == 0 {
+		objects.DayOfMonth = 30
+	}else {
+		objects.DayOfMonth = diffDays % 30
+	}
+	objects.CurrentMonth = diffMonths%12
+	if objects.CurrentHour != diffHours%24 && diffHours%24 == config.Months[objects.CurrentMonth]["sunrise"] {
+		stats.ActiveCharacters.MessageAll("### The suns rise over the mountains to the east.")
+	} else if objects.CurrentHour != diffHours%24 && diffHours%24 == config.Months[objects.CurrentMonth]["sunset"] {
+		stats.ActiveCharacters.MessageAll("### The suns dip below the horizon to the west.")
+	}
+	objects.CurrentHour = diffHours%24
+	if objects.CurrentHour >= config.Months[objects.CurrentMonth]["sunrise"].(int) && objects.CurrentHour < config.Months[objects.CurrentMonth]["sunset"].(int){
+		objects.DayTime = true
+	}else{
+		objects.DayTime = false
+	}
 }

@@ -554,6 +554,11 @@ func (c *Character) AdvanceElementalExp(amount int){
 func (c *Character) ReceiveDamage(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
 	resist := int(math.Ceil(float64(damage) * (float64(c.GetStat("armor")/config.ArmorReductionPoints) * config.ArmorReduction)))
+	msg := c.Equipment.DamageRandomArmor()
+	if msg != "" {
+		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
+	}
+	log.Println(c.Name + " receives " + strconv.Itoa(damage) + " and resists " + strconv.Itoa(resist))
 	finalDamage := damage - resist
 	if finalDamage > c.Stam.Current {
 		stamDamage = c.Stam.Current

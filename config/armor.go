@@ -1,12 +1,5 @@
 package config
 
-// Armor Values
-var ArmorReduction = .01
-var ArmorReductionPoints = 10
-
-var MobArmorReduction = .03
-var MobArmorReductionPoints = 10
-
 // Max Damage
 var MaxArmor = map[int]map[string]int{
 	// Level int ref is cap

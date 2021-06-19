@@ -51,6 +51,11 @@ func (slam) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
+		_, ok := whatMob.ThreatTable[s.actor.Name]
+		if ok {
+			s.msg.Actor.SendBad("You have already engaged ", whatMob.Name, " in combat!")
+			return
+		}
 		s.actor.RunHook("combat")
 		s.actor.Victim = whatMob
 		// Shortcut a missing weapon:
@@ -58,6 +63,7 @@ func (slam) process(s *state) {
 			s.msg.Actor.SendBad("You have nothing equipped in your offhand!")
 			return
 		}
+
 
 		// Shortcut weapon not being blunt
 		if s.actor.Equipment.Off.ItemType != 23 {
@@ -71,9 +77,9 @@ func (slam) process(s *state) {
 			return
 		}
 
-		actualDamage, _ := whatMob.ReceiveDamage(int(s.actor.GetStat("str")*config.ShieldDamage))
+		actualDamage, _ := whatMob.ReceiveDamage(s.actor.GetStat("str")*config.ShieldDamage)
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
-		whatMob.MobStunned += config.ShieldStun*s.actor.GetStat("pie")
+		whatMob.Stun(config.ShieldStun*s.actor.GetStat("pie"))
 		s.msg.Actor.SendInfo("You slammed the " + whatMob.Name + " with your shield for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.TextPosPronoun[s.actor.Gender] + " shield into "+ whatMob.Name)
 		go whatMob.DeathCheck(s.actor)

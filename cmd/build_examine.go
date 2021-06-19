@@ -116,7 +116,7 @@ func (examine) process(s *state) {
 				{"V", "earth_resistance", mobRef.EarthResistance, "Resists earth damage %."},
 				{"V", "fire_resistance", mobRef.FireResistance, "Resists fire damage %."},
 				{"V", "water_resistance", mobRef.WaterResistance, "Resists water damage %."},
-				{"V", "breathes", mobRef.BreathWeapon, "Element breath, earth air fire air"},
+				{"V", "breathes", mobRef.BreathWeapon, "Element breath, earth air fire water paralytic"},
 				{"V", "spells", text.WrapSoft(strings.Join(mobRef.Spells, ", "), rowLength/5), "Available spells"},
 				{"T", "fast_moving", strconv.FormatBool(mobRef.Flags["fast_moving"]), "Mob is moves quickly"},
 				{"T", "guard_treasure", strconv.FormatBool(mobRef.Flags["guard_treasure"]), "Mob guards treasure."},

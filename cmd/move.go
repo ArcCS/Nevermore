@@ -88,7 +88,7 @@ func (move) process(s *state) {
 				}
 			}
 		} else {
-			s.msg.Actor.SendBad("There's not enough room to sprint forward")
+			s.msg.Actor.SendBad("There's not enough room to move forward")
 		}
 	} else if s.cmd == "B" || s.cmd == "BACK" || (len(s.words) > 0 && string(s.words[0][0]) == "B") {
 		if s.actor.Placement-1 >= 1 {
@@ -106,6 +106,8 @@ func (move) process(s *state) {
 					}
 				}
 			}
+		}else{
+			s.msg.Actor.SendBad("There's not enough room to move backwards.")
 		}
 	}
 	return

@@ -79,6 +79,7 @@ func (kill) process(s *state) {
 		}else{
 			if s.actor.Placement != whatMob.Placement {
 				s.msg.Actor.SendBad("You are too far away to attack.")
+				return
 			}
 		}
 
@@ -98,6 +99,7 @@ func (kill) process(s *state) {
 				// Sure did.  Kill this fool and bail.
 				s.msg.Actor.SendInfo("You landed a lethal blow on the " + whatMob.Name)
 				s.msg.Observers.SendInfo(s.actor.Name + " landed a lethal blow on " + whatMob.Name)
+				s.actor.Equipment.DamageWeapon("main", 1)
 				whatMob.Stam.Current = 0
 				go whatMob.DeathCheck(s.actor)
 				s.actor.SetTimer("combat", 8)
@@ -131,7 +133,7 @@ func (kill) process(s *state) {
 		for _, mult := range attacks {
 			// Lets try to crit:
 			//TODO: Parry/Miss?
-			if config.RollCritical(skillLevel) {
+			if config.RollCritical(skillLevel) || s.actor.Equipment.Main.Flags["always_crit"]{
 				mult *= float64(config.CombatModifiers["critical"])
 				s.msg.Actor.SendGood("Critical Strike!")
 				// TODO: Something something shattered weapons something or other
@@ -139,11 +141,18 @@ func (kill) process(s *state) {
 				mult *= float64(config.CombatModifiers["double"])
 				s.msg.Actor.SendGood("Double Damage!")
 			}
+			weapMsg := ""
+			if s.actor.Class != 8 {
+				weapMsg = s.actor.Equipment.DamageWeapon("main", 1)
+			}
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
 			whatMob.AddThreatDamage(actualDamage, s.actor)
 			s.actor.AdvanceSkillExp(int(float64((whatMob.Stam.Max/actualDamage) * whatMob.Experience)*config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			go whatMob.DeathCheck(s.actor)
+			if weapMsg != "" {
+				s.msg.Actor.SendInfo("weapMsg")
+			}
 		}
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return

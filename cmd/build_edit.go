@@ -341,7 +341,7 @@ func (edit) process(s *state) {
 					spellName := ""
 					if len(s.words) >= 4 {
 						spellName = strings.ToLower(s.words[3])
-						if utils.StringIn(spellName, []string{"air", "fire", "water", "earth"}) {
+						if utils.StringIn(spellName, []string{"air", "fire", "water", "earth", "paralytic"}) { //TODO: Pestilence?
 							mob.BreathWeapon = spellName
 							s.msg.Actor.SendGood("Mob BreathWeapon set to " + s.words[3])
 						} else {

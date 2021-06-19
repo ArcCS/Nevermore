@@ -185,9 +185,8 @@ func (m *Mob) GetSpellMultiplier() float32 {
 // The mob brain is this ticker
 func (m *Mob) Tick() {
 	if m.MobStunned > 0 {
-		m.MobStunned -= 1
+		m.MobStunned -= 8
 	} else {
-		// We're kind of managing our own state...  set all the locks
 		m.TicksAlive++
 		if m.TicksAlive >= m.NumWander && m.CurrentTarget == "" {
 			if !m.Flags["permanent"] {
@@ -394,6 +393,12 @@ func (m *Mob) MobScript(inputStr string){
 		m.MobTeleport(strings.Join(input[1:], " "))
 	}
 
+}
+
+func (m *Mob) Stun(amt int) {
+	if amt > m.MobStunned {
+		m.MobStunned = amt
+	}
 }
 
 // Special handler for handling a mobs cast of a teleport spell
