@@ -87,6 +87,8 @@ func (help) process(s *state) {
 		subject := s.words[0]
 		if s.actor.Permission.HasFlag(handlerPermission[strings.ToUpper(subject)]) {
 			s.msg.Actor.SendGood("Command: ", subject, "\n\n", helpText[subject])
+		}else{
+			s.msg.Actor.SendBad("Not a command available to you.")
 		}
 	}
 }

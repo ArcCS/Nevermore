@@ -21,6 +21,8 @@ var CombatModifiers = map[string]int{
 }
 
 //Thief & Ranger
+var PeekCD = 4
+var StealCD = 4
 var HideChance = 15
 var SneakChance = 15
 var StealChance = 15
@@ -55,7 +57,7 @@ var TurnMax = 50
 var TurnFailDamage = 50
 var TurnScaleDown = 10
 var DisintegrateChance = 5
-var TurnTimer = 300
+var TurnTimer = 60
 
 var SlamTimer = 30
 var ShieldDamage = 3
@@ -172,7 +174,7 @@ var Parry = []int{
 func RollParry(skill int) bool {
 	if skill > 0 {
 		dRoll := utils.Roll(100, 1, 0)
-		if dRoll <= Parry[skill] {
+		if dRoll <= Parry[skill-1] {
 			return true
 		}
 	}

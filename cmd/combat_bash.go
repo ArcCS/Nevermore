@@ -98,7 +98,7 @@ func (bash) process(s *state) {
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		s.msg.Actor.SendInfo("You bashed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 		s.msg.Observers.SendInfo(s.actor.Name + " bashes " + whatMob.Name)
-		go whatMob.DeathCheck(s.actor)
+		DeathCheck(s, whatMob)
 		s.actor.SetTimer("combat_bash", config.BashTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return

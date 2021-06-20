@@ -24,6 +24,13 @@ func (steal) process(s *state) {
 		return
 	}
 
+	// Check some timers
+	ready, msg := s.actor.TimerReady("steal")
+	if !ready {
+		s.msg.Actor.SendBad(msg)
+		return
+	}
+
 	if s.actor.Flags["hidden"] != true {
 		s.msg.Actor.SendBad("You can't steal while standing out in the open.")
 		return
@@ -79,6 +86,7 @@ func (steal) process(s *state) {
 
 		what := whatMob.Inventory.Search(nameStr, nameNum)
 		if what != nil {
+			s.actor.SetTimer("steal", config.StealCD)
 			if (s.actor.Inventory.TotalWeight + what.GetWeight()) <= s.actor.MaxWeight() {
 				// base chance is 15% to hide
 				curChance := config.StealChance + (config.StealChancePerLevel*(s.actor.Tier - whatMob.Level))

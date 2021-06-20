@@ -443,7 +443,9 @@ func (m *Mob) CalculateInventory() {
 	}
 }
 
+/*
 func (m *Mob) DeathCheck(actor *Character) {
+	Rooms[m.ParentId].
 	totalExperience := 0
 	buildActorString := ""
 	if m.Stam.Current <= 0 {
@@ -482,7 +484,6 @@ func (m *Mob) DeathCheck(actor *Character) {
 				if charClean == actor {
 					buildActorString += text.Green + m.DropInventory() + "\n"
 				}
-				log.Println(buildActorString)
 				charClean.Write([]byte(buildActorString+"\n"+text.Reset))
 				if charClean.Victim == m {
 					charClean.Victim = nil
@@ -493,7 +494,7 @@ func (m *Mob) DeathCheck(actor *Character) {
 		Rooms[m.ParentId].Mobs.Remove(m)
 	}
 }
-
+*/
 func (m *Mob) ReturnState() string{
 	stamStatus := "healthy"
 

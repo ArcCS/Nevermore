@@ -82,7 +82,7 @@ func (slam) process(s *state) {
 		whatMob.Stun(config.ShieldStun*s.actor.GetStat("pie"))
 		s.msg.Actor.SendInfo("You slammed the " + whatMob.Name + " with your shield for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.TextPosPronoun[s.actor.Gender] + " shield into "+ whatMob.Name)
-		go whatMob.DeathCheck(s.actor)
+		DeathCheck(s, whatMob)
 		s.actor.SetTimer("combat_shieldslam", config.SlamTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return

@@ -73,7 +73,7 @@ func (actwith) process(s *state) {
 
 	s.msg.Actor.SendInfo("You " + action + " " + whoWith)
 	if s.participant != nil {
-		s.msg.Participant.SendInfo(s.actor.Name + " you.")
+		s.msg.Participant.SendInfo(s.actor.Name + " " + action + " you.")
 	}
 	s.msg.Observers.SendInfo(s.actor.Name  + " " + action + " " +  whoWith)
 

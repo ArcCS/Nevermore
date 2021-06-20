@@ -84,7 +84,7 @@ func (tod) process(s *state) {
 			s.msg.Actor.SendInfo("Your chi flows through you and you perform a perfect touch of death on " + whatMob.Name + " and kill them.")
 			s.msg.Observers.SendInfo(s.actor.Name + " touches " + whatMob.Name + " and kills them.")
 			whatMob.Stam.Current = 0
-			go whatMob.DeathCheck(s.actor)
+			DeathCheck(s, whatMob)
 			whatMob = nil
 		}else if curChance >= 100 || todRoll <= curChance {
 			s.msg.Actor.SendInfo("You focus your chi and perform a touch of death on " + whatMob.Name + "!")

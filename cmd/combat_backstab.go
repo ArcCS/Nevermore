@@ -41,8 +41,6 @@ func (backstab) process(s *state) {
 		return
 	}
 
-	s.actor.RunHook("combat")
-
 	name := s.input[0]
 	nameNum := 1
 
@@ -88,30 +86,37 @@ func (backstab) process(s *state) {
 		}
 
 		curChance += s.actor.Dex.Current * config.BackStabChancePerPoint
-		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
+
 		s.actor.Victim = whatMob
+		s.actor.RunHook("combat")
 		if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["backstab"]))))
+			whatMob.AddThreatDamage(actualDamage, s.actor)
 			s.msg.Actor.SendInfo("You backstabbed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			s.msg.Observers.SendInfo(s.actor.Name + " backstabs " + whatMob.Name)
-			go whatMob.DeathCheck(s.actor)
+			DeathCheck(s, whatMob)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			return
 		}else{
 			s.msg.Actor.SendBad("You failed to backstab ", whatMob.Name , ", and are vulnerable to attack!")
+			s.msg.Observers.SendBad(s.actor.Name + " failed to backstab ", whatMob.Name , ", and is vulnerable to attack!")
+			whatMob.AddThreatDamage(whatMob.Stam.Max/2, s.actor)
 			if utils.Roll(100, 1, 0) <= config.MobBSRevengeVitalChance {
+				whatMob.CurrentTarget = s.actor.Name
+				s.msg.Actor.SendInfo(whatMob.Name + " turns it's attention to you.")
+				s.msg.Observers.SendInfo(whatMob.Name + " turns to " + s.actor.Name + ".")
 				vitDamage := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage()*config.VitalStrikeScale))))
 				if vitDamage == 0 {
 					s.msg.Actor.SendGood(whatMob.Name, " vital strike bounces off of you for no damage!")
 				} else {
-					s.msg.Actor.SendGood(whatMob.Name, " attacks you for " + strconv.Itoa(vitDamage)+ " points of vitality damage!")
+					s.msg.Actor.SendInfo(whatMob.Name, " attacks you for " + strconv.Itoa(vitDamage)+ " points of vitality damage!")
 				}
 				if s.actor.Vit.Current == 0 {
 					s.actor.Died()
 				}
-				s.ok=true
-				return
 			}
+			s.ok=true
+			return
 		}
 	}
 

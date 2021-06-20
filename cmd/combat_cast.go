@@ -84,7 +84,7 @@ func (cast) process(s *state) {
 				}else if msg != "" {
 					s.msg.Actor.SendGood(msg)
 				}
-				go whatMob.DeathCheck(s.actor)
+				DeathCheck(s, whatMob)
 				s.ok=true
 				return
 			} else {

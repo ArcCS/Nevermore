@@ -5,6 +5,8 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"math"
 	"strconv"
 )
@@ -101,7 +103,7 @@ func (kill) process(s *state) {
 				s.msg.Observers.SendInfo(s.actor.Name + " landed a lethal blow on " + whatMob.Name)
 				s.actor.Equipment.DamageWeapon("main", 1)
 				whatMob.Stam.Current = 0
-				go whatMob.DeathCheck(s.actor)
+				DeathCheck(s, whatMob)
 				s.actor.SetTimer("combat", 8)
 				return
 			}
@@ -130,10 +132,18 @@ func (kill) process(s *state) {
 		}
 
 		// Lets start executing the attacks
+		weapMsg := ""
+		if s.actor.Class != 8 {
+			weapMsg = s.actor.Equipment.DamageWeapon("main", 1)
+		}
 		for _, mult := range attacks {
 			// Lets try to crit:
 			//TODO: Parry/Miss?
-			if config.RollCritical(skillLevel) || s.actor.Equipment.Main.Flags["always_crit"]{
+			alwaysCrit := false
+			if s.actor.Class != 8 {
+				alwaysCrit = s.actor.Equipment.Main.Flags["always_crit"]
+			}
+			if config.RollCritical(skillLevel) || alwaysCrit {
 				mult *= float64(config.CombatModifiers["critical"])
 				s.msg.Actor.SendGood("Critical Strike!")
 				// TODO: Something something shattered weapons something or other
@@ -141,18 +151,16 @@ func (kill) process(s *state) {
 				mult *= float64(config.CombatModifiers["double"])
 				s.msg.Actor.SendGood("Double Damage!")
 			}
-			weapMsg := ""
-			if s.actor.Class != 8 {
-				weapMsg = s.actor.Equipment.DamageWeapon("main", 1)
-			}
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
 			whatMob.AddThreatDamage(actualDamage, s.actor)
-			s.actor.AdvanceSkillExp(int(float64((whatMob.Stam.Max/actualDamage) * whatMob.Experience)*config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
+			log.Println(strconv.Itoa(whatMob.Stam.Max))
+			s.actor.AdvanceSkillExp(int((float64(actualDamage)/float64(whatMob.Stam.Max) * float64(whatMob.Experience))*config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
-			go whatMob.DeathCheck(s.actor)
-			if weapMsg != "" {
-				s.msg.Actor.SendInfo("weapMsg")
-			}
+
+		}
+		DeathCheck(s, whatMob)
+		if weapMsg != "" {
+			s.msg.Actor.SendInfo("weapMsg")
 		}
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return
@@ -161,4 +169,56 @@ func (kill) process(s *state) {
 
 	s.msg.Actor.SendInfo("Attack what?")
 	s.ok = true
+}
+
+func DeathCheck(s *state, m *objects.Mob) {
+	totalExperience := 0
+	buildActorString := ""
+	if m.Stam.Current <= 0 {
+		s.msg.Actor.SendGood("You killed " + m.Name)
+		s.msg.Observers.SendGood(s.actor.Name + " killed " + m.Name)
+		for k, threat := range m.ThreatTable {
+			charClean := s.where.Chars.SearchAll(k)
+			if charClean != nil {
+				if threat > 0 {
+					if m.Level < charClean.Tier {
+						totalExperience = int(math.Abs(float64(m.Experience / (6 + (charClean.Tier - m.Level)))))
+					} else {
+						if threat >= m.Stam.Max/2 {
+							totalExperience = m.Experience
+						} else if threat >= m.Stam.Max/4 && threat < m.Stam.Max/2 {
+							totalExperience = m.Experience/2 + utils.Roll(m.Experience/8, 2, 0)
+						} else {
+							totalExperience = m.Experience / 8
+						}
+					}
+				} else {
+					totalExperience = 0
+				}
+
+				if totalExperience == 0 {
+					buildActorString += text.Cyan + "You earn no experience for the defeat of the " + m.Name + "\n"
+				} else if totalExperience <= m.Experience/8 {
+					buildActorString += text.Cyan + "You earn merely " + strconv.Itoa(totalExperience) + " experience for the defeat of the " + m.Name + "\n"
+					charClean.Experience.Add(totalExperience)
+				} else {
+					buildActorString += text.Cyan + "You earn " + strconv.Itoa(totalExperience) + " experience for the defeat of the " + m.Name + "\n"
+					charClean.Experience.Add(totalExperience)
+				}
+				if charClean == s.actor {
+					buildActorString += text.Green + m.DropInventory() + "\n"
+				}
+				if charClean == s.actor {
+					s.msg.Actor.Send(buildActorString)
+				}else {
+					charClean.Write([]byte(buildActorString + "\n" + text.Reset))
+				}
+				if charClean.Victim == m {
+					charClean.Victim = nil
+				}
+			}
+		}
+
+		s.where.Mobs.Remove(m)
+	}
 }

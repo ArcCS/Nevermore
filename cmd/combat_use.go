@@ -66,9 +66,7 @@ func (use) process(s *state) {
 
 	// It was on you the whole time
 	if what != nil {
-		s.actor.RunHook("use")
-		s.actor.SetTimer("use", 8)
-		if what.Spell != "" && what.MaxUses > 1 {
+		if what.Spell != "" && what.MaxUses > 0 {
 			spellInstance, ok := objects.Spells[strings.ToLower(what.Spell)]
 			if !ok {
 				s.msg.Actor.SendBad("Spell doesn't exist in this world. ")
@@ -83,7 +81,8 @@ func (use) process(s *state) {
 				}
 				// It was a mob!
 				if whatMob != nil {
-					itMsg := s.actor.Inventory.ItemUse(what)
+					s.actor.RunHook("use")
+					s.actor.SetTimer("use", 8)
 					msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
 					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatMob.Name)
 					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
@@ -92,8 +91,14 @@ func (use) process(s *state) {
 					}else if msg != "" {
 						s.msg.Actor.SendGood(msg)
 					}
-					go whatMob.DeathCheck(s.actor)
-					s.msg.Actor.SendInfo(itMsg)
+					DeathCheck(s, whatMob)
+					s.actor.Inventory.Lock()
+					what.MaxUses -= 1
+					if what.MaxUses <= 0 {
+						s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
+						s.actor.Inventory.Remove(what)
+					}
+					s.actor.Inventory.Unlock()
 					return
 				}
 
@@ -106,7 +111,8 @@ func (use) process(s *state) {
 						s.msg.Actor.SendBad("No PVP implemented yet. ")
 						return
 					}
-					itMsg := s.actor.Inventory.ItemUse(what)
+					s.actor.RunHook("use")
+					s.actor.SetTimer("use", 8)
 					msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
 					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatChar.Name)
 					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatChar.Name)
@@ -117,16 +123,29 @@ func (use) process(s *state) {
 					}else if msg != "" {
 						s.msg.Actor.SendGood(msg)
 					}
-					s.msg.Actor.SendInfo(itMsg)
+					s.actor.Inventory.Lock()
+					what.MaxUses -= 1
+					if what.MaxUses <= 0 {
+						s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
+						s.actor.Inventory.Remove(what)
+					}
+					s.actor.Inventory.Unlock()
 					return
 				}
 			} else {
-				itMsg := s.actor.Inventory.ItemUse(what)
+				s.actor.RunHook("use")
+				s.actor.SetTimer("use", 8)
 				msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 				if strings.Contains(msg, "$CRIPT"){
 					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
 				}
-				s.msg.Actor.SendInfo(itMsg)
+				s.actor.Inventory.Lock()
+				what.MaxUses -= 1
+				if what.MaxUses <= 0 {
+					 s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
+					s.actor.Inventory.Remove(what)
+				}
+				s.actor.Inventory.Unlock()
 				return
 			}
 		}

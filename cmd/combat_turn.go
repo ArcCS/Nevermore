@@ -79,7 +79,7 @@ func (turn) process(s *state) {
 			s.msg.Actor.SendInfo("Your faith overwhelms the " + whatMob.Name + " and utterly demolishes them.")
 			s.msg.Observers.SendInfo(s.actor.Name + " disintegrates " + whatMob.Name)
 			whatMob.Stam.Current = 0
-			go whatMob.DeathCheck(s.actor)
+			DeathCheck(s, whatMob)
 			whatMob = nil
 		}else if curChance >= 100 || turnRoll <= curChance {
 			s.msg.Actor.SendInfo("Your faith pours into " + whatMob.Name + " and damages them!")

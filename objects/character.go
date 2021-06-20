@@ -211,6 +211,9 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 }
 
 func (c *Character) SetTimer(timer string, seconds int) {
+	if c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		return
+	}
 	if timer == "combat" {
 		if hasted, ok := c.Flags["haste"]; ok {
 			if hasted {
@@ -525,13 +528,10 @@ func (c *Character) RunHook(hook string){
 			continue
 		}
 		if hookInstance.interval > 0 {
-			log.Println("Executing Hook", hook)
-			log.Println(hookInstance.LastTriggerInterval())
 			if hookInstance.LastTriggerInterval() <= 0 {
 				hookInstance.RunHook()
 			}
 		}else if hookInstance.interval == -1 {
-			log.Println("Executing Hook", hook)
 			hookInstance.RunHook()
 		}
 	}

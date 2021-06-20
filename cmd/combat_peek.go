@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
@@ -45,6 +46,7 @@ func (peek) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
+		s.actor.SetTimer("peek", config.PeekCD)
 		inv := whatMob.Inventory.List()
 		s.msg.Actor.SendInfo("In their inventory:")
 		if len(inv) == 0 {

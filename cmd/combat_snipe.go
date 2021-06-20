@@ -41,8 +41,6 @@ func (snipe) process(s *state) {
 		return
 	}
 
-	s.actor.RunHook("combat")
-
 	name := s.input[0]
 	nameNum := 1
 
@@ -82,7 +80,6 @@ func (snipe) process(s *state) {
 		}
 
 		s.actor.RunHook("combat")
-
 		curChance := config.SnipeChance + (config.SnipeChancePerLevel*(s.actor.Tier - whatMob.Level))
 
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
@@ -97,11 +94,12 @@ func (snipe) process(s *state) {
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["snipe"]))))
 			s.msg.Actor.SendInfo("You sniped the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			s.msg.Observers.SendInfo(s.actor.Name + " snipes " + whatMob.Name)
-			go whatMob.DeathCheck(s.actor)
+			DeathCheck(s, whatMob)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			return
 		}else {
 			s.msg.Actor.SendBad("You failed to snipe ", whatMob.Name, "!")
+			s.msg.Observers.SendBad(s.actor.Name + " failed to snipe ", whatMob.Name, "!")
 			if utils.Roll(100, 1, 0) < config.SnipeFumbleChance {
 				s.msg.Actor.SendBad("You fumbled your weapon!")
 				s.msg.Observer.SendInfo(s.actor.Name + " fails to snipe and fumbles their weapon. ")
@@ -111,12 +109,12 @@ func (snipe) process(s *state) {
 					s.actor.Inventory.Lock()
 					s.actor.Inventory.Add(what)
 					s.actor.Inventory.Unlock()
-					s.ok = true
-					return
 				}
 			}else{
 				s.msg.Observer.SendInfo(s.actor.Name + " fails to snipe " + whatMob.Name)
 			}
+			s.ok = true
+			return
 		}
 	}
 
