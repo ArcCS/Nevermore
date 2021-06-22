@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"strconv"
 )
 
 func init() {
@@ -14,10 +16,6 @@ func init() {
 type evaluate cmd
 
 func (evaluate) process(s *state) {
-	s.msg.Actor.SendInfo("Not implemented yet")
-	return
-}
-	/*
 	if len(s.words) < 1 {
 		s.msg.Actor.SendInfo("What do you want to evaluate?")
 		return
@@ -35,59 +33,40 @@ func (evaluate) process(s *state) {
 
 	// Check mobs
 	var whatMob *objects.Mob
-	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		whatMob = s.where.Mobs.Search(name, nameNum, true)
-	} else {
-		whatMob = s.where.Mobs.Search(name, nameNum, false)
-	}
+	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	// It was a mob!
 	if whatMob != nil {
-		mob_template := "You study the {{.Name}} in your minds eye....\n" +
-			"" +
-			"It currently has {{.HP}} hits points remaining." +
-			"It is worth {{.Exp}}experience points." +
-			"{{if .Quick}} It is quick reacting \n{{end}}" +
-			"{{if .Permanent}} It is permanent \n{{end}}" +
-			"{{if .Hostile}} It is hostile \n{{end}}" +
-			"{{if .Guards}} It guards treasure. \n{{end}}" +
-			"{{if .PickUp}} It picks up treasure. \n{{end}}" +
-			"{{if .Spells}} It casts spells \n{{end}}" +
+		s.msg.Actor.SendInfo(whatMob.Eval())
 		return
 	}
 
 	// Check items
-	what := s.where.Items.Search(name, nameNum)
+	whatItem := s.where.Items.Search(name, nameNum)
 
 	// Item in the room?
-	if what != nil {
-
+	if whatItem != nil {
+		s.msg.Actor.SendInfo(whatItem.Eval())
 		return
 	}
 
-	what = s.actor.Inventory.Search(name, nameNum)
+	whatItem = s.actor.Inventory.Search(name, nameNum)
 
 	// It was on you the whole time
-	if what != nil {
-
+	if whatItem != nil {
+		s.msg.Actor.SendInfo(whatItem.Eval())
 		return
 	}
 
-	what = s.actor.Equipment.Search(name)
+	whatItem = s.actor.Equipment.Search(name)
 
 	// Check your equipment
-	if what != nil {
-
-		return
-	} else {
-		s.msg.Actor.SendBad("You see no '", name, "' to examine.")
+	if whatItem != nil {
+		s.msg.Actor.SendInfo(whatItem.Eval())
 		return
 	}
 
-You study the Eye of the Lich in your minds eye....
+	s.ok=true
+	s.msg.Actor.SendInfo("Could not find anything to evaluate based on your input.")
+	return
 
-It is a device.
-It is charged with clairvoyance.
-It has 15 charges remaining.
-You determine its weight to be 1 lbs.
-You judge its value to be 3,118 gold marks.
- */
+}

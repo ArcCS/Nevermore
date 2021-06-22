@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	addHandler(train{}, "train stat stat \n Use this command at the trainer to train to the next level. \n Stat options of str con dex pie int to advance into the next level.", permissions.Player, "TRAIN")
+	addHandler(train{}, "train stat stat \n Use this command at the trainer to train to the next level. \n Stat options of str dex con pie int to advance into the next level.", permissions.Player, "TRAIN")
 }
 
 type train cmd

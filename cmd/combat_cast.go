@@ -29,6 +29,37 @@ func (cast) process(s *state) {
 		s.msg.Actor.SendBad(msg)
 		return
 	}
+	spellInstance, ok := objects.Spells[strings.ToLower(s.input[0])]
+	if !ok {
+		s.msg.Actor.SendBad("What spell do you want to cast?")
+		return
+	}
+	cost := spellInstance.Cost
+	if s.actor.Class == 8 {
+		cost = cost/4
+		if cost < 1 {
+			cost = 1
+		}
+	}
+
+	if !utils.StringIn(spellInstance.Name, s.actor.Spells) && s.actor.Class != 100 {
+		s.msg.Actor.SendBad("You do not have that spell in your spellbook.")
+		return
+	}
+
+	if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		if minLevel, ok := spellInstance.Classes[config.AvailableClasses[s.actor.Class]]; !ok {
+			s.msg.Actor.SendBad("The comprehension of this spell is beyond you.")
+			return
+		} else if s.actor.Tier < minLevel {
+			s.msg.Actor.SendBad("You are not high enough level to cast this spell.")
+		}
+	}
+
+	if s.actor.Mana.Current < cost && s.actor.Class != 100 {
+		s.msg.Actor.SendBad("You do not have enough mana to cast this spell. ")
+	}
+
 	if len(s.words) > 1 {
 		name := s.input[1]
 		nameNum := 1
@@ -39,41 +70,15 @@ func (cast) process(s *state) {
 				nameNum = val
 			}
 		}
-
-		spellInstance, ok := objects.Spells[strings.ToLower(s.input[0])]
-		if !ok {
-			s.msg.Actor.SendBad("What spell do you want to cast?")
-			return
-		}
-
-		if !utils.StringIn(spellInstance.Name, s.actor.Spells) && s.actor.Class != 100 {
-			s.msg.Actor.SendBad("You do not have that spell in your spellbook.")
-			return
-		}
-		if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			if minLevel, ok := spellInstance.Classes[config.AvailableClasses[s.actor.Class]]; !ok {
-				s.msg.Actor.SendBad("The comprehension of this spell is beyond you.")
-				return
-			} else if s.actor.Tier < minLevel {
-				s.msg.Actor.SendBad("You are not high enough level to cast this spell.")
-			}
-		}
-
-		s.actor.RunHook("combat")
-
 		// Try Mobs First
 		var whatMob *objects.Mob
 		whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 		// It was a mob!
 		if whatMob != nil {
+			s.actor.RunHook("combat")
 			s.actor.Victim = whatMob
-			cost := spellInstance.Cost
-			if s.actor.Class == 8 {
-				cost /= 4
-			}
-			if s.actor.Mana.Current >= cost || s.actor.Class == 100 {
-				s.actor.Mana.Subtract(cost)
 				msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
+				s.actor.Mana.Subtract(cost)
 				s.actor.SetTimer("combat", 8)
 				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
@@ -90,13 +95,13 @@ func (cast) process(s *state) {
 			} else {
 				s.msg.Actor.SendBad("You do not have enough mana to cast this spell.")
 			}
-		}
 
 		// Are we casting on a character
 		var whatChar *objects.Character
 		whatChar = s.where.Chars.Search(name, s.actor)
 		// It was a person!
 		if whatChar != nil {
+			s.actor.RunHook("combat")
 			s.actor.Victim = whatChar
 			if strings.Contains(spellInstance.Effect, "damage") {
 				//TODO PVP flags etc.
@@ -105,6 +110,7 @@ func (cast) process(s *state) {
 				return
 			}
 			msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
+			s.actor.Mana.Subtract(cost)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 			s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
@@ -122,27 +128,16 @@ func (cast) process(s *state) {
 		}
 	} else {
 
-		spellInstance, ok := objects.Spells[strings.ToLower(s.input[0])]
-		if !ok {
-			s.msg.Actor.SendBad("What spell do you want to cast?")
-			s.ok=true
-			return
-		}
-
-		if !utils.StringIn(spellInstance.Name, s.actor.Spells) && s.actor.Class != 100 {
-			s.msg.Actor.SendBad("You do not have that spell in your spellbook.")
-			s.ok=true
-			return
-		}
-
 		if strings.Contains(spellInstance.Effect, "damage") {
 			s.msg.Actor.SendBad("You cannot cast this on yourself.")
 			s.ok=true
 			return
 		}
 
+		s.actor.RunHook("combat")
 		msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 		s.actor.SetTimer("combat", 8)
+		s.actor.Mana.Subtract(cost)
 		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 		s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")

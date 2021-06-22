@@ -113,6 +113,24 @@ func (i *ItemInventory) List() []string {
 	return items
 }
 
+// List the items in this ItemInventory
+func (i *ItemInventory) ListItems() []*Item {
+	items := make([]*Item, 0)
+
+	switch len(i.Contents) {
+	case 0:
+		return items
+	}
+
+	for _, o := range i.Contents {
+		if strings.TrimSpace(o.DisplayName()) != "" {
+			items = append(items, o)
+		}
+	}
+
+	return items
+}
+
 // Free recursively calls Free on all of it's content when the ItemInventory
 // attribute is freed.
 func (i *ItemInventory) Free() {

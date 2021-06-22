@@ -196,6 +196,10 @@ func (examine) process(s *state) {
 		}
 
 	case "exit":
+		if len(s.words) < 2 {
+			s.msg.Actor.SendBad("What item do you want to examine?")
+			return
+		}
 		if exitRef, ok := s.where.Exits[strings.ToLower(s.words[1])]; ok {
 			t := table.NewWriter()
 			t.SetAllowedRowLength(rowLength)

@@ -172,16 +172,16 @@ func (kill) process(s *state) {
 }
 
 func DeathCheck(s *state, m *objects.Mob) {
-	totalExperience := 0
-	buildActorString := ""
 	if m.Stam.Current <= 0 {
 		s.msg.Actor.SendGood("You killed " + m.Name)
 		s.msg.Observers.SendGood(s.actor.Name + " killed " + m.Name)
 		for k, threat := range m.ThreatTable {
+			totalExperience := 0
+			buildActorString := ""
 			charClean := s.where.Chars.SearchAll(k)
 			if charClean != nil {
 				if threat > 0 {
-					if m.Level < charClean.Tier {
+					if m.Level < charClean.Tier+3 {
 						totalExperience = int(math.Abs(float64(m.Experience / (6 + (charClean.Tier - m.Level)))))
 					} else {
 						if threat >= m.Stam.Max/2 {
@@ -207,8 +207,6 @@ func DeathCheck(s *state, m *objects.Mob) {
 				}
 				if charClean == s.actor {
 					buildActorString += text.Green + m.DropInventory() + "\n"
-				}
-				if charClean == s.actor {
 					s.msg.Actor.Send(buildActorString)
 				}else {
 					charClean.Write([]byte(buildActorString + "\n" + text.Reset))

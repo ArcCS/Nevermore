@@ -106,6 +106,7 @@ func (godir) process(s *state) {
 							s.ok = true
 							return
 						}
+						// Check if anyone blocks.
 						for _, mob := range s.where.Mobs.Contents {
 							// Check if a mob blocks.
 							if mob.Flags["block_exit"] {
@@ -118,6 +119,9 @@ func (godir) process(s *state) {
 									return
 								}
 							}
+						}
+						// Now check if they follow..
+						for _, mob := range s.where.Mobs.Contents {
 							if mob.Flags["follows"] {
 								curChance := config.MobFollow - ((s.actor.Tier - mob.Level) * config.MobFollowPerLevel)
 								if curChance > 85 {
@@ -136,6 +140,7 @@ func (godir) process(s *state) {
 
 					from.Chars.Remove(s.actor)
 					to.Chars.Add(s.actor)
+					s.actor.Victim = nil
 					s.actor.Placement = 3
 					s.actor.ParentId = toE.ToId
 					// Broadcast leaving and arrival notifications
@@ -145,7 +150,9 @@ func (godir) process(s *state) {
 					}
 					if len(s.actor.PartyFollowers) > 0 {
 						for _, party := range s.actor.PartyFollowers{
-							go Script(party, s.cmd + " " + strings.Join(s.input, " "))
+							if party.ParentId == s.where.RoomId {
+								go Script(party, s.cmd+" "+strings.Join(s.input, " "))
+							}
 						}
 					}
 					s.scriptActor("LOOK")

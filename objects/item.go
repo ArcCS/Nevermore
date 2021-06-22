@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
@@ -176,4 +177,58 @@ func ReturnItemInstanceProps(item *Item) map[string]interface{} {
 		serialList["contents"] = item.Storage.Jsonify()
 	}
 	return serialList
+}
+
+func (i *Item) Eval() string {
+
+	stringOut := "You study the " + i.Name + " in your minds eye.... \n\n"
+
+	if utils.IntIn(i.ItemType, []int{0, 1, 2, 3, 4}) { // Weapons
+		stringOut += "It is a " + config.ItemTypes[i.ItemId] + " weapon." +
+			" \n It has " + strconv.Itoa(i.MaxUses) + "uses before it breaks."
+	} else if utils.IntIn(i.ItemType, []int{5, 26, 25, 24, 23, 22, 21, 20, 19}) { // Armor
+		stringOut += "It is " + config.ItemTypes[i.ItemId] + " armor." +
+			" \n It has " + strconv.Itoa(i.MaxUses) + "uses before it breaks."
+	} else if i.ItemType == 17{  // Beverage
+		stringOut += "It is a beverage. \n" +
+			"It has " + strconv.Itoa(i.MaxUses) + " sips remaining. \n"
+	} else if i.ItemType == 18 {  // Music
+		stringOut += "It is sheet music. \n" +
+			"It contains "+ i.Spell +".\n"
+	} else if i.ItemType == 16 {  // Instrument
+		stringOut += "It is an instrument."
+	} else if i.ItemType == 15 {  // Ammo  //TODO Implement if we do ammo.
+		stringOut += "It is ammunition, and not implemented."  //
+	} else if i.ItemType == 6 || i.ItemType == 8 {  //device/wand
+		stringOut += "It is a " + config.ItemTypes[i.ItemType] + ". \n" +
+		"It is charged with "+ i.Spell +".\n" +
+		"It has " + strconv.Itoa(i.MaxUses) + " uses remaining. \n"
+	} else if i.ItemType == 7{
+		stringOut += "It is a scroll. \n" +
+			"It contains "+ i.Spell +".\n"
+	} else if i.ItemType == 9{  //chest
+		stringOut += "It is a container. \n" +
+			"It can hold " + strconv.Itoa(i.MaxUses) + " items. \n"
+		if i.Flags["weightless_chest"] {
+			stringOut += "It holds it's contents weightlessly. \n"
+		}
+	} else if i.ItemType == 10{ //gold
+		stringOut += "It is gold. \n"
+	} else if i.ItemType == 11{ //key
+		stringOut += "It is a key. \n"
+	} else if i.ItemType == 12{ //light
+		stringOut += "It is a light source. \n"
+	} else if i.ItemType == 13{ //object
+		stringOut += "It's just an object. \n"
+	}
+
+	if i.Flags["permanent"] {
+		stringOut += "It is permanent. \n"
+	}
+	if i.Flags["no_take"] {
+		stringOut += "It cannot be picked up \n"
+	}
+
+	stringOut += "You determine its weight to be "+ strconv.Itoa(i.Weight)+"lbs. \nYou judge its value to be "+ strconv.Itoa(i.Value)+" gold marks."
+	return stringOut
 }

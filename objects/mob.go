@@ -443,58 +443,6 @@ func (m *Mob) CalculateInventory() {
 	}
 }
 
-/*
-func (m *Mob) DeathCheck(actor *Character) {
-	Rooms[m.ParentId].
-	totalExperience := 0
-	buildActorString := ""
-	if m.Stam.Current <= 0 {
-		for k, threat := range m.ThreatTable {
-			charClean := Rooms[m.ParentId].Chars.SearchAll(k)
-			if charClean != nil {
-				if threat > 0 {
-					if m.Level < charClean.Tier {
-						totalExperience = int(math.Abs(float64(m.Experience / (6 + (charClean.Tier - m.Level)))))
-					} else {
-						if threat >= m.Stam.Max/2 {
-							totalExperience = m.Experience
-						} else if threat >= m.Stam.Max/4 && threat < m.Stam.Max/2 {
-							totalExperience = m.Experience/2 + utils.Roll(m.Experience/8, 2, 0)
-						} else {
-							totalExperience = m.Experience / 8
-						}
-					}
-				} else {
-					totalExperience = 0
-				}
-				if charClean != actor {
-					buildActorString += text.Green + actor.Name + " killed " + m.Name + "\n"
-				} else {
-					buildActorString += text.Green + "You killed " + m.Name + "\n"
-				}
-				if totalExperience == 0 {
-					buildActorString += text.Cyan + "You earn no experience for the defeat of the " + m.Name + "\n"
-				} else if totalExperience <= m.Experience/8 {
-					buildActorString += text.Cyan + "You earn merely " + strconv.Itoa(totalExperience) + " experience for the defeat of the " + m.Name + "\n"
-					charClean.Experience.Add(totalExperience)
-				} else {
-					buildActorString += text.Cyan + "You earn " + strconv.Itoa(totalExperience) + " experience for the defeat of the " + m.Name + "\n"
-					charClean.Experience.Add(totalExperience)
-				}
-				if charClean == actor {
-					buildActorString += text.Green + m.DropInventory() + "\n"
-				}
-				charClean.Write([]byte(buildActorString+"\n"+text.Reset))
-				if charClean.Victim == m {
-					charClean.Victim = nil
-				}
-			}
-		}
-
-		Rooms[m.ParentId].Mobs.Remove(m)
-	}
-}
-*/
 func (m *Mob) ReturnState() string{
 	stamStatus := "healthy"
 
@@ -727,7 +675,7 @@ func (m *Mob) Save() {
 	mobData["take_treasure"] = utils.Btoi(m.Flags["take_treasure"])
 	mobData["steals"] = utils.Btoi(m.Flags["steals"])
 	mobData["block_exit"] = utils.Btoi(m.Flags["block_exit"])
-	mobData["follows"] = utils.Btoi(m.Flags["block_exit"])
+	mobData["follows"] = utils.Btoi(m.Flags["follows"])
 	mobData["no_steal"] = utils.Btoi(m.Flags["no_steal"])
 	mobData["detect_invisible"] = utils.Btoi(m.Flags["detect_invisible"])
 	mobData["no_stun"] = utils.Btoi(m.Flags["no_stun"])
@@ -740,28 +688,8 @@ func (m *Mob) Save() {
 	data.UpdateMob(mobData)
 }
 
-func (m *Mob) IsDead(char *Character){
-	return
-	/*
-	if m.Stam.Current <= 0 {
-		Rooms[m.ParentId].Chars.Lock()
-		Rooms[m.ParentId].Mobs.Lock()
-		Rooms[m.ParentId].Items.Lock()
-		char.Write([]byte(text.Info + "You killed " + m.Name + text.Reset + "\n"))
-		s.msg.Observers.SendInfo(char.Name + " killed " + whatMob.Name + text.Reset)
-		stringExp := strconv.Itoa(whatMob.Experience)
-		for k := range whatMob.ThreatTable {
-			s.where.Chars.Search(k, s.actor).Write([]byte(text.Cyan + "You earn " + stringExp + " exp for the defeat of the " + whatMob.Name + "\n" + text.Reset))
-			s.where.Chars.Search(k, s.actor).Experience.Add(whatMob.Experience)
-		}
-		s.msg.Observers.SendInfo(whatMob.Name + " dies.")
-		s.msg.Actor.SendInfo(whatMob.DropInventory())
-		objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
-		whatMob = nil
-		Rooms[m.ParentId].Chars.Unlock()
-		Rooms[m.ParentId].Mobs.Unlock()
-		Rooms[m.ParentId].Items.Unlock()
-	}
-
-	 */
+func (m *Mob) Eval() string {
+	return "You study the "+ m.Name +" in your minds eye....\n\n" +
+		"It currently has "+ strconv.Itoa(m.Stam.Current) +" hits points remaining." +
+		"It is worth " + strconv.Itoa(m.Experience) + "experience points."
 }

@@ -24,6 +24,10 @@ func (follow) process(s *state) {
 	var whatChar *objects.Character
 	whatChar = s.where.Chars.Search(name, s.actor)
 	if whatChar != nil {
+		if whatChar == s.actor {
+			s.msg.Actor.SendBad("You cannot follow yourself.")
+			return
+		}
 		if s.actor.PartyFollow != nil {
 			s.msg.Actor.SendInfo(s.actor.Name + " stops folowing you.")
 		}

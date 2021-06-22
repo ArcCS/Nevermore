@@ -44,7 +44,8 @@ func (j toss) process(s *state) {
 	}
 
 	s.msg.Actor.SendGood("Are you sure you want to toss away ", what.Name, "?  This cannot be undone. (y/n)")
-	s.actor.AddCommands("yes", "$confirm_toss" + name + " " + strconv.Itoa(nameNum))
+	s.actor.AddCommands("yes", "$confirm_toss " + name + " " + strconv.Itoa(nameNum))
+	s.actor.AddCommands("y", "$confirm_toss " + name + " " + strconv.Itoa(nameNum))
 	what = nil
 	s.ok = true
 }
