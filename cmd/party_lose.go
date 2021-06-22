@@ -27,7 +27,7 @@ func (lose) process(s *state) {
 		return
 	}
 
-	name := s.input[1]
+	name := s.input[0]
 	var whatChar *objects.Character
 	whatChar = s.where.Chars.Search(name, s.actor)
 	if whatChar != nil {
@@ -36,7 +36,8 @@ func (lose) process(s *state) {
 				if !player.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					copy(s.actor.PartyFollowers[c:], s.actor.PartyFollowers[c+1:])
 					s.actor.PartyFollowers[len(s.actor.PartyFollowers)-1] = nil
-					s.actor.PartyFollowers= s.actor.PartyFollowers[:len(s.actor.PartyFollowers)-1]
+					s.actor.PartyFollowers = s.actor.PartyFollowers[:len(s.actor.PartyFollowers)-1]
+
 					s.msg.Actor.SendInfo("You lose " + player.Name + ".")
 					player.Write([]byte(text.Info + s.actor.Name + " loses you."))
 					return
@@ -44,9 +45,7 @@ func (lose) process(s *state) {
 			}
 			s.msg.Actor.SendInfo("That person isn't in your party.")
 		}
-		if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			s.msg.Participant.SendInfo(s.actor.Name, " follows you.")
-		}
+
 	}else{
 		s.msg.Actor.SendBad("Who ya followin'??")
 	}

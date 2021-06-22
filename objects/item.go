@@ -185,10 +185,10 @@ func (i *Item) Eval() string {
 
 	if utils.IntIn(i.ItemType, []int{0, 1, 2, 3, 4}) { // Weapons
 		stringOut += "It is a " + config.ItemTypes[i.ItemId] + " weapon." +
-			" \n It has " + strconv.Itoa(i.MaxUses) + "uses before it breaks."
+			" \n It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks."
 	} else if utils.IntIn(i.ItemType, []int{5, 26, 25, 24, 23, 22, 21, 20, 19}) { // Armor
 		stringOut += "It is " + config.ItemTypes[i.ItemId] + " armor." +
-			" \n It has " + strconv.Itoa(i.MaxUses) + "uses before it breaks."
+			" \n It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks."
 	} else if i.ItemType == 17{  // Beverage
 		stringOut += "It is a beverage. \n" +
 			"It has " + strconv.Itoa(i.MaxUses) + " sips remaining. \n"

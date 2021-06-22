@@ -28,8 +28,12 @@ func (follow) process(s *state) {
 			s.msg.Actor.SendBad("You cannot follow yourself.")
 			return
 		}
+		if whatChar == s.actor.PartyFollow {
+			s.msg.Actor.SendBad("You're already following them. ")
+			return
+		}
 		if s.actor.PartyFollow != nil {
-			s.msg.Actor.SendInfo(s.actor.Name + " stops folowing you.")
+			s.actor.Unfollow()
 		}
 		s.participant = whatChar
 		s.actor.PartyFollow = whatChar

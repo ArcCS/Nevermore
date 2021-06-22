@@ -242,7 +242,6 @@ func (edit) process(s *state) {
 						s.msg.Actor.SendBad("Failed to toggle " + flag + ".  Is it an actual flag?")
 					}
 				}
-				return
 			// Set a variable
 			} else {
 				switch strings.ToLower(s.input[1]) {
