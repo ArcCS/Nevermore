@@ -181,7 +181,7 @@ func DeathCheck(s *state, m *objects.Mob) {
 			charClean := s.where.Chars.SearchAll(k)
 			if charClean != nil {
 				if threat > 0 {
-					if m.Level < charClean.Tier+3 {
+					if m.Level+3 < charClean.Tier {
 						totalExperience = int(math.Abs(float64(m.Experience / (6 + (charClean.Tier - m.Level)))))
 					} else {
 						if threat >= m.Stam.Max/2 {
