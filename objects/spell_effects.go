@@ -424,7 +424,6 @@ func curepoison(caller interface{}, target interface{}, magnitude int) string {
 		target.RemoveEffect("poison")
 	}
 	return ""
-
 }
 
 func bless(caller interface{}, target interface{}, magnitude int) string {
@@ -503,12 +502,12 @@ func detect_invisible(caller interface{}, target interface{}, magnitude int) str
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("detectinvisibile", strconv.Itoa(duration), "0",
+		target.ApplyEffect("detect-invisibile", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("detectinvisibile", "detectinvisibile_spell", text.Info +"Your senses are magnified, detecting the unseen.\n")
+				target.ToggleFlagAndMsg("detect-invisibile", "detectinvisibile_spell", text.Info +"Your senses are magnified, detecting the unseen.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("detectinvisibile", "detectinvisibile_spell", text.Cyan+"Your invisibility detection fades away.\n")
+				target.ToggleFlagAndMsg("detect-invisibile", "detectinvisibile_spell", text.Cyan+"Your invisibility detection fades away.\n")
 			})
 		return ""
 	case *Mob:
@@ -673,12 +672,12 @@ func resistfire(caller interface{}, target interface{}, magnitude int) string {
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("resistfire", strconv.Itoa(duration), "0",
+		target.ApplyEffect("resist-fire", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("resistfire", "resistfire_spell", text.Info +"Magical shielding springs up around you protecting you from fire. \n")
+				target.ToggleFlagAndMsg("resist-fire", "resistfire_spell", text.Info +"Magical shielding springs up around you protecting you from fire. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resistfire", "resistfire_spell", text.Cyan+"The magical cloak protecting you from fire fades. \n")
+				target.ToggleFlagAndMsg("resist-fire", "resistfire_spell", text.Cyan+"The magical cloak protecting you from fire fades. \n")
 			})
 		return ""
 	case *Mob:
@@ -695,12 +694,12 @@ func resistmagic(caller interface{}, target interface{}, magnitude int) string {
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("resistmagic", strconv.Itoa(duration), "0",
+		target.ApplyEffect("resist-magic", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("resistmagic", "resistmagic_spell", text.Info +"Magical shielding springs up around you protecting you from magic. \n")
+				target.ToggleFlagAndMsg("resist-magic", "resistmagic_spell", text.Info +"Magical shielding springs up around you protecting you from magic. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resistmagic", "resistmagic_spell", text.Cyan+"The magical cloak protecting you from magic fades. \n")
+				target.ToggleFlagAndMsg("resist-magic", "resistmagic_spell", text.Cyan+"The magical cloak protecting you from magic fades. \n")
 			})
 		return ""
 	case *Mob:
@@ -717,12 +716,12 @@ func resistair(caller interface{}, target interface{}, magnitude int) string {
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("resistair", strconv.Itoa(duration), "0",
+		target.ApplyEffect("resist-air", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("resistair", "resistair_spell", text.Info +"Magical shielding springs up around you protecting you from air. \n")
+				target.ToggleFlagAndMsg("resist-air", "resistair_spell", text.Info +"Magical shielding springs up around you protecting you from air. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resistair", "resistair_spell", text.Cyan+"The magical cloak protecting you from air fades. \n")
+				target.ToggleFlagAndMsg("resist-air", "resistair_spell", text.Cyan+"The magical cloak protecting you from air fades. \n")
 			})
 		return ""
 	case *Mob:
@@ -739,12 +738,12 @@ func resistwater(caller interface{}, target interface{}, magnitude int) string {
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("resistwater", strconv.Itoa(duration), "0",
+		target.ApplyEffect("resist-water", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("resistwater", "resistwater_spell", text.Info +"Magical shielding springs up around you protecting you from water. \n")
+				target.ToggleFlagAndMsg("resist-water", "resistwater_spell", text.Info +"Magical shielding springs up around you protecting you from water. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resistwater", "resistwater_spell", text.Cyan+"The magical cloak protecting you from water fades. \n")
+				target.ToggleFlagAndMsg("resist-water", "resistwater_spell", text.Cyan+"The magical cloak protecting you from water fades. \n")
 			})
 		return ""
 	case *Mob:
@@ -761,12 +760,12 @@ func resistearth(caller interface{}, target interface{}, magnitude int) string {
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("resistearth", strconv.Itoa(duration), "0",
+		target.ApplyEffect("resist-earth", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("resistearth", "resistearth_spell", text.Info +"Magical shielding springs up around you protecting you from earth. \n")
+				target.ToggleFlagAndMsg("resist-earth", "resistearth_spell", text.Info +"Magical shielding springs up around you protecting you from earth. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resistearth", "resistearth_spell", text.Cyan+"The magical cloak protecting you from earth fades. \n")
+				target.ToggleFlagAndMsg("resist-earth", "resistearth_spell", text.Cyan+"The magical cloak protecting you from earth fades. \n")
 			})
 		return ""
 	case *Mob:
@@ -843,12 +842,12 @@ func inertialbarrier(caller interface{}, target interface{}, magnitude int) stri
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("inertialbarrier", strconv.Itoa(duration), "0",
+		target.ApplyEffect("inertial-barrier", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("inertialbarrier", "inertialbarrier_spell", text.Info +"A dampening barrier forms around you.\n")
+				target.ToggleFlagAndMsg("inertial-barrier", "inertialbarrier_spell", text.Info +"A dampening barrier forms around you.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("inertialbarrier", "inertialbarrier_spell", text.Cyan+"The dampening barrier falls away. \n")
+				target.ToggleFlagAndMsg("inertial-barrier", "inertialbarrier_spell", text.Cyan+"The dampening barrier falls away. \n")
 			})
 		return ""
 	case *Mob:
@@ -887,12 +886,12 @@ func resistpoison(caller interface{}, target interface{}, magnitude int) string 
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("resistpoison", strconv.Itoa(duration), "0",
+		target.ApplyEffect("resist-poison", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("resistpoison", "resistpoison_spell", text.Info +"Your blood thickens, protecting you from poison. \n")
+				target.ToggleFlagAndMsg("resist-poison", "resistpoison_spell", text.Info +"Your blood thickens, protecting you from poison. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resistpoison", "resistpoison_spell", text.Cyan+"Your blood returns to normal, your magical protection from poison fading. \n")
+				target.ToggleFlagAndMsg("resist-poison", "resistpoison_spell", text.Cyan+"Your blood returns to normal, your magical protection from poison fading. \n")
 			})
 		return ""
 	case *Mob:
@@ -909,12 +908,12 @@ func resilientaura(caller interface{}, target interface{}, magnitude int) string
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("resilientaura", strconv.Itoa(duration), "0",
+		target.ApplyEffect("resilient-aura", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("resilientaura", "resilientaura_spell", text.Info +"A magical shield forms around your gear protecting it from damage.\n")
+				target.ToggleFlagAndMsg("resilient-aura", "resilientaura_spell", text.Info +"A magical shield forms around your gear protecting it from damage.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resilientaura", "resilientaura_spell", text.Cyan+"The magical shield around your equipment fades. \n")
+				target.ToggleFlagAndMsg("resilient-aura", "resilientaura_spell", text.Cyan+"The magical shield around your equipment fades. \n")
 			})
 		return ""
 	case *Mob:
@@ -931,12 +930,12 @@ func resistdisease(caller interface{}, target interface{}, magnitude int) string
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("resistdisease", strconv.Itoa(duration), "0",
+		target.ApplyEffect("resist-disease", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("resistdisease", "resistdisease_spell", text.Info +"Your blood heats, protecting you from disease.\n")
+				target.ToggleFlagAndMsg("resist-disease", "resistdisease_spell", text.Info +"Your blood heats, protecting you from disease.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resistdisease", "resistdisease_spell", text.Cyan+"Your magical fever fades, removing your resistance to disease.\n")
+				target.ToggleFlagAndMsg("resist-disease", "resistdisease_spell", text.Cyan+"Your magical fever fades, removing your resistance to disease.\n")
 			})
 		return ""
 	case *Mob:
@@ -997,12 +996,12 @@ func resistacid(caller interface{}, target interface{}, magnitude int) string {
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("resistacid", strconv.Itoa(duration), "0",
+		target.ApplyEffect("resist-acid", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("resistacid", "resistacid_spell", text.Info +"A thick mucous coats your skin protecting you from acid damage.\n")
+				target.ToggleFlagAndMsg("resist-acid", "resistacid_spell", text.Info +"A thick mucous coats your skin protecting you from acid damage.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resistacid", "resistacid_spell", text.Cyan+"The mucous falls away.\n")
+				target.ToggleFlagAndMsg("resist-acid", "resistacid_spell", text.Cyan+"The mucous falls away.\n")
 			})
 		return ""
 	case *Mob:

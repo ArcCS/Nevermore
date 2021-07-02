@@ -13,8 +13,8 @@ type about cmd
 
 func (about) process(s *state) {
 
-	s.msg.Actor.SendInfo("We're running Nevermore for Aalynor's Nexus. " +
-		"©2020 \n" +
+	s.msg.Actor.SendInfo("We're running Nevermore for Aalynor's Nexus. Copyright 2020-2021 \n" +
+		"World is a fan restoration of out of publication original Aalynor's Nexus, 1996-2013 \n"+
 		"Some components used from WolfMUD (https://www.wolfmud.org/)")
 
 	s.ok = true

@@ -24,6 +24,7 @@ func (quit) process(s *state) {
 	s.actor.Save()
 	s.actor.Unfollow()
 	s.actor.LoseParty()
+	s.actor.PurgeEffects()
 	stats.ActiveCharacters.Remove(s.actor)
 	s.ok = true
 }

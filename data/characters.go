@@ -58,6 +58,8 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"spells: a.spells, "+
 		"equipment: a.equipment, "+
 		"inventory: a.inventory, "+
+		"effects: a.effects, "+
+		"timers: a.timers, "+
 		"flags:{invisible: a.invisible, darkvision: a.darkvision, hidden: a.hidden}}",
 
 		map[string]interface{}{
@@ -128,6 +130,8 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.experience = 0, "+
 			"a.invisible = 0, "+
 			"a.darkvision = 0, "+
+			"a.effects = '[]', "+
+			"a.timers = '[]', "+
 			"a.hidden = 0 ",
 		map[string]interface{}{
 			"characterId": nextId("character"),
@@ -210,6 +214,8 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.spells = $spells,"+
 			"a.equipment = $equipment,"+
 			"a.inventory = $inventory,"+
+			"a.effects = $effects, " +
+			"a.timers = $timers, " +
 			"a.experience = $experience",
 		map[string]interface{}{
 			"characterid": charData["character_id"],
@@ -244,6 +250,8 @@ func SaveChar(charData map[string]interface{}) bool {
 			"max_stam":    charData["stammax"],
 			"equipment":   charData["equipment"],
 			"inventory":   charData["inventory"],
+			"effects": 	   charData["effects"],
+			"timers":	   charData["timers"],
 		},
 	)
 	if err != nil {

@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"encoding/json"
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
@@ -29,7 +30,6 @@ type Character struct {
 	Flags         map[string]bool
 	FlagProviders map[string][]string
 	Effects       map[string]*Effect
-	HiddenEffects map[string]*Effect
 	Modifiers     map[string]int
 
 	// ParentId is the room id for the room
@@ -115,7 +115,6 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			0,
 			make(map[string]bool),
 			make(map[string][]string),
-			make(map[string]*Effect),
 			make(map[string]*Effect),
 			make(map[string]int),
 			int(charData["parentid"].(int64)),
@@ -213,6 +212,9 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			}
 		}()
 
+		FilledCharacter.SerialRestoreEffects(charData["effects"].(string))
+		FilledCharacter.SerialRestoreTimers(charData["timers"].(string))
+
 		return FilledCharacter, false
 	}
 }
@@ -292,12 +294,67 @@ func (c *Character) CheckFlag(flagName string) bool {
 }
 
 // SerialSaveEffects serializes all current user effects, removes them, and saves them to the database
-func (c *Character) SerialSaveEffects(){
+func (c *Character) SerialSaveEffects() string{
+	effectList := make(map[string]float64)
 
+	for efN, effect := range c.Effects {
+		// Ignore any bard songs, we won't take them with us.
+		if !strings.Contains(efN, "_song"){
+			effectList[efN] = effect.TimeRemaining()
+		}
+	}
+
+	data, err := json.Marshal(effectList)
+	if err != nil {
+		return "[]"
+	} else {
+		return string(data)
+	}
 }
 
 func (c *Character) SerialRestoreEffects(effectsBlob string){
+	obj := make(map[string]float64, 0)
+	err := json.Unmarshal([]byte(effectsBlob), &obj)
+	if err != nil {
+		return
+	}
+	for name, duration := range obj {
+		Effects[name](c, c, 0)
+		c.Effects[name].AlterTime(duration)
+	}
+}
 
+func (c *Character) PurgeEffects() {
+	for _, effect:= range c.Effects {
+		effect.effectOff()
+	}
+}
+
+// SerialSaveTimers serializes all current user timers
+func (c *Character) SerialSaveTimers() string{
+	timerList := make(map[string]float64)
+
+	for efN, effect := range c.Timers {
+		timerList[efN] = effect.Sub(time.Now()).Seconds()
+	}
+
+	data, err := json.Marshal(timerList)
+	if err != nil {
+		return "[]"
+	} else {
+		return string(data)
+	}
+}
+
+func (c *Character) SerialRestoreTimers(timerBlob string){
+	obj := make(map[string]float64, 0)
+	err := json.Unmarshal([]byte(timerBlob), &obj)
+	if err != nil {
+		return
+	}
+	for name, duration := range obj {
+		c.SetTimer(name, int(duration))
+	}
 }
 
 func (c *Character) GetModifier(modifier string) int{
@@ -375,13 +432,8 @@ func (c *Character) Save() {
 	charData["stammax"] = c.Stam.Max
 	charData["equipment"] = c.Equipment.Jsonify()
 	charData["inventory"] = c.Inventory.Jsonify()
-
-	berz, ok := c.Flags["berserk"]
-	if ok {
-		if berz {
-			charData["str"] = c.Str.Current - 5
-		}
-	}
+	charData["effects"] = c.SerialSaveEffects()
+	charData["timers"] = c.SerialSaveTimers()
 	data.SaveChar(charData)
 
 	//TODO Process Effects
@@ -681,9 +733,6 @@ func (c *Character) InflictDamage() (damage int) {
 	return damage
 }
 
-func (c *Character) CastSpell(spell string) bool {
-	return false
-}
 
 func (c *Character) MaxWeight() int {
 	return config.MaxWeight(c.Str.Current)

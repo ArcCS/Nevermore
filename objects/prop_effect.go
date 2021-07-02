@@ -16,6 +16,10 @@ type Effect struct {
 	effectOff func()
 }
 
+func (s *Effect) AlterTime(duration float64) {
+	s.length = time.Duration(duration)*time.Minute
+}
+
 func NewEffect(length string, interval string, effect func(), effectOff func()) *Effect {
 	lengthTime, _ := strconv.Atoi(length)
 	parseLength := time.Duration(lengthTime) * time.Second

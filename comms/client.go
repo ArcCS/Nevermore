@@ -232,11 +232,11 @@ func (c *client) close() {
 			c.frontend.GetCharacter().Save()
 			c.frontend.GetCharacter().Unfollow()
 			c.frontend.GetCharacter().LoseParty()
+			c.frontend.GetCharacter().PurgeEffects()
 			stats.ActiveCharacters.Remove(c.frontend.GetCharacter())
 			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
 			c.frontend.GetCharacter().Unload()
 		}
-		//rooms.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
 
 		if idle {
 			_, _ = c.Write([]byte("\n")) // Move off prompt line
@@ -276,7 +276,6 @@ func (c *client) close() {
 		log.Printf("Connection closed: %s", c.remoteAddr)
 	}
 	c.TCPConn = nil
-
 	c.leaseRelease()
 
 	// Close and drain error channel
