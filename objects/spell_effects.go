@@ -3,12 +3,15 @@ package objects
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 )
 
 var (
 	TeleportTable = []int{117}
 	defaultDuration = 600
+	lvl5RecallRoom = "77"
+	RecallRoom = "77"
 )
 
 var Effects = map[string]func(caller interface{}, target interface{}, magnitude int) string{
@@ -188,6 +191,9 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 }
 
 func restore(caller interface{}, target interface{}, magnitude int) string {
+	if caller == target {
+		return "You can only cast this spell on others."
+	}
 	/*TODO: Restore this after class props are implemented
 	switch caller := caller.(type) {
 
@@ -195,7 +201,6 @@ func restore(caller interface{}, target interface{}, magnitude int) string {
 		caller.ClassProps["restore"] -= 1
 	}
 	*/
-
 	switch target := target.(type) {
 	case *Character:
 		target.Mana.Current = target.Mana.Max
@@ -539,57 +544,496 @@ func teleport(caller interface{}, target interface{}, magnitude int) string {
 	return ""
 }
 
-func stun(caller interface{}, target interface{}, magnitude int) string { return "" }
 
-func enchant(caller interface{}, target interface{}, magnitude int) string { return "" }
+func stun(caller interface{}, target interface{}, magnitude int) string {
+	duration := 15
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch caller := caller.(type) {
+	case *Character:
+		switch target := target.(type) {
+		case *Character:
+			return "No PVP yet"
+			diff := ((caller.GetStat("int") - target.GetStat("int")) / 5) * 10
+			chance := 30 + diff
+			if utils.Roll(100, 1, 0) > chance {
+			}
+		case *Mob:
+			diff := (caller.Tier - target.Level) * 5
+			chance := 10 + diff
+			if utils.Roll(100, 1, 0) > chance {
+				return "You failed to teleport " + target.Name
+			}else{
+				target.Stun(duration)
+				return "You stunned " + target.Name
+			}
+		}
 
-func recall(caller interface{}, target interface{}, magnitude int) string { return "" }
+	case *Mob:
+		switch target := target.(type) {
+		case *Character:
+			diff := (caller.Level - target.Tier) * 5
+			chance := 10 + diff
+			if utils.Roll(100, 1, 0) > chance {
+				target.Write([]byte(text.Info + caller.Name + " failed to stun you." + text.Reset + "\n"))
+			}else{
+				target.Write([]byte(text.Bad + caller.Name + " stunned you." + text.Reset + "\n"))
+				target.SetTimer("global", 20)
+			}
+		case *Mob:
+			// Mobs stun mobs?  Meh maybe
+			return ""
+		}
+	}
+	return ""
+}
 
-func summon(caller interface{}, target interface{}, magnitude int) string { return "" }
+func recall(caller interface{}, target interface{}, magnitude int) string {
+	switch caller.(type) {
+	case *Character:
+		switch target := target.(type) {
+		case *Character:
+			return "$CRIPT $TELEPORTTO " + target.Name + " " + RecallRoom
+		case *Mob:
+			return "Cannot be cast on a mob."
+		}
 
-func wizardwalk(caller interface{}, target interface{}, magnitude int) string { return "" }
+	case *Mob:
+		return ""
+	}
+	return ""
+}
 
-func levitate(caller interface{}, target interface{}, magnitude int) string { return "" }
+func summon(caller interface{}, target interface{}, magnitude int) string {
+	if caller == target {
+		return "You cannot cast summon on yourself."
+	}
+	switch caller := caller.(type) {
+	case *Character:
+		switch target := target.(type) {
+		case *Character:
+			return "$CRIPT $TELEPORTTO " + target.Name + " " + strconv.Itoa(caller.ParentId)
+		case *Mob:
+			return "Cannot be cast on a mob."
+		}
 
-func resistfire(caller interface{}, target interface{}, magnitude int) string { return "" }
+	case *Mob:
+		return ""
+	}
+	return ""
+}
 
-func resistmagic(caller interface{}, target interface{}, magnitude int) string { return "" }
+func wizardwalk(caller interface{}, target interface{}, magnitude int) string {
+	if caller == target {
+		return "Why would you walk to yourself?"
+	}
+	switch caller := caller.(type) {
+	case *Character:
+		switch target := target.(type) {
+		case *Character:
+			return "$CRIPT $TELEPORTTO " + caller.Name + " " + strconv.Itoa(target.ParentId)
+		case *Mob:
+			return "Cannot be cast on a mob."
+		}
+	case *Mob:
+		return ""
+	}
+	return ""
+}
 
-func removecurse(caller interface{}, target interface{}, magnitude int) string { return "" }
+func levitate(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("levitate", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("levitate", "levitate_spell", text.Info +"You lift off of your feet. \n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("levitate", "levitate_spell", text.Cyan+"Your feet touch the ground as the spell fades. \n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
 
-func resistair(caller interface{}, target interface{}, magnitude int) string { return "" }
+func resistfire(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("resistfire", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("resistfire", "resistfire_spell", text.Info +"Magical shielding springs up around you protecting you from fire. \n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("resistfire", "resistfire_spell", text.Cyan+"The magical cloak protecting you from fire fades. \n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
 
-func resistwater(caller interface{}, target interface{}, magnitude int) string { return "" }
+func resistmagic(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("resistmagic", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("resistmagic", "resistmagic_spell", text.Info +"Magical shielding springs up around you protecting you from magic. \n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("resistmagic", "resistmagic_spell", text.Cyan+"The magical cloak protecting you from magic fades. \n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
 
-func resistearth(caller interface{}, target interface{}, magnitude int) string { return "" }
+func resistair(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("resistair", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("resistair", "resistair_spell", text.Info +"Magical shielding springs up around you protecting you from air. \n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("resistair", "resistair_spell", text.Cyan+"The magical cloak protecting you from air fades. \n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
 
-func clairvoyance(caller interface{}, target interface{}, magnitude int) string { return "" }
+func resistwater(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("resistwater", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("resistwater", "resistwater_spell", text.Info +"Magical shielding springs up around you protecting you from water. \n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("resistwater", "resistwater_spell", text.Cyan+"The magical cloak protecting you from water fades. \n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
 
-func removedisease(caller interface{}, target interface{}, magnitude int) string { return "" }
+func resistearth(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("resistearth", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("resistearth", "resistearth_spell", text.Info +"Magical shielding springs up around you protecting you from earth. \n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("resistearth", "resistearth_spell", text.Cyan+"The magical cloak protecting you from earth fades. \n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
 
-func cureblindness(caller interface{}, target interface{}, magnitude int) string { return "" }
+
+func clairvoyance(caller interface{}, target interface{}, magnitude int) string {
+	if caller == target {
+		return "You cannot cast clairvoyance on yourself."
+	}
+	switch caller := caller.(type) {
+	case *Character:
+		switch target := target.(type) {
+		case *Character:
+			if target.Resist {
+				// For every 5 points of int over the target there's an extra 10% chance to clairvoyance
+				diff := ((caller.GetStat("int") - target.GetStat("int")) / 5) * 10
+				chance := 30 + diff
+				if utils.Roll(100, 1, 0) > chance {
+					target.Write([]byte(text.Info + caller.Name + " failed to cast clairvoyance on you. \n" + text.Reset))
+					return "You failed to cast clairvoyance on " + target.Name
+				}else{
+					target.Write([]byte(text.Info + caller.Name + " sees through your eyes. \n" + text.Reset))
+					return Rooms[target.ParentId].Look(caller)
+				}
+			}
+		case *Mob:
+			return "Cannot be cast on a mob."
+		}
+
+	case *Mob:
+		return ""
+	}
+	return ""
+}
+
+func removedisease(caller interface{}, target interface{}, magnitude int) string {
+	switch target := target.(type) {
+	case *Character:
+		target.RemoveEffect("disease")
+		target.Write([]byte(text.Bad + "The affliction is purged." + text.Reset + "\n"))
+		return ""
+	case *Mob:
+		target.RemoveEffect("disease")
+	}
+	return ""
+
+}
+
+func cureblindness(caller interface{}, target interface{}, magnitude int) string {
+	switch target := target.(type) {
+	case *Character:
+		target.RemoveEffect("blind")
+		target.Write([]byte(text.Bad + "Your vision returns." + text.Reset + "\n"))
+		return ""
+	case *Mob:
+		target.RemoveEffect("blind")
+	}
+	return ""
+
+}
+
+func inertialbarrier(caller interface{}, target interface{}, magnitude int) string {
+	if caller != target {
+		return "You can only cast this spell on yourself."
+	}
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("inertialbarrier", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("inertialbarrier", "inertialbarrier_spell", text.Info +"A dampening barrier forms around you.\n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("inertialbarrier", "inertialbarrier_spell", text.Cyan+"The dampening barrier falls away. \n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
+
+func surge(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("surge", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("surge", "surge_spell", text.Info +"You feel the power flow into you.\n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("surge", "surge_spell", text.Cyan+"The surge of power fades from you.\n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
+
+func resistpoison(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("resistpoison", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("resistpoison", "resistpoison_spell", text.Info +"Your blood thickens, protecting you from poison. \n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("resistpoison", "resistpoison_spell", text.Cyan+"Your blood returns to normal, your magical protection from poison fading. \n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
+
+func resilientaura(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("resilientaura", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("resilientaura", "resilientaura_spell", text.Info +"A magical shield forms around your gear protecting it from damage.\n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("resilientaura", "resilientaura_spell", text.Cyan+"The magical shield around your equipment fades. \n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
+
+func resistdisease(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("resistdisease", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("resistdisease", "resistdisease_spell", text.Info +"Your blood heats, protecting you from disease.\n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("resistdisease", "resistdisease_spell", text.Cyan+"Your magical fever fades, removing your resistance to disease.\n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
+
+func reflection(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("reflect", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("reflect", "reflect_spell", text.Info +"A mirrored shell forms around you and fades from view.\n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("reflect", "reflect_spell", text.Cyan+"The mirrored shell shatters, and falls away.\n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
+
+func dodge(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("dodge", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("dodge", "dodge_spell", text.Info +"Your reflexes quicken.\n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("dodge", "dodge_spell", text.Cyan+"Your magically quickened reflexes return to normal.\n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
+
+func resistacid(caller interface{}, target interface{}, magnitude int) string {
+	duration := 30
+	switch caller := caller.(type) {
+	case *Character:
+		duration += config.IntSpellEffectDuration*caller.Int.Current
+	}
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect("resistacid", strconv.Itoa(duration), "0",
+			func() {
+				target.ToggleFlagAndMsg("resistacid", "resistacid_spell", text.Info +"A thick mucous coats your skin protecting you from acid damage.\n")
+			},
+			func() {
+				target.ToggleFlagAndMsg("resistacid", "resistacid_spell", text.Cyan+"The mucous falls away.\n")
+			})
+		return ""
+	case *Mob:
+		return ""
+	}
+	return ""
+}
+
+func embolden(caller interface{}, target interface{}, magnitude int) string {
+	switch target := target.(type) {
+	case *Character:
+		target.RemoveEffect("fear")
+		target.Write([]byte(text.Bad + "Your irrational fear vanishes." + text.Reset + "\n"))
+		return ""
+	case *Mob:
+		target.RemoveEffect("fear")
+	}
+	return ""
+}
+
+func disruptmagic(caller interface{}, target interface{}, magnitude int) string {
+	//TODO: make a list of disruptable spells
+	//TODO: Remove one of those spells
+	return "" }
 
 func polymorph(caller interface{}, target interface{}, magnitude int) string { return "" }
 
 func attraction(caller interface{}, target interface{}, magnitude int) string { return "" }
 
-func inertialbarrier(caller interface{}, target interface{}, magnitude int) string { return "" }
+func removecurse(caller interface{}, target interface{}, magnitude int) string {
+	//TODO: Remove Curse?
+	return "" }
 
-func surge(caller interface{}, target interface{}, magnitude int) string { return "" }
-
-func resistpoison(caller interface{}, target interface{}, magnitude int) string { return "" }
-
-func resilientaura(caller interface{}, target interface{}, magnitude int) string { return "" }
-
-func resistdisease(caller interface{}, target interface{}, magnitude int) string { return "" }
-
-func disruptmagic(caller interface{}, target interface{}, magnitude int) string { return "" }
-
-func reflection(caller interface{}, target interface{}, magnitude int) string { return "" }
-
-func dodge(caller interface{}, target interface{}, magnitude int) string { return "" }
-
-func resistacid(caller interface{}, target interface{}, magnitude int) string { return "" }
-
-func embolden(caller interface{}, target interface{}, magnitude int) string { return ""
-}
+func enchant(caller interface{}, target interface{}, magnitude int) string { return "" }

@@ -197,5 +197,9 @@ func (godir) process(s *state) {
 			s.ok = true
 			return
 		}
+	} else {
+		s.msg.Actor.SendInfo("You can't go that direction.")
+		s.ok = true
+		return
 	}
 }

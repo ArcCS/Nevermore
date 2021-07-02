@@ -127,7 +127,7 @@ func (r *Room) Look(looker *Character) (buildText string) {
 				}
 			}
 			if len(exitText) > 0 {
-				buildText += "Obvious exits are " + strings.Join(exitText, ", ") + "\n"
+				buildText += "Obvious exits are " + strings.Join(exitText, ", ")
 			}
 			if len(longExit) > 0 {
 				buildText += strings.Join(longExit, "\n")
@@ -170,9 +170,12 @@ func (r *Room) Look(looker *Character) (buildText string) {
 			}
 
 			if len(exitText) > 0 {
-				buildText += "Obvious exits are " + strings.Join(exitText, ", ") + "\n"
+				buildText += "Obvious exits are " + strings.Join(exitText, ", ")
 			}
 			if len(longExit) > 0 {
+				if len(exitText) > 0 {
+					buildText += "\n"
+				}
 				buildText += strings.Join(longExit, "\n")
 			}
 			if len(longExit) == 0 && len(exitText) == 0 {

@@ -27,9 +27,10 @@ You sense the following enchantments bound to your lifeforce:
 ----------------------------------------------------------------------
 {{.SpellEffects}}
 `
-	spell_effects := ""
+
+	var spell_effects []string
 	for k := range s.actor.Effects {
-		spell_effects += k + " "
+		spell_effects = append(spell_effects, k)
 	}
 
 	data := struct {
@@ -37,7 +38,7 @@ You sense the following enchantments bound to your lifeforce:
 		SpellEffects string
 	}{
 		strings.Join(s.actor.Spells, ", "),
-		spell_effects,
+		strings.Join(spell_effects, ", "),
 	}
 	tmpl, _ := template.New("stat_info").Parse(spell_template)
 	var output bytes.Buffer

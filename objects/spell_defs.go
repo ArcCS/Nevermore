@@ -435,9 +435,9 @@ var Spells = map[string]Spell{
 	},
 	"wizard-walk": {
 		Name:        "wizard-walk",
-		Description: "not much is known about this spell. it was co-researched by fariol (before his untimely death) and lucis. it requires a faith magic component to ensure that the caster does not lose themselves upon the wizard's way, and it has no apparent verbal or somatic component. neither the wizard's tower nor the order of light are saying much about the inner workings of this spell.",
+		Description: "not much is known about this spell. it was co-researched by fariol (before his untimely death) and lucis. it requires a faith magic component to ensure that the caster does not lose themselves upon the wizard's way, and it has no apparent somatic component. neither the wizard's tower nor the order of light are saying much about the inner workings of this spell.",
 		Cost:        100,
-		Chant:       "By my third eye, to my ally!",
+		Chant:       "Magical winds lead me to thee...",
 		Magnitude:   1,
 		Effect:      "wizard-walk",
 		Classes:     map[string]int{"cleric": 25, "mage": 25, "ranger": 25},
@@ -640,6 +640,13 @@ var Spells = map[string]Spell{
 		Effect:      "embolden",
 		Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 8, "ranger": 8, "bard": 10, "thief": 12, "fighter": 15, "monk": 9},
 	},
+}
+
+var RemoteSpells = []string{
+	"summon",
+	"word of recall",
+	"clairvoyance",
+	"wizard-walk",
 }
 
 var OffensiveSpells = []string{

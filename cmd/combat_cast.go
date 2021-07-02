@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 	"strings"
@@ -92,12 +93,40 @@ func (cast) process(s *state) {
 				DeathCheck(s, whatMob)
 				s.ok=true
 				return
-			} else {
-				s.msg.Actor.SendBad("You do not have enough mana to cast this spell.")
 			}
 
 		// Are we casting on a character
 		var whatChar *objects.Character
+
+		// Check if it's a remote spell
+		if utils.StringIn(spellInstance.Name, objects.RemoteSpells) {
+			whatChar = stats.ActiveCharacters.Find(name)
+			// It was a person!
+			if whatChar != nil {
+				s.actor.RunHook("combat")
+				s.actor.Victim = whatChar
+				if strings.Contains(spellInstance.Effect, "damage") {
+					//TODO PVP flags etc.
+					s.msg.Actor.SendBad("No PVP implemented yet. ")
+					s.ok = true
+					return
+				}
+				msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
+				s.actor.Mana.Subtract(cost)
+				s.actor.SetTimer("combat", config.CombatCooldown)
+				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
+				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
+				s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatChar.Name)
+				if strings.Contains(msg, "$CRIPT") {
+					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+				} else if msg != "" {
+					s.msg.Actor.SendGood(msg)
+				}
+				s.ok = true
+				return
+			}
+		}
+
 		whatChar = s.where.Chars.Search(name, s.actor)
 		// It was a person!
 		if whatChar != nil {
@@ -117,7 +146,7 @@ func (cast) process(s *state) {
 			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatChar.Name)
 			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatChar.Name)
 			s.participant = whatChar
-			s.msg.Participant.SendInfo(s.actor.Name + " cast a " + spellInstance.Name + "spell on you")
+			s.msg.Participant.SendInfo(s.actor.Name + " cast a " + spellInstance.Name + " spell on you")
 			if strings.Contains(msg, "$CRIPT"){
 				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
 			}else if msg != "" {
@@ -126,6 +155,7 @@ func (cast) process(s *state) {
 			s.ok=true
 			return
 		}
+
 	} else {
 
 		if strings.Contains(spellInstance.Effect, "damage") {
