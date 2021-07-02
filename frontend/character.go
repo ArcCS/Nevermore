@@ -3,10 +3,13 @@ package frontend
 import (
 	"fmt"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/utils"
+	"math/rand"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/text"
@@ -561,6 +564,12 @@ func (a *newCharacter) completeBuilder() {
 	charData["con"] = a.con
 	charData["intel"] = a.intel
 	charData["pie"] = a.pie
+	charData["birthday"] = objects.CurrentDay
+	charData["birthdate"] = objects.DayOfMonth
+	charData["birthmonth"] = objects.CurrentMonth
+	rand.Seed(time.Now().Unix())
+	ageJitter := rand.Intn(10)
+	charData["birthyear"] = (config.ImperialYearStart + objects.YearPlus) - (config.RaceDefs[config.AvailableRaces[a.race]].MinAge+ageJitter)
 	if data.CreateChar(charData) {
 		a.buf.Send(text.Info, "# New character created,  entering Altin. \n", text.Reset)
 		FirstTimeStartGame(a.frontend, a.name)

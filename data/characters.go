@@ -40,6 +40,9 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"description: a.description, "+
 		"parentid: a.parentid, "+
 		"birthday: a.birthday, "+
+		"birthdate: a.birthdate, "+
+		"birthmonth: a.birthmonth, "+
+		"birthyear: a.birthyear, "+
 		"played: a.played, "+
 		"broadcasts: a.broadcasts, "+
 		"evals: a.evals, "+
@@ -104,7 +107,10 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.stammax = $curr_stam, "+
 			"a.description = '', "+
 			"a.parentid = $start_room,"+
-			"a.birthday = 0,"+
+			"a.birthday = $birth_day,"+
+			"a.birthdate = $birth_date," +
+			"a.birthmonth = $birth_month,"+
+			"a.birthyear = $birth_year,"+
 			"a.played = 0,"+
 			"a.broadcasts = 5,"+
 			"a.evals = 5,"+
@@ -134,6 +140,10 @@ func CreateChar(charData map[string]interface{}) bool {
 			"dexcur":      charData["dex"],
 			"piecur":      charData["pie"],
 			"intcur":      charData["intel"],
+			"birth_day":   charData["birthday"],
+			"birth_date":  charData["birthdate"],
+			"birth_year":  charData["birthyear"],
+			"birth_month": charData["birthmonth"],
 			"curr_mana":   config.CalcMana(1, charData["con"].(int), charData["class"].(int)),
 			"curr_vit":    config.CalcHealth(1, charData["intel"].(int), charData["class"].(int)),
 			"curr_stam":   config.CalcStamina(1, charData["con"].(int), charData["class"].(int)),
@@ -287,7 +297,7 @@ func CharacterExists(charName string) bool {
 
 // DeleteChar Delete character
 func DeleteChar(charName string) bool {
-	results, err := execWrite("MATCH (a:character) WHERE a.name=$charName DELETE a",
+	results, err := execWrite("MATCH ()-[o:owns]->(a:character) WHERE a.name=$charName DELETE o,a",
 		map[string]interface{}{
 			"charName": charName,
 		},
@@ -340,130 +350,3 @@ func SearchCharDesc(searchStr string, skip int) []interface{} {
 	}
 	return searchList
 }
-
-/*
-// Get an inventory_id
-func NextInventoryId(characterName string) int {
-conn, _ := getConn()
-defer conn.Close()
-	data, _, _, _ := conn.QueryNeoAll("MATCH (c:character)-[h:has]->(item)"+
-	"WHERE c.name=$characterName" +
-"WITH COLLECT(h.has_id) as has_ids" +
-"WITH MAX(has_ids)+1 AS new_id" +
-"RETURN new_id",
-		map[string]interface {}{
-			"characterName":  characterName,
-		},
-	)
-return data[0][0].(int)
-}
-
-// Create Inventory Item
-func CreateInventory(inventoryData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	hasInventory, rtrap := conn.ExecNeo(
-		"MATCH (c:character), (i:item) WHERE " +
-			"c.character_id = $characterName AND i.item_id = $itemId " +
-			`CREATE (c)-[h:has]->(i) SET
-				h.has_id=$hasId,
-				h.name=$itemName,
-				h.uses=$uses,
-				h.magic=$magic,
-				h.spell=$spell,
-				h.armor=$armor,
-				h.equipped=$equipped`,
-		map[string]interface {}{
-			"characterName":        inventoryData["characterName"],
-			"itemId":       inventoryData["itemId"],
-			"hasId":		NextInventoryId(inventoryData["characterName"].(string)),
-			"itemName":		inventoryData["itemName"],
-			"uses": 		inventoryData["uses"],
-			"magic":		inventoryData["magic"],
-			"spell":		inventoryData["spell"],
-			"armor":		inventoryData["armor"],
-			"equipped":		inventoryData["equipped"],
-		},
-	)
-	if rtrap != nil{
-		log.Println(rtrap)
-	}
-
-	numResult, _ := hasInventory.RowsAffected()
-	if numResult > 0 {
-		return false
-	}else {
-		return true
-	}
-}
-
-// Delete inventory
-func DeleteInventoryItem(characterName string, hasId int) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	toExit, rtrap := conn.ExecNeo(
-		"MATCH (c:character)-[h:has_id]->(item) WHERE " +
-			"c.name = $characterName AND h.has_id = $hasId " +
-			`DELETE (c)-[s:spawns]->(m) SET
-	s.chance=$chance`,
-		map[string]interface {}{
-			"hasId":        hasId,
-			"characterName":       characterName,
-		},
-	)
-	if rtrap != nil{
-		log.Println(rtrap)
-	}
-
-	numResult, _ := toExit.RowsAffected()
-	if numResult > 0 {
-		return false
-	}else {
-		return true
-	}
-}
-
-func ClearAllInventory(characterName string){
-
-}
-
-// Create Inventory Item
-func UpdateInventory(inventoryData map[string]interface{}) bool {
-	conn, _ := getConn()
-	defer conn.Close()
-	hasInventory, rtrap := conn.ExecNeo(
-		"MATCH (c:character)-[h:has]->(i:item) WHERE " +
-			"c.character_id = $characterName AND i.item_id = $itemId and h.has_id =  $hasId " +
-			`CREATE (c)-[h:has]->(i) SET
-				h.has_id=$hasId,
-				h.name=$itemName,
-				h.uses=$uses,
-				h.magic=$magic,
-				h.spell=$spell,
-				h.armor=$armor,
-				h.equipped=$equipped`,
-		map[string]interface {}{
-			"characterName":        inventoryData["characterName"],
-			"itemId":       inventoryData["itemId"],
-			"hasId":		inventoryData["hasId"],
-			"itemName":		inventoryData["itemName"],
-			"uses": 		inventoryData["uses"],
-			"magic":		inventoryData["magic"],
-			"spell":		inventoryData["spell"],
-			"armor":		inventoryData["armor"],
-			"equipped":		inventoryData["equipped"],
-		},
-	)
-	if rtrap != nil{
-		log.Println(rtrap)
-	}
-
-	numResult, _ := hasInventory.RowsAffected()
-	if numResult > 0 {
-		return false
-	}else {
-		return true
-	}
-}
-
-*/

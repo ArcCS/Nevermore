@@ -9,10 +9,7 @@ import (
 	"bytes"
 )
 
-// ANSI escape sequences for setting colors. These sequences can be
-// concatenated into strings or appended to slice directly. This is preferable
-// to calling Colorize with embedded colour place holders due to the slower
-// performance of Colorize.
+// Mixed ANSI and 256 Color codes for colorizing the game
 const (
 	Reset     = "\033[0m"
 	Bold      = "\033[1m"
@@ -33,7 +30,10 @@ const (
 	BGMagenta = "\033[45m"
 	BGCyan    = "\033[46m"
 	BGWhite   = "\033[47m"
-	Gray 	  = "\u001b[38;5;36m"
+	Gray 	  = "\u001b[38;5;241m"
+	LightGreen = "\u001b[38;5;36m"
+	Turquoise = "\u001b[38;5;31m"
+	Pink 	  = "\u001b[38;5;168m"
 
 	// Setup brown as an alias for yellow
 	Brown   = Yellow

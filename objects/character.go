@@ -66,6 +66,9 @@ type Character struct {
 	Race     int
 	Gender   string
 	Birthday int
+	Birthdate int
+	Birthmonth int
+	Birthyear int
 
 	// Cool Downs
 	Timers map[string]time.Time
@@ -84,7 +87,7 @@ type Character struct {
 	CharTickerUnload chan bool
 	Hooks map[string]map[string]*Hook
 	LastAction time.Time
-
+	LoginTime time.Time
 	//Party Stuff
 	PartyFollow *Character
 	PartyFollowers []*Character
@@ -141,6 +144,9 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			int(charData["race"].(int64)),
 			charData["gender"].(string),
 			int(charData["birthday"].(int64)),
+			int(charData["birthdate"].(int64)),
+			int(charData["birthmonth"].(int64)),
+			int(charData["birthyear"].(int64)),
 			map[string]time.Time{"global": time.Now(), "use": time.Now(), "combat": time.Now()},
 			int(charData["played"].(int64)),
 			make(map[string]int),
@@ -167,6 +173,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				"say": make(map[string]*Hook),
 				"use": make(map[string]*Hook),
 			},
+			time.Now(),
 			time.Now(),
 			nil,
 			nil,
@@ -277,6 +284,13 @@ func (c *Character) ToggleFlagAndMsg(flagName string, provider string, msg strin
 	c.Write([]byte(msg))
 }
 
+func (c *Character) CheckFlag(flagName string) bool {
+	if flag, err := c.Flags[flagName]; !err {
+		return flag
+	}
+	return false
+}
+
 // SerialSaveEffects serializes all current user effects, removes them, and saves them to the database
 func (c *Character) SerialSaveEffects(){
 
@@ -325,6 +339,9 @@ func (c *Character) GetStat(stat string) int {
 }
 
 func (c *Character) Save() {
+
+	c.MinutesPlayed += int(time.Now().Sub(c.LoginTime).Minutes())
+	c.LoginTime = time.Now()
 	charData := make(map[string]interface{})
 	charData["title"] = c.Title
 	charData["name"] = c.Name
@@ -450,13 +467,13 @@ const (
 
 func (c *Character) Tick() {
 	if Rooms[c.ParentId].Flags["heal_fast"] {
-		c.Stam.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod*2)))
-		c.Vit.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod*2)))
-		c.Mana.Add(c.Pie.Current * int(math.Round(config.PieRegenMod*2)))
+		c.Stam.Add(int(float64(c.Con.Current) * config.ConHealRegenMod*2))
+		c.Vit.Add(int(float64(c.Con.Current) * config.ConHealRegenMod*2))
+		c.Mana.Add(int(float64(c.Pie.Current) * config.PieRegenMod*2))
 	} else {
-		c.Stam.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod)))
-		c.Vit.Add(c.Con.Current * int(math.Round(config.ConHealRegenMod)))
-		c.Mana.Add(c.Pie.Current * int(math.Round(config.PieRegenMod)))
+		c.Stam.Add(int(float64(c.Con.Current) * config.ConHealRegenMod))
+		c.Vit.Add(int(float64(c.Con.Current) * config.ConHealRegenMod))
+		c.Mana.Add(int(float64(c.Pie.Current) * config.PieRegenMod))
 	}
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {

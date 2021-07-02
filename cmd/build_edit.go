@@ -72,7 +72,6 @@ func (edit) process(s *state) {
 	case "exit":
 		// Toggle Flags
 		exitName := s.input[2]
-		log.Println("Attempting to edit ", exitName)
 		objectRef := strings.ToLower(exitName)
 		if !utils.StringIn(strings.ToUpper(objectRef), directionals) {
 			for txtE := range s.where.Exits {

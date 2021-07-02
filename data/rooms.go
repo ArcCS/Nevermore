@@ -204,7 +204,7 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 
 // CreateExit Create Exits from a map of exitData
 func CreateExit(exitData map[string]interface{}) bool {
-	results, err := execWrite(
+	_, err := execWrite(
 		"MATCH (r:room), (r2:room) WHERE "+
 			"r.room_id = $baseRoom AND r2.room_id = $toRoom "+
 			`CREATE (r)-[e:exit]->(r2) SET 
@@ -233,11 +233,7 @@ func CreateExit(exitData map[string]interface{}) bool {
 		log.Println(err)
 		return true
 	}
-	if 	results.Counters().RelationshipsCreated() > 0 {
-		return false
-	} else {
-		return true
-	}
+	return false
 }
 
 // ExitExists Does this exit exist?

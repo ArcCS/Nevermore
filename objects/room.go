@@ -106,9 +106,10 @@ func (r *Room) Look(looker *Character) (buildText string) {
 	hidden := ""
 	inactive := ""
 	if !looker.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		buildText += r.Description + "\n"
+		buildText += r.Description + "\n" + text.Turquoise
 		if len(r.Exits) > 0 {
 			exitText := make([]string, 0)
+			longExit := make([]string, 0)
 			for _, exiti := range r.Exits {
 				// Clean up just in case a delete didn't get cleaned up...
 				if nextRoom, ok := Rooms[exiti.ToId]; !ok {
@@ -117,24 +118,33 @@ func (r *Room) Look(looker *Character) (buildText string) {
 					if exiti.Flags["invisible"] != true &&
 						exiti.Flags["hidden"] != true &&
 						nextRoom.Flags["active"] == true {
-						exitText = append(exitText, exiti.Name)
+						if len(strings.Split(exiti.Name, " ")) >= 3 {
+							longExit = append(longExit, "You see " + exiti.Name)
+						}else {
+							exitText = append(exitText, exiti.Name)
+						}
 					}
 				}
 			}
 			if len(exitText) > 0 {
-				buildText += "From here you can go: " + strings.Join(exitText, ", ")
-			} else {
+				buildText += "Obvious exits are " + strings.Join(exitText, ", ") + "\n"
+			}
+			if len(longExit) > 0 {
+				buildText += strings.Join(longExit, "\n")
+			}
+			if len(longExit) == 0 && len(exitText) == 0 {
 				buildText += "You see no apparent exits."
 			}
 		} else {
 			buildText += "You see no apparent exits."
 		}
-		return buildText
+		return buildText + text.Reset
 	} else {
 		buildText = text.Cyan + r.Name + " [ID:" + strconv.Itoa(r.RoomId) + "] (" + r.Creator + ")\n" + text.Reset
-		buildText += text.Yellow + r.Description + "\n"
+		buildText += text.Yellow + r.Description + "\n" + text.Turquoise
+		exitText := make([]string, 0)
+		longExit := make([]string, 0)
 		if len(r.Exits) > 0 {
-			buildText += "From here you can go: "
 			for _, exiti := range r.Exits {
 				invis = ""
 				hidden = ""
@@ -151,14 +161,27 @@ func (r *Room) Look(looker *Character) (buildText string) {
 					if nextRoom.Flags["active"] == false {
 						inactive = "[i]"
 					}
-					buildText += exiti.Name + " " + hidden + invis + inactive + "(" + strconv.Itoa(exiti.Placement) + ")[ID:" + strconv.Itoa(exiti.ToId) + "], "
+					if len(strings.Split(exiti.Name, " ")) >= 3 {
+						longExit = append(longExit, "You see "+exiti.Name+" "+hidden+invis+inactive+"("+strconv.Itoa(exiti.Placement)+")[ID:"+strconv.Itoa(exiti.ToId)+"]")
+					} else {
+						exitText = append(exitText, exiti.Name+" "+hidden+invis+inactive+"("+strconv.Itoa(exiti.Placement)+")[ID:"+strconv.Itoa(exiti.ToId)+"]")
+					}
 				}
 			}
 
+			if len(exitText) > 0 {
+				buildText += "Obvious exits are " + strings.Join(exitText, ", ") + "\n"
+			}
+			if len(longExit) > 0 {
+				buildText += strings.Join(longExit, "\n")
+			}
+			if len(longExit) == 0 && len(exitText) == 0 {
+				buildText += "You see no apparent exits."
+			}
 		} else {
 			buildText += "You see no apparent exits."
 		}
-		return buildText
+		return buildText + text.Reset
 	}
 }
 
@@ -282,6 +305,12 @@ func (r *Room) LastPerson() {
 	r.Mobs.RemoveNonPerms()
 
 	r.Items.RemoveNonPerms()
+
+	for _, exit := range r.Exits {
+		if exit.Flags["autoclose"] {
+			exit.Close()
+		}
+	}
 
 	// Destruct the ticker
 	if r.Flags["encounters_on"]{

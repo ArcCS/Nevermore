@@ -184,11 +184,11 @@ func (i *Item) Eval() string {
 	stringOut := "You study the " + i.Name + " in your minds eye.... \n\n"
 
 	if utils.IntIn(i.ItemType, []int{0, 1, 2, 3, 4}) { // Weapons
-		stringOut += "It is a " + config.ItemTypes[i.ItemId] + " weapon." +
-			" \n It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks."
+		stringOut += "It is a " + config.ItemTypes[i.ItemId] + " weapon. \n" +
+			"It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks \n."
 	} else if utils.IntIn(i.ItemType, []int{5, 26, 25, 24, 23, 22, 21, 20, 19}) { // Armor
-		stringOut += "It is " + config.ItemTypes[i.ItemId] + " armor." +
-			" \n It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks."
+		stringOut += "It is " + config.ItemTypes[i.ItemId] + " armor. \n" +
+			"It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks. \n"
 	} else if i.ItemType == 17{  // Beverage
 		stringOut += "It is a beverage. \n" +
 			"It has " + strconv.Itoa(i.MaxUses) + " sips remaining. \n"
@@ -196,9 +196,9 @@ func (i *Item) Eval() string {
 		stringOut += "It is sheet music. \n" +
 			"It contains "+ i.Spell +".\n"
 	} else if i.ItemType == 16 {  // Instrument
-		stringOut += "It is an instrument."
+		stringOut += "It is an instrument. \n"
 	} else if i.ItemType == 15 {  // Ammo  //TODO Implement if we do ammo.
-		stringOut += "It is ammunition, and not implemented."  //
+		stringOut += "It is ammunition, and not implemented. \n"
 	} else if i.ItemType == 6 || i.ItemType == 8 {  //device/wand
 		stringOut += "It is a " + config.ItemTypes[i.ItemType] + ". \n" +
 		"It is charged with "+ i.Spell +".\n" +
@@ -229,6 +229,6 @@ func (i *Item) Eval() string {
 		stringOut += "It cannot be picked up \n"
 	}
 
-	stringOut += "You determine its weight to be "+ strconv.Itoa(i.Weight)+"lbs. \nYou judge its value to be "+ strconv.Itoa(i.Value)+" gold marks."
+	stringOut += "\n You determine its weight to be "+ strconv.Itoa(i.Weight)+"lbs. \nYou judge its value to be "+ strconv.Itoa(i.Value)+" gold marks."
 	return stringOut
 }

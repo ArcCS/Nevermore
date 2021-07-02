@@ -87,83 +87,115 @@ func (godir) process(s *state) {
 			// Apply a lock
 			if !utils.IntIn(toE.ToId, s.cLocks) {
 				s.AddCharLock(toE.ToId)
+				s.ok = false
 				return
 			} else {
-				if toE.Flags["placement_dependent"] && s.actor.Placement != s.where.Placement{
-					s.msg.Actor.SendBad("You must be next to the exit to use it.")
-					return
-				}else{
-					//  Next room needs to be active
-					if !objects.Rooms[toE.ToId].Flags["active"] && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+
+					if !objects.Rooms[toE.ToId].Flags["active"] {
 						s.msg.Actor.SendBad("Go where?")
 						return
 					}
-					//TODO: Night/Day/Level Checks
 
-					if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-						if objects.Rooms[toE.ToId].Crowded() {
-							s.msg.Actor.SendInfo("That area is crowded.")
-							s.ok = true
-							return
-						}
-						// Check if anyone blocks.
-						for _, mob := range s.where.Mobs.Contents {
-							// Check if a mob blocks.
-							if mob.Flags["block_exit"] {
-								curChance := config.MobBlock - ((s.actor.Tier - mob.Level) * config.MobBlockPerLevel)
-								if curChance > 85 {
-									curChance = 85
-								}
-								if utils.Roll(100, 1, 0) <= curChance {
-									s.msg.Actor.SendBad(mob.Name + " blocks your way.")
-									return
-								}
-							}
-						}
-						// Now check if they follow..
-						for _, mob := range s.where.Mobs.Contents {
-							if mob.Flags["follows"] {
-								curChance := config.MobFollow - ((s.actor.Tier - mob.Level) * config.MobFollowPerLevel)
-								if curChance > 85 {
-									curChance = 85
-								}
-								if utils.Roll(100, 1, 0) <= curChance {
-									s.msg.Actor.SendBad(mob.Name + " follows you!")
-									from.Mobs.Remove(mob)
-									//TODO Calculate Vital?
-									to.Mobs.Add(mob, false)
-									mob.CurrentTarget = s.actor.Name
-								}
-							}
-						}
+					if toE.Flags["invisible"] && !s.actor.CheckFlag("detect_invisible") {
+						s.msg.Actor.SendBad("Go where?")
+						return
 					}
 
-					from.Chars.Remove(s.actor)
-					to.Chars.Add(s.actor)
-					s.actor.Victim = nil
-					s.actor.Placement = 3
-					s.actor.ParentId = toE.ToId
-					// Broadcast leaving and arrival notifications
-					if s.actor.Flags["invisible"] == false {
-						s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
-						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
+					if toE.Flags["placement_dependent"] && s.actor.Placement != toE.Placement {
+						s.msg.Actor.SendBad("You must be next to the exit to use it.")
+						return
 					}
-					if len(s.actor.PartyFollowers) > 0 {
-						for _, party := range s.actor.PartyFollowers{
-							if party.ParentId == s.where.RoomId {
-								go Script(party, s.cmd+" "+strings.Join(s.input, " "))
+
+					if toE.Flags["closed"] {
+						s.msg.Actor.SendBad("The way is closed.")
+						return
+					}
+
+					if toE.Flags["day_only"] && !objects.DayTime {
+						s.msg.Actor.SendBad("You can only go there at night.")
+						return
+					}
+
+					if toE.Flags["night_only"] && objects.DayTime {
+						s.msg.Actor.SendBad("You can only go there during the day.")
+						return
+					}
+
+					if toE.Flags["levitate"] && !s.actor.CheckFlag("levitate") {
+						s.msg.Actor.Send("You fall while trying to go that way!  You take 20 points of damage!")
+						s.actor.ReceiveDamage(20)
+						return
+					}
+
+					if objects.Rooms[toE.ToId].Crowded() {
+						s.msg.Actor.SendInfo("That area is crowded.")
+						s.ok = true
+						return
+					}
+
+					// Check if anyone blocks.
+					for _, mob := range s.where.Mobs.Contents {
+						// Check if a mob blocks.
+						if mob.Flags["block_exit"] {
+							curChance := config.MobBlock - ((s.actor.Tier - mob.Level) * config.MobBlockPerLevel)
+							if curChance > 85 {
+								curChance = 85
+							}
+							if utils.Roll(100, 1, 0) <= curChance {
+								s.msg.Actor.SendBad(mob.Name + " blocks your way.")
+								return
 							}
 						}
 					}
-					s.scriptActor("LOOK")
-					s.ok = true
-					return
+
+					// Now check if they follow..
+					for _, mob := range s.where.Mobs.Contents {
+						if mob.Flags["follows"] {
+							curChance := config.MobFollow - ((s.actor.Tier - mob.Level) * config.MobFollowPerLevel)
+							if curChance > 85 {
+								curChance = 85
+							}
+							if utils.Roll(100, 1, 0) <= curChance {
+								s.msg.Actor.SendBad(mob.Name + " follows you!")
+								s.msg.Observer.SendInfo(mob.Name + " follows " + s.actor.Name)
+								from.Mobs.Remove(mob)
+								//TODO Calculate Vital?
+								to.Mobs.Add(mob, false)
+								mob.CurrentTarget = s.actor.Name
+							}
+						}
+					}
 				}
+
+				from.Chars.Remove(s.actor)
+				to.Chars.Add(s.actor)
+				s.actor.Victim = nil
+				s.actor.Placement = 3
+				s.actor.ParentId = toE.ToId
+
+				// Broadcast leaving and arrival notifications
+				if s.actor.Flags["invisible"] == false {
+					s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
+					s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
+				}
+
+				if len(s.actor.PartyFollowers) > 0 {
+					for _, party := range s.actor.PartyFollowers {
+						if party.ParentId == s.where.RoomId {
+							go Script(party, s.cmd+" "+strings.Join(s.input, " "))
+						}
+					}
+				}
+
+				s.scriptActor("LOOK")
+				s.ok = true
+				return
 			}
+		} else {
+			s.msg.Actor.SendInfo("You can't go that direction.")
+			s.ok = true
+			return
 		}
-	} else {
-		s.msg.Actor.SendInfo("You can't go that direction.")
-		s.ok = true
-		return
 	}
 }

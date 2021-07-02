@@ -47,6 +47,7 @@ func (drop) process(s *state) {
 
 	s.actor.Inventory.Lock()
 	s.actor.Inventory.Remove(target)
+	target.Placement = s.actor.Placement
 	where.Add(target)
 	s.actor.Inventory.Unlock()
 	if target.Flags["permanent"] {

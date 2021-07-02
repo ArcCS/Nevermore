@@ -23,8 +23,7 @@ func (link) process(s *state) {
 		return
 	}
 
-	objectRef, _ := strconv.Atoi(s.input[1])
-	roomRef := objectRef
+	roomRef, _ := strconv.Atoi(s.input[1])
 	// Check that the room exists.
 	if room, ok := objects.Rooms[roomRef]; !ok {
 		s.msg.Actor.SendBad("That room ID doesn't appear to exist.")
@@ -44,7 +43,7 @@ func (link) process(s *state) {
 			s.where.Exits[strings.ToLower(s.words[0])] = objects.NewExit(s.where.RoomId, exitData)
 			if len(s.input) == 3 {
 				createBack := data.CreateExit(map[string]interface{}{
-					"name":   strings.ToLower(s.words[1]),
+					"name":   strings.ToLower(s.words[2]),
 					"fromId": roomRef,
 					"toId":   s.where.RoomId,
 				})

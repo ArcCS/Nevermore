@@ -6,6 +6,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/stats"
+	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
 	"log"
@@ -182,7 +183,7 @@ func (examine) process(s *state) {
 				{"V", "adjustment", strconv.Itoa(objRef.Adjustment), "Adjustment to final roll damage"},
 				{"V", "spell", objRef.Spell, "Spell cast when used."},
 				{"T", "always_crit", strconv.FormatBool(objRef.Flags["always_crit"]), "Always criticals when used"},
-				{"T", "permanent", strconv.FormatBool(objRef.Flags["permanent"]), "Does not despawn on ground"},
+				{"T", "permanent", strconv.FormatBool(objRef.Flags["permanent"]), "Does not despawn"},
 				{"T", "magic", strconv.FormatBool(objRef.Flags["magic"]), "Magical item"},
 				{"T", "no_take", strconv.FormatBool(objRef.Flags["no_take"]), "Cannot be picked up."},
 				{"T", "light", strconv.FormatBool(objRef.Flags["light"]), "Provides user illumination."},
@@ -200,7 +201,16 @@ func (examine) process(s *state) {
 			s.msg.Actor.SendBad("What item do you want to examine?")
 			return
 		}
-		if exitRef, ok := s.where.Exits[strings.ToLower(s.words[1])]; ok {
+		exitName := s.input[1]
+		objectRef := strings.ToLower(exitName)
+		if !utils.StringIn(strings.ToUpper(objectRef), directionals) {
+			for txtE := range s.where.Exits {
+				if strings.Contains(txtE, objectRef) {
+					objectRef = txtE
+				}
+			}
+		}
+		if exitRef, ok := s.where.Exits[strings.ToLower(objectRef)]; ok {
 			t := table.NewWriter()
 			t.SetAllowedRowLength(rowLength)
 			t.Style().Options.SeparateRows = true

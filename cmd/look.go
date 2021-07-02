@@ -48,7 +48,7 @@ func (look) process(s *state) {
 		}
 		items := roomLook.Items.RoomReducedList()
 		if len(items) > 0 {
-			s.msg.Actor.SendInfo("On the ground you see " + items)
+			s.msg.Actor.SendInfo("You see " + items)
 		}
 		if len(mobAttacking) > 0 {
 			s.msg.Actor.SendInfo(mobAttacking)
@@ -177,7 +177,7 @@ func (look) process(s *state) {
 	// Item in the room?
 	if what != nil {
 		s.msg.Actor.SendInfo(what.Look())
-		s.msg.Actor.SendInfo("It is on the ground " + utils.WhereAt(what.Placement, s.actor.Placement))
+		s.msg.Actor.SendInfo("It is" + utils.WhereAt(what.Placement, s.actor.Placement))
 		return
 	}
 

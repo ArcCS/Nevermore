@@ -65,7 +65,7 @@ func (list_command) process(s *state) {
 			return
 		}
 
-		mobName := s.input[2]
+		mobName := s.input[1]
 		mob := s.where.Mobs.Search(mobName, 1, s.actor)
 
 		if mob != nil {

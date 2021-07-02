@@ -9,7 +9,9 @@ import (
 	"github.com/ArcCS/Nevermore/message"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/stats"
+	"github.com/ArcCS/Nevermore/utils"
 	"io"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -102,7 +104,17 @@ func newState(o *objects.Character, input string) *state {
 //	s.words = []string{"I'M", "NEED", "HELP!"}
 //
 func (s *state) tokenizeInput(input string) {
+	quoteReg := regexp.MustCompile("\"(.*)\"")
+	for _, match := range quoteReg.FindStringSubmatch(input) {
+		input = strings.ReplaceAll(input, match, strings.ReplaceAll(match, " ", "%_R%"))
+	}
 	s.input = strings.Fields(input)
+	for wordInt, _  := range s.input {
+		// No quotes
+		s.input[wordInt] = strings.ReplaceAll(s.input[wordInt], "\"", "")
+		// Restore spaces
+		s.input[wordInt] = strings.ReplaceAll(s.input[wordInt], "%_R%", " ")
+	}
 	s.words = make([]string, 0)
 	if len(s.input) > 0 {
 		if len(s.input) == 0 {
@@ -261,67 +273,70 @@ func (s *state) UnlockAll(){
 }
 
 func (s *state) AddItemLock(i int) {
+	if !utils.IntIn(i, s.iLocks) {
+		if i == 0 {
+			return
+		}
 
-	if i == 0{
-		return
+		s.iLocks = append(s.iLocks, i)
+		l := len(s.iLocks)
+
+		if l == 1 {
+			return
+		}
+
+		for x := 0; x < l; x++ {
+			_ = copy(s.iLocks[x+1:l], s.iLocks[x:l-1])
+			s.iLocks[x] = i
+			break
+		}
+		// After adding the lock to the context, lock the item
+		objects.Rooms[i].Items.Lock()
 	}
-
-	s.iLocks = append(s.iLocks, i)
-	l := len(s.iLocks)
-
-	if l == 1 {
-		return
-	}
-
-	for x := 0; x < l; x++ {
-		_ = copy(s.iLocks[x+1:l], s.iLocks[x:l-1])
-		s.iLocks[x] = i
-		break
-	}
-	// After adding the lock to the context, lock the item
-	objects.Rooms[i].Items.Lock()
 }
 
 func (s *state) AddMobLock(i int) {
+	if !utils.IntIn(i, s.mLocks) {
+		if i == 0 {
+			return
+		}
 
-	if i == 0{
-		return
+		s.mLocks = append(s.mLocks, i)
+		l := len(s.mLocks)
+
+		if l == 1 {
+			return
+		}
+
+		for x := 0; x < l; x++ {
+			_ = copy(s.mLocks[x+1:l], s.mLocks[x:l-1])
+			s.mLocks[x] = i
+			break
+		}
+		// After adding the lock to the context, lock the item
+		objects.Rooms[i].Mobs.Lock()
 	}
-
-	s.mLocks = append(s.mLocks, i)
-	l := len(s.mLocks)
-
-	if l == 1 {
-		return
-	}
-
-	for x := 0; x < l; x++ {
-		_ = copy(s.mLocks[x+1:l], s.mLocks[x:l-1])
-		s.mLocks[x] = i
-		break
-	}
-	// After adding the lock to the context, lock the item
-	objects.Rooms[i].Mobs.Lock()
 }
 
 func (s *state) AddCharLock(i int) {
+	if !utils.IntIn(i, s.cLocks ) {
+		if i == 0 {
+			return
+		}
 
-	if i == 0{
-		return
-	}
+		s.cLocks = append(s.cLocks, i)
+		l := len(s.cLocks)
 
-	s.cLocks = append(s.cLocks, i)
-	l := len(s.cLocks)
+		if l == 1 {
+			return
+		}
 
-	if l == 1 {
-		return
-	}
-
-	// After adding the lock to the context, lock the item
-	objects.Rooms[i].Chars.Lock()
-	for x := 0; x < l; x++ {
-		_ = copy(s.cLocks[x+1:l], s.cLocks[x:l-1])
-		s.cLocks[x] = i
-		break
+		// After adding the lock to the context, lock the item
+		objects.Rooms[i].Chars.Lock()
+		for x := 0; x < l; x++ {
+			_ = copy(s.cLocks[x+1:l], s.cLocks[x:l-1])
+			s.cLocks[x] = i
+			break
+		}
 	}
 }

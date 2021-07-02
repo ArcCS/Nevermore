@@ -33,6 +33,7 @@ type raceDef struct {
 	IntMax int
 	PieMin int
 	PieMax int
+	MinAge int
 }
 
 var RaceDefs = map[string]raceDef{
@@ -43,6 +44,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 5, ConMax: 20,
 		IntMin: 12, IntMax: 34,
 		PieMin: 4, PieMax: 28,
+		MinAge: 70,
 	},
 	"dwarf": {
 		Desc:   "A dwarf is a stocky and short demihuman, standing about 4 feet tall.  Dwarves are sturdy fighters, and are known to be stubborn and practical.",
@@ -51,6 +53,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 12, ConMax: 38,
 		IntMin: 4, IntMax: 24,
 		PieMin: 8, PieMax: 30,
+		MinAge: 30,
 	},
 	"elf": {
 		Desc:   "Somewhat shorter than humans, the elf is of weaker constitution and higher intelligence.",
@@ -59,6 +62,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 5, ConMax: 22,
 		IntMin: 12, IntMax: 36,
 		PieMin: 4, PieMax: 26,
+		MinAge: 8,
 	},
 	"gnome": {
 		Desc:   "A cousin of the dwarf, gnomes are small demihumans which can become very capable clerics and paladins.",
@@ -67,6 +71,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 6, ConMax: 20,
 		IntMin: 12, IntMax: 42,
 		PieMin: 12, PieMax: 45,
+		MinAge: 20,
 	},
 	"half-giant": {
 		Desc:   "A cross between the giant and human races, a half-giant is brutally strong and makes a very good warrior.",
@@ -75,6 +80,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 14, ConMax: 42,
 		IntMin: 2, IntMax: 22,
 		PieMin: 2, PieMax: 25,
+		MinAge: 17,
 	},
 	"half-elf": {
 		Desc:   "A cross between the elven and human races, a half-elf can become a master in any class.",
@@ -83,6 +89,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 4, ConMax: 26,
 		IntMin: 5, IntMax: 32,
 		PieMin: 5, PieMax: 30,
+		MinAge: 24,
 	},
 	"hobbit": {
 		Desc:   "Small and agile, the hobbit specializes in dexterity, and thus makes a good thief, or ranger. They are also known to other races as halflings, but they prefer to be called by their chosen name of hobbit.",
@@ -91,6 +98,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 4, ConMax: 23,
 		IntMin: 5, IntMax: 30,
 		PieMin: 5, PieMax: 30,
+		MinAge: 35,
 	},
 	"half-orc": {
 		Desc:   "The result of a failed attempt to make an orc that is closer to an elf, these half breeds are hated by both orcs and elves.",
@@ -99,6 +107,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 8, ConMax: 32,
 		IntMin: 5, IntMax: 32,
 		PieMin: 2, PieMax: 20,
+		MinAge: 20,
 	},
 	"human": {
 		Desc:   "What is man? Who knows? And if you are actually reading this, perhaps you should stop mudding for about a week, and read philosophy.",
@@ -107,6 +116,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 5, ConMax: 30,
 		IntMin: 5, IntMax: 30,
 		PieMin: 5, PieMax: 30,
+		MinAge: 18,
 	},
 	"ogre": {
 		Desc:   "Large and strong, this powerful race can also excel at physical combat but are generally not well versed in the magical arts.",
@@ -115,6 +125,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 14, ConMax: 43,
 		IntMin: 1, IntMax: 16,
 		PieMin: 1, PieMax: 20,
+		MinAge: 18,
 	},
 	"orc": {
 		Desc:   "Orcs are fierce warriors, who in their homelands prefer banding together for hunting and raiding. Orcs are strong and make good warriors. They were created in mockery of elves and like elves they do not die naturally. They are weakened by the sun and prefer the dark.",
@@ -123,6 +134,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 12, ConMax: 36,
 		IntMin: 3, IntMax: 24,
 		PieMin: 3, PieMax: 22,
+		MinAge: 20,
 	},
 	"renis": {
 		Desc:   "The Renis are a scholarly race, once responsible for maintaining all of the knowledge of the Allied Races. Renis are a tall, slender people, half again as tall as humans, though weighing slightly less. Renis are covered in very short fur, usually pale blue in color, but often grey, green or even rarely black. Renis ears end in points, similar to those of elves, however the points are more severe. Like most races, the Renis have hair, which is always the colors of a precious gemstone.",
@@ -131,6 +143,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 3, ConMax: 20,
 		IntMin: 17, IntMax: 45,
 		PieMin: 8, PieMax: 38,
+		MinAge: 50,
 	},
 	"troll": {
 		Desc:   "Trolls are an evil race. Large, strong, ugly and stupid, they enjoy to hoard treasure, kill for pleasure and eat raw flesh. Trolls generally prefer to travel alone, but can sometimes be found in groups of three or more.",
@@ -139,6 +152,7 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 17, ConMax: 45,
 		IntMin: 2, IntMax: 20,
 		PieMin: 3, PieMax: 23,
+		MinAge: 18,
 	},
 	"sprite": {
 		Desc:   "Tiny and mischievous, agile and swift,Sprites are like in  personalities to elves and gnomes. Sprites are woodland creatures who are connected to the life force of all things, making them excellent magi and rangers. Sprites naturally levitate and can detect-invisible objects and creatures.",
@@ -147,5 +161,6 @@ var RaceDefs = map[string]raceDef{
 		ConMin: 4, ConMax: 18,
 		IntMin: 7, IntMax: 38,
 		PieMin: 2, PieMax: 33,
+		MinAge: 30,
 	},
 }

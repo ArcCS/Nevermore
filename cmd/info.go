@@ -3,9 +3,11 @@ package cmd
 import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"log"
+	"strings"
 	"text/template"
 )
 
@@ -20,6 +22,9 @@ func init() {
 type information cmd
 
 func (information) process(s *state) {
+	// Do a save just because.
+	s.actor.Save()
+
 	berz, ok := s.actor.Flags["berserk"]
 	if !ok {
 		berz = false
@@ -29,6 +34,7 @@ func (information) process(s *state) {
 		monk = true
 	}
 
+	age := (config.ImperialYearStart + objects.YearPlus) - s.actor.Birthyear
 
 	char_template := "{{.Charname}}, the {{.Tier}} tier {{.Race}} {{.Title}}\n" +
 		"----------------------------------------------------------------------\n" +
@@ -42,9 +48,10 @@ func (information) process(s *state) {
 		"{{if .Dark_vision}} You can see in the dark naturally. \n{{end}}" +
 		"You have {{.Broadcasts}} broadcasts remaining today.\n" +
 		"You have {{.Evals}} evaluates remaining today.\n" +
-		"You have logged {{.Hours}} hours with this character.\n" +
+		"You have logged {{.Hours}} hours and {{.Minutes}} minutes with this character.\n" +
 		"You have {{.Bonus_points}} role-play bonus points.\n" +
 		"You were born on {{.Day}}, the {{.Day_number}} of the month of {{.Month}}\n" +
+		"in the year {{.GodsYear}} since the Godswar, and year {{.EmpYear}} of the Empire.\n" +
 		"You are {{.Age}} years old.\n\n"
 
 	data := struct {
@@ -78,12 +85,15 @@ func (information) process(s *state) {
 		Broadcasts       int
 		Evals            int
 		Hours            int
+		Minutes			 int
 		Bonus_points     int
 		Day              string
-		Day_number       int
+		Day_number       string
 		Month            string
 		Age              int
 		Berz             bool
+		GodsYear		int
+		EmpYear			int
 	}{
 		s.actor.Name,
 		config.TextTiers[s.actor.Tier],
@@ -114,13 +124,16 @@ func (information) process(s *state) {
 		false,
 		s.actor.Broadcasts,
 		s.actor.Evals,
-		0,
+		s.actor.MinutesPlayed/60,
+		s.actor.MinutesPlayed%60,
 		s.actor.BonusPoints.Value,
-		"Day",
-		0,
-		"Month",
-		0,
+		strings.Title(config.Days[s.actor.Birthday]),
+		config.PrintNumbers[s.actor.Birthdate],
+		strings.Title(config.Months[s.actor.Birthmonth]["name"].(string)),
+		age,
 		berz,
+		2705-age,
+		2228-age,
 	}
 
 	tmpl, _ := template.New("char_info").Parse(char_template)
