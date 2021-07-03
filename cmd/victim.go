@@ -4,8 +4,6 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 )
 
-// Overloaded Look object for all of your looking pleasure
-// Syntax: ( LOOK | L ) has.Thing
 func init() {
 	addHandler(victim{},
 		"Usage:  victim \n \n Show your current victim and state",

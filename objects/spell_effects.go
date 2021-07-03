@@ -952,12 +952,12 @@ func reflection(caller interface{}, target interface{}, magnitude int) string {
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("reflect", strconv.Itoa(duration), "0",
+		target.ApplyEffect("reflection", strconv.Itoa(duration), "0",
 			func() {
-				target.ToggleFlagAndMsg("reflect", "reflect_spell", text.Info +"A mirrored shell forms around you and fades from view.\n")
+				target.ToggleFlagAndMsg("reflection", "reflect_spell", text.Info +"A mirrored shell forms around you and fades from view.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("reflect", "reflect_spell", text.Cyan+"The mirrored shell shatters, and falls away.\n")
+				target.ToggleFlagAndMsg("reflection", "reflect_spell", text.Cyan+"The mirrored shell shatters, and falls away.\n")
 			})
 		return ""
 	case *Mob:

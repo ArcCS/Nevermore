@@ -60,7 +60,8 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"inventory: a.inventory, "+
 		"effects: a.effects, "+
 		"timers: a.timers, "+
-		"flags:{invisible: a.invisible, darkvision: a.darkvision, hidden: a.hidden}}",
+		"oocswap: a.oocswap, " +
+		"flags:{invisible: a.invisible, darkvision: a.darkvision, hidden: a.hidden, ooc: a.ooc}}",
 
 		map[string]interface{}{
 			"charName": charName,
@@ -132,6 +133,8 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.darkvision = 0, "+
 			"a.effects = '[]', "+
 			"a.timers = '[]', "+
+			"a.ooc = 0, " +
+			"a.oocswap = 0, "+
 			"a.hidden = 0 ",
 		map[string]interface{}{
 			"characterId": nextId("character"),
@@ -216,6 +219,8 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.inventory = $inventory,"+
 			"a.effects = $effects, " +
 			"a.timers = $timers, " +
+			"a.oocswap = $oocswap, " +
+			"a.ooc = $ooc, " +
 			"a.experience = $experience",
 		map[string]interface{}{
 			"characterid": charData["character_id"],
@@ -252,6 +257,8 @@ func SaveChar(charData map[string]interface{}) bool {
 			"inventory":   charData["inventory"],
 			"effects": 	   charData["effects"],
 			"timers":	   charData["timers"],
+			"oocswap":	  charData["oocswap"],
+			"ooc": 		  charData["ooc"],
 		},
 	)
 	if err != nil {

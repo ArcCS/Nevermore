@@ -1,9 +1,8 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
-	"strconv"
-
 	"github.com/ArcCS/Nevermore/stats"
 )
 
@@ -25,28 +24,11 @@ func (who) process(s *state) {
 		players = stats.ActiveCharacters.List()
 	}
 
-	if len(players)-1 <= 0 {
-		s.msg.Actor.SendInfo("You are all alone in this world.")
-		return
-	}
+	s.msg.Actor.SendInfo("You sense the presence of " + config.TextNumbers[len(players)-1] + " other beings (Tiers 1-25):\n")
 
 	for _, player := range players {
 		s.msg.Actor.Send(player)
 	}
-
-	var (
-		plural = len(players) > 1
-		start  = "There is currently "
-		end    = "."
-	)
-
-	if plural {
-		start = "There are currently "
-		end = "s."
-	}
-
-	s.msg.Actor.Send("")
-	s.msg.Actor.Send(start, strconv.Itoa(len(players)-1), " other player", end)
 
 	s.ok = true
 }

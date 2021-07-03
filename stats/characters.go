@@ -98,19 +98,19 @@ func (c *characterStats) List() []string {
 		if calc.Minutes() > 2 {
 			charState = fmt.Sprintf("[idle: %s]", strconv.Itoa(int(calc.Minutes())))
 		}
-		if character.Flags["OOC"] {
+		if character.Flags["ooc"] {
 			charState += " [OOC] "
 		}
-		if character.Flags["AFK"] {
+		if character.Flags["afk"] {
 			charState += " [AFK]"
 		}
 		if charState != "" {
 			charState = "/" + charState
 		}
 		if character.Title != "" {
-			list = append(list, fmt.Sprintf("%s, %s, %s, %s", character.Name, character.ClassTitle, character.Title, charState))
+			list = append(list, fmt.Sprintf("%s, the %s, %s, %s", character.Name, character.ClassTitle, character.Title, charState))
 		} else {
-			list = append(list, fmt.Sprintf("%s, %s, %s", character.Name, character.ClassTitle, charState))
+			list = append(list, fmt.Sprintf("%s, the %s, %s", character.Name, character.ClassTitle, charState))
 		}
 	}
 

@@ -13,8 +13,6 @@ import (
 	"text/template"
 )
 
-// Overloaded Look object for all of your looking pleasure
-// Syntax: ( LOOK | L ) has.Thing
 func init() {
 	addHandler(look{},
 		"Usage:  look [object|exit|character|mob] # \n \n Put your peepers on something. (Also can use short hand L",

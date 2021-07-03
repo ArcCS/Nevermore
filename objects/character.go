@@ -93,6 +93,7 @@ type Character struct {
 	PartyFollowers []*Character
 	Victim interface{}
 	Resist bool
+	OOCSwap int
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -178,7 +179,9 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			nil,
 			nil,
 			true,
+			int(charData["oocswap"].(int64)),
 		}
+
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
 			if spellN != "" {
@@ -434,6 +437,8 @@ func (c *Character) Save() {
 	charData["inventory"] = c.Inventory.Jsonify()
 	charData["effects"] = c.SerialSaveEffects()
 	charData["timers"] = c.SerialSaveTimers()
+	charData["oocswap"] = c.OOCSwap
+	charData["ooc"] = utils.Btoi(c.Flags["ooc"])
 	data.SaveChar(charData)
 
 	//TODO Process Effects
