@@ -13,7 +13,7 @@ func init() {
 
 type scripts cmd
 var ScriptList = map[string]string{
-	"$TELEPORT": "Usage: $teleport room_id, send player to a different room",
+	"$TELEPORTTO": "Usage: $teleport room_id, send player to a different room",
 	"$POOF": "Usage: $POOF, announces an arrival of a player",
 	"$BALANCE": "Usage: $BALANCE, provides the player their bank information",
 	"$DEPOSIT": "Usage: $DEPOSIT, Deposits a value from primary gold to bank gold",

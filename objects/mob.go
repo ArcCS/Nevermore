@@ -499,6 +499,9 @@ func (m *Mob) AddThreatDamage(damage int, attacker *Character) {
 }
 
 func (m *Mob) ApplyEffect(effectName string, length string, interval string, effect func(), effectOff func()) {
+	if _, ok := m.Effects[effectName]; ok {
+		m.Effects[effectName].effectOff()
+	}
 	m.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
 	effect()
 }

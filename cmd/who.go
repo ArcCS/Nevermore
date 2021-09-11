@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 )
 
 // Syntax: WHO
@@ -19,9 +19,9 @@ type who cmd
 func (who) process(s *state) {
 	var players []string
 	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-		players = stats.ActiveCharacters.GMList()
+		players = objects.ActiveCharacters.GMList()
 	} else {
-		players = stats.ActiveCharacters.List()
+		players = objects.ActiveCharacters.List()
 	}
 
 	s.msg.Actor.SendInfo("You sense the presence of " + config.TextNumbers[len(players)-1] + " other beings (Tiers 1-25):\n")

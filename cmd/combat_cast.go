@@ -4,7 +4,6 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 	"strings"
@@ -100,7 +99,7 @@ func (cast) process(s *state) {
 
 		// Check if it's a remote spell
 		if utils.StringIn(spellInstance.Name, objects.RemoteSpells) {
-			whatChar = stats.ActiveCharacters.Find(name)
+			whatChar = objects.ActiveCharacters.Find(name)
 			// It was a person!
 			if whatChar != nil {
 				s.actor.RunHook("combat")

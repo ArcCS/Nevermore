@@ -82,7 +82,7 @@ func (turn) process(s *state) {
 			DeathCheck(s, whatMob)
 			whatMob = nil
 		}else if curChance >= 100 || turnRoll <= curChance {
-			s.msg.Actor.SendInfo("Your faith pours into " + whatMob.Name + " and damages them!")
+			s.msg.Actor.SendInfo("Your faith pours into " + whatMob.Name + " and causes " + strconv.Itoa(whatMob.Stam.Current/2) + " damage.")
 			s.msg.Observers.SendInfo(s.actor.Name + " turned " + whatMob.Name)
 			whatMob.AddThreatDamage(whatMob.Stam.Current/2, s.actor)
 			whatMob.Stam.Subtract(whatMob.Stam.Current/2)

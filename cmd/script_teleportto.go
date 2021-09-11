@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 )
@@ -44,7 +43,7 @@ func (scriptTeleportTo) process(s *state) {
 		return
 	}
 
-	target := stats.ActiveCharacters.Find(s.words[0])
+	target := objects.ActiveCharacters.Find(s.words[0])
 	if target != nil {
 		if !utils.IntIn(newRoom.RoomId, s.cLocks) {
 			s.AddCharLock(newRoom.RoomId)

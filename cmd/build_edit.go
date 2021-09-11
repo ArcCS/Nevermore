@@ -4,7 +4,6 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"strconv"
@@ -375,10 +374,10 @@ func (edit) process(s *state) {
 		// Toggle Flags
 		charName := s.input[2]
 
-		character := stats.ActiveCharacters.Find(charName)
+		character := objects.ActiveCharacters.Find(charName)
 
 		if character != nil {
-			stats.ActiveCharacters.Lock()
+			objects.ActiveCharacters.Lock()
 			if strings.ToLower(s.input[1]) == "toggle" {
 				for _, flag := range s.input[3:] {
 					character.ToggleFlag(strings.ToLower(flag), "")
@@ -498,7 +497,7 @@ func (edit) process(s *state) {
 				}
 			}
 			character.Save()
-			stats.ActiveCharacters.Unlock()
+			objects.ActiveCharacters.Unlock()
 		} else {
 			if strings.ToLower(s.input[1]) == "toggle" {
 				s.msg.Actor.SendBad("Cannot toggle offline character.")

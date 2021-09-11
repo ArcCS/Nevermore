@@ -10,8 +10,8 @@ import (
 	"encoding/hex"
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"sort"
@@ -117,7 +117,7 @@ func (m *start) startProcess() {
 				NewPCharacter(m.frontend)
 				return
 			} else {
-				if stats.ActiveCharacters.Find(m.powerCharacter) == nil {
+				if objects.ActiveCharacters.Find(m.powerCharacter) == nil {
 					StartGame(m.frontend, m.powerCharacter)
 				} else {
 					m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.", text.Reset)

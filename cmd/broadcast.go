@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/jarvoral"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"strings"
 )
 
@@ -27,14 +27,14 @@ func (broadcast) process(s *state) {
 			s.msg.Actor.SendBad("You're out of broadcasts today.")
 		}else{
 			s.actor.Broadcasts -= 1
-			stats.ActiveCharacters.MessageAll(message)
+			objects.ActiveCharacters.MessageAll(message)
 			if jarvoral.DiscordSession != nil {
 				jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", message)
 			}
 
 		}
 	}else {
-		stats.ActiveCharacters.MessageAll(message)
+		objects.ActiveCharacters.MessageAll(message)
 		if jarvoral.DiscordSession != nil {
 			jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", message)
 		}

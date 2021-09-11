@@ -2,48 +2,87 @@ package objects
 
 var Songs = map[string]map[string]string{
 	"celebration-night": {
-		"desc":   "similar to casting vigor on all adventurers in the room.",
+		"desc":   "Hastens stamina and vitality regeneration on players in the area.",
 		"verse":  " let your spirits soar on the wings of eagles, let music wash the sleep from your eyes.",
 		"effect": "celebration-night",
 	},
-	"curious'-canticle": {
-		"desc":   "prevents creatures from following your party.",
+	"curious-canticle": {
+		"desc":   "prevents creatures from following anyone in the area.",
 		"verse":  " now curious, get it in your head, if you follow me, then you'll be dead.",
 		"effect": "curious-canticle",
-	},
-	"huntman's-tune": {
-		"desc":   "creatures will be attracted to the music.",
-		"verse":  " where, uncle, have the animals gone? her small voice asked before the dawn.",
-		"effect": "huntsmans-tune",
-	},
-	"radiance's-rhyme": {
-		"desc":   "creates light around the singer.",
-		"verse":  " lyre burn with golden light, cut through the dark of night.",
-		"effect": "radiance-rhyme",
 	},
 	"sweet-comfort:": {
 		"desc":   "comforts creatures, lulling them so they will not flee.",
 		"verse":  " relax, my child, sleep and dream, for things aren't as bad as they seem.",
 		"effect": "sweet-comfort",
 	},
-	"wanderer's-ballad": {
-		"desc":   "eases the groups progress, similar to levitate spell.",
-		"verse":  " come along with me, love, come along with me.",
-		"effect": "wanderers-ballad",
-	},
 	"run-run-away": {
 		"desc":   "lulls creatures so that they will not block escape.",
 		"verse":  "see chameleon, lying there in the sun, all things to everyone, run, run away.",
 		"effect": "run-away",
 	},
-	"draen's-tale": {
-		"desc":   "increases the power of spells cast by members of the party.",
+	"draens-tale": {
+		"desc":   "increases the the mana regeneration of everyone present in the area.",
 		"verse":  " draen, throw your spells anew, know the weave will answer you.",
 		"effect": "draens-tale",
 	},
-	"merchant's-lament": {
-		"desc":   "convinces pawn-brokers to give you a little more gold for your items.",
-		"verse":  " remember the rewards for the acts so cold that you commit in the pursuit of gold.",
-		"effect": "merchants-lament",
-	},
+}
+
+var SongEffects = map[string]map[string]interface{}{
+	"draens-tale": {"target": "players", "effect": DraensTale},
+	"run-away": {"target": "mobs", "effect": RunAway},
+	"sweet-comfort": {"target": "mobs", "effect": SweetComfort},
+	"curious-canticle": {"target": "mobs", "effect": CuriousCanticle},
+	"celebration-night": {"target": "players", "effect": CelebrationNight},
+}
+
+func DraensTale(c *Character, singer *Character){
+	c.ApplyEffect(singer.Name + "_draens_tale", "16", "0",
+		func() {
+			c.ToggleFlag("draens_tale", singer.Name + "_celebration_night")
+		},
+		func() {
+			c.ToggleFlag("draens_tale", singer.Name + "_celebration_night")
+		})
+}
+
+func RunAway(m *Mob, singer *Character){
+	m.ApplyEffect(singer.Name + "_run_away", "16", "0",
+		func() {
+			m.ToggleFlag("run_away")
+		},
+		func() {
+			m.ToggleFlag("run_away")
+		})
+
+}
+
+func SweetComfort(m *Mob, singer *Character){
+	m.ApplyEffect(singer.Name + "_sweet_comfort", "16", "0",
+		func() {
+			m.ToggleFlag("sweet_comfort")
+		},
+		func() {
+			m.ToggleFlag("sweet_comfort")
+		})
+}
+
+func CuriousCanticle(m *Mob, singer *Character){
+	m.ApplyEffect(singer.Name + "_curious_canticle", "16", "0",
+		func() {
+			m.ToggleFlag("curious_canticle")
+		},
+		func() {
+			m.ToggleFlag("curious_canticle")
+		})
+}
+
+func CelebrationNight(c *Character, singer *Character){
+	c.ApplyEffect(singer.Name + "_celebration_night", "16", "0",
+		func() {
+			c.ToggleFlag("celebration_night", singer.Name + "_celebration_night")
+		},
+		func() {
+			c.ToggleFlag("celebration_night", singer.Name + "_celebration_night")
+		})
 }

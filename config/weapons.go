@@ -114,13 +114,11 @@ func WeaponExpTitle(exp int, class int) string {
 		return WeaponTitles[8]
 	case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
 		return WeaponTitles[9]
-	case exp > WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
-		return WeaponTitles[10]
-	case exp >= WeaponExpLevels[11]:
+	case exp >= WeaponExpLevels[10]:
 		if class == 0 {
-			return WeaponTitles[11]
-		}else{
 			return WeaponTitles[10]
+		}else{
+			return WeaponTitles[9]
 		}
 	default:
 		return WeaponTitles[0]
@@ -183,14 +181,12 @@ func WeaponExpNext(exp int, class int) int {
 	case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
 		return WeaponExpLevels[9]
 	case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
-		return WeaponExpLevels[10]
-	case exp > WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
 		if class == 0 {
-			return WeaponExpLevels[11]
+			return WeaponExpLevels[10]
 		}else{
 			return 0
 		}
-	case exp >= WeaponExpLevels[11]:
+	case exp >= WeaponExpLevels[10]:
 		return 0
 	default:
 		return WeaponExpLevels[1]

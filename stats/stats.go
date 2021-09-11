@@ -29,12 +29,11 @@
 package stats
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"log"
 	"runtime"
 	"runtime/debug"
 	"time"
-
-	"github.com/ArcCS/Nevermore/config"
 )
 
 var (

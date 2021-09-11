@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/text"
 	"strings"
 )
@@ -23,11 +23,11 @@ func (tell) process(s *state) {
 	}
 	whoStr := s.words[0]
 	message := strings.Join(s.input[1:], " ")
-	who := stats.ActiveCharacters.Find(whoStr)
+	who := objects.ActiveCharacters.Find(whoStr)
 	if who != nil {
-		stats.ActiveCharacters.Lock()
+		objects.ActiveCharacters.Lock()
 		who.Write([]byte(text.White + s.actor.Name + " flashes#, \"" + message + "\"" + text.Reset + "\n"))
-		stats.ActiveCharacters.Unlock()
+		objects.ActiveCharacters.Unlock()
 		if !who.Flags["invisible"] {
 			s.msg.Actor.SendGood("You sent#, \"" + message + "\", to " + who.Name)
 		} else {

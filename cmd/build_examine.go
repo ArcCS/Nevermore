@@ -5,7 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
@@ -112,12 +111,12 @@ func (examine) process(s *state) {
 				{"V", "chancecast", strconv.Itoa(mobRef.ChanceCast), "Chance to cast spell"},
 				{"V", "armor", strconv.Itoa(mobRef.Armor), "Amt of Armor"},
 				{"V", "numwander", strconv.Itoa(mobRef.NumWander), "Number of ticks to wander"},
-				{"V", "wimpyvalue", strconv.Itoa(mobRef.WimpyValue), "Amt of damage that causes a flee chance"},
+				{"V", "wimpyvalue", strconv.Itoa(mobRef.WimpyValue), "Flee @ Damage"},
 				{"V", "air_resistance", mobRef.AirResistance, "Resists air damage %."},
 				{"V", "earth_resistance", mobRef.EarthResistance, "Resists earth damage %."},
 				{"V", "fire_resistance", mobRef.FireResistance, "Resists fire damage %."},
 				{"V", "water_resistance", mobRef.WaterResistance, "Resists water damage %."},
-				{"V", "breathes", mobRef.BreathWeapon, "Element breath, earth air fire water paralytic"},
+				{"V", "breathes", mobRef.BreathWeapon, text.WrapSoft("Element breath, earth air fire water paralytic", rowLength/5)},
 				{"V", "spells", text.WrapSoft(strings.Join(mobRef.Spells, ", "), rowLength/5), "Available spells"},
 				{"T", "fast_moving", strconv.FormatBool(mobRef.Flags["fast_moving"]), "Mob is moves quickly"},
 				{"T", "guard_treasure", strconv.FormatBool(mobRef.Flags["guard_treasure"]), "Mob guards treasure."},
@@ -132,15 +131,15 @@ func (examine) process(s *state) {
 				{"T", "poisons", strconv.FormatBool(mobRef.Flags["poisons"]), "Mob can poison targets."},
 				{"T", "spits_acid", strconv.FormatBool(mobRef.Flags["spits_acid"]), "Mob can spit acid."},
 				{"T", "ranged_attack", strconv.FormatBool(mobRef.Flags["ranged_attack"]), "Mob can attack from afar."},
-				{"T", "flees", strconv.FormatBool(mobRef.Flags["flees"]), "Mob will flee at wimpyvalue"},
+				{"T", "flees", strconv.FormatBool(mobRef.Flags["flees"]), "Flee @ Wimpy Value"},
 				{"T", "blinds", strconv.FormatBool(mobRef.Flags["blinds"]), "Mob can blind targets."},
 				{"T", "hide_encounter", strconv.FormatBool(mobRef.Flags["hide_encounter"]), "Hide when encounter"},
 				{"T", "invisible", strconv.FormatBool(mobRef.Flags["invisible"]), "Invisible Mob"},
 				{"T", "permanent", strconv.FormatBool(mobRef.Flags["permanent"]), "Does not despawn from room"},
 				{"T", "hostile", strconv.FormatBool(mobRef.Flags["hostile"]), "Mob is hostile"},
 				{"T", "undead", strconv.FormatBool(mobRef.Flags["undead"]), "Mob is undead"},
-				{"T", "day_only", strconv.FormatBool(mobRef.Flags["day_only"]), "Mob will only spawn during the day."},
-				{"T", "night_only", strconv.FormatBool(mobRef.Flags["night_only"]), "Mob will only spawn during the night."},
+				{"T", "day_only", strconv.FormatBool(mobRef.Flags["day_only"]), "Day Spawn Only."},
+				{"T", "night_only", strconv.FormatBool(mobRef.Flags["night_only"]), "Night spaw only"},
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 			s.msg.Actor.SendGood(t.Render())
@@ -243,7 +242,7 @@ func (examine) process(s *state) {
 	case "char":
 		log.Println("Starting search...")
 		charName := s.words[1]
-		character := stats.ActiveCharacters.Find(charName)
+		character := objects.ActiveCharacters.Find(charName)
 		t := table.NewWriter()
 		t.SetAllowedRowLength(rowLength)
 		t.Style().Options.SeparateRows = true
@@ -289,7 +288,7 @@ func (examine) process(s *state) {
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 			s.msg.Actor.SendGood(t.Render())
 		} else {
-			stats.ActiveCharacters.Lock()
+			objects.ActiveCharacters.Lock()
 			t.AppendRows([]table.Row{
 				{"V", "name", character.Name, "Characters Name"},
 				{"V", "description", text.WrapSoft(character.Description, rowLength/5), "Description"},
@@ -326,7 +325,7 @@ func (examine) process(s *state) {
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 			s.msg.Actor.SendGood(t.Render())
-			stats.ActiveCharacters.Unlock()
+			objects.ActiveCharacters.Unlock()
 			return
 		}
 		return

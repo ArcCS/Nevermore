@@ -10,7 +10,6 @@ import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"io"
 	"log"
 	"net"
@@ -233,7 +232,7 @@ func (c *client) close() {
 			c.frontend.GetCharacter().Unfollow()
 			c.frontend.GetCharacter().LoseParty()
 			c.frontend.GetCharacter().PurgeEffects()
-			stats.ActiveCharacters.Remove(c.frontend.GetCharacter())
+			objects.ActiveCharacters.Remove(c.frontend.GetCharacter())
 			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
 			c.frontend.GetCharacter().Unload()
 		}

@@ -13,7 +13,7 @@ func init() {
 	addHandler(spell{},
 		"Usage:  spells \n \n List the spells currently bound to your character, and your spellbook",
 		permissions.Player,
-		"SPELLS")
+		"SPELLS", "SPELL", "SP")
 }
 
 type spell cmd

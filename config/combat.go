@@ -69,13 +69,8 @@ var CombatCooldown = 8
 var ParryStuns = 2
 var CircleStuns = 1
 var CircleTimer = 30
-var BashStuns = 15
-var BashTimer = 180
-var ThumpRoll = 10
-var ThwompRoll = 50
-var CrushingRoll = 500
-var ThunkRoll = 1000
-
+var BashStuns = 16
+var BashTimer = 30
 // Mob Things
 var MobBlock = 70
 var MobBlockPerLevel = 10
@@ -244,6 +239,47 @@ var LethalDamage = []int{
 	1875,
 	2500,
 	3125,
+}
+
+// BashChances Skill = Thunk, Crushing, Thwomp, Thump
+var BashChances = map[int][]int{
+	0:{0, 0, 0, 0},
+	1:{125, 0, 0, 0},
+	2:{250, 0, 0, 0},
+	3:{500, 0, 0, 0},
+	4:{750, 0, 0, 0},
+	5:{1000, 0, 0, 0},
+	6:{1250, 0, 0, 0},
+	7:{1500, 0, 0, 0},
+	8:{1875, 0, 0, 0},
+	9:{3000, 0, 0, 0},
+}
+
+func RollBash(skill int) (damModifier int, stunModifier int, output string) {
+	/*
+	var ThumpRoll = 10
+	var ThwompRoll = 50
+	var CrushingRoll = 500
+	var ThunkRoll = 1000
+
+	*/
+	damModifier = 1
+	stunModifier = 1
+	bashRoll := utils.Roll(1000000, 1, 0)
+	if bashRoll <= BashChances[skill][0] { // Thunk
+		damModifier = CombatModifiers["thunk"]
+		output = "Thunk!!"
+	} else if bashRoll <= BashChances[skill][1]  { // Crushing
+		damModifier = CombatModifiers["crushing"]
+		output = "Craaackk!!"
+	} else if bashRoll <= BashChances[skill][2] { // Thwomp
+		damModifier = CombatModifiers["thwomp"]
+		output = "Thwomp!!"
+	} else if bashRoll <= BashChances[skill][3] { // Thump
+		stunModifier = 3
+		output = "Thump!!"
+	}
+	return
 }
 
 func RollLethal(skill int) bool {

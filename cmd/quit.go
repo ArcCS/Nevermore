@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 )
 
 func init() {
@@ -25,6 +24,6 @@ func (quit) process(s *state) {
 	s.actor.Unfollow()
 	s.actor.LoseParty()
 	s.actor.PurgeEffects()
-	stats.ActiveCharacters.Remove(s.actor)
+	objects.ActiveCharacters.Remove(s.actor)
 	s.ok = true
 }

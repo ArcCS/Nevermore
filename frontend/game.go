@@ -11,7 +11,6 @@ import (
 	"github.com/ArcCS/Nevermore/message"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"github.com/jinzhu/copier"
 	"strings"
 )
@@ -66,7 +65,7 @@ func (g *game) gameInit() {
 	}
 	objects.Rooms[g.character.ParentId].Chars.Lock()
 	objects.Rooms[g.character.ParentId].Chars.Add(g.character)
-	stats.ActiveCharacters.Add(g.character, g.remoteAddr)
+	objects.ActiveCharacters.Add(g.character, g.remoteAddr)
 	objects.Rooms[g.character.ParentId].Chars.Unlock()
 
 	cmd.Script(g.character, "$POOF")

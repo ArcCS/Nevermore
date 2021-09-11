@@ -5,7 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
-	"github.com/ArcCS/Nevermore/utils"
 	"math"
 	"strconv"
 )
@@ -78,24 +77,12 @@ func (bash) process(s *state) {
 
 		s.actor.Victim = whatMob
 		// Check the rolls in reverse order from hardest to lowest for bash rolls.
-		damageModifier := 1
-		stunModifier := 1
-		if utils.Roll(config.ThunkRoll, 1, 0) == 1 { // Thunk
-			damageModifier = config.CombatModifiers["thunk"]
-			s.msg.Actor.SendGood("Thunk!!")
-		} else if utils.Roll(config.CrushingRoll, 1, 0) == 1 { // Crushing
-			damageModifier = config.CombatModifiers["crushing"]
-			s.msg.Actor.SendGood("Craaackk!!")
-		} else if utils.Roll(config.ThwompRoll, 1, 0) == 1 { // Thwomp
-			damageModifier = config.CombatModifiers["thwomp"]
-			s.msg.Actor.SendGood("Thwomp!!")
-		} else if utils.Roll(config.ThumpRoll, 1, 0) == 1 { // Thump
-			stunModifier = 2
-			s.msg.Actor.SendGood("Thump!!")
-		}
+		damageModifier, stunModifier, bashMsg := config.RollBash(config.WeaponLevel(s.actor.Skills[1].Value, s.actor.Class))
 		whatMob.Stun(config.BashStuns * stunModifier)
 		actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
+		s.msg.Actor.SendInfo(bashMsg)
+		whatMob.CurrentTarget = s.actor.Name
 		s.msg.Actor.SendInfo("You bashed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 		s.msg.Observers.SendInfo(s.actor.Name + " bashes " + whatMob.Name)
 		DeathCheck(s, whatMob)

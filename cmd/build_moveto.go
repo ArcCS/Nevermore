@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/stats"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"strconv"
@@ -24,7 +23,7 @@ func (moveto) process(s *state) {
 		return
 	}
 	whoStr := s.words[0]
-	who := stats.ActiveCharacters.Find(whoStr)
+	who := objects.ActiveCharacters.Find(whoStr)
 	if who != nil {
 		roomId, _ := strconv.Atoi(s.words[1])
 		if to, ok := objects.Rooms[roomId]; ok {

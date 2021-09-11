@@ -1,11 +1,10 @@
 // Stats and global listing of characters.
 
-package stats
+package objects
 
 import (
 	"fmt"
 	"github.com/ArcCS/Nevermore/message"
-	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"io"
@@ -18,7 +17,7 @@ import (
 // Currently active characters
 type characterStats struct {
 	sync.Mutex
-	list []*objects.Character
+	list []*Character
 }
 
 var ActiveCharacters = &characterStats{}
@@ -26,7 +25,7 @@ var IpMap = make(map[string]string)
 var LastActMap = make(map[string]time.Time)
 
 // Add adds the specified character to the list of characters.
-func (c *characterStats) Add(character *objects.Character, address string) {
+func (c *characterStats) Add(character *Character, address string) {
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster, permissions.God) {
 		c.MessageGM("###: " + character.Name + "[" + address + "] joins the realm.")
 	} else {
@@ -39,7 +38,7 @@ func (c *characterStats) Add(character *objects.Character, address string) {
 }
 
 // Pass character as a pointer, compare and remove
-func (c *characterStats) Remove(character *objects.Character) {
+func (c *characterStats) Remove(character *Character) {
 	//log.Println("trying to let everyone know...")
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
 		c.MessageGM("###:" + character.Name + " departs the realm.")
@@ -62,14 +61,14 @@ func (c *characterStats) Remove(character *objects.Character) {
 	}
 
 	if len(c.list) == 0 {
-		c.list = make([]*objects.Character, 0, 10)
+		c.list = make([]*Character, 0, 10)
 	}
 
 	c.Unlock()
 	//log.Println("Unlocking...")
 }
 
-func (c *characterStats) Find(name string) *objects.Character {
+func (c *characterStats) Find(name string) *Character {
 	c.Lock()
 	for _, p := range c.list {
 		if strings.ToLower(p.Name) == strings.ToLower(name) {

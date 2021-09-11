@@ -563,6 +563,9 @@ func (c *Character) Look() (buildText string) {
 }
 
 func (c *Character) ApplyEffect(effectName string, length string, interval string, effect func(), effectOff func()) {
+	if _, ok := c.Effects[effectName]; ok {
+		c.Effects[effectName].effectOff()
+	}
 	c.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
 	effect()
 }
@@ -800,7 +803,9 @@ func (c *Character) Unfollow(){
 			}
 		}
 		if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			c.PartyFollow.Write([]byte(text.Info + c.Name + " stops following you."))
+			if utils.StringIn(c.PartyFollow.Name, ActiveCharacters.List()) {
+				c.PartyFollow.Write([]byte(text.Info + c.Name + " stops following you."))
+			}
 		}
 		c.Write([]byte(text.Info + "You stop following " + c.PartyFollow.Name))
 		c.PartyFollow = nil

@@ -47,7 +47,6 @@ func (spawn) process(s *state) {
 			s.msg.Actor.SendBad("What item ID do you want to spawn?")
 			return
 		}
-		//log.Println("Copying mob")
 		newItem := objects.Item{}
 		copier.Copy(&newItem, objects.Items[itemId])
 		s.actor.Inventory.Add(&newItem)
