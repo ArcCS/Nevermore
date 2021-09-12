@@ -86,7 +86,7 @@ var StrDamageMod = .01 // Per Point
 var ConArmorMod = .01
 var ConBonusHealth = 1
 var ConBonusHealthDiv = 5
-var ConHealRegenMod = .8
+var ConHealRegenMod = .1
 var ConMonkArmor = 2 // 2 Armor Extra Per Con
 
 // Dex Mods
@@ -104,7 +104,7 @@ var IntEvalDailyDiv = 3
 var BaseEvals = 3
 
 // Piety Mods
-var PieRegenMod = .8 // Regen Mana per tick
+var PieRegenMod = .1 // Regen Mana per tick
 var PieHealMod = .3  // Per point
 
 // Armor Values

@@ -524,13 +524,13 @@ const (
 
 func (c *Character) Tick() {
 	if Rooms[c.ParentId].Flags["heal_fast"] {
-		c.Stam.Add(int(float64(c.Con.Current) * config.ConHealRegenMod*2))
-		c.Vit.Add(int(float64(c.Con.Current) * config.ConHealRegenMod*2))
-		c.Mana.Add(int(float64(c.Pie.Current) * config.PieRegenMod*2))
+		c.Stam.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod*2)))
+		c.Vit.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod*2)))
+		c.Mana.Add(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod*2)))
 	} else {
-		c.Stam.Add(int(float64(c.Con.Current) * config.ConHealRegenMod))
-		c.Vit.Add(int(float64(c.Con.Current) * config.ConHealRegenMod))
-		c.Mana.Add(int(float64(c.Pie.Current) * config.PieRegenMod))
+		c.Stam.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
+		c.Vit.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
+		c.Mana.Add(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod)))
 	}
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
