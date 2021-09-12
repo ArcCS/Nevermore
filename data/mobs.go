@@ -367,7 +367,7 @@ func SumEncounters(roomId int) int {
 
 func CopyMob(mobId int) (int, bool) {
 	newMobId := nextId("mob")
-	results, err := execWrite("MATCH (m:mob{mob_id:$mobId}) CALL apoc.refactor.cloneNodes([m] YIELD output SET output.mob_id=$newId RETURN output.item_id,",
+	results, err := execWrite("MATCH (m:mob{mob_id:$mobId}) CALL apoc.refactor.cloneNodes([m]) YIELD output SET output.mob_id=$newId RETURN output.item_id",
 		map[string]interface{}{
 			"mobId": mobId,
 			"newId": newMobId,

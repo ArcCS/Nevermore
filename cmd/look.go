@@ -138,10 +138,11 @@ func (look) process(s *state) {
 
 	// Nice, looking at an exit.
 	if whatExit != nil {
-		if whatExit.Description == "" {
-			s.msg.Actor.SendInfo(objects.Rooms[whatExit.ToId].Look(s.actor))
-		} else {
-			s.msg.Actor.SendInfo(whatExit.Look())
+		s.msg.Actor.SendInfo(whatExit.Look())
+		if whatExit.Flags["placement_dependent"] {
+			s.msg.Actor.SendInfo("It is" + utils.WhereAt(whatExit.Placement, s.actor.Placement))
+		}else{
+			s.msg.Actor.SendInfo("It can be used from anywhere in the room.")
 		}
 		return
 	}

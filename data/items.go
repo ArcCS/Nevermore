@@ -180,7 +180,7 @@ func UpdateItem(itemData map[string]interface{}) bool {
 
 func CopyItem(itemId int) (int, bool) {
 	newItemId := nextId("item")
-	results, err := execWrite("MATCH (i:item{item_id:$itemId}) CALL apoc.refactor.cloneNodes([i] YIELD output SET output.item_id=$newId RETURN output.item_id,",
+	results, err := execWrite("MATCH (i:item{item_id:$itemId}) CALL apoc.refactor.cloneNodes([i]) YIELD output SET output.item_id=$newId RETURN output.item_id",
 		map[string]interface{}{
 			"itemId": itemId,
 			"newId": newItemId,

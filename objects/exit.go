@@ -50,7 +50,11 @@ func NewExit(room_id int, exitData map[string]interface{}) *Exit {
 }
 
 func (e *Exit) Look() string {
-	return e.Description
+	if e.Description == "" {
+		return "A standard run of the mill exit"
+	}else {
+		return e.Description
+	}
 }
 
 func (e *Exit) Close() bool {
