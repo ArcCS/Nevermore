@@ -18,6 +18,8 @@ func NewExit(room_id int, exitData map[string]interface{}) *Exit {
 	placement := 3
 	if exitData["placement"] == nil {
 		placement = 3
+	}else{
+		placement = int(exitData["placement"].(int64))
 	}
 	ok := false
 	description := ""

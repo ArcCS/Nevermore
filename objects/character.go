@@ -819,3 +819,7 @@ func (c *Character) MessageParty(msg string){
 		}
 	}
 }
+
+func (c *Character) DeathCheck(){
+	return
+}
