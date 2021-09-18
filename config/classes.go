@@ -27,15 +27,15 @@ func init() {
 	ClassPerms[7] = permissions.Bard
 	ClassPerms[8] = permissions.Monk
 
-	StartingGear[0] = []int{129, 1088}
-	StartingGear[1] = []int{227, 1088}
-	StartingGear[2] = []int{2628, 1088}
-	StartingGear[3] = []int{665, 1088}
-	StartingGear[4] = []int{242, 1180, 3343, 1088, 2287}
-	StartingGear[5] = []int{227, 1179 , 242, 1088, 2287}
-	StartingGear[6] = []int{129, 1179, 1088, 2287}
-	StartingGear[6] = []int{129, 1179, 1088, 2287}
-	StartingGear[8] = []int{3343, 1088}
+	StartingGear[0] = []int{129, 3615}
+	StartingGear[1] = []int{227, 3615}
+	StartingGear[2] = []int{2628, 3615}
+	StartingGear[3] = []int{665, 3615}
+	StartingGear[4] = []int{242, 1180, 3343, 3615, 2287}
+	StartingGear[5] = []int{227, 1179 , 242, 3615, 2287}
+	StartingGear[6] = []int{129, 1179, 3615, 2287}
+	StartingGear[6] = []int{129, 1179, 3615, 2287}
+	StartingGear[8] = []int{3343, 3615}
 }
 
 type classDef struct {

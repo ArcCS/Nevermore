@@ -45,12 +45,14 @@ func (read) process(s *state) {
 				s.msg.Actor.SendBad("The spell contained does not exist in this world.")
 				return
 			}
-			if minLevel, ok :=  spellInstance.Classes[config.AvailableClasses[s.actor.Class]]; !ok {
-				s.msg.Actor.SendBad("The comprehension of this spell is beyond you.")
-				return
-			}else if s.actor.Tier < minLevel {
-				s.msg.Actor.SendBad("You are not high enough level to learn this spell.")
-				return
+			if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				if minLevel, ok := spellInstance.Classes[config.AvailableClasses[s.actor.Class]]; !ok {
+					s.msg.Actor.SendBad("The comprehension of this spell is beyond you.")
+					return
+				} else if s.actor.Tier < minLevel {
+					s.msg.Actor.SendBad("You are not high enough level to learn this spell.")
+					return
+				}
 			}
 			if utils.StringIn(what.Spell, s.actor.Spells){
 				s.msg.Actor.SendBad("You already know this spell.")
