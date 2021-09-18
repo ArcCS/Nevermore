@@ -223,7 +223,7 @@ func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
 	//*
 	if r.Flags["encounters_on"]{
-		r.roomTicker = time.NewTicker(8 * time.Second)
+		r.roomTicker = time.NewTicker(10 * time.Second)
 		go func() {
 			for {
 				select {
