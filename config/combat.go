@@ -86,7 +86,7 @@ var StrDamageMod = .01 // Per Point
 var ConArmorMod = .01
 var ConBonusHealth = 1
 var ConBonusHealthDiv = 5
-var ConHealRegenMod = .1
+var ConHealRegenMod = .05
 var ConMonkArmor = 2 // 2 Armor Extra Per Con
 
 // Dex Mods

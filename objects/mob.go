@@ -458,8 +458,12 @@ func (m *Mob) ReturnState() string{
 
 func (m *Mob) DropInventory() string {
 	var drops []string
-	if len(m.Inventory.Contents) > 0 {
-		for _, item := range m.Inventory.Contents {
+	var tempStore []*Item
+	for _, item := range m.Inventory.Contents {
+		tempStore = append(tempStore, item)
+	}
+	if len(tempStore) > 0 {
+		for _, item := range tempStore{
 			if item != nil {
 				if err := m.Inventory.Remove(item); err == nil {
 					if len(Rooms[m.ParentId].Items.Contents) < 15 {
@@ -467,7 +471,7 @@ func (m *Mob) DropInventory() string {
 						Rooms[m.ParentId].Items.Add(item)
 						drops = append(drops, item.Name)
 					}else{
-						Rooms[m.ParentId].MessageAll(item.Name + " falls on top of other items and rolls away.")
+						Rooms[m.ParentId].MessageAll(item.Name + " fall on top of other items and rolls away.\n" + text.Reset)
 					}
 				}
 			}

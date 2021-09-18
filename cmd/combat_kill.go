@@ -133,16 +133,14 @@ func (kill) process(s *state) {
 
 		// Lets start executing the attacks
 		weapMsg := ""
+		alwaysCrit := false
 		if s.actor.Class != 8 {
+			alwaysCrit = s.actor.Equipment.Main.Flags["always_crit"]
 			weapMsg = s.actor.Equipment.DamageWeapon("main", 1)
 		}
 		for _, mult := range attacks {
 			// Lets try to crit:
 			//TODO: Parry/Miss?
-			alwaysCrit := false
-			if s.actor.Class != 8 {
-				alwaysCrit = s.actor.Equipment.Main.Flags["always_crit"]
-			}
 			if config.RollCritical(skillLevel) || alwaysCrit {
 				mult *= float64(config.CombatModifiers["critical"])
 				s.msg.Actor.SendGood("Critical Strike!")

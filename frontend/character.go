@@ -662,7 +662,7 @@ func validateFastStep(choiceInput string) bool {
 func (a *newCharacter) validateStats(statInput string) bool {
 
 	stats := parseStats(statInput)
-	if stats[0]+stats[1]+stats[2]+stats[3]+stats[4] == 50 {
+	if stats[0]+stats[1]+stats[2]+stats[3]+stats[4] != 50 {
 		return false
 	}
 	if config.RaceDefs[config.AvailableRaces[a.race]].StrMin > stats[0] || stats[0] > config.RaceDefs[config.AvailableRaces[a.race]].StrMax {
