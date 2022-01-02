@@ -23,7 +23,7 @@ type Mob struct {
 	ItemList  map[int]int
 	Flags     map[string]bool
 	Effects   map[string]*Effect
-	Hooks map[string]map[string]*Hook
+	Hooks     map[string]map[string]*Hook
 
 	// ParentId is the room id for the room
 	ParentId   int
@@ -54,7 +54,7 @@ type Mob struct {
 	AirResistance   int
 	FireResistance  int
 	EarthResistance int
-	BreathWeapon string
+	BreathWeapon    string
 
 	//Threat table attacker -> damage
 	TotalThreatDamage int
@@ -66,6 +66,7 @@ type Mob struct {
 	WimpyValue int
 
 	MobTickerUnload chan bool
+	MobCommands     chan string
 	MobTicker       *time.Ticker
 	// An int to hold a stun time.
 	MobStunned int
@@ -90,12 +91,12 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		make(map[string]bool),
 		make(map[string]*Effect),
 		map[string]map[string]*Hook{
-			"act": make(map[string]*Hook),
-			"combat": make(map[string]*Hook),
-			"peek": make(map[string]*Hook),
+			"act":      make(map[string]*Hook),
+			"combat":   make(map[string]*Hook),
+			"peek":     make(map[string]*Hook),
 			"gridmove": make(map[string]*Hook),
-			"move": make(map[string]*Hook),
-			"say": make(map[string]*Hook),
+			"move":     make(map[string]*Hook),
+			"say":      make(map[string]*Hook),
 		},
 		-1,
 		int(mobData["gold"].(int64)),
@@ -125,6 +126,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		int(mobData["numwander"].(int64)),
 		0,
 		int(mobData["wimpyvalue"].(int64)),
+		nil,
 		nil,
 		nil,
 		0,
@@ -159,6 +161,7 @@ func (m *Mob) StartTicking() {
 	m.CalculateInventory()
 	m.ThreatTable = make(map[string]int)
 	m.MobTickerUnload = make(chan bool)
+	m.MobCommands = make(chan string)
 	tickModifier := 0
 	if fastMoving, ok := m.Flags["fast_moving"]; ok {
 		if fastMoving {
@@ -169,10 +172,20 @@ func (m *Mob) StartTicking() {
 	go func() {
 		for {
 			select {
+			case msg := <-m.MobCommands:
+				// This function call will immediately call a command off the stack and run it, ideally to decouple state
+				var params = strings.Split(msg, " ")
+				m.ProcessCommand(params[0], params[1:])
 			case <-m.MobTickerUnload:
 				return
 			case <-m.MobTicker.C:
+				Rooms[m.ParentId].Chars.Lock()
+				Rooms[m.ParentId].Mobs.Lock()
+				Rooms[m.ParentId].Items.Lock()
 				m.Tick()
+				Rooms[m.ParentId].Chars.Unlock()
+				Rooms[m.ParentId].Mobs.Unlock()
+				Rooms[m.ParentId].Items.Unlock()
 			}
 		}
 	}()
@@ -194,9 +207,6 @@ func (m *Mob) Tick() {
 				return
 			}
 		} else {
-			Rooms[m.ParentId].Chars.Lock()
-			Rooms[m.ParentId].Mobs.Lock()
-			Rooms[m.ParentId].Items.Lock()
 			// Am I hostile?  Should I pick a target?
 			if m.CurrentTarget == "" && m.Flags["hostile"] {
 				potentials := Rooms[m.ParentId].Chars.MobList(m)
@@ -227,7 +237,6 @@ func (m *Mob) Tick() {
 				}
 			}
 
-
 			if m.CurrentTarget == "" && m.Placement != 3 {
 				oldPlacement := m.Placement
 				if m.Placement > 3 {
@@ -237,11 +246,12 @@ func (m *Mob) Tick() {
 				}
 				if !m.Flags["hidden"] {
 					whichNumber := Rooms[m.ParentId].Mobs.GetNumber(m)
-					Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
+					if len(Rooms[m.ParentId].Mobs.Contents) > 1 && whichNumber > 1 {
+						Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name+" #"+strconv.Itoa(whichNumber))
+					} else {
+						Rooms[m.ParentId].MessageMovement(oldPlacement, m.Placement, m.Name)
+					}
 				}
-				Rooms[m.ParentId].Chars.Unlock()
-				Rooms[m.ParentId].Mobs.Unlock()
-				Rooms[m.ParentId].Items.Unlock()
 				return
 			}
 
@@ -273,15 +283,12 @@ func (m *Mob) Tick() {
 						Rooms[m.ParentId].MessageAll(m.Name + " cast a " + spellInstance.Name + " spell on " + target.Name + "\n")
 						m.Mana.Subtract(spellInstance.Cost)
 						result := Cast(m, target, spellInstance.Effect, spellInstance.Magnitude)
-						if strings.Contains(result,"$SCRIPT"){
+						if strings.Contains(result, "$SCRIPT") {
 							m.MobScript(result)
 						}
 						if target.Vit.Current == 0 {
 							target.Died()
 						}
-						Rooms[m.ParentId].Chars.Unlock()
-						Rooms[m.ParentId].Mobs.Unlock()
-						Rooms[m.ParentId].Items.Unlock()
 						return
 					}
 				}
@@ -306,9 +313,6 @@ func (m *Mob) Tick() {
 				if target.Vit.Current == 0 {
 					target.Died()
 				}
-				Rooms[m.ParentId].Chars.Unlock()
-				Rooms[m.ParentId].Mobs.Unlock()
-				Rooms[m.ParentId].Items.Unlock()
 				return
 			}
 
@@ -346,9 +350,6 @@ func (m *Mob) Tick() {
 							Rooms[m.ParentId].MessageAll(m.Name + " dies.")
 							target.Write([]byte(text.White + m.DropInventory()))
 							go Rooms[m.ParentId].ClearMob(m)
-							Rooms[m.ParentId].Chars.Unlock()
-							Rooms[m.ParentId].Mobs.Unlock()
-							Rooms[m.ParentId].Items.Unlock()
 							return
 						}
 						m.MobStunned = config.ParryStuns
@@ -378,31 +379,43 @@ func (m *Mob) Tick() {
 					}
 				}
 			}
-
-			Rooms[m.ParentId].Chars.Unlock()
-			Rooms[m.ParentId].Mobs.Unlock()
-			Rooms[m.ParentId].Items.Unlock()
 		}
 	}
 }
 
-func (m *Mob) MobScript(inputStr string){
+var Commands = map[string]func(caller interface{}, target interface{}, magnitude int) string{
+	"attack":          nil,
+	"cast":            nil,
+	"move":            nil,
+	"follow":          nil,
+	"block_movement":  nil,
+	"block_departure": nil,
+	"block_items":     nil,
+	"pickup":          nil,
+	"teleport":        nil,
+}
+
+func (m *Mob) ProcessCommand(inputStr string, params []string) {
+
+}
+
+func (m *Mob) MobScript(inputStr string) {
 	input := strings.Split(inputStr, " ")
-	switch input[0]{
+	switch input[0] {
 	case "$TELEPORT":
-		m.MobTeleport(strings.Join(input[1:], " "))
+		m.Teleport(strings.Join(input[1:], " "))
 	}
 
 }
 
 func (m *Mob) Stun(amt int) {
 	if amt > m.MobStunned {
-		m.MobStunned = amt
+		m.MobStunned += amt
 	}
 }
 
 // Special handler for handling a mobs cast of a teleport spell
-func (m *Mob) MobTeleport(target string){
+func (m *Mob) Teleport(target string) {
 	rand.Seed(time.Now().Unix())
 	newRoom := Rooms[TeleportTable[rand.Intn(len(TeleportTable))]]
 	targetName := strings.Split(target, " ")
@@ -443,14 +456,15 @@ func (m *Mob) CalculateInventory() {
 	}
 }
 
-func (m *Mob) ReturnState() string{
+func (m *Mob) ReturnState() string {
 	stamStatus := "healthy"
-
-	if m.Stam.Current < (m.Stam.Max - int(.75 * float32(m.Stam.Max))) {
+	if m.Stam.Current < (m.Stam.Max - int(.90*float32(m.Stam.Max))) {
+		stamStatus = "near death"
+	} else if m.Stam.Current < (m.Stam.Max - int(.75*float32(m.Stam.Max))) {
 		stamStatus = "badly injured"
-	}else if m.Stam.Current < (m.Stam.Max - int(.5 * float32(m.Stam.Max))) {
+	} else if m.Stam.Current < (m.Stam.Max - int(.5*float32(m.Stam.Max))) {
 		stamStatus = "injured"
-	}else if m.Stam.Current < (m.Stam.Max - int(.25 * float32(m.Stam.Max))) {
+	} else if m.Stam.Current < (m.Stam.Max - int(.25*float32(m.Stam.Max))) {
 		stamStatus = "slightly injured"
 	}
 	return " looks " + stamStatus
@@ -463,14 +477,14 @@ func (m *Mob) DropInventory() string {
 		tempStore = append(tempStore, item)
 	}
 	if len(tempStore) > 0 {
-		for _, item := range tempStore{
+		for _, item := range tempStore {
 			if item != nil {
 				if err := m.Inventory.Remove(item); err == nil {
 					if len(Rooms[m.ParentId].Items.Contents) < 15 {
 						item.Placement = m.Placement
 						Rooms[m.ParentId].Items.Add(item)
 						drops = append(drops, item.Name)
-					}else{
+					} else {
 						Rooms[m.ParentId].MessageAll(item.Name + " fall on top of other items and rolls away.\n" + text.Reset)
 					}
 				}
@@ -514,7 +528,6 @@ func (m *Mob) RemoveEffect(effectName string) {
 	delete(m.Effects, effectName)
 }
 
-
 func (m *Mob) ApplyHook(hook string, hookName string, executions int, length string, interval int, effect func(), effectOff func()) {
 	m.Hooks[hook][hookName] = NewHook(executions, length, interval, effect, effectOff)
 }
@@ -522,7 +535,7 @@ func (m *Mob) ApplyHook(hook string, hookName string, executions int, length str
 func (m *Mob) RemoveHook(hook string, hookName string) {
 	m.Hooks[hook][hookName].effectOff()
 	valPresent := false
-	for k, _ := range m.Hooks{
+	for k, _ := range m.Hooks {
 		valPresent = false
 		for hName, _ := range m.Hooks[k] {
 			if hName == hookName {
@@ -535,7 +548,7 @@ func (m *Mob) RemoveHook(hook string, hookName string) {
 	}
 }
 
-func (m *Mob) RunHook(hook string){
+func (m *Mob) RunHook(hook string) {
 	for name, hookInstance := range m.Hooks[hook] {
 		// Process Removing the hook
 		if hookInstance.TimeRemaining() == 0 {
@@ -548,7 +561,7 @@ func (m *Mob) RunHook(hook string){
 			if hookInstance.LastTriggerInterval() <= 0 {
 				hookInstance.RunHook()
 			}
-		}else if hookInstance.interval == -1 {
+		} else if hookInstance.interval == -1 {
 			log.Println("Executing Hook", hook)
 			hookInstance.RunHook()
 		}
@@ -630,12 +643,11 @@ func (m *Mob) Look() string {
 // Function to return only the modifiable properties
 func ReturnMobInstanceProps(mob *Mob) map[string]interface{} {
 	serialList := map[string]interface{}{
-		"mobId": mob.MobId,
-		"health":   mob.Stam.Current,
-		"mana":	mob.Mana.Current,
+		"mobId":     mob.MobId,
+		"health":    mob.Stam.Current,
+		"mana":      mob.Mana.Current,
 		"placement": mob.Placement,
 		"inventory": mob.Inventory.Jsonify(),
-
 	}
 	return serialList
 }
@@ -696,7 +708,7 @@ func (m *Mob) Save() {
 }
 
 func (m *Mob) Eval() string {
-	return "You study the "+ m.Name +" in your minds eye....\n\n" +
-		"It currently has "+ strconv.Itoa(m.Stam.Current) +" hits points remaining." +
+	return "You study the " + m.Name + " in your minds eye....\n\n" +
+		"It currently has " + strconv.Itoa(m.Stam.Current) + " hits points remaining." +
 		"It is worth " + strconv.Itoa(m.Experience) + "experience points."
 }

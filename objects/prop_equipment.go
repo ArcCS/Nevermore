@@ -118,16 +118,16 @@ func (e *Equipment) DamageRandomArmor() string {
 	if e.Chest != nil {
 		armorList = append(armorList, "chest")
 	}
-	if e.Neck  != nil {
+	if e.Neck != nil {
 		armorList = append(armorList, "neck")
 	}
-	if e.Legs  != nil {
+	if e.Legs != nil {
 		armorList = append(armorList, "legs")
 	}
-	if e.Feet  != nil {
+	if e.Feet != nil {
 		armorList = append(armorList, "feet")
 	}
-	if e.Arms  != nil {
+	if e.Arms != nil {
 		armorList = append(armorList, "arms")
 	}
 	if e.Hands != nil {
@@ -139,67 +139,67 @@ func (e *Equipment) DamageRandomArmor() string {
 	if e.Ring2 != nil {
 		armorList = append(armorList, "ring2")
 	}
-	
+
 	if len(armorList) > 0 {
 		rand.Seed(time.Now().Unix())
 		damageItem := armorList[rand.Intn(len(armorList))]
-		if damageItem == "head"{
+		if damageItem == "head" {
 			e.Head.MaxUses -= 1
 			if e.Head.MaxUses <= 0 {
 				e.UnequipSpecific("head")
 				return "Your head armor falls apart."
 			}
 			return ""
-		}else if damageItem == "chest"{
+		} else if damageItem == "chest" {
 			e.Chest.MaxUses -= 1
 			if e.Chest.MaxUses <= 0 {
 				e.UnequipSpecific("chest")
 				return "Your chest armor falls apart."
 			}
 			return ""
-		}else if damageItem == "neck"{
+		} else if damageItem == "neck" {
 			e.Neck.MaxUses -= 1
 			if e.Neck.MaxUses <= 0 {
 				e.UnequipSpecific("neck")
 				return "The armor attached at your neckf alls apart."
 			}
 			return ""
-		}else if damageItem == "legs"{
+		} else if damageItem == "legs" {
 			e.Legs.MaxUses -= 1
 			if e.Legs.MaxUses <= 0 {
 				e.UnequipSpecific("legs")
 				return "Your leg armor falls apart."
 			}
 			return ""
-		}else if damageItem == "feet"{
+		} else if damageItem == "feet" {
 			e.Feet.MaxUses -= 1
 			if e.Feet.MaxUses <= 0 {
 				e.UnequipSpecific("feet")
 				return "Your foot armor falls apart."
 			}
 			return ""
-		}else if damageItem == "arms"{
+		} else if damageItem == "arms" {
 			e.Arms.MaxUses -= 1
 			if e.Arms.MaxUses <= 0 {
-				e.UnequipSpecific("Arms")
+				e.UnequipSpecific("arms")
 				return "The armor on your arms falls apart."
 			}
 			return ""
-		}else if damageItem == "hands"{
+		} else if damageItem == "hands" {
 			e.Hands.MaxUses -= 1
 			if e.Hands.MaxUses <= 0 {
 				e.UnequipSpecific("hands")
 				return "Your hand armor falls apart."
 			}
 			return ""
-		}else if damageItem == "ring1"{
+		} else if damageItem == "ring1" {
 			e.Ring1.MaxUses -= 1
 			if e.Ring1.MaxUses <= 0 {
 				e.UnequipSpecific("ring1")
 				return "Your first ring falls apart."
 			}
 			return ""
-		}else if damageItem == "ring2"{
+		} else if damageItem == "ring2" {
 			e.Ring2.MaxUses -= 1
 			if e.Ring2.MaxUses <= 0 {
 				e.UnequipSpecific("ring2")
@@ -208,7 +208,7 @@ func (e *Equipment) DamageRandomArmor() string {
 			return ""
 		}
 	}
-	
+
 	return ""
 }
 
@@ -333,75 +333,87 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 
 // UnequipSpecific removes a specific slot rather than searching for a name
 func (e *Equipment) UnequipSpecific(alias string) (ok bool, item *Item) {
-	if alias == "head"{
-		if e.Head != (*Item)(nil)  {
-			item = e.Head
-			e.Head = (*Item)(nil)  
-		}else{
-			return false, (*Item)(nil) 
+	iWeight := 0
+	iArmor := 0
+
+	if alias == "head" {
+		if e.Head != (*Item)(nil) {
+			iWeight = e.Head.GetWeight()
+			iArmor = e.Head.Armor
+			e.Head = (*Item)(nil)
+		} else {
+			return false, (*Item)(nil)
 		}
-	}else if alias == "chest"{
-		if e.Chest != (*Item)(nil)  {
-			item = e.Chest
-			e.Chest = (*Item)(nil) 
-		}else{
-			return false, (*Item)(nil) 
+	} else if alias == "chest" {
+		if e.Chest != (*Item)(nil) {
+			iWeight = e.Chest.GetWeight()
+			iArmor = e.Chest.Armor
+			e.Chest = (*Item)(nil)
+		} else {
+			return false, (*Item)(nil)
 		}
-	}else if alias == "neck"{
-		if e.Neck != (*Item)(nil)  {
-			item = e.Neck
-			e.Neck = (*Item)(nil) 
-		}else{
-			return false, (*Item)(nil) 
+	} else if alias == "neck" {
+		if e.Neck != (*Item)(nil) {
+			iWeight = e.Neck.GetWeight()
+			iArmor = e.Neck.Armor
+			e.Neck = (*Item)(nil)
+		} else {
+			return false, (*Item)(nil)
 		}
-	}else if alias == "legs"{
-		if e.Legs != (*Item)(nil)  {
-			item = e.Legs
-			e.Legs = (*Item)(nil) 
-		}else{
-			return false, (*Item)(nil) 
+	} else if alias == "legs" {
+		if e.Legs != (*Item)(nil) {
+			iWeight = e.Legs.GetWeight()
+			iArmor = e.Legs.Armor
+			e.Legs = (*Item)(nil)
+		} else {
+			return false, (*Item)(nil)
 		}
-	}else if alias == "feet"{
-		if e.Feet != (*Item)(nil)  {
-			item = e.Feet
-			e.Feet = (*Item)(nil) 
-		}else{
-			return false, (*Item)(nil) 
+	} else if alias == "feet" {
+		if e.Feet != (*Item)(nil) {
+			iWeight = e.Feet.GetWeight()
+			iArmor = e.Feet.Armor
+			e.Feet = (*Item)(nil)
+		} else {
+			return false, (*Item)(nil)
 		}
-	}else if alias == "arms"{
-		if e.Arms != (*Item)(nil)  {
-			item = e.Arms
-			e.Arms = (*Item)(nil) 
-		}else{
-			return false, (*Item)(nil) 
+	} else if alias == "arms" {
+		if e.Arms != (*Item)(nil) {
+			iWeight = e.Arms.GetWeight()
+			iArmor = e.Arms.Armor
+			e.Arms = (*Item)(nil)
+		} else {
+			return false, (*Item)(nil)
 		}
-	}else if alias == "hands"{
-		if e.Hands != (*Item)(nil)  {
-			item = e.Hands
-			e.Hands = (*Item)(nil) 
-		}else{
-			return false, (*Item)(nil) 
+	} else if alias == "hands" {
+		if e.Hands != (*Item)(nil) {
+			iWeight = e.Hands.GetWeight()
+			iArmor = e.Hands.Armor
+			e.Hands = (*Item)(nil)
+		} else {
+			return false, (*Item)(nil)
 		}
-	}else if alias == "ring1"{
-		if e.Ring1 != (*Item)(nil)  {
-			item = e.Ring1
-			e.Ring1 = (*Item)(nil) 
-		}else{
-			return false, (*Item)(nil) 
+	} else if alias == "ring1" {
+		if e.Ring1 != (*Item)(nil) {
+			iWeight = e.Ring1.GetWeight()
+			iArmor = e.Ring1.Armor
+			e.Ring1 = (*Item)(nil)
+		} else {
+			return false, (*Item)(nil)
 		}
-	}else if alias == "ring2"{
-		if e.Ring2 != (*Item)(nil)  {
-			item = e.Ring2
-			e.Ring2 = (*Item)(nil) 
-		}else{
-			return false, (*Item)(nil) 
+	} else if alias == "ring2" {
+		if e.Ring2 != (*Item)(nil) {
+			iWeight = e.Ring2.GetWeight()
+			iArmor = e.Ring2.Armor
+			e.Ring2 = (*Item)(nil)
+		} else {
+			return false, (*Item)(nil)
 		}
 	}
 
 	// Update armor values
 	if ok && item != (*Item)(nil) {
-		e.Armor -= item.Armor
-		e.Weight -= item.Weight
+		e.Armor -= iArmor
+		e.Weight -= iWeight
 	}
 	return ok, item
 }

@@ -74,11 +74,11 @@ func (kill) process(s *state) {
 			if s.actor.Equipment.Main.ItemType != 4 && (s.actor.Placement != whatMob.Placement) {
 				s.msg.Actor.SendBad("You are too far away to attack.")
 				return
-			}else if s.actor.Equipment.Main.ItemType == 4 && (s.actor.Placement == whatMob.Placement){
+			} else if s.actor.Equipment.Main.ItemType == 4 && (s.actor.Placement == whatMob.Placement) {
 				s.msg.Actor.SendBad("You are too close to attack.")
 				return
 			}
-		}else{
+		} else {
 			if s.actor.Placement != whatMob.Placement {
 				s.msg.Actor.SendBad("You are too far away to attack.")
 				return
@@ -136,7 +136,6 @@ func (kill) process(s *state) {
 		alwaysCrit := false
 		if s.actor.Class != 8 {
 			alwaysCrit = s.actor.Equipment.Main.Flags["always_crit"]
-			weapMsg = s.actor.Equipment.DamageWeapon("main", 1)
 		}
 		for _, mult := range attacks {
 			// Lets try to crit:
@@ -152,14 +151,18 @@ func (kill) process(s *state) {
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
 			whatMob.AddThreatDamage(actualDamage, s.actor)
 			log.Println(strconv.Itoa(whatMob.Stam.Max))
-			s.actor.AdvanceSkillExp(int((float64(actualDamage)/float64(whatMob.Stam.Max) * float64(whatMob.Experience))*config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
+			s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 
 		}
 		DeathCheck(s, whatMob)
-		if weapMsg != "" {
-			s.msg.Actor.SendInfo("weapMsg")
+		if s.actor.Class != 8 {
+			weapMsg = s.actor.Equipment.DamageWeapon("main", 1)
+			if weapMsg != "" {
+				s.msg.Actor.SendInfo("weapMsg")
+			}
 		}
+
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return
 
@@ -206,7 +209,7 @@ func DeathCheck(s *state, m *objects.Mob) {
 				if charClean == s.actor {
 					buildActorString += text.Green + m.DropInventory() + "\n"
 					s.msg.Actor.Send(buildActorString)
-				}else {
+				} else {
 					charClean.Write([]byte(buildActorString + "\n" + text.Reset))
 				}
 				if charClean.Victim == m {

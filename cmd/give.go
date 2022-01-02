@@ -9,7 +9,7 @@ import (
 
 func init() {
 	addHandler(give{},
-		"Usage:  give [person] itemName # \n \n Give the specific person an item.",
+		"Usage:  give [person] itemName # \n \n Give the specific person an item. \n\n or \n\n give [person] $[value] to give someone gold",
 		permissions.Player,
 		"GIVE")
 }
@@ -44,10 +44,11 @@ func (give) process(s *state) {
 				s.actor.Gold.SubIfCan(amount)
 				who.Gold.Add(amount)
 				s.msg.Actor.SendGood("You give ", targetStr, " to ", who.Name, ".")
-				if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+				if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					s.msg.Participant.SendGood(s.actor.Name + " gives you " + targetStr)
 					s.msg.Observers.SendInfo("You see ", s.actor.Name, " give ", who.Name, " some gold.")
 				}
+				return
 			} else {
 				s.msg.Actor.SendInfo("You don't have that much gold.")
 				return

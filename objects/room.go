@@ -16,24 +16,24 @@ import (
 type Room struct {
 	Object
 
-	RoomId   int //room_id from database
-	Creator  string
-	Exits    map[string]*Exit
-	Mobs     *MobInventory
-	Chars    *CharInventory
-	Items    *ItemInventory
-	Flags    map[string]bool
+	RoomId  int //room_id from database
+	Creator string
+	Exits   map[string]*Exit
+	Mobs    *MobInventory
+	Chars   *CharInventory
+	Items   *ItemInventory
+	Flags   map[string]bool
 	// This is a whole number percentage out of 100
 	EncounterRate int
 	// MobID mapped to an encounter percentage
-	EncounterTable   map[int]int
-	roomTicker       *time.Ticker
-	roomTickerUnload chan bool
+	EncounterTable     map[int]int
+	roomTicker         *time.Ticker
+	roomTickerUnload   chan bool
 	effectTicker       *time.Ticker
 	effectTickerUnload chan bool
-	StoreOwner string
-	StoreInventory  *ItemInventory
-	Songs map[string]string
+	StoreOwner         string
+	StoreInventory     *ItemInventory
+	Songs              map[string]string
 }
 
 // Pop the room data
@@ -43,7 +43,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 			Name:        roomData["name"].(string),
 			Description: roomData["description"].(string),
 			Placement:   3,
-			Commands: DeserializeCommands(roomData["commands"].(string)),
+			Commands:    DeserializeCommands(roomData["commands"].(string)),
 		},
 		int(roomData["room_id"].(int64)),
 		roomData["creator"].(string),
@@ -62,7 +62,6 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		RestoreInventory(roomData["store_inventory"].(string)),
 		make(map[string]string),
 	}
-
 
 	for _, encounter := range roomData["encounters"].([]interface{}) {
 		if encounter != nil {
@@ -119,8 +118,8 @@ func (r *Room) Look(looker *Character) (buildText string) {
 						exiti.Flags["hidden"] != true &&
 						nextRoom.Flags["active"] == true {
 						if len(strings.Split(exiti.Name, " ")) >= 3 {
-							longExit = append(longExit, "You see " + exiti.Name)
-						}else {
+							longExit = append(longExit, "You see "+exiti.Name)
+						} else {
 							exitText = append(exitText, exiti.Name)
 						}
 					}
@@ -202,7 +201,7 @@ func (r *Room) CleanExits() {
 
 func (r *Room) FindExit(exitName string) *Exit {
 	for k, v := range r.Exits {
-		if strings.Contains(k, exitName) {
+		if strings.Contains(strings.ToLower(k), strings.ToLower(exitName)) {
 			return v
 		}
 	}
@@ -222,7 +221,7 @@ func (r *Room) ToggleFlag(flagName string) bool {
 func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
 	//*
-	if r.Flags["encounters_on"]{
+	if r.Flags["encounters_on"] {
 		r.roomTicker = time.NewTicker(10 * time.Second)
 		go func() {
 			for {
@@ -238,7 +237,7 @@ func (r *Room) FirstPerson() {
 							mobCalc := 0
 							mobPick := utils.Roll(100, 1, 0)
 							for mob, chance := range r.EncounterTable {
-								if (DayTime && !Mobs[mob].Flags["night_only"]) || (!DayTime && !Mobs[mob].Flags["day_only"]){
+								if (DayTime && !Mobs[mob].Flags["night_only"]) || (!DayTime && !Mobs[mob].Flags["day_only"]) {
 									mobCalc += chance
 									if mobPick <= mobCalc {
 										// This is the mob!  Put it in the room!
@@ -275,25 +274,25 @@ func (r *Room) FirstPerson() {
 								} else {
 									c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n"))
 								}
-							}else if r.Flags["fire"] {
+							} else if r.Flags["fire"] {
 								if !c.Flags["resist_fire"] {
 									c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n"))
 									c.ReceiveMagicDamage(50)
 								} else {
 									c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n"))
 								}
-							}else if r.Flags["water"] {
+							} else if r.Flags["water"] {
 								if !c.Flags["resist_water"] {
 									c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n"))
 									c.ReceiveMagicDamage(50)
 								} else {
 									c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n"))
 								}
-							}else if r.Flags["air"] {
+							} else if r.Flags["air"] {
 								if !c.Flags["resist_air"] {
 									c.Write([]byte(text.Brown + "The icy air buffets you." + "\n"))
 									c.ReceiveMagicDamage(50)
-								}else{
+								} else {
 									c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n"))
 								}
 							}
@@ -319,7 +318,7 @@ func (r *Room) LastPerson() {
 	}
 
 	// Destruct the ticker
-	if r.Flags["encounters_on"]{
+	if r.Flags["encounters_on"] {
 		r.roomTickerUnload <- true
 		r.roomTicker.Stop()
 	}
@@ -397,7 +396,7 @@ func (r *Room) BuyStoreItem(item *Item) *Item {
 		if infinite {
 			newItem := Item{}
 			copier.Copy(&newItem, Items[item.ItemId])
-			delete(newItem.Flags, "infinite")
+			newItem.Flags["infinite"] = false
 			newItem.StorePrice = 0
 			return &newItem
 		}

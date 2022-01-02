@@ -39,10 +39,20 @@ func (equip) process(s *state) {
 			if utils.IntIn(what.ItemType, []int{0, 1, 2, 3, 4}) {
 				s.msg.Actor.SendBad("You cannot wield weapons effectively.")
 				return
-			}else if utils.IntIn(what.ItemType, []int{5, 19, 20, 21, 22, 23, 24, 25, 26}){
-				if (s.actor.Equipment.Armor + what.Armor) > (s.actor.Tier * config.MonkArmorPerLevel){
-					s.msg.Actor.SendBad("You cannot wear that much additional armor.")
+			} else if utils.IntIn(what.ItemType, []int{5, 19, 20, 21, 22, 23, 24, 25, 26}) {
+				if !config.CheckArmor(what.ItemType, s.actor.Tier, what.Armor) {
+					s.msg.Actor.SendBad("You are unsure of how to maximize the benefit of this armor and cannot wear it.")
 					return
+				}
+				if !config.CheckMaxArmor("max", s.actor.Tier, what.Armor+s.actor.Equipment.Armor) {
+					s.msg.Actor.SendBad("You cannot equip this item in addition to your current equipment, max armor value exceeded.")
+					return
+				}
+				if what.ItemType == 23 {
+					if !config.CheckMaxArmor("shield_block", s.actor.Tier, what.Armor+s.actor.Equipment.Armor) {
+						s.msg.Actor.SendBad("You cannot equip this item in addition to your current equipment, max shield block exceeded.")
+						return
+					}
 				}
 			}
 		}

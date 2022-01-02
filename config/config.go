@@ -17,26 +17,26 @@ var Server = struct {
 	Greeting          []byte        // Connection greeting
 	Motd              string        // MOTD when logging in
 	IdleTimeout       time.Duration // Idle connection disconnect time
-	AFKTimeout		  time.Duration
-	OOCTimeout		  time.Duration
-	MaxPlayers        int           // Max number of players allowed to login at once
-	DataDir           string        // Main data directory
-	MaxCharacters     int           // Maximum number of characters
-	SearchResults     int           // Max search results
+	AFKTimeout        time.Duration
+	OOCTimeout        time.Duration
+	MaxPlayers        int    // Max number of players allowed to login at once
+	DataDir           string // Main data directory
+	MaxCharacters     int    // Maximum number of characters
+	SearchResults     int    // Max search results
 	Running           bool
 	CreateChars       bool
 	PermissionDefault int
 }{
 	Host:              "127.0.0.1",
-	DBUname:		"USERNAME",
-	DBPword:		"PASSWORD",
-	DBAddress:		"127.0.0.1",
+	DBUname:           "USERNAME",
+	DBPword:           "PASSWORD",
+	DBAddress:         "127.0.0.1",
 	Port:              "4001",
 	Greeting:          []byte("Welcome to Aalynor's Nexus."),
 	Motd:              "",
 	IdleTimeout:       5 * time.Minute,
-	AFKTimeout:		   30 * time.Minute,
-	OOCTimeout:		   15 * time.Minute,
+	AFKTimeout:        30 * time.Minute,
+	OOCTimeout:        15 * time.Minute,
 	MaxPlayers:        1024,
 	DataDir:           ".",
 	MaxCharacters:     20,

@@ -43,7 +43,7 @@ var (
 		"UP":        "UP",
 		"D":         "DOWN",
 		"DOWN":      "DOWN",
-		"OUT":		"OUT",
+		"OUT":       "OUT",
 	}
 )
 
@@ -163,6 +163,7 @@ func (godir) process(s *state) {
 								//TODO Calculate Vital?
 								to.Mobs.Add(mob, false)
 								mob.CurrentTarget = s.actor.Name
+								mob.StartTicking()
 							}
 						}
 					}
