@@ -12,14 +12,9 @@ func init() {
 		"$TEACH")
 }
 
-type script_teach cmd
+type scriptTeach cmd
 
-func (script_teach) process(s *state) {
-
-	if len(s.words) < 2 {
-		s.msg.Actor.SendInfo("You need to specify the person and the spell you want to teach.")
-		return
-	}
+func (scriptTeach) process(s *state) {
 
 	spell := s.words[0]
 
@@ -27,7 +22,7 @@ func (script_teach) process(s *state) {
 		s.actor.Spells = append(s.actor.Spells, spell)
 		s.msg.Participant.SendGood("You learned ", spell)
 		return
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That's not a known spell.")
 	}
 

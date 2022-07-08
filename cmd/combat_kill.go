@@ -172,6 +172,12 @@ func (kill) process(s *state) {
 	s.ok = true
 }
 
+// WeaponDamage Deferable Weapon damage function on current state
+func WeaponDamage(s *state) {
+
+}
+
+// DeathCheck Universal death check for mobs on whatever the current state is
 func DeathCheck(s *state, m *objects.Mob) {
 	if m.Stam.Current <= 0 {
 		s.msg.Actor.SendGood("You killed " + m.Name)

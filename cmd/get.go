@@ -60,6 +60,13 @@ func (get) process(s *state) {
 				s.msg.Actor.SendBad("You cannot take that!")
 				return
 			}
+			// Check the mobs in the room to see if any of them block
+			for _, mob := range s.where.Mobs.Contents {
+				if mob.Flags["guard_treasure"] && mob.Placement == s.actor.Placement {
+					s.msg.Actor.SendBad(mob.Name + " prevents you from picking up " + roomInventory.DisplayName())
+					return
+				}
+			}
 			if roomInventory.ItemType == 10 {
 				s.actor.RunHook("act")
 				s.where.Items.Remove(roomInventory)
@@ -67,7 +74,7 @@ func (get) process(s *state) {
 				s.msg.Actor.SendGood("You picked up ", strconv.Itoa(roomInventory.Value), " gold pieces.")
 				s.msg.Observers.SendInfo("You see ", s.actor.Name, " get ", roomInventory.Name, ".")
 				return
-			} else if (s.actor.Inventory.TotalWeight + roomInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+			} else if (s.actor.Inventory.TotalWeight+roomInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				s.actor.RunHook("act")
 				s.actor.Inventory.Lock()
 				s.where.Items.Remove(roomInventory)
@@ -84,7 +91,7 @@ func (get) process(s *state) {
 				return
 			}
 		}
-	}else{
+	} else {
 		where := s.where.Items.Search(whereStr, whereNum)
 
 		if where != nil && where.ItemType == 9 {
@@ -111,7 +118,7 @@ func (get) process(s *state) {
 					s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
 					where.Storage.Unlock()
 					return
-				} else if (s.actor.Inventory.TotalWeight + whereInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				} else if (s.actor.Inventory.TotalWeight+whereInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					s.actor.RunHook("act")
 					where.Storage.Lock()
 					s.actor.Inventory.Lock()

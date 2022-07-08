@@ -6,15 +6,15 @@ import (
 )
 
 func init() {
-	addHandler(bonus{},
-		"Usage:  bonus ## player Bonus a player or the whole room, leave player name off to bonus all present",
+	addHandler(redeem{},
+		"Usage:  redeem gold|exp ## Redeem your bonus points for 5k gold or 5% of your curent required experiene",
 		permissions.Dungeonmaster,
-		"bonus")
+		"redeem")
 }
 
-type bonus cmd
+type redeem cmd
 
-func (bonus) process(s *state) {
+func (redeem) process(s *state) {
 	if len(s.words) < 1 {
 		s.msg.Actor.SendInfo("Bonus how much?")
 		return

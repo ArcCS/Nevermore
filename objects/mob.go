@@ -207,6 +207,22 @@ func (m *Mob) Tick() {
 				return
 			}
 		} else {
+			// Picking up treasure
+			if m.Flags["takes_treasure"] {
+				// Roll to see if I'm gonna pick it up
+				if utils.Roll(100, 1, 0) <= config.MobTakeChance {
+					// Loop inventory, and take the first thing they find
+					for _, item := range Rooms[m.ParentId].Items.Contents {
+						if m.Placement == item.Placement && !item.Flags["hidden"] {
+							Rooms[m.ParentId].Items.Remove(item)
+							m.Inventory.Add(item)
+							Rooms[m.ParentId].MessageAll(m.Name + " picks up " + item.DisplayName() + text.Reset + "\n")
+							return
+						}
+					}
+				}
+			}
+
 			// Am I hostile?  Should I pick a target?
 			if m.CurrentTarget == "" && m.Flags["hostile"] {
 				potentials := Rooms[m.ParentId].Chars.MobList(m)

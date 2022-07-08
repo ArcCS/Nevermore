@@ -71,11 +71,13 @@ var CircleStuns = 1
 var CircleTimer = 30
 var BashStuns = 16
 var BashTimer = 30
+
 // Mob Things
-var MobBlock = 70
-var MobBlockPerLevel = 10
-var MobFollow = 60
-var MobFollowPerLevel = 5
+var MobBlock = 25
+var MobBlockPerLevel = 5
+var MobFollow = 25
+var MobFollowPerLevel = 2
+var MobTakeChance = 10 // Percent
 
 // Str Mods
 var StrCarryMod = 10 // Per Point
@@ -142,9 +144,9 @@ func CalcMana(tier int, intel int, class int) int {
 func CalcHaste(tier int) int {
 	if tier < 10 {
 		return 2
-	}else if tier >=10 && tier < 15 {
+	} else if tier >= 10 && tier < 15 {
 		return 3
-	}else if tier > 15 {
+	} else if tier > 15 {
 		return 4
 	}
 	return 0
@@ -164,7 +166,6 @@ var Parry = []int{
 	18,
 	20,
 }
-
 
 func RollParry(skill int) bool {
 	if skill > 0 {
@@ -243,24 +244,24 @@ var LethalDamage = []int{
 
 // BashChances Skill = Thunk, Crushing, Thwomp, Thump
 var BashChances = map[int][]int{
-	0:{0, 0, 0, 0},
-	1:{125, 0, 0, 0},
-	2:{250, 0, 0, 0},
-	3:{500, 0, 0, 0},
-	4:{750, 0, 0, 0},
-	5:{1000, 0, 0, 0},
-	6:{1250, 0, 0, 0},
-	7:{1500, 0, 0, 0},
-	8:{1875, 0, 0, 0},
-	9:{3000, 0, 0, 0},
+	0: {0, 0, 0, 0},
+	1: {125, 0, 0, 0},
+	2: {250, 0, 0, 0},
+	3: {500, 0, 0, 0},
+	4: {750, 0, 0, 0},
+	5: {1000, 0, 0, 0},
+	6: {1250, 0, 0, 0},
+	7: {1500, 0, 0, 0},
+	8: {1875, 0, 0, 0},
+	9: {3000, 0, 0, 0},
 }
 
 func RollBash(skill int) (damModifier int, stunModifier int, output string) {
 	/*
-	var ThumpRoll = 10
-	var ThwompRoll = 50
-	var CrushingRoll = 500
-	var ThunkRoll = 1000
+		var ThumpRoll = 10
+		var ThwompRoll = 50
+		var CrushingRoll = 500
+		var ThunkRoll = 1000
 
 	*/
 	damModifier = 1
@@ -269,7 +270,7 @@ func RollBash(skill int) (damModifier int, stunModifier int, output string) {
 	if bashRoll <= BashChances[skill][0] { // Thunk
 		damModifier = CombatModifiers["thunk"]
 		output = "Thunk!!"
-	} else if bashRoll <= BashChances[skill][1]  { // Crushing
+	} else if bashRoll <= BashChances[skill][1] { // Crushing
 		damModifier = CombatModifiers["crushing"]
 		output = "Craaackk!!"
 	} else if bashRoll <= BashChances[skill][2] { // Thwomp

@@ -61,14 +61,14 @@ type Character struct {
 	Int Meter
 	Pie Meter
 
-	Tier     int
-	Class    int
-	Race     int
-	Gender   string
-	Birthday int
-	Birthdate int
+	Tier       int
+	Class      int
+	Race       int
+	Gender     string
+	Birthday   int
+	Birthdate  int
 	Birthmonth int
-	Birthyear int
+	Birthyear  int
 
 	// Cool Downs
 	Timers map[string]time.Time
@@ -79,21 +79,21 @@ type Character struct {
 	//TODO: Class Properties Heals/Enchants/Restores/Finales
 	ClassProps map[string]int
 
-	Spells []string
-	Skills map[int]*Accumulator
+	Spells            []string
+	Skills            map[int]*Accumulator
 	ElementalAffinity map[string]*Accumulator
 
 	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
-	Hooks map[string]map[string]*Hook
-	LastAction time.Time
-	LoginTime time.Time
+	Hooks            map[string]map[string]*Hook
+	LastAction       time.Time
+	LoginTime        time.Time
 	//Party Stuff
-	PartyFollow *Character
+	PartyFollow    *Character
 	PartyFollowers []*Character
-	Victim interface{}
-	Resist bool
-	OOCSwap int
+	Victim         interface{}
+	Resist         bool
+	OOCSwap        int
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -106,7 +106,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				Name:        strings.Title(charData["name"].(string)),
 				Description: charData["description"].(string),
 				Placement:   3,
-				Commands: make(map[string]prompt.MenuItem),
+				Commands:    make(map[string]prompt.MenuItem),
 			},
 			writer,
 			StyleNone,
@@ -158,20 +158,20 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				4: {int(charData["missileexp"].(int64))},
 				5: {int(charData["handexp"].(int64))}},
 			map[string]*Accumulator{
-				"fire": {0},
+				"fire":  {0},
 				"earth": {0},
 				"water": {0},
-				"air": {0}},
+				"air":   {0}},
 			nil,
 			make(chan bool),
 			map[string]map[string]*Hook{
-				"act": make(map[string]*Hook),
-				"combat": make(map[string]*Hook),
-				"peek": make(map[string]*Hook),
+				"act":      make(map[string]*Hook),
+				"combat":   make(map[string]*Hook),
+				"peek":     make(map[string]*Hook),
 				"gridmove": make(map[string]*Hook),
-				"move": make(map[string]*Hook),
-				"say": make(map[string]*Hook),
-				"use": make(map[string]*Hook),
+				"move":     make(map[string]*Hook),
+				"say":      make(map[string]*Hook),
+				"use":      make(map[string]*Hook),
 			},
 			time.Now(),
 			time.Now(),
@@ -181,7 +181,6 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			true,
 			int(charData["oocswap"].(int64)),
 		}
-
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
 			if spellN != "" {
@@ -229,7 +228,7 @@ func (c *Character) SetTimer(timer string, seconds int) {
 	if timer == "combat" {
 		if hasted, ok := c.Flags["haste"]; ok {
 			if hasted {
-				c.Timers[timer] = time.Now().Add(time.Duration(seconds - config.CalcHaste(c.Tier)) * time.Second)
+				c.Timers[timer] = time.Now().Add(time.Duration(seconds-config.CalcHaste(c.Tier)) * time.Second)
 				return
 			}
 		}
@@ -262,23 +261,23 @@ func (c *Character) Unload() {
 
 func (c *Character) ToggleFlag(flagName string, provider string) {
 	if _, exists := c.Flags[flagName]; exists {
-		if c.Flags[flagName] == true && len(c.FlagProviders[flagName]) > 1{
+		if c.Flags[flagName] == true && len(c.FlagProviders[flagName]) > 1 {
 			c.FlagProviders[flagName][utils.IndexOf(provider, c.FlagProviders[flagName])] = c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] // Copy last element to index i.
-			c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] = ""   // Erase last element (write zero value).
-			c.FlagProviders[flagName] = c.FlagProviders[flagName][:len(c.FlagProviders[flagName])-1]   // Truncate slice.
-		}else if c.Flags[flagName] == true && len(c.FlagProviders[flagName]) == 1 {
+			c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] = ""                                                                            // Erase last element (write zero value).
+			c.FlagProviders[flagName] = c.FlagProviders[flagName][:len(c.FlagProviders[flagName])-1]                                                    // Truncate slice.
+		} else if c.Flags[flagName] == true && len(c.FlagProviders[flagName]) == 1 {
 			c.Flags[flagName] = false
 			c.FlagProviders[flagName] = []string{}
-		}else if c.Flags[flagName] == false && provider == ""{
+		} else if c.Flags[flagName] == false && provider == "" {
 			c.Flags[flagName] = true
-		}else if c.Flags[flagName] == true && provider == "" {
+		} else if c.Flags[flagName] == true && provider == "" {
 			c.Flags[flagName] = false
 			c.FlagProviders[flagName] = []string{provider}
-		}else if c.Flags[flagName] == false && provider != "" {
+		} else if c.Flags[flagName] == false && provider != "" {
 			c.Flags[flagName] = true
 			c.FlagProviders[flagName] = []string{provider}
 		}
-	}else{
+	} else {
 		c.Flags[flagName] = true
 		c.FlagProviders[flagName] = []string{provider}
 	}
@@ -297,12 +296,12 @@ func (c *Character) CheckFlag(flagName string) bool {
 }
 
 // SerialSaveEffects serializes all current user effects, removes them, and saves them to the database
-func (c *Character) SerialSaveEffects() string{
+func (c *Character) SerialSaveEffects() string {
 	effectList := make(map[string]float64)
 
 	for efN, effect := range c.Effects {
 		// Ignore any bard songs, we won't take them with us.
-		if !strings.Contains(efN, "_song"){
+		if !strings.Contains(efN, "_song") {
 			effectList[efN] = effect.TimeRemaining()
 		}
 	}
@@ -315,7 +314,7 @@ func (c *Character) SerialSaveEffects() string{
 	}
 }
 
-func (c *Character) SerialRestoreEffects(effectsBlob string){
+func (c *Character) SerialRestoreEffects(effectsBlob string) {
 	obj := make(map[string]float64, 0)
 	err := json.Unmarshal([]byte(effectsBlob), &obj)
 	if err != nil {
@@ -328,13 +327,13 @@ func (c *Character) SerialRestoreEffects(effectsBlob string){
 }
 
 func (c *Character) PurgeEffects() {
-	for _, effect:= range c.Effects {
+	for _, effect := range c.Effects {
 		effect.effectOff()
 	}
 }
 
 // SerialSaveTimers serializes all current user timers
-func (c *Character) SerialSaveTimers() string{
+func (c *Character) SerialSaveTimers() string {
 	timerList := make(map[string]float64)
 
 	for efN, effect := range c.Timers {
@@ -349,7 +348,7 @@ func (c *Character) SerialSaveTimers() string{
 	}
 }
 
-func (c *Character) SerialRestoreTimers(timerBlob string){
+func (c *Character) SerialRestoreTimers(timerBlob string) {
 	obj := make(map[string]float64, 0)
 	err := json.Unmarshal([]byte(timerBlob), &obj)
 	if err != nil {
@@ -360,10 +359,10 @@ func (c *Character) SerialRestoreTimers(timerBlob string){
 	}
 }
 
-func (c *Character) GetModifier(modifier string) int{
+func (c *Character) GetModifier(modifier string) int {
 	if mod, ok := c.Modifiers[modifier]; ok {
 		return mod
-	}else{
+	} else {
 		return 0
 	}
 }
@@ -371,7 +370,7 @@ func (c *Character) GetModifier(modifier string) int{
 func (c *Character) SetModifier(modifier string, value int) {
 	if _, ok := c.Modifiers[modifier]; ok {
 		c.Modifiers[modifier] += value
-	}else{
+	} else {
 		c.Modifiers[modifier] = value
 	}
 }
@@ -390,7 +389,7 @@ func (c *Character) GetStat(stat string) int {
 		return c.Con.Current + c.Modifiers["con"]
 	case "armor":
 		if c.Class == 8 {
-			return c.Equipment.Armor + c.Modifiers["armor"] + (c.Tier*config.MonkArmorPerLevel) + (c.GetStat("con")*config.ConMonkArmor)
+			return c.Equipment.Armor + c.Modifiers["armor"] + (c.Tier * config.MonkArmorPerLevel) + (c.GetStat("con") * config.ConMonkArmor)
 		}
 		return c.Equipment.Armor + c.Modifiers["armor"]
 	default:
@@ -492,22 +491,22 @@ func (c *Character) ReturnVictim() string {
 	}
 }
 
-func (c *Character) ReturnState() string{
+func (c *Character) ReturnState() string {
 	stamStatus := "energetic "
 	vitStatus := "healthy"
-	if c.Stam.Current < (c.Stam.Max - int(.75 * float32(c.Stam.Max))) {
+	if c.Stam.Current < (c.Stam.Max - int(.75*float32(c.Stam.Max))) {
 		stamStatus = "exhausted"
-	}else if c.Stam.Current < (c.Stam.Max - int(.5 * float32(c.Stam.Max))) {
+	} else if c.Stam.Current < (c.Stam.Max - int(.5*float32(c.Stam.Max))) {
 		stamStatus = "fatigued"
-	}else if c.Stam.Current < (c.Stam.Max - int(.25 * float32(c.Stam.Max))) {
+	} else if c.Stam.Current < (c.Stam.Max - int(.25*float32(c.Stam.Max))) {
 		stamStatus = "slightly fatigued"
 	}
 
-	if c.Vit.Current < (c.Vit.Max - int(.75 * float32(c.Vit.Max))) {
+	if c.Vit.Current < (c.Vit.Max - int(.75*float32(c.Vit.Max))) {
 		vitStatus = "mortally wounded"
-	}else if c.Vit.Current < (c.Vit.Max - int(.5 * float32(c.Vit.Max))) {
+	} else if c.Vit.Current < (c.Vit.Max - int(.5*float32(c.Vit.Max))) {
 		vitStatus = "injured"
-	}else if c.Vit.Current < (c.Vit.Max - int(.25 * float32(c.Vit.Max))) {
+	} else if c.Vit.Current < (c.Vit.Max - int(.25*float32(c.Vit.Max))) {
 		vitStatus = "slightly injured"
 	}
 
@@ -524,9 +523,9 @@ const (
 
 func (c *Character) Tick() {
 	if Rooms[c.ParentId].Flags["heal_fast"] {
-		c.Stam.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod*2)))
-		c.Vit.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod*2)))
-		c.Mana.Add(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod*2)))
+		c.Stam.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
+		c.Vit.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
+		c.Mana.Add(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod * 2)))
 	} else {
 		c.Stam.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
 		c.Vit.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
@@ -584,7 +583,7 @@ func (c *Character) ApplyHook(hook string, hookName string, executions int, leng
 func (c *Character) RemoveHook(hook string, hookName string) {
 	c.Hooks[hook][hookName].effectOff()
 	valPresent := false
-	for k, _ := range c.Hooks{
+	for k, _ := range c.Hooks {
 		valPresent = false
 		for hName, _ := range c.Hooks[k] {
 			if hName == hookName {
@@ -597,7 +596,7 @@ func (c *Character) RemoveHook(hook string, hookName string) {
 	}
 }
 
-func (c *Character) RunHook(hook string){
+func (c *Character) RunHook(hook string) {
 	for name, hookInstance := range c.Hooks[hook] {
 		// Process Removing the hook
 		if hookInstance.TimeRemaining() == 0 {
@@ -608,22 +607,22 @@ func (c *Character) RunHook(hook string){
 			if hookInstance.LastTriggerInterval() <= 0 {
 				hookInstance.RunHook()
 			}
-		}else if hookInstance.interval == -1 {
+		} else if hookInstance.interval == -1 {
 			hookInstance.RunHook()
 		}
 	}
 	return
 }
 
-func (c *Character) AdvanceSkillExp(amount int){
+func (c *Character) AdvanceSkillExp(amount int) {
 	if c.Equipment.Main != nil {
 		c.Skills[c.Equipment.Main.ItemType].Add(amount)
-	}else if c.Class==8 {
+	} else if c.Class == 8 {
 		c.Skills[5].Add(amount)
 	}
 }
 
-func (c *Character) AdvanceElementalExp(amount int){
+func (c *Character) AdvanceElementalExp(amount int) {
 	return
 }
 
@@ -656,6 +655,10 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 }
 
 func (c *Character) ReceiveVitalDamage(damage int) int {
+	msg := c.Equipment.DamageRandomArmor()
+	if msg != "" {
+		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
+	}
 	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(c.GetStat("armor")/config.ArmorReductionPoints) * config.ArmorReduction))))
 	if finalDamage > c.Vit.Current {
 		finalDamage = c.Vit.Current
@@ -710,7 +713,7 @@ func (c *Character) GetSpellMultiplier() int {
 		} else {
 			return 1
 		}
-	}else{
+	} else {
 		return 1
 	}
 }
@@ -720,11 +723,11 @@ func (c *Character) InflictDamage() (damage int) {
 		damage = utils.Roll(c.Equipment.Main.SidesDice,
 			c.Equipment.Main.NumDice,
 			c.Equipment.Main.PlusDice)
-	}else{
-		plusDamage := config.MaxWeaponDamage[c.Tier]/4
-		// Lets uses dex to determine dice.. more dex = more dice = higher lower damage threshold
+	} else {
+		plusDamage := config.MaxWeaponDamage[c.Tier] / 4
+		// Lets uses dex to determine dice. more dex = more dice = higher lower damage threshold
 		nDice := int(math.Floor(config.MonkDexPerDice * float64(c.GetStat("dex"))))
-		sDice := (plusDamage*3)/nDice
+		sDice := (plusDamage * 3) / nDice
 		damage = utils.Roll(int(sDice), int(nDice), int(plusDamage))
 	}
 
@@ -740,7 +743,6 @@ func (c *Character) InflictDamage() (damage int) {
 	}
 	return damage
 }
-
 
 func (c *Character) MaxWeight() int {
 	return config.MaxWeight(c.Str.Current)
@@ -782,7 +784,7 @@ func (c *Character) WriteMovement(previous int, new int, subject string) {
 	}
 }
 
-func (c *Character) LoseParty(){
+func (c *Character) LoseParty() {
 	if len(c.PartyFollowers) > 0 {
 		for _, player := range c.PartyFollowers {
 			player.PartyFollow = nil
@@ -793,7 +795,7 @@ func (c *Character) LoseParty(){
 	return
 }
 
-func (c *Character) Unfollow(){
+func (c *Character) Unfollow() {
 	if c.PartyFollow != nil {
 		for i, char := range c.PartyFollow.PartyFollowers {
 			if char == c {
@@ -812,7 +814,7 @@ func (c *Character) Unfollow(){
 	}
 }
 
-func (c *Character) MessageParty(msg string){
+func (c *Character) MessageParty(msg string) {
 	if len(c.PartyFollowers) > 0 {
 		for _, char := range c.PartyFollowers {
 			char.Write([]byte(text.Info + c.Name + " party flashes# \"" + msg + "\"\n"))
@@ -820,6 +822,6 @@ func (c *Character) MessageParty(msg string){
 	}
 }
 
-func (c *Character) DeathCheck(){
+func (c *Character) DeathCheck() {
 	return
 }

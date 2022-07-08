@@ -137,61 +137,64 @@ func (godir) process(s *state) {
 					// Check if anyone blocks.
 					for _, mob := range s.where.Mobs.Contents {
 						// Check if a mob blocks.
-						if mob.Flags["block_exit"] {
-							curChance := config.MobBlock - ((s.actor.Tier - mob.Level) * config.MobBlockPerLevel)
-							if curChance > 85 {
-								curChance = 85
+						if _, inList := mob.ThreatTable[s.actor.Name]; inList {
+							if mob.Flags["block_exit"] && mob.Placement == s.actor.Placement {
+								curChance := config.MobBlock - ((s.actor.Tier - mob.Level) * config.MobBlockPerLevel)
+								if curChance > 85 {
+									curChance = 85
+								}
+								if utils.Roll(100, 1, 0) <= curChance {
+									s.msg.Actor.SendBad(mob.Name + " blocks your way.")
+									s.actor.SetTimer("global", 8)
+									return
+								}
 							}
-							if utils.Roll(100, 1, 0) <= curChance {
-								s.msg.Actor.SendBad(mob.Name + " blocks your way.")
-								return
+
+							// Now check if they follow.
+							for _, mob := range s.where.Mobs.Contents {
+								if mob.Flags["follows"] {
+									curChance := config.MobFollow - ((s.actor.Tier - mob.Level) * config.MobFollowPerLevel)
+									if curChance > 85 {
+										curChance = 85
+									}
+									if utils.Roll(100, 1, 0) <= curChance {
+										s.msg.Actor.SendBad(mob.Name + " follows you!")
+										s.msg.Observer.SendInfo(mob.Name + " follows " + s.actor.Name)
+										from.Mobs.Remove(mob)
+										//TODO Calculate Vital?
+										to.Mobs.Add(mob, false)
+										mob.CurrentTarget = s.actor.Name
+										mob.StartTicking()
+									}
+								}
 							}
 						}
 					}
 
-					// Now check if they follow..
-					for _, mob := range s.where.Mobs.Contents {
-						if mob.Flags["follows"] {
-							curChance := config.MobFollow - ((s.actor.Tier - mob.Level) * config.MobFollowPerLevel)
-							if curChance > 85 {
-								curChance = 85
-							}
-							if utils.Roll(100, 1, 0) <= curChance {
-								s.msg.Actor.SendBad(mob.Name + " follows you!")
-								s.msg.Observer.SendInfo(mob.Name + " follows " + s.actor.Name)
-								from.Mobs.Remove(mob)
-								//TODO Calculate Vital?
-								to.Mobs.Add(mob, false)
-								mob.CurrentTarget = s.actor.Name
-								mob.StartTicking()
+					from.Chars.Remove(s.actor)
+					to.Chars.Add(s.actor)
+					s.actor.Victim = nil
+					s.actor.Placement = 3
+					s.actor.ParentId = toE.ToId
+
+					// Broadcast leaving and arrival notifications
+					if s.actor.Flags["invisible"] == false {
+						s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
+						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
+					}
+
+					if len(s.actor.PartyFollowers) > 0 {
+						for _, party := range s.actor.PartyFollowers {
+							if party.ParentId == s.where.RoomId {
+								go Script(party, s.cmd+" "+strings.Join(s.input, " "))
 							}
 						}
 					}
+
+					s.scriptActor("LOOK")
+					s.ok = true
+					return
 				}
-
-				from.Chars.Remove(s.actor)
-				to.Chars.Add(s.actor)
-				s.actor.Victim = nil
-				s.actor.Placement = 3
-				s.actor.ParentId = toE.ToId
-
-				// Broadcast leaving and arrival notifications
-				if s.actor.Flags["invisible"] == false {
-					s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
-					s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
-				}
-
-				if len(s.actor.PartyFollowers) > 0 {
-					for _, party := range s.actor.PartyFollowers {
-						if party.ParentId == s.where.RoomId {
-							go Script(party, s.cmd+" "+strings.Join(s.input, " "))
-						}
-					}
-				}
-
-				s.scriptActor("LOOK")
-				s.ok = true
-				return
 			}
 		} else {
 			s.msg.Actor.SendInfo("You can't go that direction.")
