@@ -607,10 +607,57 @@ func (m *Mob) ToggleFlagAndMsg(flagName string, msg string) {
 	log.Println(m.Name, " informed: ", msg)
 }
 
+func (m *Mob) CheckFlag(flagName string) bool {
+	if flag, err := m.Flags[flagName]; !err {
+		return flag
+	}
+	return false
+}
+
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
 	finalDamage := math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction)))
 	m.Stam.Subtract(int(finalDamage))
 	return int(finalDamage), 0
+}
+
+func (m *Mob) ReceiveDamageNoArmor(damage int) (int, int) {
+	finalDamage := math.Ceil(float64(damage))
+	m.Stam.Subtract(int(finalDamage))
+	return int(finalDamage), 0
+}
+
+func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {
+	var resisting float64
+
+	switch element {
+	case "fire":
+		if m.CheckFlag("resist_fire") {
+			resisting = .25
+		}
+	case "air":
+		if m.CheckFlag("resist_air") {
+			resisting = .25
+		}
+	case "earth":
+		if m.CheckFlag("resist_earth") {
+			resisting = .25
+		}
+	case "water":
+		if m.CheckFlag("resist_water") {
+			resisting = .25
+		}
+	}
+	if resisting > 0 {
+		resisting = (float64(m.Int.Current) / 30) * resisting
+	}
+
+	if m.CheckFlag("resist_magic") {
+		resisting += .10
+	}
+	resisted := int(math.Ceil(float64(damage) * resisting))
+	//log.Println(m.Name + " is resisting at " + fmt.Sprintf("%f", resisting) + " damage was " + strconv.Itoa(damage) + " and element was " + element)
+	stamDam, vitDam := m.ReceiveDamageNoArmor(damage - resisted)
+	return stamDam, vitDam, resisted
 }
 
 func (m *Mob) ReceiveVitalDamage(damage int) int {

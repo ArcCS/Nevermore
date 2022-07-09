@@ -261,10 +261,12 @@ func (c *Character) Unload() {
 
 func (c *Character) ToggleFlag(flagName string, provider string) {
 	if _, exists := c.Flags[flagName]; exists {
-		if c.Flags[flagName] == true && len(c.FlagProviders[flagName]) > 1 {
+		if c.Flags[flagName] == true && utils.StringIn(provider, c.FlagProviders[flagName]) && len(c.FlagProviders[flagName]) > 1 {
 			c.FlagProviders[flagName][utils.IndexOf(provider, c.FlagProviders[flagName])] = c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] // Copy last element to index i.
 			c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] = ""                                                                            // Erase last element (write zero value).
 			c.FlagProviders[flagName] = c.FlagProviders[flagName][:len(c.FlagProviders[flagName])-1]                                                    // Truncate slice.
+		} else if c.Flags[flagName] == true && !utils.StringIn(provider, c.FlagProviders[flagName]) && len(c.FlagProviders[flagName]) >= 1 {
+			c.FlagProviders[flagName] = append(c.FlagProviders[flagName], provider)
 		} else if c.Flags[flagName] == true && len(c.FlagProviders[flagName]) == 1 {
 			c.Flags[flagName] = false
 			c.FlagProviders[flagName] = []string{}
@@ -272,7 +274,7 @@ func (c *Character) ToggleFlag(flagName string, provider string) {
 			c.Flags[flagName] = true
 		} else if c.Flags[flagName] == true && provider == "" {
 			c.Flags[flagName] = false
-			c.FlagProviders[flagName] = []string{provider}
+			c.FlagProviders[flagName] = []string{}
 		} else if c.Flags[flagName] == false && provider != "" {
 			c.Flags[flagName] = true
 			c.FlagProviders[flagName] = []string{provider}
@@ -654,6 +656,27 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 	return stamDamage, vitalDamage
 }
 
+func (c *Character) ReceiveDamageNoArmor(damage int) (int, int) {
+	stamDamage, vitalDamage := 0, 0
+	finalDamage := damage
+	if finalDamage > c.Stam.Current {
+		stamDamage = c.Stam.Current
+		vitalDamage = finalDamage - stamDamage
+		c.Stam.Current = 0
+		if vitalDamage > c.Vit.Current {
+			vitalDamage = c.Vit.Current
+			c.Vit.Current = 0
+		} else {
+			c.Vit.Subtract(vitalDamage)
+		}
+	} else {
+		c.Stam.Subtract(finalDamage)
+		stamDamage = finalDamage
+		vitalDamage = 0
+	}
+	return stamDamage, vitalDamage
+}
+
 func (c *Character) ReceiveVitalDamage(damage int) int {
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
@@ -669,9 +692,38 @@ func (c *Character) ReceiveVitalDamage(damage int) int {
 	return finalDamage
 }
 
-func (c *Character) ReceiveMagicDamage(damage int) (int, int) {
-	//TODO Calculate some magic resistance damage
-	return c.ReceiveDamage(damage)
+func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, int) {
+	var resisting float64
+
+	switch element {
+	case "fire":
+		if c.CheckFlag("resist_fire") {
+			resisting = .25
+		}
+	case "air":
+		if c.CheckFlag("resist_air") {
+			resisting = .25
+		}
+	case "earth":
+		if c.CheckFlag("resist_air") {
+			resisting = .25
+		}
+	case "water":
+		if c.CheckFlag("resist_air") {
+			resisting = .25
+		}
+	}
+	if resisting > 0 {
+		resisting = (float64(c.Int.Current) / 30) * resisting
+	}
+
+	if c.CheckFlag("resist_magic") {
+		resisting += .10
+	}
+
+	resisted := int(math.Ceil(float64(damage) * resisting))
+	stamDam, vitDam := c.ReceiveDamageNoArmor(damage - resisted)
+	return stamDam, vitDam, resisted
 }
 
 func (c *Character) Heal(damage int) (int, int) {
