@@ -107,9 +107,9 @@ func (c *characterStats) List() []string {
 			charState = "/" + charState
 		}
 		if character.Title != "" {
-			list = append(list, fmt.Sprintf("%s, the %s, %s, %s", character.Name, character.ClassTitle, character.Title, charState))
+			list = append(list, fmt.Sprintf("%s(%s), the %s, %s, %s", character.Name, strconv.Itoa(character.Tier), character.ClassTitle, character.Title, charState))
 		} else {
-			list = append(list, fmt.Sprintf("%s, the %s, %s", character.Name, character.ClassTitle, charState))
+			list = append(list, fmt.Sprintf("%s(%s), the %s, %s", character.Name, strconv.Itoa(character.Tier), character.ClassTitle, charState))
 		}
 	}
 
@@ -126,9 +126,9 @@ func (c *characterStats) GMList() []string {
 
 	for _, character := range c.list {
 		if character.Title != "" {
-			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s, %s, %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, character.ClassTitle, character.Title))
+			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s(%s), %s, %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, strconv.Itoa(character.Tier), character.ClassTitle, character.Title))
 		} else {
-			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s, %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, character.ClassTitle))
+			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s(%s), %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, strconv.Itoa(character.Tier), character.ClassTitle))
 		}
 	}
 

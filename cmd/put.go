@@ -82,6 +82,11 @@ func (put) process(s *state) {
 		return
 	}
 
+	if target.ItemType == 9 {
+		s.msg.Actor.SendInfo("You cannot put a container into another container.")
+		return
+	}
+
 	s.actor.RunHook("act")
 
 	s.actor.Inventory.Lock()

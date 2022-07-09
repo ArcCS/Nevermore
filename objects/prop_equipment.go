@@ -252,6 +252,10 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 		e.Off = item
 		ok = true
 	} //wand",
+	if item.ItemType == 12 && e.Off == (*Item)(nil) {
+		e.Off = item
+		ok = true
+	} //light source
 	if item.ItemType == 15 && e.Ammo == (*Item)(nil) && e.Main != (*Item)(nil) {
 		if e.Main.ItemType == 4 {
 			e.Ammo = item

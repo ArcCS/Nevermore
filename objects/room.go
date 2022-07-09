@@ -391,21 +391,6 @@ func (r *Room) AddStoreItem(item *Item, price int, infinite bool) {
 	r.StoreInventory.Add(item)
 }
 
-func (r *Room) BuyStoreItem(item *Item) *Item {
-	if infinite, ok := item.Flags["infinite"]; ok {
-		if infinite {
-			newItem := Item{}
-			copier.Copy(&newItem, Items[item.ItemId])
-			newItem.Flags["infinite"] = false
-			newItem.StorePrice = 0
-			return &newItem
-		}
-	}
-	r.StoreInventory.Remove(item)
-	item.StorePrice = 0
-	return item
-}
-
 func (r *Room) SongPlaying(songName string) bool {
 	songPlaying := false
 	if _, ok := Songs[songName]; ok {

@@ -64,7 +64,6 @@ func (slam) process(s *state) {
 			return
 		}
 
-
 		// Shortcut weapon not being blunt
 		if s.actor.Equipment.Off.ItemType != 23 {
 			s.msg.Actor.SendBad("You can only bash with a shield!")
@@ -77,11 +76,12 @@ func (slam) process(s *state) {
 			return
 		}
 
-		actualDamage, _ := whatMob.ReceiveDamage(s.actor.GetStat("str")*config.ShieldDamage)
+		actualDamage, _ := whatMob.ReceiveDamage(s.actor.GetStat("str") * config.ShieldDamage)
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
-		whatMob.Stun(config.ShieldStun*s.actor.GetStat("pie"))
+		whatMob.Stun(config.ShieldStun * s.actor.GetStat("pie"))
+		s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 		s.msg.Actor.SendInfo("You slammed the " + whatMob.Name + " with your shield for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
-		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.TextPosPronoun[s.actor.Gender] + " shield into "+ whatMob.Name)
+		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.TextPosPronoun[s.actor.Gender] + " shield into " + whatMob.Name)
 		DeathCheck(s, whatMob)
 		s.actor.SetTimer("combat_shieldslam", config.SlamTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)

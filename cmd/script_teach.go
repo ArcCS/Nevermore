@@ -3,10 +3,11 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 )
 
 func init() {
-	addHandler(script_teach{},
+	addHandler(scriptTeach{},
 		"",
 		permissions.Player,
 		"$TEACH")
@@ -23,7 +24,7 @@ func (scriptTeach) process(s *state) {
 		s.msg.Participant.SendGood("You learned ", spell)
 		return
 	} else {
-		s.msg.Actor.SendBad("That's not a known spell.")
+		log.Printf("That's not a known spell.")
 	}
 
 	s.ok = true

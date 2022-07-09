@@ -368,10 +368,10 @@ func (m *Mob) Tick() {
 							go Rooms[m.ParentId].ClearMob(m)
 							return
 						}
-						m.MobStunned = config.ParryStuns
+						m.Stun(config.ParryStuns * 8)
 					} else {
 						target.Write([]byte(text.Green + "You parry the attack from " + m.Name + "\n" + text.Reset))
-						m.MobStunned = config.ParryStuns
+						m.Stun(config.ParryStuns * 8)
 					}
 				} else {
 					stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))

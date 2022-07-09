@@ -80,7 +80,7 @@ func (snipe) process(s *state) {
 		}
 
 		s.actor.RunHook("combat")
-		curChance := config.SnipeChance + (config.SnipeChancePerLevel*(s.actor.Tier - whatMob.Level))
+		curChance := config.SnipeChance + (config.SnipeChancePerLevel * (s.actor.Tier - whatMob.Level))
 
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			curChance = 100
@@ -88,18 +88,17 @@ func (snipe) process(s *state) {
 
 		curChance += s.actor.Dex.Current * config.SnipeChancePerPoint
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
-		roll := utils.Roll(100, 1, 0)
-		s.msg.Actor.SendInfo("You had a " + strconv.Itoa(curChance) + " chance to snipe  and rolled " + strconv.Itoa(roll))
 		if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["snipe"]))))
 			s.msg.Actor.SendInfo("You sniped the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
+			s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 			s.msg.Observers.SendInfo(s.actor.Name + " snipes " + whatMob.Name)
 			DeathCheck(s, whatMob)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			return
-		}else {
+		} else {
 			s.msg.Actor.SendBad("You failed to snipe ", whatMob.Name, "!")
-			s.msg.Observers.SendBad(s.actor.Name + " failed to snipe ", whatMob.Name, "!")
+			s.msg.Observers.SendBad(s.actor.Name+" failed to snipe ", whatMob.Name, "!")
 			if utils.Roll(100, 1, 0) < config.SnipeFumbleChance {
 				s.msg.Actor.SendBad("You fumbled your weapon!")
 				s.msg.Observer.SendInfo(s.actor.Name + " fails to snipe and fumbles their weapon. ")
@@ -110,7 +109,7 @@ func (snipe) process(s *state) {
 					s.actor.Inventory.Add(what)
 					s.actor.Inventory.Unlock()
 				}
-			}else{
+			} else {
 				s.msg.Observer.SendInfo(s.actor.Name + " fails to snipe " + whatMob.Name)
 			}
 			s.ok = true

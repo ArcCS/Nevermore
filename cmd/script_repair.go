@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/jinzhu/copier"
 	"strconv"
 )
 
@@ -11,14 +9,14 @@ func init() {
 	addHandler(buy{},
 		"",
 		permissions.Player,
-		"$BUY")
+		"$REPAIR")
 }
 
-type buy cmd
+type scriptRepair cmd
 
-func (buy) process(s *state) {
+func (scriptRepair) process(s *state) {
 	if len(s.words) < 1 {
-		s.msg.Actor.SendBad("Buy what?")
+		s.msg.Actor.SendBad("Repair what?")
 		return
 	}
 
@@ -40,14 +38,6 @@ func (buy) process(s *state) {
 					s.actor.Inventory.Lock()
 					s.where.StoreInventory.Lock()
 					s.actor.Gold.Subtract(purchaseItem.StorePrice)
-					if purchaseItem.Flags["infinite"] {
-						newItem := objects.Item{}
-						copier.CopyWithOption(&newItem, objects.Items[purchaseItem.ItemId], copier.Option{DeepCopy: true})
-						s.actor.Inventory.Add(&newItem)
-					} else {
-						s.where.StoreInventory.Remove(purchaseItem)
-						s.actor.Inventory.Add(purchaseItem)
-					}
 					s.where.StoreInventory.Unlock()
 					s.actor.Inventory.Unlock()
 					s.msg.Actor.SendGood("You purchase ", purchaseItem.Name, ".")

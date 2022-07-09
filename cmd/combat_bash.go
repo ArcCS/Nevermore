@@ -81,6 +81,7 @@ func (bash) process(s *state) {
 		whatMob.Stun(config.BashStuns * stunModifier)
 		actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
+		s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 		s.msg.Actor.SendInfo(bashMsg)
 		whatMob.CurrentTarget = s.actor.Name
 		s.msg.Actor.SendInfo("You bashed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)

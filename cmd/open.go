@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/utils"
 	"strings"
 )
 
@@ -20,42 +21,48 @@ func (open) process(s *state) {
 		return
 	}
 
-	name := s.words[0]
-
-	// Search for item to close in the inventory where we are
-	what := s.where.FindExit(name)
-
-	// Was item to get found?
-	if what == nil {
-		s.msg.Actor.SendBad("You see no '", name, "' to open.")
-		return
+	// Test for partial exit names
+	exitTxt := strings.ToLower(strings.Join(s.words, " "))
+	if !utils.StringIn(strings.ToUpper(exitTxt), directionals) {
+		for txtE := range s.where.Exits {
+			if strings.Contains(txtE, exitTxt) {
+				exitTxt = txtE
+			}
+		}
 	}
 
-	// Get item's proper name
-	name = what.Name
+	if what, ok := s.where.Exits[exitTxt]; ok {
+		// Is item a door that can be close
+		if !what.Flags["closeable"] {
+			s.msg.Actor.SendBad(what.Name, " is already open.")
+			return
+		}
 
-	// Is item a door that can be close
-	if !what.Flags["closeable"] {
-		s.msg.Actor.SendBad(name, " is already open.")
+		if !what.Flags["closed"] {
+			s.msg.Actor.SendInfo(strings.ToTitle(what.Name), " is already open.")
+			return
+		}
+
+		if what.Placement != s.actor.Placement {
+			s.msg.Actor.SendBad("You must be next to it to open it.")
+			return
+		}
+
+		s.actor.RunHook("act")
+
+		what.Open()
+
+		if s.actor.Flags["invisible"] == false {
+			who := s.actor.Name
+			s.msg.Actor.SendGood("You open ", what.Name, ".")
+			s.msg.Observers.SendInfo(who, " opens ", what.Name, ".")
+		} else {
+			s.msg.Actor.SendGood("You open ", what.Name, ".")
+		}
+
 		return
-	}
-
-	if !what.Flags["closed"] {
-		s.msg.Actor.SendInfo(strings.ToTitle(name), " is already open.")
-		return
-	}
-
-	s.actor.RunHook("act")
-
-	what.Open()
-
-	if s.actor.Flags["invisible"] == false {
-		who := s.actor.Name
-		s.msg.Actor.SendGood("You open ", name, ".")
-		s.msg.Observers.SendInfo(who, " opens ", name, ".")
 	} else {
-		s.msg.Actor.SendGood("You open ", name, ".")
+		s.msg.Actor.SendBad("You see no '", what.Name, "' to open.")
+		return
 	}
-
-	return
 }

@@ -79,7 +79,7 @@ func (backstab) process(s *state) {
 			return
 		}
 
-		curChance := config.BackStabChance + (config.BackStabChancePerLevel*(s.actor.Tier - whatMob.Level))
+		curChance := config.BackStabChance + (config.BackStabChancePerLevel * (s.actor.Tier - whatMob.Level))
 
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			curChance = 100
@@ -91,31 +91,36 @@ func (backstab) process(s *state) {
 		s.actor.RunHook("combat")
 		if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["backstab"]))))
+			s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 			whatMob.AddThreatDamage(actualDamage, s.actor)
 			s.msg.Actor.SendInfo("You backstabbed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			s.msg.Observers.SendInfo(s.actor.Name + " backstabs " + whatMob.Name)
 			DeathCheck(s, whatMob)
 			s.actor.SetTimer("combat", config.CombatCooldown)
+			msg := s.actor.Equipment.DamageWeapon("main", 4)
+			if msg != "" {
+				s.msg.Actor.SendInfo(msg)
+			}
 			return
-		}else{
-			s.msg.Actor.SendBad("You failed to backstab ", whatMob.Name , ", and are vulnerable to attack!")
-			s.msg.Observers.SendBad(s.actor.Name + " failed to backstab ", whatMob.Name , ", and is vulnerable to attack!")
+		} else {
+			s.msg.Actor.SendBad("You failed to backstab ", whatMob.Name, ", and are vulnerable to attack!")
+			s.msg.Observers.SendBad(s.actor.Name+" failed to backstab ", whatMob.Name, ", and is vulnerable to attack!")
 			whatMob.AddThreatDamage(whatMob.Stam.Max/2, s.actor)
 			if utils.Roll(100, 1, 0) <= config.MobBSRevengeVitalChance {
 				whatMob.CurrentTarget = s.actor.Name
 				s.msg.Actor.SendInfo(whatMob.Name + " turns it's attention to you.")
 				s.msg.Observers.SendInfo(whatMob.Name + " turns to " + s.actor.Name + ".")
-				vitDamage := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage()*config.VitalStrikeScale))))
+				vitDamage := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage() * config.VitalStrikeScale))))
 				if vitDamage == 0 {
 					s.msg.Actor.SendGood(whatMob.Name, " vital strike bounces off of you for no damage!")
 				} else {
-					s.msg.Actor.SendInfo(whatMob.Name, " attacks you for " + strconv.Itoa(vitDamage)+ " points of vitality damage!")
+					s.msg.Actor.SendInfo(whatMob.Name, " attacks you for "+strconv.Itoa(vitDamage)+" points of vitality damage!")
 				}
 				if s.actor.Vit.Current == 0 {
 					s.actor.Died()
 				}
 			}
-			s.ok=true
+			s.ok = true
 			return
 		}
 	}
