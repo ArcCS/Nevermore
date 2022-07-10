@@ -170,31 +170,30 @@ func (godir) process(s *state) {
 							}
 						}
 					}
+				}
+				from.Chars.Remove(s.actor)
+				to.Chars.Add(s.actor)
+				s.actor.Victim = nil
+				s.actor.Placement = 3
+				s.actor.ParentId = toE.ToId
 
-					from.Chars.Remove(s.actor)
-					to.Chars.Add(s.actor)
-					s.actor.Victim = nil
-					s.actor.Placement = 3
-					s.actor.ParentId = toE.ToId
+				// Broadcast leaving and arrival notifications
+				if s.actor.Flags["invisible"] == false {
+					s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
+					s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
+				}
 
-					// Broadcast leaving and arrival notifications
-					if s.actor.Flags["invisible"] == false {
-						s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
-						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
-					}
-
-					if len(s.actor.PartyFollowers) > 0 {
-						for _, party := range s.actor.PartyFollowers {
-							if party.ParentId == s.where.RoomId {
-								go Script(party, s.cmd+" "+strings.Join(s.input, " "))
-							}
+				if len(s.actor.PartyFollowers) > 0 {
+					for _, party := range s.actor.PartyFollowers {
+						if party.ParentId == s.where.RoomId {
+							go Script(party, s.cmd+" "+strings.Join(s.input, " "))
 						}
 					}
-
-					s.scriptActor("LOOK")
-					s.ok = true
-					return
 				}
+
+				s.scriptActor("LOOK")
+				s.ok = true
+				return
 			}
 		} else {
 			s.msg.Actor.SendInfo("You can't go that direction.")
