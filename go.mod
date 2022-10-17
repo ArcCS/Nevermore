@@ -12,9 +12,7 @@ require (
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jinzhu/copier v0.3.4
 	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/neo4j/neo4j-go-driver/v4 v4.4.0
+	github.com/spf13/viper v1.12.0
 	go.mongodb.org/mongo-driver v1.8.1 // indirect
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 )

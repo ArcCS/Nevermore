@@ -242,7 +242,7 @@ func (r *Room) FirstPerson() {
 									if mobPick <= mobCalc {
 										// This is the mob!  Put it in the room!
 										newMob := Mob{}
-										copier.Copy(&newMob, Mobs[mob])
+										copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true})
 										newMob.Placement = 5
 										r.Mobs.Add(&newMob, false)
 										newMob.StartTicking()

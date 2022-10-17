@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"github.com/ArcCS/Nevermore/utils"
+	"github.com/spf13/viper"
 	"log"
 	"math/rand"
 	"time"
@@ -99,6 +101,21 @@ var ServerShutdown = make(chan bool)
 // Load loads the configuration file and overrides the default configuration
 // values with any values found.
 func init() {
+
+	viper.SetConfigName("config") // name of config file (without extension)
+	viper.SetConfigType("json")
+	viper.AddConfigPath(".") // path to look for the config file in
+	viper.AddConfigPath("./config/")
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil {             // Handle errors reading the config file
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+
+	Server.Host = viper.GetString("host")
+	Server.DBUname = viper.GetString("dbuname")
+	Server.DBPword = viper.GetString("dbpword")
+	Server.DBAddress = viper.GetString("dbaddress")
+	Server.Port = viper.GetString("port")
 
 	// Setup global logging format
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile | log.Lmicroseconds)

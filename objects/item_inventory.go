@@ -254,7 +254,7 @@ func RestoreInventory(jsonString string) *ItemInventory {
 	}
 	for _, item := range obj {
 		newItem := Item{}
-		err = copier.Copy(&newItem, Items[int(item["itemId"].(float64))])
+		err = copier.CopyWithOption(&newItem, Mobs[int(item["itemId"].(float64))], copier.Option{DeepCopy: true})
 		if err == nil {
 			newItem.Name = item["name"].(string)
 			newItem.MaxUses = int(item["uses"].(float64))

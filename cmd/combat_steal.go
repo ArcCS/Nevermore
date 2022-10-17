@@ -66,7 +66,7 @@ func (steal) process(s *state) {
 	if len(s.words) > 3 {
 		if val3, err3 := strconv.Atoi(s.words[3]); err3 == nil {
 			nameNum = val3
-		}else{
+		} else {
 			nameStr = s.words[3]
 		}
 	}
@@ -76,6 +76,11 @@ func (steal) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(targetStr, targetNum, s.actor)
 	if whatMob != nil {
+		if whatMob.CheckFlag("no_steal") {
+			s.msg.Actor.SendBad("Try as you might you can not find a way to steal from this enemy.")
+			return
+		}
+
 		if whatMob.Placement != s.actor.Placement {
 			s.msg.Actor.SendBad("You are too far away to steal from ", whatMob.Name)
 			return
@@ -91,7 +96,7 @@ func (steal) process(s *state) {
 			s.actor.SetTimer("steal", config.StealCD)
 			if (s.actor.Inventory.TotalWeight + what.GetWeight()) <= s.actor.MaxWeight() {
 				// base chance is 15% to hide
-				curChance := config.StealChance + (config.StealChancePerLevel*(s.actor.Tier - whatMob.Level))
+				curChance := config.StealChance + (config.StealChancePerLevel * (s.actor.Tier - whatMob.Level))
 
 				if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					curChance = 100
@@ -108,7 +113,7 @@ func (steal) process(s *state) {
 					s.actor.Inventory.Unlock()
 					s.msg.Actor.SendGood("You steal a ", what.Name, " from ", whatMob.Name, ".")
 					return
-				}else{
+				} else {
 					s.msg.Actor.SendBad("You failed to steal from ", whatMob.Name, ", and stumble out of the shadows.")
 					s.actor.RemoveHook("combat", "hide")
 					whatMob.AddThreatDamage(whatMob.Stam.Max/4, s.actor)
@@ -117,18 +122,15 @@ func (steal) process(s *state) {
 			} else {
 				s.msg.Actor.SendInfo("That item weighs too much for you to add to your inventory.")
 				return
-				}
-		}else{
+			}
+		} else {
 			s.msg.Actor.SendInfo("That item isn't on the target.")
 			return
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("What are you trying to steal from?")
 		s.ok = true
 		return
 	}
 
 }
-
-
-

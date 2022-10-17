@@ -256,6 +256,10 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 		e.Off = item
 		ok = true
 	} //light source
+	if item.ItemType == 13 && e.Off == (*Item)(nil) {
+		e.Off = item
+		ok = true
+	} //just random crap to hold I guess.
 	if item.ItemType == 15 && e.Ammo == (*Item)(nil) && e.Main != (*Item)(nil) {
 		if e.Main.ItemType == 4 {
 			e.Ammo = item
@@ -566,7 +570,7 @@ func RestoreEquipment(jsonString string) *Equipment {
 	}
 	for _, item := range obj {
 		newItem := Item{}
-		copier.Copy(&newItem, Items[int(item["itemId"].(float64))])
+		copier.CopyWithOption(&newItem, Items[int(item["itemId"].(float64))], copier.Option{DeepCopy: true})
 		newItem.Name = item["name"].(string)
 		newItem.MaxUses = int(item["uses"].(float64))
 		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0

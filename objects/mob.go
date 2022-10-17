@@ -296,7 +296,7 @@ func (m *Mob) Tick() {
 							spellSelected = false
 						}
 						Rooms[m.ParentId].MessageAll(m.Name + " chants: " + spellInstance.Chant + "\n")
-						Rooms[m.ParentId].MessageAll(m.Name + " cast a " + spellInstance.Name + " spell on " + target.Name + "\n")
+						Rooms[m.ParentId].MessageAll(m.Name + " casts a " + spellInstance.Name + " spell on " + target.Name + "\n")
 						m.Mana.Subtract(spellInstance.Cost)
 						result := Cast(m, target, spellInstance.Effect, spellInstance.Magnitude)
 						if strings.Contains(result, "$SCRIPT") {
@@ -465,7 +465,7 @@ func (m *Mob) CalculateInventory() {
 			if utils.Roll(100, 1, 0) <= v {
 				// Successful roll!  Add this item to the inventory!
 				newItem := Item{}
-				copier.Copy(&newItem, Items[k])
+				copier.CopyWithOption(&newItem, Items[k], copier.Option{DeepCopy: true})
 				m.Inventory.Add(&newItem)
 			}
 		}
@@ -509,7 +509,7 @@ func (m *Mob) DropInventory() string {
 	}
 	if m.Gold > 0 {
 		newGold := Item{}
-		copier.Copy(&newGold, Items[3456])
+		copier.CopyWithOption(&newGold, Items[3456], copier.Option{DeepCopy: true})
 		newGold.Name = strconv.Itoa(m.Gold) + " gold pieces"
 		newGold.Value = m.Gold
 		newGold.Placement = m.Placement

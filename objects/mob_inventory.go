@@ -94,12 +94,12 @@ func (i *MobInventory) Search(alias string, num int, observer *Character) *Mob {
 			if pass == num {
 				if c.Flags["hidden"] == false ||
 					(c.Flags["hidden"] == true &&
-						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
+						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) {
 
 					if c.Flags["invisible"] == false ||
 						(c.Flags["invisible"] == true &&
 							observer.Flags["detect_invisible"]) ||
-						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 						return c
 					}
 				}
@@ -132,12 +132,12 @@ func (i *MobInventory) List(observer *Character) []string {
 	for _, c := range i.Contents {
 		if c.Flags["hidden"] == false ||
 			(c.Flags["hidden"] == true &&
-				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) {
 
 			if c.Flags["invisible"] == false ||
 				(c.Flags["invisible"] == true &&
 					observer.Flags["detect_invisible"]) ||
-				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				items = append(items, c.Name)
 			}
 		}
@@ -152,12 +152,12 @@ func (i *MobInventory) ListMobs(observer *Character) []*Mob {
 	for _, c := range i.Contents {
 		if c.Flags["hidden"] == false ||
 			(c.Flags["hidden"] == true &&
-				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) {
 
 			if c.Flags["invisible"] == false ||
 				(c.Flags["invisible"] == true &&
 					observer.Flags["detect_invisible"]) ||
-				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				items = append(items, c)
 			}
 		}
@@ -199,12 +199,12 @@ func (i *MobInventory) ReducedList(observer *Character) string {
 		_, inMap := items[c.Name]
 		if c.Flags["hidden"] == false ||
 			(c.Flags["hidden"] == true &&
-				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)){
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) {
 
 			if c.Flags["invisible"] == false ||
 				(c.Flags["invisible"] == true &&
 					observer.Flags["detect_invisible"]) ||
-				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				if inMap {
 					items[c.Name]++
 				} else {
@@ -271,7 +271,7 @@ func RestoreMobs(ParentID int, jsonString string) *MobInventory {
 	}
 	for _, mob := range obj {
 		newMob := Mob{}
-		copier.Copy(&newMob, Mobs[int(mob["mobId"].(float64))])
+		copier.CopyWithOption(&newMob, Mobs[int(mob["mobId"].(float64))], copier.Option{DeepCopy: true})
 		newMob.Stam.Current = int(mob["health"].(float64))
 		newMob.Mana.Current = int(mob["mana"].(float64))
 		newMob.Placement = int(mob["placement"].(float64))

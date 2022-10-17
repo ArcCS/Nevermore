@@ -62,7 +62,7 @@ func (open) process(s *state) {
 
 		return
 	} else {
-		s.msg.Actor.SendBad("You see no '", what.Name, "' to open.")
+		s.msg.Actor.SendBad("You see no '", exitTxt, "' to open.")
 		return
 	}
 }

@@ -37,7 +37,7 @@ func FirstTimeStartGame(f *frontend, charName string) (g *game) {
 	g.character, _ = objects.LoadCharacter(charName, f.output)
 	for _, item_id := range config.StartingGear[g.character.Class] {
 		newItem := objects.Item{}
-		copier.Copy(&newItem, objects.Items[item_id])
+		copier.CopyWithOption(&newItem, objects.Items[item_id], copier.Option{DeepCopy: true})
 		g.character.Inventory.Add(&newItem)
 	}
 	g.gameInit()
@@ -78,7 +78,7 @@ func (g *game) gameInit() {
 // restored - see gameInit.
 func (g *game) gameProcess() {
 	c := cmd.Parse(g.character, string(g.input))
-	if c == "QUIT" || c == strings.ToUpper("DELETE"+g.GetCharacter().Name){
+	if c == "QUIT" || c == strings.ToUpper("DELETE"+g.GetCharacter().Name) {
 		g.character.Unload()
 		g.character = nil
 		g.buf = message.AcquireBuffer()

@@ -36,7 +36,7 @@ func (create) process(s *state) {
 		} else {
 			objects.Items[itemId], _ = objects.LoadItem(data.LoadItem(itemId))
 			newItem := objects.Item{}
-			copier.Copy(&newItem, objects.Items[itemId])
+			copier.CopyWithOption(&newItem, objects.Items[itemId], copier.Option{DeepCopy: true})
 			s.actor.Inventory.Add(&newItem)
 			s.msg.Actor.SendGood(newItem.Name + " added to your inventory.")
 		}
@@ -48,7 +48,7 @@ func (create) process(s *state) {
 		} else {
 			objects.Mobs[mobId], _ = objects.LoadMob(data.LoadMob(mobId))
 			newMob := objects.Mob{}
-			copier.Copy(&newMob, objects.Mobs[mobId])
+			copier.CopyWithOption(&newMob, objects.Items[mobId], copier.Option{DeepCopy: true})
 			s.where.Mobs.Add(&newMob, false)
 			newMob.StartTicking()
 			s.msg.Actor.SendGood(newMob.Name + " added to the room.")

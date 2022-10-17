@@ -38,8 +38,8 @@ func (spawn) process(s *state) {
 		}
 		//log.Println("Copying mob")
 		newMob := objects.Mob{}
-		copier.Copy(&newMob, objects.Mobs[mobId])
-		s.where.Mobs.Add(&newMob,false)
+		copier.CopyWithOption(&newMob, objects.Mobs[mobId], copier.Option{DeepCopy: true})
+		s.where.Mobs.Add(&newMob, false)
 		newMob.StartTicking()
 	case "item":
 		itemId, err := strconv.Atoi(s.words[1])
@@ -48,7 +48,7 @@ func (spawn) process(s *state) {
 			return
 		}
 		newItem := objects.Item{}
-		copier.Copy(&newItem, objects.Items[itemId])
+		copier.CopyWithOption(&newItem, objects.Items[itemId], copier.Option{DeepCopy: true})
 		s.actor.Inventory.Add(&newItem)
 		s.msg.Actor.SendGood(newItem.Name + " added to your inventory.")
 	default:

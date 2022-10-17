@@ -138,7 +138,7 @@ func (godir) process(s *state) {
 					for _, mob := range s.where.Mobs.Contents {
 						// Check if a mob blocks.
 						if _, inList := mob.ThreatTable[s.actor.Name]; inList {
-							if mob.Flags["block_exit"] && mob.Placement == s.actor.Placement {
+							if mob.CheckFlag("block_exit") && mob.Placement == s.actor.Placement {
 								curChance := config.MobBlock - ((s.actor.Tier - mob.Level) * config.MobBlockPerLevel)
 								if curChance > 85 {
 									curChance = 85
@@ -152,7 +152,7 @@ func (godir) process(s *state) {
 
 							// Now check if they follow.
 							for _, mob := range s.where.Mobs.Contents {
-								if mob.Flags["follows"] {
+								if mob.CheckFlag("follows") {
 									curChance := config.MobFollow - ((s.actor.Tier - mob.Level) * config.MobFollowPerLevel)
 									if curChance > 85 {
 										curChance = 85

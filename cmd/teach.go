@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"strings"
 )
 
 func init() {
@@ -23,7 +24,7 @@ func (teach) process(s *state) {
 	}
 
 	name := s.words[0]
-	spell := s.words[1]
+	spell := strings.ToLower(s.words[1])
 
 	// Try searching inventory where we are
 	whatChar := s.where.Chars.Search(name, s.actor)
@@ -35,20 +36,20 @@ func (teach) process(s *state) {
 	}
 	s.participant = whatChar
 	if utils.StringIn(spell, []string{"light", "curepoison", "hurt", "burn", "blister", "rumble"}) {
-			s.msg.Actor.SendGood("You teach ", spell, " to  " + whatChar.Name)
-			whatChar.Spells = append(s.actor.Spells, spell)
-			s.msg.Participant.SendGood("You learn ", spell, " from " + s.actor.Name)
-			return
-	}else if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+		s.msg.Actor.SendGood("You teach ", spell, " to  "+whatChar.Name)
+		whatChar.Spells = append(s.actor.Spells, spell)
+		s.msg.Participant.SendGood("You learn ", spell, " from "+s.actor.Name)
+		return
+	} else if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		if _, ok := objects.Spells[spell]; ok {
-			s.msg.Actor.SendGood("You teach ", spell, " to  " + whatChar.Name)
+			s.msg.Actor.SendGood("You teach ", spell, " to  "+whatChar.Name)
 			whatChar.Spells = append(s.actor.Spells, spell)
-			s.msg.Participant.SendGood("You learn ", spell, " from " + s.actor.Name)
+			s.msg.Participant.SendGood("You learn ", spell, " from "+s.actor.Name)
 			return
-		}else{
+		} else {
 			s.msg.Actor.SendBad("That's not a known spell.")
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That's not a spell that you can teach.")
 	}
 
