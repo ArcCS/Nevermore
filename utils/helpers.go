@@ -34,15 +34,6 @@ func StringIn(a string, list []string) bool {
 	return false
 }
 
-func StringInMap(a string, mapItem map[string]interface{}) bool {
-	for _, b := range mapItem {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 func RankMapStringInt(values map[string]int) []string {
 	type kv struct {
 		Key   string

@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strings"
 )
 
@@ -90,7 +91,15 @@ func (godir) process(s *state) {
 				s.ok = false
 				return
 			} else {
+				log.Println("We are trying to move...")
 				if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+
+					// Check some timers
+					ready, msg := s.actor.TimerReady("evade")
+					if !ready {
+						s.msg.Actor.SendBad(msg)
+						return
+					}
 
 					if !objects.Rooms[toE.ToId].Flags["active"] {
 						s.msg.Actor.SendBad("Go where?")
@@ -134,6 +143,8 @@ func (godir) process(s *state) {
 						return
 					}
 
+					evasiveMan := 0
+					followList := make([]*objects.Mob, 0)
 					// Check if anyone blocks.
 					for _, mob := range s.where.Mobs.Contents {
 						// Check if a mob blocks.
@@ -149,51 +160,74 @@ func (godir) process(s *state) {
 									return
 								}
 							}
-
-							// Now check if they follow.
-							for _, mob := range s.where.Mobs.Contents {
+							if mob.CurrentTarget == s.actor.Name {
+								// Now check if they follow.
 								if mob.CheckFlag("follows") {
-									curChance := config.MobFollow - ((s.actor.Tier - mob.Level) * config.MobFollowPerLevel)
-									if curChance > 85 {
-										curChance = 85
-									}
-									if utils.Roll(100, 1, 0) <= curChance {
-										s.msg.Actor.SendBad(mob.Name + " follows you!")
-										s.msg.Observer.SendInfo(mob.Name + " follows " + s.actor.Name)
-										from.Mobs.Remove(mob)
-										//TODO Calculate Vital?
-										to.Mobs.Add(mob, false)
-										mob.CurrentTarget = s.actor.Name
-										mob.StartTicking()
-									}
+									followList = append(followList, mob)
+								}
+								evasiveMan = 2
+								if mob.Placement == s.actor.Placement {
+									evasiveMan = 4
 								}
 							}
 						}
 					}
-				}
-				from.Chars.Remove(s.actor)
-				to.Chars.Add(s.actor)
-				s.actor.Victim = nil
-				s.actor.Placement = 3
-				s.actor.ParentId = toE.ToId
+					from.Chars.Remove(s.actor)
+					// If they were evasive, add a global timer
+					s.actor.SetTimer("evade", evasiveMan)
+					to.Chars.Add(s.actor)
+					s.actor.Victim = nil
+					s.actor.Placement = 3
+					s.actor.ParentId = toE.ToId
 
-				// Broadcast leaving and arrival notifications
-				if s.actor.Flags["invisible"] == false {
-					s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
-					s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
-				}
+					// Broadcast leaving and arrival notifications
+					if s.actor.Flags["invisible"] == false {
+						s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
+						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
+					}
 
-				if len(s.actor.PartyFollowers) > 0 {
-					for _, party := range s.actor.PartyFollowers {
-						if party.ParentId == s.where.RoomId {
-							go Script(party, s.cmd+" "+strings.Join(s.input, " "))
+					if len(s.actor.PartyFollowers) > 0 {
+						for _, party := range s.actor.PartyFollowers {
+							if party.ParentId == s.where.RoomId {
+								go Script(party, s.cmd+" "+strings.Join(s.input, " "))
+							}
 						}
 					}
-				}
 
-				s.scriptActor("LOOK")
-				s.ok = true
-				return
+					// Character has been removed, invoke any follows
+					for _, mob := range followList {
+						log.Println("Sending follow " + s.actor.Name)
+						go func() { mob.MobCommands <- "follow " + s.actor.Name }()
+					}
+
+					s.scriptActor("LOOK")
+					s.ok = true
+					return
+				} else {
+					from.Chars.Remove(s.actor)
+					to.Chars.Add(s.actor)
+					s.actor.Victim = nil
+					s.actor.Placement = 3
+					s.actor.ParentId = toE.ToId
+
+					// Broadcast leaving and arrival notifications
+					if s.actor.Flags["invisible"] == false {
+						s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
+						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
+					}
+
+					if len(s.actor.PartyFollowers) > 0 {
+						for _, party := range s.actor.PartyFollowers {
+							if party.ParentId == s.where.RoomId {
+								go Script(party, s.cmd+" "+strings.Join(s.input, " "))
+							}
+						}
+					}
+
+					s.scriptActor("LOOK")
+					s.ok = true
+					return
+				}
 			}
 		} else {
 			s.msg.Actor.SendInfo("You can't go that direction.")

@@ -45,6 +45,19 @@ func (i *MobInventory) Add(o *Mob, silent bool) {
 	}
 }
 
+// Add adds the specified Mob to the Contents.
+func (i *MobInventory) AddWithMessage(o *Mob, message string, silent bool) {
+	o.ParentId = i.ParentId
+	i.Contents = append(i.Contents, o)
+	if !silent {
+		if o.Flags["invisible"] {
+			Rooms[i.ParentId].MessageVisible(text.Magenta + message + text.Reset + "\n")
+		} else if !o.Flags["hidden"] {
+			Rooms[i.ParentId].MessageAll(text.Magenta + message + text.Reset + "\n")
+		}
+	}
+}
+
 // Pass mob as a pointer, compare and remove
 func (i *MobInventory) Remove(o *Mob) {
 	o.MobTickerUnload <- true

@@ -175,7 +175,8 @@ func (m *Mob) StartTicking() {
 			case msg := <-m.MobCommands:
 				// This function call will immediately call a command off the stack and run it, ideally to decouple state
 				var params = strings.Split(msg, " ")
-				m.ProcessCommand(params[0], params[1:])
+				log.Println("Received " + params[0])
+				go m.ProcessCommand(params[0], params[1:])
 			case <-m.MobTickerUnload:
 				return
 			case <-m.MobTicker.C:
@@ -193,6 +194,13 @@ func (m *Mob) StartTicking() {
 
 func (m *Mob) GetSpellMultiplier() float32 {
 	return 1
+}
+
+func (m *Mob) CheckThreatTable(charName string) bool {
+	if _, ok := m.ThreatTable[charName]; ok {
+		return true
+	}
+	return false
 }
 
 // The mob brain is this ticker
@@ -399,20 +407,57 @@ func (m *Mob) Tick() {
 	}
 }
 
-var Commands = map[string]func(caller interface{}, target interface{}, magnitude int) string{
-	"attack":          nil,
-	"cast":            nil,
-	"move":            nil,
-	"follow":          nil,
-	"block_movement":  nil,
-	"block_departure": nil,
-	"block_items":     nil,
-	"pickup":          nil,
-	"teleport":        nil,
+func (m *Mob) Follow(params []string) {
+	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
+	if params[0] == m.CurrentTarget {
+		// I am, lets process that -> First we need to step up in the world to find that character
+		targetChar := ActiveCharacters.Find(params[0])
+		if targetChar != nil {
+			curChance := config.MobFollow - ((targetChar.Tier - m.Level) * config.MobFollowPerLevel)
+			if curChance > 85 {
+				curChance = 85
+			}
+			if utils.Roll(100, 1, 0) <= curChance {
+				log.Println("I'm going to follow!")
+				Rooms[m.ParentId].Chars.Lock()
+				Rooms[m.ParentId].Mobs.Lock()
+				Rooms[m.ParentId].Items.Lock()
+				Rooms[targetChar.ParentId].Chars.Lock()
+				Rooms[targetChar.ParentId].Mobs.Lock()
+				Rooms[targetChar.ParentId].Items.Lock()
+				// Exit the ticker..
+				targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n"))
+				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name)
+				previousRoom := m.ParentId
+				Rooms[m.ParentId].Mobs.Remove(m)
+				log.Println("Successful Removal.")
+				//TODO Calculate Vital?
+				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
+				m.CurrentTarget = targetChar.Name
+				Rooms[previousRoom].Chars.Unlock()
+				Rooms[previousRoom].Mobs.Unlock()
+				Rooms[previousRoom].Items.Unlock()
+				Rooms[targetChar.ParentId].Chars.Unlock()
+				Rooms[targetChar.ParentId].Mobs.Unlock()
+				Rooms[targetChar.ParentId].Items.Unlock()
+				m.StartTicking()
+			}
+		}
+	}
 }
 
-func (m *Mob) ProcessCommand(inputStr string, params []string) {
-
+func (m *Mob) ProcessCommand(cmdStr string, params []string) {
+	// StateCommands is a list of stack functions that cause the mob to do something that affects state and causes actions
+	log.Println("Processing command " + cmdStr)
+	var StateCommands = map[string]func(params []string){
+		"attack":   nil,
+		"cast":     nil,
+		"move":     nil,
+		"follow":   m.Follow,
+		"pickup":   nil,
+		"teleport": nil,
+	}
+	StateCommands[cmdStr](params)
 }
 
 func (m *Mob) MobScript(inputStr string) {
@@ -608,8 +653,8 @@ func (m *Mob) ToggleFlagAndMsg(flagName string, msg string) {
 }
 
 func (m *Mob) CheckFlag(flagName string) bool {
-	if flag, err := m.Flags[flagName]; !err {
-		return flag
+	if _, ok := m.Flags[flagName]; ok {
+		return m.Flags[flagName]
 	}
 	return false
 }

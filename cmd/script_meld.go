@@ -58,24 +58,15 @@ func (scriptMeld) process(s *state) {
 	if target == nil || meld == nil {
 		s.msg.Actor.SendBad("You have no " + targetStr + " to meld.")
 		return
-	} else if meld == nil {
-		s.msg.Actor.SendBad("You have no " + meldStr + " to meld.")
-		return
 	} else {
 		if utils.IntIn(target.ItemType, config.ArmorTypes) || utils.IntIn(meld.ItemType, config.WeaponTypes) || utils.IntIn(meld.ItemType, []int{6, 15}) {
-			// Calculate a cost of repair
-			// TODO: Replace this with a formula based on int, later with crafting/blacksmithing
-			base_cost := target.Value + target.Value/2
-			secondary_cost := (meld.MaxUses / objects.Items[meld.ParentItemId].MaxUses) * objects.Items[meld.ParentItemId].Value
+			cost := (target.Value + target.Value/2) + ((meld.MaxUses / objects.Items[meld.ParentItemId].MaxUses) * objects.Items[meld.ParentItemId].Value)
 			s.msg.Actor.SendInfo("The cost to repair this item will be " + strconv.Itoa(cost) + ".  Do you want to repair it? (Type yes to repair)")
 			s.actor.AddCommands("yes", "$CONFIRMMELD "+targetStr+" "+strconv.Itoa(targetNum)+" "+meldStr+" "+strconv.Itoa(meldNum))
 		} else {
 			s.msg.Actor.SendBad("This is not a repairable item.")
 			return
 		}
-	} else {
-		s.msg.Actor.SendBad("You cannot meld these items together")
-		return
 	}
 }
 
