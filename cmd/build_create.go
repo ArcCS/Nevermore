@@ -48,7 +48,7 @@ func (create) process(s *state) {
 		} else {
 			objects.Mobs[mobId], _ = objects.LoadMob(data.LoadMob(mobId))
 			newMob := objects.Mob{}
-			copier.CopyWithOption(&newMob, objects.Items[mobId], copier.Option{DeepCopy: true})
+			copier.CopyWithOption(&newMob, objects.Mobs[mobId], copier.Option{DeepCopy: true})
 			s.where.Mobs.Add(&newMob, false)
 			newMob.StartTicking()
 			s.msg.Actor.SendGood(newMob.Name + " added to the room.")

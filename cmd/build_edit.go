@@ -154,6 +154,9 @@ func (edit) process(s *state) {
 					if _, ok := objects.Spells[s.input[3]]; ok {
 						item.Spell = s.input[3]
 						s.msg.Actor.SendGood("Spell changed.")
+					} else if _, ok := objects.Songs[s.input[3]]; ok {
+						item.Spell = s.input[3]
+						s.msg.Actor.SendGood("Spell changed.")
 					} else {
 						s.msg.Actor.SendBad("Spell not found.")
 					}
@@ -240,7 +243,7 @@ func (edit) process(s *state) {
 						s.msg.Actor.SendBad("Failed to toggle " + flag + ".  Is it an actual flag?")
 					}
 				}
-			// Set a variable
+				// Set a variable
 			} else {
 				switch strings.ToLower(s.input[1]) {
 				case "description":
@@ -320,17 +323,17 @@ func (edit) process(s *state) {
 				case "spells":
 					spellName := strings.ToLower(s.words[3])
 					if _, ok := objects.Spells[spellName]; ok {
-						if utils.StringIn(spellName, mob.Spells){
+						if utils.StringIn(spellName, mob.Spells) {
 							// Deleting
 							mob.Spells[utils.IndexOf(spellName, mob.Spells)] = mob.Spells[len(mob.Spells)-1]
 							mob.Spells = mob.Spells[:len(mob.Spells)-1]
 							s.msg.Actor.SendGood(spellName + " deleted from mob spellbook")
-						}else{
+						} else {
 							// Adding
 							mob.Spells = append(mob.Spells, spellName)
 							s.msg.Actor.SendGood(spellName + " add to mob spellbook")
 						}
-					}else{
+					} else {
 						s.msg.Actor.SendBad(spellName + " not found in spell definitions.")
 						return
 					}
@@ -338,24 +341,24 @@ func (edit) process(s *state) {
 					spellName := ""
 					if len(s.words) >= 4 {
 						spellName = strings.ToLower(s.words[3])
-						if utils.StringIn(spellName, []string{"air", "fire", "water", "earth", "paralytic"}) { //TODO: Pestilence?
+						if utils.StringIn(spellName, []string{"air", "fire", "water", "earth", "paralytic", "pestilence"}) {
 							mob.BreathWeapon = spellName
 							s.msg.Actor.SendGood("Mob BreathWeapon set to " + s.words[3])
 						} else {
 							s.msg.Actor.SendBad("Not a valid BreathWeapon.")
 							return
 						}
-					}else{
+					} else {
 						mob.BreathWeapon = ""
 						s.msg.Actor.SendGood("Mob BreathWeapon unset")
 					}
 				case "placement":
-					intPlacement, _ :=  strconv.Atoi(s.words[3])
+					intPlacement, _ := strconv.Atoi(s.words[3])
 					if intPlacement >= 1 && intPlacement <= 5 {
 						mob.Placement = intPlacement
 						s.msg.Actor.SendGood("Changed placement")
 						return
-					}else{
+					} else {
 						s.msg.Actor.SendBad("Placement Id not valid. ")
 					}
 				default:

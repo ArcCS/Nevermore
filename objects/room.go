@@ -367,6 +367,7 @@ func (r *Room) MessageMovement(previous int, new int, subject string) {
 }
 
 func (r *Room) WanderMob(o *Mob) {
+	r.Chars.Lock()
 	r.Mobs.Lock()
 	if o.Flags["invisible"] {
 		r.MessageVisible(o.Name + " wanders away. \n" + text.Reset)
@@ -376,6 +377,21 @@ func (r *Room) WanderMob(o *Mob) {
 	r.Mobs.Remove(o)
 	o = nil
 	r.Mobs.Unlock()
+	r.Chars.Unlock()
+}
+
+func (r *Room) FleeMob(o *Mob) {
+	r.Chars.Lock()
+	r.Mobs.Lock()
+	if o.Flags["invisible"] {
+		r.MessageVisible(o.Name + " flees!! \n" + text.Reset)
+	} else if !o.Flags["hidden"] {
+		r.MessageAll(o.Name + " flees!! \n" + text.Reset)
+	}
+	r.Mobs.Remove(o)
+	o = nil
+	r.Mobs.Unlock()
+	r.Chars.Unlock()
 }
 
 func (r *Room) ClearMob(o *Mob) {

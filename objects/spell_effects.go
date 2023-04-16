@@ -32,7 +32,7 @@ var Effects = map[string]func(caller interface{}, target interface{}, magnitude 
 	"bless":            bless,
 	"protection":       protection,
 	"invisibility":     invisibility,
-	"detect-invisible": detect_invisible,
+	"detect-invisible": detectInvisible,
 	"teleport":         teleport,
 	"stun":             stun,
 	"enchant":          enchant,
@@ -461,7 +461,7 @@ func invisibility(caller interface{}, target interface{}, magnitude int) string 
 	return ""
 }
 
-func detect_invisible(caller interface{}, target interface{}, magnitude int) string {
+func detectInvisible(caller interface{}, target interface{}, magnitude int) string {
 	duration := 300
 	switch caller := caller.(type) {
 	case *Character:
@@ -521,15 +521,17 @@ func stun(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			return "No PVP yet"
-			diff := ((caller.GetStat("int") - target.GetStat("int")) / 5) * 10
-			chance := 30 + diff
-			if utils.Roll(100, 1, 0) > chance {
-			}
+			/*
+				diff := ((caller.GetStat("int") - target.GetStat("int")) / 5) * 10
+				chance := 30 + diff
+				if utils.Roll(100, 1, 0) > chance {
+				}
+			*/
 		case *Mob:
 			diff := (caller.Tier - target.Level) * 5
 			chance := 10 + diff
 			if utils.Roll(100, 1, 0) > chance {
-				return "You failed to teleport " + target.Name
+				return "You failed to stun " + target.Name
 			} else {
 				target.Stun(duration)
 				return "You stunned " + target.Name
@@ -978,9 +980,12 @@ func resistacid(caller interface{}, target interface{}, magnitude int) string {
 func embolden(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
-		target.RemoveEffect("fear")
-		target.Write([]byte(text.Bad + "Your irrational fear vanishes." + text.Reset + "\n"))
-		return ""
+		if target.HasEffect("fear") {
+			target.RemoveEffect("fear")
+			target.Write([]byte(text.Bad + "Your fears subside, and your resolve itensifies." + text.Reset + "\n"))
+			return ""
+		}
+		target.Write([]byte(text.Bad + "You are unaffected by the embolden spell." + text.Reset + "\n"))
 	case *Mob:
 		target.RemoveEffect("fear")
 	}

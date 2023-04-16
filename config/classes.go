@@ -14,7 +14,7 @@ func init() {
 	AvailableClasses[4] = "mage"
 	AvailableClasses[5] = "cleric"
 	AvailableClasses[6] = "paladin"
-	//AvailableClasses[7] = "bard"
+	AvailableClasses[7] = "bard"
 	AvailableClasses[8] = "monk"
 
 	ClassPerms[0] = permissions.Fighter
@@ -32,9 +32,9 @@ func init() {
 	StartingGear[2] = []int{2628, 3615}
 	StartingGear[3] = []int{665, 3615}
 	StartingGear[4] = []int{242, 1180, 3343, 3615, 2287}
-	StartingGear[5] = []int{227, 1179 , 242, 3615, 2287}
+	StartingGear[5] = []int{227, 1179, 242, 3615, 2287}
 	StartingGear[6] = []int{129, 1179, 3615, 2287}
-	StartingGear[6] = []int{129, 1179, 3615, 2287}
+	StartingGear[7] = []int{129, 1179, 3615, 3430, 3848, 3398}
 	StartingGear[8] = []int{3343, 3615}
 }
 
@@ -213,7 +213,6 @@ func ClassTitle(class int, gender string, tier int) string {
 	}
 
 }
-
 
 var TextGender = map[string]string{"m": "male", "f": "female"}
 var TextSubPronoun = map[string]string{"m": "he", "f": "she"}

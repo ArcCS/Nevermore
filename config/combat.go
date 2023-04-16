@@ -20,24 +20,26 @@ var CombatModifiers = map[string]int{
 	"snipe":    8,
 }
 
-//Thief & Ranger
+// Thief & Ranger
 var PeekCD = 4
 var StealCD = 4
 var HideChance = 15
 var SneakChance = 15
+var SneakBonus = 10
 var StealChance = 15
 var StealChancePerLevel = 5
 var BackStabChance = 15
 var BackStabChancePerLevel = 5
 var SnipeChance = 5
 var HideChancePerPoint = 3
-var SneakChancePerPoint = 2
+var SneakChancePerPoint = 1
+var SneakChancePerTier = 1
 var StealChancePerPoint = 2
 var BackStabChancePerPoint = 2
 var SnipeChancePerPoint = 2
 var SnipeChancePerLevel = 5
 var SnipeFumbleChance = 20
-
+var MobStealRevengeVitalChance = 5
 var MobBSRevengeVitalChance = 10
 var VitalStrikeScale = 2
 
@@ -58,12 +60,14 @@ var TurnFailDamage = 50
 var TurnScaleDown = 10
 var DisintegrateChance = 5
 var TurnTimer = 60
-
 var SlamTimer = 30
 var ShieldDamage = 3
 var ShieldStun = 1
-
 var CombatCooldown = 8
+
+// Bard Stuff
+var ScalePerPiety = 2
+var DurationPerCon = 10
 
 // Mob Stuns:
 var ParryStuns = 2

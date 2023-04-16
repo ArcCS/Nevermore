@@ -5,7 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 	"strings"
 )
 
@@ -91,7 +90,6 @@ func (godir) process(s *state) {
 				s.ok = false
 				return
 			} else {
-				log.Println("We are trying to move...")
 				if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 
 					// Check some timers
@@ -131,6 +129,11 @@ func (godir) process(s *state) {
 						return
 					}
 
+					if s.actor.Equipment.Weight > s.actor.MaxWeight() {
+						s.msg.Actor.SendBad("You are carrying too much to move.")
+						return
+					}
+
 					if toE.Flags["levitate"] && !s.actor.CheckFlag("levitate") {
 						s.msg.Actor.Send("You fall while trying to go that way!  You take 20 points of damage!")
 						s.actor.ReceiveDamage(20)
@@ -149,7 +152,7 @@ func (godir) process(s *state) {
 					for _, mob := range s.where.Mobs.Contents {
 						// Check if a mob blocks.
 						if _, inList := mob.ThreatTable[s.actor.Name]; inList {
-							if mob.CheckFlag("block_exit") && mob.Placement == s.actor.Placement {
+							if mob.CheckFlag("block_exit") && mob.Placement == s.actor.Placement && mob.MobStunned == 0 && !mob.CheckFlag("run_away") {
 								curChance := config.MobBlock - ((s.actor.Tier - mob.Level) * config.MobBlockPerLevel)
 								if curChance > 85 {
 									curChance = 85
@@ -162,7 +165,7 @@ func (godir) process(s *state) {
 							}
 							if mob.CurrentTarget == s.actor.Name {
 								// Now check if they follow.
-								if mob.CheckFlag("follows") {
+								if mob.CheckFlag("follows") && !mob.CheckFlag("curious_canticle") {
 									followList = append(followList, mob)
 								}
 								evasiveMan = 2
@@ -196,8 +199,7 @@ func (godir) process(s *state) {
 
 					// Character has been removed, invoke any follows
 					for _, mob := range followList {
-						log.Println("Sending follow " + s.actor.Name)
-						go func() { mob.MobCommands <- "follow " + s.actor.Name }()
+						mob.MobCommands <- "follow " + s.actor.Name
 					}
 
 					s.scriptActor("LOOK")

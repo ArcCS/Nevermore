@@ -30,12 +30,17 @@ func (unequip) process(s *state) {
 	}
 
 	*/
+
 	s.actor.RunHook("combat")
 	_, what := s.actor.Equipment.Unequip(name)
 	if what != nil {
 		s.actor.Inventory.Lock()
 		s.actor.Inventory.Add(what)
 		s.actor.Inventory.Unlock()
+		if what.ItemType == 16 && s.actor.CheckFlag("singing") {
+			s.actor.RemoveEffect("sing")
+			s.msg.Observers.SendInfo(s.actor.Name + " stops singing.")
+		}
 		s.msg.Actor.SendGood("You unequip " + what.Name)
 		s.msg.Observer.SendInfo(s.actor.Name + " unequips " + what.Name)
 		s.ok = true

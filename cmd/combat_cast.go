@@ -29,6 +29,12 @@ func (cast) process(s *state) {
 		s.msg.Actor.SendBad(msg)
 		return
 	}
+
+	if s.actor.CheckFlag("singing") {
+		s.msg.Actor.SendBad("You can't cast a spell while singing!")
+		return
+	}
+
 	spellInstance, ok := objects.Spells[strings.ToLower(s.input[0])]
 	if !ok {
 		s.msg.Actor.SendBad("What spell do you want to cast?")
@@ -36,7 +42,7 @@ func (cast) process(s *state) {
 	}
 	cost := spellInstance.Cost
 	if s.actor.Class == 8 {
-		cost = cost/4
+		cost = cost / 4
 		if cost < 1 {
 			cost = 1
 		}
@@ -77,22 +83,26 @@ func (cast) process(s *state) {
 		if whatMob != nil {
 			s.actor.RunHook("combat")
 			s.actor.Victim = whatMob
-				msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
-				s.actor.Mana.Subtract(cost)
-				s.actor.SetTimer("combat", 8)
+			msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
+			s.actor.Mana.Subtract(cost)
+			s.actor.SetTimer("combat", 8)
+			// TODO: At level 15 wizards can change  the chant to a different action to invoke spells,
+			// bards simply stop chanting and can invoke spells at will.
+			if (s.actor.Class == 7 || s.actor.Class == 4) && s.actor.Tier <= 15 {
 				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
-				s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatMob.Name)
-				s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatMob.Name)
-				if strings.Contains(msg, "$CRIPT"){
-					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
-				}else if msg != "" {
-					s.msg.Actor.SendGood(msg)
-				}
-				DeathCheck(s, whatMob)
-				s.ok=true
-				return
 			}
+			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatMob.Name)
+			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatMob.Name)
+			if strings.Contains(msg, "$CRIPT") {
+				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+			} else if msg != "" {
+				s.msg.Actor.SendGood(msg)
+			}
+			DeathCheck(s, whatMob)
+			s.ok = true
+			return
+		}
 
 		// Are we casting on a character
 		var whatChar *objects.Character
@@ -134,7 +144,7 @@ func (cast) process(s *state) {
 			if strings.Contains(spellInstance.Effect, "damage") {
 				//TODO PVP flags etc.
 				s.msg.Actor.SendBad("No PVP implemented yet. ")
-				s.ok=true
+				s.ok = true
 				return
 			}
 			msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
@@ -146,12 +156,12 @@ func (cast) process(s *state) {
 			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatChar.Name)
 			s.participant = whatChar
 			s.msg.Participant.SendInfo(s.actor.Name + " cast a " + spellInstance.Name + " spell on you")
-			if strings.Contains(msg, "$CRIPT"){
-				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
-			}else if msg != "" {
+			if strings.Contains(msg, "$CRIPT") {
+				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+			} else if msg != "" {
 				s.msg.Actor.SendGood(msg)
 			}
-			s.ok=true
+			s.ok = true
 			return
 		}
 
@@ -159,7 +169,7 @@ func (cast) process(s *state) {
 
 		if strings.Contains(spellInstance.Effect, "damage") {
 			s.msg.Actor.SendBad("You cannot cast this on yourself.")
-			s.ok=true
+			s.ok = true
 			return
 		}
 
@@ -171,12 +181,12 @@ func (cast) process(s *state) {
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 		s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
 		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + config.TextDescPronoun[s.actor.Gender] + "self.")
-		if strings.Contains(msg, "$CRIPT"){
-			go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
-		}else if msg != "" {
+		if strings.Contains(msg, "$CRIPT") {
+			go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+		} else if msg != "" {
 			s.msg.Actor.SendGood(msg)
 		}
-		s.ok=true
+		s.ok = true
 		return
 
 	}

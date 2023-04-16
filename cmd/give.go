@@ -67,7 +67,7 @@ func (give) process(s *state) {
 		return
 	}
 
-	if (who.Inventory.TotalWeight + target.GetWeight()) <= who.MaxWeight() {
+	if (who.GetCurrentWeight() + target.GetWeight()) <= who.MaxWeight() {
 		s.actor.RunHook("act")
 		s.actor.Inventory.Lock()
 		who.Inventory.Lock()

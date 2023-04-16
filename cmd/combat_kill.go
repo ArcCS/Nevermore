@@ -85,7 +85,7 @@ func (kill) process(s *state) {
 			}
 		}
 
-		// Lets use a list of attacks,  so we can expand this later if other classes get multi style attacks
+		// use a list of attacks,  so we can expand this later if other classes get multi style attacks
 		attacks := []float64{
 			1.0,
 		}
@@ -96,7 +96,7 @@ func (kill) process(s *state) {
 		}
 		// Kill is really the fighters realm for specialty..
 		if s.actor.Permission.HasAnyFlags(permissions.Fighter) {
-			// Did this mofo lethal?
+			// mob lethal?
 			if config.RollLethal(skillLevel) {
 				// Sure did.  Kill this fool and bail.
 				s.msg.Actor.SendInfo("You landed a lethal blow on the " + whatMob.Name)
@@ -131,7 +131,7 @@ func (kill) process(s *state) {
 			}
 		}
 
-		// Lets start executing the attacks
+		// start executing the attacks
 		weapMsg := ""
 		alwaysCrit := false
 		if s.actor.Class != 8 {
@@ -139,7 +139,7 @@ func (kill) process(s *state) {
 		}
 		for _, mult := range attacks {
 			// Lets try to crit:
-			//TODO: Parry/Miss?
+			//	TODO: Parry/Miss?
 			if config.RollCritical(skillLevel) || alwaysCrit {
 				mult *= float64(config.CombatModifiers["critical"])
 				s.msg.Actor.SendGood("Critical Strike!")
@@ -170,11 +170,6 @@ func (kill) process(s *state) {
 
 	s.msg.Actor.SendInfo("Attack what?")
 	s.ok = true
-}
-
-// WeaponDamage Deferable Weapon damage function on current state
-func WeaponDamage(s *state) {
-
 }
 
 // DeathCheck Universal death check for mobs on whatever the current state is

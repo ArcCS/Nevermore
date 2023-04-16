@@ -175,7 +175,6 @@ func (m *Mob) StartTicking() {
 			case msg := <-m.MobCommands:
 				// This function call will immediately call a command off the stack and run it, ideally to decouple state
 				var params = strings.Split(msg, " ")
-				log.Println("Received " + params[0])
 				go m.ProcessCommand(params[0], params[1:])
 			case <-m.MobTickerUnload:
 				return
@@ -279,6 +278,7 @@ func (m *Mob) Tick() {
 				return
 			}
 
+			// TODO: Add a check for breathe weapons, and if they're next to or 1 block away, do a breath attack
 			if m.CurrentTarget != "" && m.ChanceCast > 0 &&
 				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) >= 1) {
 				// Try to cast a spell first
@@ -303,8 +303,10 @@ func (m *Mob) Tick() {
 						if !ok {
 							spellSelected = false
 						}
-						Rooms[m.ParentId].MessageAll(m.Name + " chants: " + spellInstance.Chant + "\n")
+						// TODO: Humanoid/Can Talk Check?
+						// Rooms[m.ParentId].MessageAll(m.Name + " chants: " + spellInstance.Chant + "\n")
 						Rooms[m.ParentId].MessageAll(m.Name + " casts a " + spellInstance.Name + " spell on " + target.Name + "\n")
+						target.RunHook("attacked")
 						m.Mana.Subtract(spellInstance.Cost)
 						result := Cast(m, target, spellInstance.Effect, spellInstance.Magnitude)
 						if strings.Contains(result, "$SCRIPT") {
@@ -334,6 +336,7 @@ func (m *Mob) Tick() {
 					buildString += strconv.Itoa(vitDamage) + " vitality"
 				}
 				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
+				target.RunHook("attacked")
 				if target.Vit.Current == 0 {
 					target.Died()
 				}
@@ -359,6 +362,7 @@ func (m *Mob) Tick() {
 				m.Placement == Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement {
 				// Am I against a fighter and they succeed in a parry roll?
 				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
+				target.RunHook("attacked")
 				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(config.WeaponLevel(target.Skills[target.Equipment.Main.ItemType].Value, target.Class)) {
 					if target.Tier >= 10 {
 						// It's a riposte
@@ -409,7 +413,7 @@ func (m *Mob) Tick() {
 
 func (m *Mob) Follow(params []string) {
 	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
-	if params[0] == m.CurrentTarget {
+	if params[0] == m.CurrentTarget && m.MobStunned == 0 {
 		// I am, lets process that -> First we need to step up in the world to find that character
 		targetChar := ActiveCharacters.Find(params[0])
 		if targetChar != nil {
@@ -418,19 +422,16 @@ func (m *Mob) Follow(params []string) {
 				curChance = 85
 			}
 			if utils.Roll(100, 1, 0) <= curChance {
-				log.Println("I'm going to follow!")
 				Rooms[m.ParentId].Chars.Lock()
 				Rooms[m.ParentId].Mobs.Lock()
 				Rooms[m.ParentId].Items.Lock()
 				Rooms[targetChar.ParentId].Chars.Lock()
 				Rooms[targetChar.ParentId].Mobs.Lock()
 				Rooms[targetChar.ParentId].Items.Lock()
-				// Exit the ticker..
 				targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n"))
 				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name)
 				previousRoom := m.ParentId
 				Rooms[m.ParentId].Mobs.Remove(m)
-				log.Println("Successful Removal.")
 				//TODO Calculate Vital?
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
 				m.CurrentTarget = targetChar.Name
@@ -446,6 +447,17 @@ func (m *Mob) Follow(params []string) {
 	}
 }
 
+func (m *Mob) Flee(params []string) {
+	// Roll a dice and see if I'm going to flee...
+	if m.CheckFlag("sweet_comfort") {
+		return
+	}
+	if utils.Roll(100, 1, 0) <= 50 {
+		go Rooms[m.ParentId].FleeMob(m)
+	}
+	return
+}
+
 func (m *Mob) ProcessCommand(cmdStr string, params []string) {
 	// StateCommands is a list of stack functions that cause the mob to do something that affects state and causes actions
 	log.Println("Processing command " + cmdStr)
@@ -456,6 +468,7 @@ func (m *Mob) ProcessCommand(cmdStr string, params []string) {
 		"follow":   m.Follow,
 		"pickup":   nil,
 		"teleport": nil,
+		"flee":     m.Flee,
 	}
 	StateCommands[cmdStr](params)
 }
@@ -470,6 +483,7 @@ func (m *Mob) MobScript(inputStr string) {
 }
 
 func (m *Mob) Stun(amt int) {
+	// TODO: Diminishing returns and max stun length
 	if amt > m.MobStunned {
 		m.MobStunned += amt
 	}
@@ -578,8 +592,11 @@ func (m *Mob) AddThreatDamage(damage int, attacker *Character) {
 }
 
 func (m *Mob) ApplyEffect(effectName string, length string, interval string, effect func(), effectOff func()) {
-	if _, ok := m.Effects[effectName]; ok {
-		m.Effects[effectName].effectOff()
+	if effectInstance, ok := m.Effects[effectName]; ok {
+		durExtend, _ := strconv.ParseFloat(length, 64)
+		effectInstance.ExtendDuration(durExtend)
+		return
+		//m.Effects[effectName].effectOff()
 	}
 	m.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
 	effect()
@@ -660,15 +677,21 @@ func (m *Mob) CheckFlag(flagName string) bool {
 }
 
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
-	finalDamage := math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction)))
-	m.Stam.Subtract(int(finalDamage))
-	return int(finalDamage), 0
+	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction))))
+	m.Stam.Subtract(finalDamage)
+	if finalDamage > m.WimpyValue {
+		m.MobCommands <- "flee"
+	}
+	return finalDamage, 0
 }
 
 func (m *Mob) ReceiveDamageNoArmor(damage int) (int, int) {
-	finalDamage := math.Ceil(float64(damage))
-	m.Stam.Subtract(int(finalDamage))
-	return int(finalDamage), 0
+	finalDamage := int(math.Ceil(float64(damage)))
+	m.Stam.Subtract(finalDamage)
+	if finalDamage > m.WimpyValue {
+		m.MobCommands <- "flee"
+	}
+	return finalDamage, 0
 }
 
 func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {

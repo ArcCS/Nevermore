@@ -17,7 +17,12 @@ type Effect struct {
 }
 
 func (s *Effect) AlterTime(duration float64) {
-	s.length = time.Duration(duration)*time.Minute
+	s.length = time.Duration(duration) * time.Second
+}
+
+func (s *Effect) ExtendDuration(duration float64) {
+	calc := s.length - (s.length - (time.Now().Sub(s.startTime)))
+	s.length = time.Duration(duration)*time.Second - time.Duration(calc.Seconds())
 }
 
 func NewEffect(length string, interval string, effect func(), effectOff func()) *Effect {
@@ -32,7 +37,7 @@ func NewEffect(length string, interval string, effect func(), effectOff func()) 
 		effectOff}
 }
 
-func (s *Effect) RunEffect(){
+func (s *Effect) RunEffect() {
 	s.effect()
 	s.lastTrigger = time.Now()
 }

@@ -85,6 +85,8 @@ type Character struct {
 
 	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
+	SongTicker       *time.Ticker
+	SongTickerUnload chan bool
 	Hooks            map[string]map[string]*Hook
 	LastAction       time.Time
 	LoginTime        time.Time
@@ -164,6 +166,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				"air":   {0}},
 			nil,
 			make(chan bool),
+			nil,
+			make(chan bool),
 			map[string]map[string]*Hook{
 				"act":      make(map[string]*Hook),
 				"combat":   make(map[string]*Hook),
@@ -221,6 +225,11 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 	}
 }
 
+// GetCurrentWeight returns the current carrying weight of the character.
+func (c *Character) GetCurrentWeight() int {
+	return c.Inventory.TotalWeight + c.Equipment.Weight
+}
+
 func (c *Character) SetTimer(timer string, seconds int) {
 	if c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		return
@@ -252,6 +261,34 @@ func (c *Character) TimerReady(timer string) (bool, string) {
 	}
 	return false, "You have " + strconv.Itoa(remaining) + " seconds before you can perform this action."
 
+}
+
+// SingSong Bards get their own special ticker
+// TODO(?): Maybe eventually this is a generalized aura?
+func (c *Character) SingSong(song string, tickRate int) {
+	c.ToggleFlag("singing", "sing")
+	c.SongTicker = time.NewTicker(time.Duration(tickRate) * time.Second)
+	go func() {
+		for {
+			select {
+			case <-c.SongTickerUnload:
+				c.ToggleFlagAndMsg("singing", "sing", "You stop singing.")
+				return
+			case <-c.SongTicker.C:
+				if SongEffects[song].target == "mob" {
+					for _, mob := range Rooms[c.ParentId].Mobs.Contents {
+						SongEffects[song].effect(mob, c)
+					}
+				}
+				if SongEffects[song].target == "player" {
+					for _, player := range Rooms[c.ParentId].Chars.Contents {
+						SongEffects[song].effect(player, c)
+					}
+				}
+
+			}
+		}
+	}()
 }
 
 func (c *Character) Unload() {
@@ -290,6 +327,13 @@ func (c *Character) ToggleFlagAndMsg(flagName string, provider string, msg strin
 	c.Write([]byte(msg))
 }
 
+func (c *Character) FindFlagProviders(flagName string) []string {
+	if _, exists := c.Flags[flagName]; exists {
+		return c.FlagProviders[flagName]
+	}
+	return []string{}
+}
+
 func (c *Character) CheckFlag(flagName string) bool {
 	if flag, err := c.Flags[flagName]; !err {
 		return flag
@@ -303,7 +347,7 @@ func (c *Character) SerialSaveEffects() string {
 
 	for efN, effect := range c.Effects {
 		// Ignore any bard songs, we won't take them with us.
-		if !strings.Contains(efN, "_song") {
+		if !strings.Contains(efN, "_song") && !strings.Contains(efN, "sing") {
 			effectList[efN] = effect.TimeRemaining()
 		}
 	}
@@ -323,8 +367,10 @@ func (c *Character) SerialRestoreEffects(effectsBlob string) {
 		return
 	}
 	for name, duration := range obj {
-		Effects[name](c, c, 0)
-		c.Effects[name].AlterTime(duration)
+		if !strings.Contains(name, "_song") && !strings.Contains(name, "sing") {
+			Effects[name](c, c, 0)
+			c.Effects[name].AlterTime(duration)
+		}
 	}
 }
 
@@ -564,8 +610,10 @@ func (c *Character) Look() (buildText string) {
 }
 
 func (c *Character) ApplyEffect(effectName string, length string, interval string, effect func(), effectOff func()) {
-	if _, ok := c.Effects[effectName]; ok {
-		c.Effects[effectName].effectOff()
+	if effectInstance, ok := c.Effects[effectName]; ok {
+		durExtend, _ := strconv.ParseFloat(length, 64)
+		effectInstance.ExtendDuration(durExtend)
+		return
 	}
 	c.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
 	effect()
@@ -576,6 +624,13 @@ func (c *Character) RemoveEffect(effectName string) {
 		c.Effects[effectName].effectOff()
 		delete(c.Effects, effectName)
 	}
+}
+
+func (c *Character) HasEffect(effectName string) bool {
+	if _, ok := c.Effects[effectName]; ok {
+		return true
+	}
+	return false
 }
 
 func (c *Character) ApplyHook(hook string, hookName string, executions int, length string, interval int, effect func(), effectOff func()) {

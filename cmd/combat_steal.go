@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"math"
 	"strconv"
 )
 
@@ -94,7 +95,7 @@ func (steal) process(s *state) {
 		what := whatMob.Inventory.Search(nameStr, nameNum)
 		if what != nil {
 			s.actor.SetTimer("steal", config.StealCD)
-			if (s.actor.Inventory.TotalWeight + what.GetWeight()) <= s.actor.MaxWeight() {
+			if (s.actor.GetCurrentWeight() + what.GetWeight()) <= s.actor.MaxWeight() {
 				// base chance is 15% to hide
 				curChance := config.StealChance + (config.StealChancePerLevel * (s.actor.Tier - whatMob.Level))
 
@@ -117,6 +118,20 @@ func (steal) process(s *state) {
 					s.msg.Actor.SendBad("You failed to steal from ", whatMob.Name, ", and stumble out of the shadows.")
 					s.actor.RemoveHook("combat", "hide")
 					whatMob.AddThreatDamage(whatMob.Stam.Max/4, s.actor)
+					if utils.Roll(100, 1, 0) <= config.MobStealRevengeVitalChance {
+						whatMob.CurrentTarget = s.actor.Name
+						s.msg.Actor.SendInfo(whatMob.Name + " turns to you.")
+						s.msg.Observers.SendInfo(whatMob.Name + " turns to " + s.actor.Name + ".")
+						vitDamage := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage() * config.VitalStrikeScale))))
+						if vitDamage == 0 {
+							s.msg.Actor.SendGood(whatMob.Name, " vital strike bounces off of you for no damage!")
+						} else {
+							s.msg.Actor.SendInfo(whatMob.Name, " attacks you for "+strconv.Itoa(vitDamage)+" points of vitality damage!")
+						}
+						if s.actor.Vit.Current == 0 {
+							s.actor.Died()
+						}
+					}
 					return
 				}
 			} else {

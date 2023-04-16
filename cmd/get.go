@@ -74,7 +74,7 @@ func (get) process(s *state) {
 				s.msg.Actor.SendGood("You picked up ", strconv.Itoa(roomInventory.Value), " gold pieces.")
 				s.msg.Observers.SendInfo("You see ", s.actor.Name, " get ", roomInventory.Name, ".")
 				return
-			} else if (s.actor.Inventory.TotalWeight+roomInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			} else if (s.actor.GetCurrentWeight()+roomInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				s.actor.RunHook("act")
 				s.actor.Inventory.Lock()
 				s.where.Items.Remove(roomInventory)
@@ -118,7 +118,7 @@ func (get) process(s *state) {
 					s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
 					where.Storage.Unlock()
 					return
-				} else if (s.actor.Inventory.TotalWeight+whereInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				} else if (s.actor.GetCurrentWeight()+whereInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					s.actor.RunHook("act")
 					where.Storage.Lock()
 					s.actor.Inventory.Lock()

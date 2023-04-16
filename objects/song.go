@@ -1,5 +1,7 @@
 package objects
 
+import "github.com/ArcCS/Nevermore/config"
+
 var Songs = map[string]map[string]string{
 	"celebration-night": {
 		"desc":   "Hastens stamina and vitality regeneration on players in the area.",
@@ -23,66 +25,118 @@ var Songs = map[string]map[string]string{
 	},
 	"draens-tale": {
 		"desc":   "increases the the mana regeneration of everyone present in the area.",
-		"verse":  " draen, throw your spells anew, know the weave will answer you.",
+		"verse":  "draen, throw your spells anew, know the weave will answer you.",
 		"effect": "draens-tale",
+	},
+	/*
+		"victors-chorus": {
+			"desc":   "decreases the damage output of all creatures in the area.",
+			"verse":  "we fight to victory, we fight to win, we fight for glory our enemies will never see",
+			"effect": "victors-chorus",
+		},
+			"warriors-threnody": {
+				"desc": "instead of death, will restore another character completely (max one per 2 minutes)",
+				"verse": "",
+				"effect": "warriors-threnody",
+			},
+			}*/
+	"champions-anthem": {
+		"desc":   "increases the melee damage output of all players in the area.",
+		"verse":  "feel thy strength swell, with every swing, feel the power of my hymn",
+		"effect": "champions-anthem",
+	},
+	"banshees-lament": {
+		"desc":   "causes damage periodically to all creatures in the area.",
+		"verse":  "hear my song, hear my sorrow, feel my will tear you apart",
+		"effect": "banshees-lament",
 	},
 }
 
-var SongEffects = map[string]map[string]interface{}{
-	"draens-tale": {"target": "players", "effect": DraensTale},
-	"run-away": {"target": "mobs", "effect": RunAway},
-	"sweet-comfort": {"target": "mobs", "effect": SweetComfort},
-	"curious-canticle": {"target": "mobs", "effect": CuriousCanticle},
-	"celebration-night": {"target": "players", "effect": CelebrationNight},
+type song struct {
+	target string
+	effect func(target interface{}, singer *Character)
 }
 
-func DraensTale(c *Character, singer *Character){
-	c.ApplyEffect(singer.Name + "_draens_tale", "16", "0",
-		func() {
-			c.ToggleFlag("draens_tale", singer.Name + "_celebration_night")
-		},
-		func() {
-			c.ToggleFlag("draens_tale", singer.Name + "_celebration_night")
-		})
+var SongEffects = map[string]song{
+	"draens-tale":       {"players", DraensTale},
+	"run-away":          {"mobs", RunAway},
+	"sweet-comfort":     {"mobs", SweetComfort},
+	"curious-canticle":  {"mobs", CuriousCanticle},
+	"celebration-night": {"players", CelebrationNight},
+	"champions-anthem":  {"players", ChampionsAnthem},
+	"banshees-lament":   {"mobs", BansheesLament},
 }
 
-func RunAway(m *Mob, singer *Character){
-	m.ApplyEffect(singer.Name + "_run_away", "16", "0",
-		func() {
-			m.ToggleFlag("run_away")
-		},
-		func() {
-			m.ToggleFlag("run_away")
-		})
-
+func DraensTale(target interface{}, singer *Character) {
+	switch target := target.(type) {
+	case *Character:
+		target.RestoreMana(singer.GetStat("pie") * config.ScalePerPiety)
+	}
 }
 
-func SweetComfort(m *Mob, singer *Character){
-	m.ApplyEffect(singer.Name + "_sweet_comfort", "16", "0",
-		func() {
-			m.ToggleFlag("sweet_comfort")
-		},
-		func() {
-			m.ToggleFlag("sweet_comfort")
-		})
+func RunAway(target interface{}, singer *Character) {
+	switch target := target.(type) {
+	case *Mob:
+		target.ApplyEffect(singer.Name+"_run_away", "16", "0",
+			func() {
+				target.ToggleFlag("run_away")
+			},
+			func() {
+				target.ToggleFlag("run_away")
+			})
+	}
 }
 
-func CuriousCanticle(m *Mob, singer *Character){
-	m.ApplyEffect(singer.Name + "_curious_canticle", "16", "0",
-		func() {
-			m.ToggleFlag("curious_canticle")
-		},
-		func() {
-			m.ToggleFlag("curious_canticle")
-		})
+func SweetComfort(target interface{}, singer *Character) {
+	switch target := target.(type) {
+	case *Mob:
+		target.ApplyEffect(singer.Name+"_sweet_comfort", "16", "0",
+			func() {
+				target.ToggleFlag("sweet_comfort")
+			},
+			func() {
+				target.ToggleFlag("sweet_comfort")
+			})
+	}
 }
 
-func CelebrationNight(c *Character, singer *Character){
-	c.ApplyEffect(singer.Name + "_celebration_night", "16", "0",
-		func() {
-			c.ToggleFlag("celebration_night", singer.Name + "_celebration_night")
-		},
-		func() {
-			c.ToggleFlag("celebration_night", singer.Name + "_celebration_night")
-		})
+func CuriousCanticle(target interface{}, singer *Character) {
+	switch target := target.(type) {
+	case *Mob:
+		target.ApplyEffect(singer.Name+"_curious_canticle", "16", "0",
+			func() {
+				target.ToggleFlag("curious_canticle")
+			},
+			func() {
+				target.ToggleFlag("curious_canticle")
+			})
+	}
+}
+
+func CelebrationNight(target interface{}, singer *Character) {
+	switch target := target.(type) {
+	case *Character:
+		target.Heal(singer.GetStat("pie") * config.ScalePerPiety)
+	}
+}
+
+func ChampionsAnthem(target interface{}, singer *Character) {
+	switch target := target.(type) {
+	case *Character:
+		target.ApplyEffect(singer.Name+"_champions_anthem", "16", "0",
+			func() {
+				target.SetModifier("base_damage", singer.GetStat("pie")*config.ScalePerPiety)
+			},
+			func() {
+				target.SetModifier("base_damage", -singer.GetStat("pie")*config.ScalePerPiety)
+			})
+	}
+}
+
+func BansheesLament(target interface{}, singer *Character) {
+	switch target := target.(type) {
+	case *Mob:
+		target.ReceiveDamageNoArmor(singer.GetStat("pie") * config.ScalePerPiety)
+		target.AddThreatDamage(singer.GetStat("pie")*config.ScalePerPiety, singer)
+	}
 }

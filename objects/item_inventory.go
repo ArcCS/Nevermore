@@ -16,7 +16,7 @@ type ItemInventory struct {
 	Flags       map[string]bool
 }
 
-// New ItemInventory returns a new basic ItemInventory structure
+// NewItemInventory New ItemInventory returns a new basic ItemInventory structure
 func NewItemInventory(o ...*Item) *ItemInventory {
 	i := &ItemInventory{
 		Contents: make([]*Item, 0, len(o)),
@@ -35,7 +35,7 @@ func (i *ItemInventory) Add(o *Item) {
 	i.TotalWeight += o.GetWeight()
 }
 
-// Pass item as a pointer to be removed
+// Remove Pass item as a pointer to be removed
 func (i *ItemInventory) Remove(o *Item) (err error) {
 	defer func() (err error) {
 		if r := recover(); r != nil {
@@ -59,7 +59,15 @@ func (i *ItemInventory) Remove(o *Item) (err error) {
 	return nil
 }
 
-// Clear all non permanent
+// ReCalcWeight Recalculates the total weight of the inventory
+func (i *ItemInventory) ReCalcWeight() {
+	i.TotalWeight = 0
+	for _, item := range i.Contents {
+		i.TotalWeight += item.GetWeight()
+	}
+}
+
+// RemoveNonPerms Clear all non-permanent
 func (i *ItemInventory) RemoveNonPerms() {
 	newContents := make([]*Item, 0, 0)
 	newWeight := 0
@@ -113,7 +121,7 @@ func (i *ItemInventory) List() []string {
 	return items
 }
 
-// List the items in this ItemInventory
+// ListItems List the items in this ItemInventory
 func (i *ItemInventory) ListItems() []*Item {
 	items := make([]*Item, 0)
 
@@ -163,7 +171,7 @@ func (i *ItemInventory) Jsonify() string {
 	}
 }
 
-// PermanentReducedList the items in this inentory
+// PermanentReducedList the items in this inventory
 func (i *ItemInventory) PermanentReducedList() string {
 	items := make(map[string]int, 0)
 
@@ -191,7 +199,7 @@ func (i *ItemInventory) PermanentReducedList() string {
 	return strings.Join(stringify, ", ")
 }
 
-// RoomReducedList the items in this inentory
+// RoomReducedList the items in this inventory
 func (i *ItemInventory) RoomReducedList() string {
 	items := make(map[string]int, 0)
 
@@ -219,7 +227,7 @@ func (i *ItemInventory) RoomReducedList() string {
 	return strings.Join(stringify, ", ")
 }
 
-// ReducedList the items in this inentory
+// ReducedList the items in this inventory
 func (i *ItemInventory) ReducedList() string {
 	items := make(map[string]int, 0)
 

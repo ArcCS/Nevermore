@@ -44,65 +44,65 @@ func (hide) process(s *state) {
 		s.msg.Actor.SendGood("You slip into the shadows.")
 		s.actor.Flags["hidden"] = true
 		s.actor.ApplyHook("act", "hide", -1, "10", -1,
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
 				s.actor.RemoveHook("act", "hide")
 				return
 			},
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 			},
 		)
 		s.actor.ApplyHook("say", "hide", -1, "10", -1,
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
 				s.actor.RemoveHook("say", "hide")
 				return
 			},
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 				return
 			},
 		)
 		s.actor.ApplyHook("use", "hide", -1, "10", -1,
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
 				s.actor.RemoveHook("use", "hide")
 				return
 			},
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 				return
 			},
 		)
 		s.actor.ApplyHook("combat", "hide", -1, "10", -1,
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
 				s.actor.RemoveHook("combat", "hide")
 				return
 			},
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 				return
 			},
-			)
+		)
 		s.actor.ApplyHook("move", "hide", -1, "10", -1,
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 				s.actor.RemoveHook("move", "hide")
 				return
 			},
-			func(){
+			func() {
 				s.actor.Flags["hidden"] = false
 				return
 			},
 		)
 		s.actor.ApplyHook("gridmove", "hide", -1, "10", -1,
-			func(){
+			func() {
 				// base chance is 15% to hide
 				curChance := config.HideChance
 
@@ -116,12 +116,24 @@ func (hide) process(s *state) {
 					s.actor.Write([]byte(text.Bad + "You stumble out of the shadows while changing your position." + text.Reset + "\n"))
 					s.actor.RemoveHook("gridmove", "hide")
 					return
-				}else {
+				} else {
 					s.actor.Write([]byte(text.Good + "You stay in the shadows while moving." + text.Reset + "\n"))
 					return
 				}
 			},
-			func(){
+			func() {
+				s.actor.Flags["hidden"] = false
+				return
+			},
+		)
+		s.actor.ApplyHook("attacked", "hide", -1, "10", -1,
+			func() {
+				s.actor.Flags["hidden"] = false
+				s.actor.Write([]byte(text.Info + "You lose your hiding place while being attacked." + text.Reset + "\n"))
+				s.actor.RemoveHook("say", "hide")
+				return
+			},
+			func() {
 				s.actor.Flags["hidden"] = false
 				return
 			},
@@ -129,7 +141,7 @@ func (hide) process(s *state) {
 
 		s.ok = true
 		return
-	}else{
+	} else {
 		s.msg.Actor.SendBad("Try as you might you fail to find a place to hide.")
 	}
 

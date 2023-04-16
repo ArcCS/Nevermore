@@ -27,6 +27,11 @@ func (move) process(s *state) {
 		return
 	}
 
+	if s.actor.Equipment.Weight > s.actor.MaxWeight() {
+		s.msg.Actor.SendBad("You are carrying too much to move.")
+		return
+	}
+
 	s.actor.RunHook("gridmove")
 
 	previous := s.actor.Placement
@@ -106,7 +111,7 @@ func (move) process(s *state) {
 					}
 				}
 			}
-		}else{
+		} else {
 			s.msg.Actor.SendBad("There's not enough room to move backwards.")
 		}
 	}

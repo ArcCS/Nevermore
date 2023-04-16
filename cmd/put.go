@@ -30,6 +30,7 @@ func (put) process(s *state) {
 	argParse := 1
 	targetStr := s.words[0]
 	targetNum := 1
+	recalc := false
 
 	if val, err := strconv.Atoi(s.words[1]); err == nil {
 		targetNum = val
@@ -62,12 +63,13 @@ func (put) process(s *state) {
 	if where == nil {
 		// Try to find it on us next.
 		where = s.actor.Inventory.Search(whereStr, whereNum)
-	}
-
-	// Is where still nil?
-	if where == nil {
-		s.msg.Actor.SendInfo("Put it where?")
-		return
+		// Is where still nil?
+		if where == nil {
+			s.msg.Actor.SendInfo("Put it where?")
+			return
+		} else if !where.Flags["weightless_chest"] {
+			recalc = true
+		}
 	}
 
 	// Do you specify itself?
@@ -93,6 +95,9 @@ func (put) process(s *state) {
 	where.Storage.Lock()
 	s.actor.Inventory.Remove(target)
 	where.Storage.Add(target)
+	if recalc {
+		s.actor.Inventory.ReCalcWeight()
+	}
 	s.actor.Inventory.Unlock()
 	where.Storage.Unlock()
 

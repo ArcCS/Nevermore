@@ -644,7 +644,6 @@ var Spells = map[string]Spell{
 
 var RemoteSpells = []string{
 	"summon",
-	"word of recall",
 	"clairvoyance",
 	"wizard-walk",
 }

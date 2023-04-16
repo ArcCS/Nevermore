@@ -35,7 +35,7 @@ func (buy) process(s *state) {
 		purchaseItem := s.where.StoreInventory.Search(targetStr, targetNum)
 		if purchaseItem != nil {
 			if s.actor.Gold.Value > purchaseItem.StorePrice {
-				if (s.actor.Inventory.TotalWeight + purchaseItem.GetWeight()) <= s.actor.MaxWeight() {
+				if (s.actor.GetCurrentWeight() + purchaseItem.GetWeight()) <= s.actor.MaxWeight() {
 					s.actor.RunHook("act")
 					s.actor.Inventory.Lock()
 					s.where.StoreInventory.Lock()

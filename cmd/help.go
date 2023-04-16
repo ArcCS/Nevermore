@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"sort"
 	"strings"
@@ -23,7 +24,7 @@ func (help) process(s *state) {
 
 	if len(s.words) < 1 {
 		s.msg.Actor.SendGood("Available commands:\n" +
-			"(Type help cmd_name for more details)\n" +
+			"(Type help cmd_name for more details, or spell_list for a list of spells, or song_list for a list of songs)\n" +
 			"=====================================================")
 		cmds := make([]string, len(helpText), len(helpText))
 
@@ -85,9 +86,121 @@ func (help) process(s *state) {
 	} else {
 		// Here we return the help text
 		subject := s.words[0]
+
+		// Lets shortcut the help text to add spells and song lists
+
+		if subject == "SPELL_LIST" {
+			s.msg.Actor.SendGood("All Spells:\n" +
+				"(Type help spell_name for more details)\n" +
+				"=====================================================")
+			cmds := make([]string, len(objects.Spells), len(objects.Spells))
+
+			// Extract keys from handler map
+			pos := 0
+			for spell := range objects.Spells {
+				cmds[pos] = spell
+				pos++
+			}
+
+			// Find longest key extracted
+			maxWidth := 0
+			for _, spell := range cmds {
+				if l := len(spell); l > maxWidth {
+					maxWidth = l
+				}
+			}
+
+			sort.Strings(cmds)
+
+			var (
+				columnWidth = maxWidth + gutter
+				columnCount = 80 / columnWidth
+				rowCount    = len(cmds) / columnCount
+			)
+
+			if len(cmds) > rowCount*columnCount {
+				rowCount++
+			}
+
+			for row := 0; row < rowCount; row++ {
+				line := []byte{}
+				for column := 0; column < columnCount; column++ {
+					cell := (column * rowCount) + row
+					if cell < len(cmds) {
+						line = append(line, cmds[cell]...)
+						line = append(line, strings.Repeat(" ", columnWidth-len(cmds[cell]))...)
+					}
+				}
+				s.msg.Actor.Send(string(line))
+			}
+
+			s.ok = true
+			return
+		}
+
+		if subject == "SONG_LIST" {
+			s.msg.Actor.SendGood("All Songs:\n" +
+				"(Type help song_name for more details)\n" +
+				"=====================================================")
+			cmds := make([]string, len(objects.Songs), len(objects.Songs))
+
+			// Extract keys from handler map
+			pos := 0
+			for song := range objects.Songs {
+				cmds[pos] = song
+				pos++
+			}
+
+			// Find longest key extracted
+			maxWidth := 0
+			for _, song := range cmds {
+				if l := len(song); l > maxWidth {
+					maxWidth = l
+				}
+			}
+
+			sort.Strings(cmds)
+
+			var (
+				columnWidth = maxWidth + gutter
+				columnCount = 80 / columnWidth
+				rowCount    = len(cmds) / columnCount
+			)
+
+			if len(cmds) > rowCount*columnCount {
+				rowCount++
+			}
+
+			for row := 0; row < rowCount; row++ {
+				line := []byte{}
+				for column := 0; column < columnCount; column++ {
+					cell := (column * rowCount) + row
+					if cell < len(cmds) {
+						line = append(line, cmds[cell]...)
+						line = append(line, strings.Repeat(" ", columnWidth-len(cmds[cell]))...)
+					}
+				}
+				s.msg.Actor.Send(string(line))
+			}
+
+			s.ok = true
+			return
+		}
+
+		// Search Spells:
+		if spell, ok := objects.Spells[strings.ToLower(subject)]; ok {
+			s.msg.Actor.SendGood("Spell: ", subject, "\n\n", spell.Description)
+			return
+		}
+
+		if song, ok := objects.Songs[strings.ToLower(subject)]; ok {
+			s.msg.Actor.SendGood("Song: ", subject, "\n\n", song["desc"])
+			return
+		}
+
 		if s.actor.Permission.HasFlag(handlerPermission[strings.ToUpper(subject)]) {
 			s.msg.Actor.SendGood("Command: ", subject, "\n\n", helpText[subject])
-		}else{
+		} else {
 			s.msg.Actor.SendBad("Not a command available to you.")
 		}
 	}
