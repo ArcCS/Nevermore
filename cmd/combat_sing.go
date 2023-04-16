@@ -25,6 +25,17 @@ func (sing) process(s *state) {
 		return
 	}
 
+	if s.actor.CheckFlag("singing") {
+		s.msg.Actor.SendBad("You are already singing!")
+		return
+	}
+
+	// Stop the song
+	if s.words[0] == "STOP" {
+		s.actor.RemoveEffect("sing")
+		return
+	}
+
 	singReady, msg := s.actor.TimerReady("combat_sing")
 	if !singReady {
 		s.msg.Actor.SendBad(msg)
@@ -34,17 +45,6 @@ func (sing) process(s *state) {
 	ready, msg := s.actor.TimerReady("combat")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
-		return
-	}
-
-	if s.actor.CheckFlag("singing") {
-		s.msg.Actor.SendBad("You are already singing!")
-		return
-	}
-
-	// Stop the song
-	if s.words[0] == "stop" {
-		s.actor.RemoveEffect("sing")
 		return
 	}
 

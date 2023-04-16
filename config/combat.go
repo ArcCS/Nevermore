@@ -66,7 +66,7 @@ var ShieldStun = 1
 var CombatCooldown = 8
 
 // Bard Stuff
-var ScalePerPiety = 2
+var ScalePerPiety = 1
 var DurationPerCon = 10
 
 // Mob Stuns:

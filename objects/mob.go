@@ -679,7 +679,7 @@ func (m *Mob) CheckFlag(flagName string) bool {
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
 	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction))))
 	m.Stam.Subtract(finalDamage)
-	if finalDamage > m.WimpyValue {
+	if finalDamage > m.WimpyValue && m.CheckFlag("flees") {
 		m.MobCommands <- "flee"
 	}
 	return finalDamage, 0
@@ -688,7 +688,7 @@ func (m *Mob) ReceiveDamage(damage int) (int, int) {
 func (m *Mob) ReceiveDamageNoArmor(damage int) (int, int) {
 	finalDamage := int(math.Ceil(float64(damage)))
 	m.Stam.Subtract(finalDamage)
-	if finalDamage > m.WimpyValue {
+	if finalDamage > m.WimpyValue && m.CheckFlag("flees") {
 		m.MobCommands <- "flee"
 	}
 	return finalDamage, 0
@@ -840,6 +840,7 @@ func (m *Mob) Save() {
 
 func (m *Mob) Eval() string {
 	return "You study the " + m.Name + " in your minds eye....\n\n" +
-		"It currently has " + strconv.Itoa(m.Stam.Current) + " hits points remaining." +
-		"It is worth " + strconv.Itoa(m.Experience) + "experience points."
+		"It is level " + strconv.Itoa(m.Level) + ". \n" +
+		"It currently has " + strconv.Itoa(m.Stam.Current) + " hits points remaining. \n" +
+		"It is worth " + strconv.Itoa(m.Experience) + "experience points. \n"
 }

@@ -275,12 +275,12 @@ func (c *Character) SingSong(song string, tickRate int) {
 				c.ToggleFlagAndMsg("singing", "sing", "You stop singing.")
 				return
 			case <-c.SongTicker.C:
-				if SongEffects[song].target == "mob" {
+				if SongEffects[song].target == "mobs" {
 					for _, mob := range Rooms[c.ParentId].Mobs.Contents {
 						SongEffects[song].effect(mob, c)
 					}
 				}
-				if SongEffects[song].target == "player" {
+				if SongEffects[song].target == "players" {
 					for _, player := range Rooms[c.ParentId].Chars.Contents {
 						SongEffects[song].effect(player, c)
 					}
@@ -335,7 +335,7 @@ func (c *Character) FindFlagProviders(flagName string) []string {
 }
 
 func (c *Character) CheckFlag(flagName string) bool {
-	if flag, err := c.Flags[flagName]; !err {
+	if flag, ok := c.Flags[flagName]; ok {
 		return flag
 	}
 	return false

@@ -1,6 +1,10 @@
 package objects
 
-import "github.com/ArcCS/Nevermore/config"
+import (
+	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/text"
+	"strconv"
+)
 
 var Songs = map[string]map[string]string{
 	"celebration-night": {
@@ -136,6 +140,8 @@ func ChampionsAnthem(target interface{}, singer *Character) {
 func BansheesLament(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Mob:
+		damage := singer.GetStat("pie") * config.ScalePerPiety
+		singer.Write([]byte(text.Red + "Your song caused " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset))
 		target.ReceiveDamageNoArmor(singer.GetStat("pie") * config.ScalePerPiety)
 		target.AddThreatDamage(singer.GetStat("pie")*config.ScalePerPiety, singer)
 	}
