@@ -21,7 +21,7 @@ func init() {
 type kill cmd
 
 func (kill) process(s *state) {
-	if len(s.input) < 1 {
+	if len(s.input) < 1 && s.actor.Victim == nil {
 		s.msg.Actor.SendBad("Attack what exactly?")
 		return
 	}
@@ -32,8 +32,19 @@ func (kill) process(s *state) {
 		s.msg.Actor.SendBad(msg)
 		return
 	}
-	name := s.input[0]
+
+	name := ""
 	nameNum := 1
+	if len(s.words[0]) > 1 && s.actor.Victim != nil {
+		switch s.actor.Victim.(type) {
+		case *objects.Character:
+			name = s.actor.Victim.(*objects.Character).Name
+		case *objects.Mob:
+			name = s.actor.Victim.(*objects.Mob).Name
+		}
+	} else {
+		name = s.input[0]
+	}
 
 	if len(s.words) > 1 {
 		// Try to snag a number off the list
@@ -159,7 +170,7 @@ func (kill) process(s *state) {
 		if s.actor.Class != 8 {
 			weapMsg = s.actor.Equipment.DamageWeapon("main", 1)
 			if weapMsg != "" {
-				s.msg.Actor.SendInfo("weapMsg")
+				s.msg.Actor.SendInfo(weapMsg)
 			}
 		}
 

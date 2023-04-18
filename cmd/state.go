@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	//event.Script = Script
+	objects.Script = Script
 }
 
 // state contains the current parsing state for commands. The state fields may
@@ -26,16 +26,15 @@ func init() {
 // NOTE: the where field is only set when the state is creafdispatchted. If the actor
 // moves to another location the where field should be updated as well. See the
 // move command for such an example.
-//
 type state struct {
 	actor       *objects.Character // The Thing executing the command
-	where       *objects.Room 		// Where the character currently is
-	participant *objects.Character  // The other Character participating in the command
-	input       []string            // The original input of the actor minus cmd
-	cmd         string              // The current command being processed
-	words       []string            // Input as uppercased words, less stopwords
-	ok          bool                // Flag to indicate if command was successful
-	scripting   bool                // Is state in scripting mode?
+	where       *objects.Room      // Where the character currently is
+	participant *objects.Character // The other Character participating in the command
+	input       []string           // The original input of the actor minus cmd
+	cmd         string             // The current command being processed
+	words       []string           // Input as uppercased words, less stopwords
+	ok          bool               // Flag to indicate if command was successful
+	scripting   bool               // Is state in scripting mode?
 
 	// DO NOT MANIPULATE LOCKS DIRECTLY - use AddLock and see it's comments
 	cLocks []int
@@ -101,14 +100,13 @@ func newState(o *objects.Character, input string) *state {
 //	s.cmd = "SAY"
 //	s.input = []string{"I'm", "in", "need", "of", "help!"}
 //	s.words = []string{"I'M", "NEED", "HELP!"}
-//
 func (s *state) tokenizeInput(input string) {
 	quoteReg := regexp.MustCompile("\"(.*)\"")
 	for _, match := range quoteReg.FindStringSubmatch(input) {
 		input = strings.ReplaceAll(input, match, strings.ReplaceAll(match, " ", "%_R%"))
 	}
 	s.input = strings.Fields(input)
-	for wordInt, _  := range s.input {
+	for wordInt, _ := range s.input {
 		// No quotes
 		s.input[wordInt] = strings.ReplaceAll(s.input[wordInt], "\"", "")
 		// Restore spaces
@@ -237,7 +235,7 @@ func (s *state) messenger() {
 	s.msg.Deallocate()
 }
 
-func (s *state) AddAllLocks(r int){
+func (s *state) AddAllLocks(r int) {
 	s.AddMobLock(r)
 	s.AddItemLock(r)
 	s.AddCharLock(r)
@@ -247,7 +245,7 @@ func (s *state) TotalLocks() int {
 	return len(s.cLocks) + len(s.iLocks) + len(s.mLocks)
 }
 
-func (s *state) LockAll(){
+func (s *state) LockAll() {
 	for _, l := range s.cLocks {
 		objects.Rooms[l].Chars.Lock()
 	}
@@ -259,7 +257,7 @@ func (s *state) LockAll(){
 	}
 }
 
-func (s *state) UnlockAll(){
+func (s *state) UnlockAll() {
 	for _, l := range s.cLocks {
 		objects.Rooms[l].Chars.Unlock()
 	}
@@ -318,7 +316,7 @@ func (s *state) AddMobLock(i int) {
 }
 
 func (s *state) AddCharLock(i int) {
-	if !utils.IntIn(i, s.cLocks ) {
+	if !utils.IntIn(i, s.cLocks) {
 		if i == 0 {
 			return
 		}

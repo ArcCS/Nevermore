@@ -72,7 +72,8 @@ func (i *ItemInventory) RemoveNonPerms() {
 	newContents := make([]*Item, 0, 0)
 	newWeight := 0
 	for _, item := range i.Contents {
-		if item.Flags["permanent"] == true {
+		if (strings.Contains(strings.ToLower(item.Name), "corpse of") && len(item.Storage.List()) == 0) ||
+			(item.Flags["permanent"] && !strings.Contains(strings.ToLower(item.Name), "corpse of")) {
 			newContents = append(newContents, item)
 			newWeight += item.GetWeight()
 		} else {

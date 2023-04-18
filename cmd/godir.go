@@ -199,7 +199,7 @@ func (godir) process(s *state) {
 
 					// Character has been removed, invoke any follows
 					for _, mob := range followList {
-						mob.MobCommands <- "follow " + s.actor.Name
+						go func() { mob.MobCommands <- "follow " + s.actor.Name }()
 					}
 
 					s.scriptActor("LOOK")

@@ -516,6 +516,60 @@ func (e *Equipment) Unequip(alias string) (ok bool, item *Item) {
 	return ok, item
 }
 
+// Attempt to unequip by name, or type
+func (e *Equipment) UnequipAll() (items []*Item) {
+
+	if e.Head != (*Item)(nil) {
+		items = append(items, e.Head)
+		e.Head = (*Item)(nil)
+	}
+	if e.Chest != (*Item)(nil) {
+		items = append(items, e.Chest)
+		e.Chest = (*Item)(nil)
+	}
+	if e.Neck != (*Item)(nil) {
+		items = append(items, e.Neck)
+		e.Neck = (*Item)(nil)
+	}
+	if e.Legs != (*Item)(nil) {
+		items = append(items, e.Legs)
+		e.Legs = (*Item)(nil)
+	}
+	if e.Feet != (*Item)(nil) {
+		items = append(items, e.Feet)
+		e.Feet = (*Item)(nil)
+	}
+	if e.Arms != (*Item)(nil) {
+		items = append(items, e.Arms)
+		e.Arms = (*Item)(nil)
+	}
+	if e.Hands != (*Item)(nil) {
+		items = append(items, e.Hands)
+		e.Hands = (*Item)(nil)
+	}
+	if e.Ring1 != (*Item)(nil) {
+		items = append(items, e.Ring1)
+		e.Ring1 = (*Item)(nil)
+	}
+	if e.Ring2 != (*Item)(nil) {
+		items = append(items, e.Ring2)
+		e.Ring2 = (*Item)(nil)
+	}
+	if e.Main != (*Item)(nil) {
+		items = append(items, e.Main)
+		e.Main = (*Item)(nil)
+	}
+	if e.Off != (*Item)(nil) {
+		items = append(items, e.Off)
+		e.Off = (*Item)(nil)
+	}
+
+	e.Armor = 0
+	e.Weight = 0
+
+	return items
+}
+
 func (e *Equipment) Jsonify() string {
 	itemList := make([]map[string]interface{}, 0)
 

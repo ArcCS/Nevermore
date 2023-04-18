@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/utils"
 	"math"
 	"strconv"
+	"strings"
 )
 
 func init() {
@@ -116,7 +117,7 @@ func (backstab) process(s *state) {
 				} else {
 					s.msg.Actor.SendInfo(whatMob.Name, " attacks you for "+strconv.Itoa(vitDamage)+" points of vitality damage!")
 				}
-				go s.actor.DeathCheck()
+				s.actor.DeathCheck("was slain while trying to backstab a " + strings.ToTitle(whatMob.Name))
 			}
 			s.ok = true
 			return

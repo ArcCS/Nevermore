@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 	"strings"
 )
@@ -72,6 +73,14 @@ func (use) process(s *state) {
 				s.msg.Actor.SendBad("Spell doesn't exist in this world. ")
 				return
 			}
+			if utils.StringIn(spellInstance.Effect, objects.OffensiveSpells) && s.actor.Victim != nil {
+				switch s.actor.Victim.(type) {
+				case *objects.Character:
+					name = s.actor.Victim.(*objects.Character).Name
+				case *objects.Mob:
+					name = s.actor.Victim.(*objects.Mob).Name
+				}
+			}
 			if name != "" {
 				var whatMob *objects.Mob
 				if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
@@ -86,9 +95,9 @@ func (use) process(s *state) {
 					msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
 					s.msg.Actor.SendGood("You use a  " + what.Name + " on " + whatMob.Name)
 					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatMob.Name)
-					if strings.Contains(msg, "$CRIPT"){
-						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
-					}else if msg != "" {
+					if strings.Contains(msg, "$CRIPT") {
+						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+					} else if msg != "" {
 						s.msg.Actor.SendGood(msg)
 					}
 					DeathCheck(s, whatMob)
@@ -118,9 +127,9 @@ func (use) process(s *state) {
 					s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on " + whatChar.Name)
 					s.participant = whatChar
 					s.msg.Participant.SendInfo(s.actor.Name + " used a " + what.Name + " on you")
-					if strings.Contains(msg, "$CRIPT"){
-						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
-					}else if msg != "" {
+					if strings.Contains(msg, "$CRIPT") {
+						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+					} else if msg != "" {
 						s.msg.Actor.SendGood(msg)
 					}
 					s.actor.Inventory.Lock()
@@ -136,13 +145,13 @@ func (use) process(s *state) {
 				s.actor.RunHook("use")
 				s.actor.SetTimer("use", 8)
 				msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
-				if strings.Contains(msg, "$CRIPT"){
-					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "",1))
+				if strings.Contains(msg, "$CRIPT") {
+					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
 				}
 				s.actor.Inventory.Lock()
 				what.MaxUses -= 1
 				if what.MaxUses <= 0 {
-					 s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
+					s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
 					s.actor.Inventory.Remove(what)
 				}
 				s.actor.Inventory.Unlock()

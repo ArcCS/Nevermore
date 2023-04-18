@@ -26,6 +26,9 @@ var (
 	DayTime = false
 )
 
+// Create a bind variable so we can send scripting events up the state chain
+var Script func(o *Character, input string) string
+
 // Load fills the world with love.
 func Load() {
 	log.Printf("Loading mobs")

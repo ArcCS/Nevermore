@@ -313,7 +313,7 @@ func (m *Mob) Tick() {
 						if strings.Contains(result, "$SCRIPT") {
 							m.MobScript(result)
 						}
-						target.DeathCheck()
+						target.DeathCheck("was slain by a " + m.Name + ".")
 						return
 					}
 				}
@@ -336,7 +336,7 @@ func (m *Mob) Tick() {
 				}
 				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 				target.RunHook("attacked")
-				go target.DeathCheck()
+				target.DeathCheck("was slain by a " + m.Name + ".")
 				return
 			}
 
@@ -399,7 +399,7 @@ func (m *Mob) Tick() {
 					} else {
 						target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 					}
-					go target.DeathCheck()
+					target.DeathCheck("was slain by a " + m.Name + ".")
 				}
 			}
 		}
