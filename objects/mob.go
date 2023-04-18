@@ -97,6 +97,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 			"gridmove": make(map[string]*Hook),
 			"move":     make(map[string]*Hook),
 			"say":      make(map[string]*Hook),
+			"attacked": make(map[string]*Hook),
 		},
 		-1,
 		int(mobData["gold"].(int64)),
@@ -312,9 +313,7 @@ func (m *Mob) Tick() {
 						if strings.Contains(result, "$SCRIPT") {
 							m.MobScript(result)
 						}
-						if target.Vit.Current == 0 {
-							target.Died()
-						}
+						target.DeathCheck()
 						return
 					}
 				}
@@ -337,9 +336,7 @@ func (m *Mob) Tick() {
 				}
 				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 				target.RunHook("attacked")
-				if target.Vit.Current == 0 {
-					target.Died()
-				}
+				go target.DeathCheck()
 				return
 			}
 
@@ -402,9 +399,7 @@ func (m *Mob) Tick() {
 					} else {
 						target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 					}
-					if target.Vit.Current == 0 {
-						target.Died()
-					}
+					go target.DeathCheck()
 				}
 			}
 		}
@@ -842,5 +837,5 @@ func (m *Mob) Eval() string {
 	return "You study the " + m.Name + " in your minds eye....\n\n" +
 		"It is level " + strconv.Itoa(m.Level) + ". \n" +
 		"It currently has " + strconv.Itoa(m.Stam.Current) + " hits points remaining. \n" +
-		"It is worth " + strconv.Itoa(m.Experience) + "experience points. \n"
+		"It is worth " + strconv.Itoa(m.Experience) + " experience points. \n"
 }

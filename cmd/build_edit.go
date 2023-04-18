@@ -55,7 +55,7 @@ func (edit) process(s *state) {
 				s.msg.Actor.SendGood("Description changed.")
 			case "name":
 				s.where.Name = strings.Join(s.input[2:], " ")
-				s.msg.Actor.SendGood("Store Owner changed.")
+				s.msg.Actor.SendGood("Room name changed.")
 			case "storeowner":
 				s.where.StoreOwner = s.input[2]
 				s.msg.Actor.SendGood("Store Owner changed.")

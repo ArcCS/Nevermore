@@ -81,7 +81,7 @@ func (sing) process(s *state) {
 		})
 
 	s.msg.Actor.SendGood("You begin singing " + song + "!")
-	s.msg.Observers.SendInfo(s.actor.Name + " begins a performance, singing" + songInstance["verse"] + "!")
+	s.msg.Observers.SendInfo(s.actor.Name + " begins a performance, singing: " + songInstance["verse"] + "!")
 	s.actor.SetTimer("combat_sing", 60*2)
 	s.ok = true
 	return

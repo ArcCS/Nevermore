@@ -270,28 +270,28 @@ func (r *Room) FirstPerson() {
 							if r.Flags["earth"] {
 								if !c.Flags["resist_earth"] {
 									c.Write([]byte(text.Brown + "The earth swells up around you." + "\n"))
-									c.ReceiveMagicDamage(50, "earth")
+									c.ReceiveMagicDamage(20, "earth")
 								} else {
 									c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n"))
 								}
 							} else if r.Flags["fire"] {
 								if !c.Flags["resist_fire"] {
 									c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n"))
-									c.ReceiveMagicDamage(50, "fire")
+									c.ReceiveMagicDamage(20, "fire")
 								} else {
 									c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n"))
 								}
 							} else if r.Flags["water"] {
 								if !c.Flags["resist_water"] {
 									c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n"))
-									c.ReceiveMagicDamage(50, "water")
+									c.ReceiveMagicDamage(20, "water")
 								} else {
 									c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n"))
 								}
 							} else if r.Flags["air"] {
 								if !c.Flags["resist_air"] {
 									c.Write([]byte(text.Brown + "The icy air buffets you." + "\n"))
-									c.ReceiveMagicDamage(50, "air")
+									c.ReceiveMagicDamage(20, "air")
 								} else {
 									c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n"))
 								}
@@ -335,6 +335,8 @@ func (r *Room) LastPerson() {
 			exit.Flags["locked"] = true
 		}
 	}
+
+	// TODO: Disintegrate corpses
 
 }
 

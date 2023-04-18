@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"github.com/jinzhu/copier"
 	"io"
 	"log"
 	"math"
@@ -176,6 +177,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				"move":     make(map[string]*Hook),
 				"say":      make(map[string]*Hook),
 				"use":      make(map[string]*Hook),
+				"attacked": make(map[string]*Hook),
 			},
 			time.Now(),
 			time.Now(),
@@ -595,14 +597,6 @@ func (c *Character) Tick() {
 
 }
 
-func (c *Character) Died() {
-	c.Write([]byte(text.Red + "#### OH GODS! YOU DIED!!!! Hahaha just kidding, this is beta. Here's a restore...\n" + text.Reset))
-	c.Stam.Current = c.Stam.Max
-	c.Vit.Current = c.Vit.Max
-	c.Mana.Current = c.Mana.Max
-	c.Write([]byte(text.Cyan + "## Your vitality, stamina, and mana were restored to max." + text.Reset + "\n"))
-}
-
 // Look Drop out the description of this character
 func (c *Character) Look() (buildText string) {
 	buildText = "You see " + c.Name + ", the young, " + config.TextGender[c.Gender] + ", " + config.AvailableRaces[c.Race] + " " + c.ClassTitle + "."
@@ -708,6 +702,7 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 		stamDamage = finalDamage
 		vitalDamage = 0
 	}
+	go c.DeathCheck()
 	return stamDamage, vitalDamage
 }
 
@@ -744,6 +739,7 @@ func (c *Character) ReceiveVitalDamage(damage int) int {
 	} else {
 		c.Vit.Subtract(finalDamage)
 	}
+	go c.DeathCheck()
 	return finalDamage
 }
 
@@ -930,5 +926,95 @@ func (c *Character) MessageParty(msg string) {
 }
 
 func (c *Character) DeathCheck() {
+	if c.Vit.Current <= 0 {
+		ActiveCharacters.MessageAll("### An otherworldly bell sounds once, the note echoing in your soul.")
+		ActiveCharacters.MessageAll("### " + c.Name + " died.")
+
+		healingHand := Rooms[config.HealingHand]
+		currentRoom := Rooms[c.ParentId]
+		healingHand.Chars.Lock()
+		currentRoom.Chars.Lock()
+		currentRoom.Mobs.Lock()
+
+		if c.Tier > 3 {
+			var tempStore []*Item
+			for _, item := range c.Inventory.Contents {
+				tempStore = append(tempStore, item)
+			}
+
+			currentRoom.Items.Lock()
+			// Generate a corpse item
+			itemId, err := data.CreateItem(map[string]interface{}{
+				"name":    "corpse of " + c.Name,
+				"creator": c.Name,
+				"type":    9,
+			})
+			if !err {
+				Items[itemId], _ = LoadItem(data.LoadItem(itemId))
+				newItem := Item{}
+				copier.CopyWithOption(&newItem, Items[1], copier.Option{DeepCopy: true})
+				newItem.Description = "It's the corpse of " + c.Name + "."
+				if len(tempStore) != 0 {
+					for _, item := range tempStore {
+						if !item.Flags["permanent"] {
+							c.Inventory.Remove(item)
+							newItem.Storage.Add(item)
+						}
+					}
+				}
+				currentRoom.MessageAll("The lifeless body of " + c.Name + " falls to the ground.")
+				currentRoom.Items.Add(&newItem)
+			}
+		} else {
+			c.Write([]byte(text.Green + "An apprentice aura protects you from the worst of this death and ferries you and your gear safely to the healing hand...\n\n" + text.Reset))
+		}
+
+		currentRoom.Chars.Remove(c)
+		healingHand.Chars.Add(c)
+		c.ParentId = healingHand.RoomId
+
+		c.Write([]byte(text.Cyan + "In what seems like a dream, an imposing black gate shrouded in fog speeds into view.. There is nothing else here to greet you, except a sorrowful sense of loneliness and longing... A chilling thought claws at the inside of your skull, behind your eyes, that this scene isn't right.. and just as swiftly as you arrived, the gate races past... and you awaken in another place..\n\n\n " + text.Reset))
+		c.Stam.Current = c.Stam.Max
+		c.Vit.Current = c.Vit.Max
+		c.Mana.Current = c.Mana.Max
+
+		// Determine the death penalty
+		if c.Tier > 3 {
+			deathRoll := utils.Roll(100, 1, 0)
+			switch {
+			case deathRoll <= 5: // Free Passage
+				c.Write([]byte(text.Green + "You've passed through this death unscathed... \n" + text.Reset))
+				return
+			case deathRoll <= 20: // 1/4x death penalty
+				c.Write([]byte(text.Green + "The death did not come easy but the setback feels minor (25X xp loss)\n" + text.Reset))
+				c.Experience.Subtract(int(float64(config.TierExpLevels[c.Tier+1]) * .25))
+				return
+			case deathRoll <= 65: // 1/2x death penalty
+				c.Write([]byte(text.Green + "The death was a setback but you feel you can recover (50% xp loss)\n" + text.Reset))
+				c.Experience.Subtract(int(float64(config.TierExpLevels[c.Tier+1]) * .5))
+				return
+			case deathRoll <= 95: // 1x whole death penalty
+				c.Write([]byte(text.Green + "The passage through the realm of death was traumatic and you feel like you might have lost something along the way.. (100% xp loss)\n" + text.Reset))
+				c.Experience.Subtract(config.TierExpLevels[c.Tier+1])
+				return
+			case deathRoll > 95: // 2x whole death penalty
+				c.Write([]byte(text.Green + "You pass through the realm of death kicking and screaming the entire way feeling as if your soul is being ripped apart as you go. (200% xp loss)\n" + text.Reset))
+				c.Experience.Subtract(config.TierExpLevels[c.Tier+1] * 2)
+				return
+			}
+		}
+
+		c.Write([]byte(healingHand.Look(c)))
+		currentRoom.Chars.Unlock()
+		log.Println("Unlocking chars")
+		currentRoom.Mobs.Unlock()
+		log.Println("Unlocking mobs")
+		healingHand.Chars.Unlock()
+		log.Println("Unlocking healingHand chars")
+		if c.Tier > 3 {
+			currentRoom.Items.Unlock()
+		}
+	}
+
 	return
 }

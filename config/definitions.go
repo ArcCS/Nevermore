@@ -31,6 +31,8 @@ var ItemTypes = map[int]string{
 	26: "hands",
 }
 
+var HealingHand = 3030
+
 var WeaponTypes = []int{0, 1, 2, 3, 4, 16}
 
 var ArmorTypes = []int{5, 19, 20, 21, 22, 23, 24, 25, 26}

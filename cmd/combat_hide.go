@@ -130,7 +130,7 @@ func (hide) process(s *state) {
 			func() {
 				s.actor.Flags["hidden"] = false
 				s.actor.Write([]byte(text.Info + "You lose your hiding place while being attacked." + text.Reset + "\n"))
-				s.actor.RemoveHook("say", "hide")
+				s.actor.RemoveHook("attacked", "hide")
 				return
 			},
 			func() {

@@ -21,8 +21,9 @@ var CombatModifiers = map[string]int{
 }
 
 // Thief & Ranger
-var PeekCD = 4
-var StealCD = 4
+var PeekCD = 8
+var PeekFailCD = 32
+var StealCD = 8
 var HideChance = 15
 var SneakChance = 15
 var SneakBonus = 10
