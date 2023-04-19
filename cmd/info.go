@@ -39,7 +39,7 @@ func (information) process(s *state) {
 	char_template := "{{.Charname}}, the {{.Tier}} tier {{.Race}} {{.Title}}\n" +
 		"----------------------------------------------------------------------\n" +
 		"Str: {{.Str}}/{{.Max_str}}, Dex: {{.Dex}}/{{.Max_dex}}, Con: {{.Con}}/{{.Max_con}}, Int: {{.Int}}/{{.Max_int}}, Piety: {{.Pie}}/{{.Max_pie}}.\n" +
-		"You have an armor resistance of {{.Armor_resistance}} with a damage ignore of {{.Damage_ignore}}.\n" +
+		"You have an armor resistance of {{.Armor_resistance}}.\n" +
 		"{{if .God}} You bear the mark of a devotee of {{.God}}.\n{{end}}" +
 		"{{if .Berz}}" + text.Red + "The red rage grips you!" + text.Good +
 		"{{else}}You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
@@ -70,7 +70,6 @@ func (information) process(s *state) {
 		Pie              int
 		Max_pie          int
 		Armor_resistance int
-		Damage_ignore    int
 		God              string
 		Stamina          int
 		Max_stamina      int
@@ -78,22 +77,22 @@ func (information) process(s *state) {
 		Max_health       int
 		Mana             int
 		Max_mana         int
-		Monk			 bool
+		Monk             bool
 		Next_level       int
 		Gold             int
 		Dark_vision      bool
 		Broadcasts       int
 		Evals            int
 		Hours            int
-		Minutes			 int
+		Minutes          int
 		Bonus_points     int
 		Day              string
 		Day_number       string
 		Month            string
 		Age              int
 		Berz             bool
-		GodsYear		int
-		EmpYear			int
+		GodsYear         int
+		EmpYear          int
 	}{
 		s.actor.Name,
 		config.TextTiers[s.actor.Tier],
@@ -110,7 +109,6 @@ func (information) process(s *state) {
 		s.actor.GetStat("pie"),
 		s.actor.Pie.Max,
 		s.actor.GetStat("armor"),
-		s.actor.Equipment.DamageIgnore,
 		"",
 		s.actor.Stam.Current,
 		s.actor.Stam.Max,
@@ -121,19 +119,19 @@ func (information) process(s *state) {
 		monk,
 		config.TierExpLevels[s.actor.Tier+1] - s.actor.Experience.Value,
 		s.actor.Gold.Value,
-		false,
+		s.actor.CheckFlag("darkvision"),
 		s.actor.Broadcasts,
 		s.actor.Evals,
-		s.actor.MinutesPlayed/60,
-		s.actor.MinutesPlayed%60,
+		s.actor.MinutesPlayed / 60,
+		s.actor.MinutesPlayed % 60,
 		s.actor.BonusPoints.Value,
 		strings.Title(config.Days[s.actor.Birthday]),
 		config.PrintNumbers[s.actor.Birthdate],
 		strings.Title(config.Months[s.actor.Birthmonth]["name"].(string)),
 		age,
 		berz,
-		2705-age,
-		2228-age,
+		2705 - age,
+		2228 - age,
 	}
 
 	tmpl, _ := template.New("char_info").Parse(char_template)

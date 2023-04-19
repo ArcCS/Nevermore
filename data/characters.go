@@ -5,6 +5,7 @@ package data
 import (
 	"fmt"
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"strings"
 )
@@ -54,13 +55,13 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"bluntexp: a.bluntexp, "+
 		"poleexp: a.poleexp, "+
 		"missileexp: a.missileexp, "+
-		"handexp: a.handexp, " +
+		"handexp: a.handexp, "+
 		"spells: a.spells, "+
 		"equipment: a.equipment, "+
 		"inventory: a.inventory, "+
 		"effects: a.effects, "+
 		"timers: a.timers, "+
-		"oocswap: a.oocswap, " +
+		"oocswap: a.oocswap, "+
 		"flags:{invisible: a.invisible, darkvision: a.darkvision, hidden: a.hidden, ooc: a.ooc}}",
 
 		map[string]interface{}{
@@ -111,7 +112,7 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.description = '', "+
 			"a.parentid = $start_room,"+
 			"a.birthday = $birth_day,"+
-			"a.birthdate = $birth_date," +
+			"a.birthdate = $birth_date,"+
 			"a.birthmonth = $birth_month,"+
 			"a.birthyear = $birth_year,"+
 			"a.played = 0,"+
@@ -130,10 +131,10 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.inventory = '[]',"+
 			"a.experience = 0, "+
 			"a.invisible = 0, "+
-			"a.darkvision = 0, "+
+			"a.darkvision = $darkvision, "+
 			"a.effects = '[]', "+
 			"a.timers = '[]', "+
-			"a.ooc = 0, " +
+			"a.ooc = 0, "+
 			"a.oocswap = 0, "+
 			"a.hidden = 0 ",
 		map[string]interface{}{
@@ -151,6 +152,7 @@ func CreateChar(charData map[string]interface{}) bool {
 			"birth_date":  charData["birthdate"],
 			"birth_year":  charData["birthyear"],
 			"birth_month": charData["birthmonth"],
+			"darkvision":  utils.Btoi(charData["darkvision"].(bool)),
 			"curr_mana":   config.CalcMana(1, charData["con"].(int), charData["class"].(int)),
 			"curr_vit":    config.CalcHealth(1, charData["intel"].(int), charData["class"].(int)),
 			"curr_stam":   config.CalcStamina(1, charData["con"].(int), charData["class"].(int)),
@@ -213,14 +215,14 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.poleexp = $poleexp,"+
 			"a.thrustexp = $thrustexp,"+
 			"a.missileexp = $missileexp,"+
-			"a.handexp = $handexp, " +
+			"a.handexp = $handexp, "+
 			"a.spells = $spells,"+
 			"a.equipment = $equipment,"+
 			"a.inventory = $inventory,"+
-			"a.effects = $effects, " +
-			"a.timers = $timers, " +
-			"a.oocswap = $oocswap, " +
-			"a.ooc = $ooc, " +
+			"a.effects = $effects, "+
+			"a.timers = $timers, "+
+			"a.oocswap = $oocswap, "+
+			"a.ooc = $ooc, "+
 			"a.experience = $experience",
 		map[string]interface{}{
 			"characterid": charData["character_id"],
@@ -234,7 +236,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"missileexp":  charData["missileexp"],
 			"poleexp":     charData["poleexp"],
 			"sharpexp":    charData["sharpexp"],
-			"handexp":	   charData["handexp"],
+			"handexp":     charData["handexp"],
 			"bankgold":    charData["bankgold"],
 			"gold":        charData["gold"],
 			"evals":       charData["evals"],
@@ -255,10 +257,10 @@ func SaveChar(charData map[string]interface{}) bool {
 			"max_stam":    charData["stammax"],
 			"equipment":   charData["equipment"],
 			"inventory":   charData["inventory"],
-			"effects": 	   charData["effects"],
-			"timers":	   charData["timers"],
-			"oocswap":	  charData["oocswap"],
-			"ooc": 		  charData["ooc"],
+			"effects":     charData["effects"],
+			"timers":      charData["timers"],
+			"oocswap":     charData["oocswap"],
+			"ooc":         charData["ooc"],
 		},
 	)
 	if err != nil {

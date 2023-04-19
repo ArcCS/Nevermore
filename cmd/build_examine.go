@@ -320,7 +320,7 @@ func (examine) process(s *state) {
 				{"V", "bluntexp", character.Skills[2].Value, "Blunt Skill Experience"},
 				{"V", "poleexp", character.Skills[3].Value, "Pole Skill Experience"},
 				{"V", "missileexp", character.Skills[4].Value, "Missile Skill Experience"},
-				{"T", "darkvision", strconv.FormatBool(character.Flags["invisible"]), "Permanent Dark Vision"},
+				{"T", "invisible", strconv.FormatBool(character.Flags["invisible"]), "Character is currently invisible"},
 				{"T", "darkvision", strconv.FormatBool(character.Flags["darkvision"]), "Permanent Dark Vision"},
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")

@@ -564,12 +564,13 @@ func (a *newCharacter) completeBuilder() {
 	charData["con"] = a.con
 	charData["intel"] = a.intel
 	charData["pie"] = a.pie
+	charData["darkvision"] = config.RaceDefs[config.AvailableRaces[a.race]].Darkvision
 	charData["birthday"] = objects.CurrentDay
 	charData["birthdate"] = objects.DayOfMonth
 	charData["birthmonth"] = objects.CurrentMonth
 	rand.Seed(time.Now().Unix())
 	ageJitter := rand.Intn(10)
-	charData["birthyear"] = (config.ImperialYearStart + objects.YearPlus) - (config.RaceDefs[config.AvailableRaces[a.race]].MinAge+ageJitter)
+	charData["birthyear"] = (config.ImperialYearStart + objects.YearPlus) - (config.RaceDefs[config.AvailableRaces[a.race]].MinAge + ageJitter)
 	if data.CreateChar(charData) {
 		a.buf.Send(text.Info, "# New character created,  entering Altin. \n", text.Reset)
 		FirstTimeStartGame(a.frontend, a.name)

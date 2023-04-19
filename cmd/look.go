@@ -23,6 +23,21 @@ func init() {
 type look cmd
 
 func (look) process(s *state) {
+	// Check to see if this person can see
+	if s.actor.CheckFlag("blind") {
+		s.msg.Actor.SendBad("You can't see anything!")
+		return
+	}
+
+	// Check if they have darkvision, a light source, or if they are a GM
+	if !s.actor.CheckFlag("darkvision") && !s.actor.CheckFlag("light") && !s.where.Flags["light_always"] && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		// Check if they are flagged for a light source
+		if s.where.Flags["dark_always"] || (s.where.Flags["natural_light"] && !objects.DayTime) {
+			s.msg.Actor.SendBad("It's too dark to see anything!")
+			return
+		}
+	}
+
 	var others []string
 	var mobs string
 	var mobAttacking string
@@ -141,7 +156,7 @@ func (look) process(s *state) {
 		s.msg.Actor.SendInfo(whatExit.Look())
 		if whatExit.Flags["placement_dependent"] {
 			s.msg.Actor.SendInfo("It is" + utils.WhereAt(whatExit.Placement, s.actor.Placement))
-		}else{
+		} else {
 			s.msg.Actor.SendInfo("It can be used from anywhere in the room.")
 		}
 		return
@@ -201,4 +216,3 @@ func (look) process(s *state) {
 		return
 	}
 }
-

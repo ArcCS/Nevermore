@@ -117,7 +117,7 @@ func (backstab) process(s *state) {
 				} else {
 					s.msg.Actor.SendInfo(whatMob.Name, " attacks you for "+strconv.Itoa(vitDamage)+" points of vitality damage!")
 				}
-				s.actor.DeathCheck("was slain while trying to backstab a " + strings.ToTitle(whatMob.Name))
+				s.actor.DeathCheck("was slain while trying to backstab a " + strings.Title(whatMob.Name))
 			}
 			s.ok = true
 			return

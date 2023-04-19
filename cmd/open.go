@@ -39,7 +39,7 @@ func (open) process(s *state) {
 		}
 
 		if !what.Flags["closed"] {
-			s.msg.Actor.SendInfo(strings.ToTitle(what.Name), " is already open.")
+			s.msg.Actor.SendInfo(strings.Title(what.Name), " is already open.")
 			return
 		}
 

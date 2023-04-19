@@ -35,7 +35,7 @@ func (kill) process(s *state) {
 
 	name := ""
 	nameNum := 1
-	if len(s.words[0]) > 1 && s.actor.Victim != nil {
+	if len(s.words[0]) < 1 && s.actor.Victim != nil {
 		switch s.actor.Victim.(type) {
 		case *objects.Character:
 			name = s.actor.Victim.(*objects.Character).Name

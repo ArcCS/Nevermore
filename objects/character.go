@@ -222,6 +222,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 		FilledCharacter.SerialRestoreEffects(charData["effects"].(string))
 		FilledCharacter.SerialRestoreTimers(charData["timers"].(string))
 
+		FilledCharacter.Equipment.ToggleFlag = FilledCharacter.ToggleFlag
+		FilledCharacter.Equipment.PostEquipmentLight()
 		return FilledCharacter, false
 	}
 }
@@ -598,7 +600,7 @@ func (c *Character) Tick() {
 
 // Look Drop out the description of this character
 func (c *Character) Look() (buildText string) {
-	buildText = "You see " + c.Name + ", the young, " + config.TextGender[c.Gender] + ", " + config.AvailableRaces[c.Race] + " " + c.ClassTitle + "."
+	buildText = "You see " + c.Name + ", the " + config.TextGender[c.Gender] + ", " + config.AvailableRaces[c.Race] + " " + c.ClassTitle + "."
 	return buildText
 }
 
