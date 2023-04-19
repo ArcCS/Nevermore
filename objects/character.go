@@ -834,6 +834,7 @@ func (c *Character) InflictDamage() (damage int) {
 	}
 
 	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod * float64(c.GetStat("str")))))
+	log.Println("Plus Damage" + strconv.Itoa(int(config.StrDamageMod*float64(c.GetStat("str")))))
 	// Add any modified base damage
 	baseDamage, ok := c.Modifiers["base_damage"]
 	if !ok {

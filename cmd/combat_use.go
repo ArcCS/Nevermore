@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -73,7 +74,8 @@ func (use) process(s *state) {
 				s.msg.Actor.SendBad("Spell doesn't exist in this world. ")
 				return
 			}
-			if utils.StringIn(spellInstance.Effect, objects.OffensiveSpells) && s.actor.Victim != nil {
+			if utils.StringIn(spellInstance.Name, objects.OffensiveSpells) && s.actor.Victim != nil {
+				log.Println("offensive spell, victim is not nil")
 				switch s.actor.Victim.(type) {
 				case *objects.Character:
 					name = s.actor.Victim.(*objects.Character).Name

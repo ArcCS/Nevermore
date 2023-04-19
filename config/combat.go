@@ -87,7 +87,7 @@ var MobTakeChance = 10 // Percent
 // Str Mods
 var StrCarryMod = 10 // Per Point
 var BaseCarryWeight = 40
-var StrDamageMod = .01 // Per Point
+var StrDamageMod = .10 // Per Point
 
 // Con Mods
 var ConArmorMod = .01

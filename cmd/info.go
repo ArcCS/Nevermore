@@ -45,7 +45,7 @@ func (information) process(s *state) {
 		"{{else}}You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
 		"You require {{.Next_level}} additional experience pts for your next tier.\n" +
 		"You are carrying {{.Gold}} gold marks in your coin purse.\n" +
-		"{{if .Dark_vision}} You can see in the dark naturally. \n{{end}}" +
+		"{{if .Dark_vision}}You can see in the dark naturally. \n{{end}}" +
 		"You have {{.Broadcasts}} broadcasts remaining today.\n" +
 		"You have {{.Evals}} evaluates remaining today.\n" +
 		"You have logged {{.Hours}} hours and {{.Minutes}} minutes with this character.\n" +

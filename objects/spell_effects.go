@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 )
 
@@ -283,21 +284,30 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 }
 
 func elementalDamage(magnitude int, intel int) (damage int) {
+	power := intel / 45
 	if magnitude == 1 {
-		damage = 7 + (45/intel)*utils.Roll(3, 2, 0)
+		power *= utils.Roll(3, 2, 0)
+		damage = 7 + int(power)
 	} else if magnitude == 2 {
-		damage = 21 + (45/intel)*utils.Roll(3, 4, 0)
+		power *= utils.Roll(3, 4, 0)
+		damage = 21 + power
 	} else if magnitude == 3 {
-		damage = 42 + (45/intel)*utils.Roll(3, 7, 0)
+		power *= utils.Roll(3, 7, 0)
+		damage = 42 + power
 	} else if magnitude == 4 {
-		damage = 84 + (45/intel)*utils.Roll(4, 10, 0)
+		power *= utils.Roll(4, 10, 0)
+		damage = 84 + power
 	} else if magnitude == 5 {
-		damage = 175 + (45/intel)*utils.Roll(5, 16, 0)
+		power *= utils.Roll(5, 16, 0)
+		damage = 175 + power
 	} else if magnitude == 6 {
-		damage = 280 + (45/intel)*utils.Roll(5, 18, 0)
+		power *= utils.Roll(5, 18, 0)
+		damage = 280 + power
 	} else if magnitude == 7 {
+		power *= utils.Roll(6, 35, 0)
 		damage = 7 + (45/intel)*utils.Roll(6, 35, 0)
 	}
+	log.Println("Elemental damage: ", damage, " power: ", power)
 	return damage
 }
 
