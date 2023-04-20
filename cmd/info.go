@@ -45,6 +45,9 @@ func (information) process(s *state) {
 		"{{else}}You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
 		"You require {{.Next_level}} additional experience pts for your next tier.\n" +
 		"You are carrying {{.Gold}} gold marks in your coin purse.\n" +
+		"{{if .Poisoned}}" + text.Red + "You have poison coursing through your veins.\n{{end}}" + text.Good +
+		"{{if .Diseased}}" + text.Brown + "You are suffering from affliction.\n{{end}}" + text.Good +
+		"{{if .Blind}}" + text.Blue + "You havec been blinded!!\n{{end}}" + text.Good +
 		"{{if .Dark_vision}}You can see in the dark naturally. \n{{end}}" +
 		"You have {{.Broadcasts}} broadcasts remaining today.\n" +
 		"You have {{.Evals}} evaluates remaining today.\n" +
@@ -80,6 +83,9 @@ func (information) process(s *state) {
 		Monk             bool
 		Next_level       int
 		Gold             int
+		Poisoned         bool
+		Diseased         bool
+		Blind            bool
 		Dark_vision      bool
 		Broadcasts       int
 		Evals            int
@@ -119,6 +125,9 @@ func (information) process(s *state) {
 		monk,
 		config.TierExpLevels[s.actor.Tier+1] - s.actor.Experience.Value,
 		s.actor.Gold.Value,
+		s.actor.CheckFlag("poisoned"),
+		s.actor.CheckFlag("diseased"),
+		s.actor.CheckFlag("blind"),
 		s.actor.CheckFlag("darkvision"),
 		s.actor.Broadcasts,
 		s.actor.Evals,

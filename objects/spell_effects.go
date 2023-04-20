@@ -112,9 +112,9 @@ func poison(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		if !target.CheckFlag("resist_poison") {
-			target.ApplyEffect("poison", "600", "0",
+			target.ApplyEffect("poison", "600", "8",
 				func(triggers int) {
-					damage := caller.(*Mob).Level
+					damage := 7
 					switch {
 					case triggers <= 3:
 						damage *= 2
@@ -124,9 +124,11 @@ func poison(caller interface{}, target interface{}, magnitude int) string {
 						damage *= 4
 					}
 					target.ReceiveDamageNoArmor(damage)
+					target.ToggleFlag("poisoned", "mob_poisoned")
 					target.Write([]byte(text.Red + "The poison courses through your veins for " + strconv.Itoa(damage) + " damage!\n"))
 				},
 				func() {
+					target.ToggleFlag("poisoned", "mob_poisoned")
 					target.Write([]byte(text.Cyan + "The effects of the poison subside...\n"))
 				})
 		} else {
@@ -143,9 +145,9 @@ func disease(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		if !target.CheckFlag("resist_disease") {
-			target.ApplyEffect("disease", "600", "0",
+			target.ApplyEffect("disease", "600", "8",
 				func(triggers int) {
-					damage := caller.(*Mob).Level
+					damage := 9
 					switch {
 					case triggers <= 3:
 						damage *= 3
@@ -155,9 +157,11 @@ func disease(caller interface{}, target interface{}, magnitude int) string {
 						damage *= 5
 					}
 					target.ReceiveDamageNoArmor(damage)
+					target.ToggleFlag("disease", "mob_disease")
 					target.Write([]byte(text.Red + "The disease progress, racking your body for " + strconv.Itoa(damage) + " damage!\n"))
 				},
 				func() {
+					target.ToggleFlag("disease", "mob_disease")
 					target.Write([]byte(text.Cyan + "The disease subsides...\n"))
 				})
 		} else {
