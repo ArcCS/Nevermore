@@ -410,7 +410,8 @@ func (m *Mob) Tick() {
 func (m *Mob) CheckForExtraAttack(target *Character) {
 
 	if m.Flags["blinds"] {
-		if utils.Roll(100, 1, 0) > 50 {
+		if utils.Roll(100, 1, 0) > 80 {
+			target.Write([]byte(text.Red + m.Name + " blinds you!" + "\n" + text.Reset))
 			Effects["blind"](m, target, 0)
 			return
 		}
@@ -418,13 +419,15 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 
 	if m.Flags["diseases"] {
 		if utils.Roll(100, 1, 0) > 50 {
-			Effects["disease"](m, target, 0)
+			target.Write([]byte(text.Red + m.Name + " tries to spread disease on to you!" + "\n" + text.Reset))
+			Effects["disease"](m, target, m.Level)
 			return
 		}
 	}
 	if m.Flags["poisons"] {
 		if utils.Roll(100, 1, 0) > 50 {
-			Effects["poison"](m, target, 0)
+			target.Write([]byte(text.Red + m.Name + " injects you with venom!" + "\n" + text.Reset))
+			Effects["poison"](m, target, m.Level)
 			return
 		}
 	}
@@ -621,14 +624,14 @@ func (m *Mob) AddThreatDamage(damage int, attacker *Character) {
 	}
 }
 
-func (m *Mob) ApplyEffect(effectName string, length string, interval string, effect func(triggers int), effectOff func()) {
+func (m *Mob) ApplyEffect(effectName string, length string, interval int, magnitude int, effect func(triggers int), effectOff func()) {
 	if effectInstance, ok := m.Effects[effectName]; ok {
 		durExtend, _ := strconv.ParseFloat(length, 64)
 		effectInstance.ExtendDuration(durExtend)
 		return
 		//m.Effects[effectName].effectOff()
 	}
-	m.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
+	m.Effects[effectName] = NewEffect(length, interval, magnitude, effect, effectOff)
 	m.Effects[effectName].RunEffect()
 }
 

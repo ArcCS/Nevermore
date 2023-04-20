@@ -77,7 +77,7 @@ func (sing) process(s *state) {
 
 	tickRate := 8 - int(math.Floor(float64(s.actor.Tier/5)))
 
-	s.actor.ApplyEffect("sing", strconv.Itoa(duration), "0",
+	s.actor.ApplyEffect("sing", strconv.Itoa(duration), 0, 0,
 		func(triggers int) {
 			s.actor.SingSong(song, tickRate)
 		},

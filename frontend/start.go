@@ -41,7 +41,9 @@ func NewStart(f *frontend) (m *start) {
 func (m *start) startDisplay() {
 	// Load Characters
 	for _, name := range data.ListChars(m.account) {
-		m.characters = append(m.characters, name)
+		if !utils.StringIn(name, m.characters) {
+			m.characters = append(m.characters, name)
+		}
 	}
 	sort.Strings(m.characters)
 	m.powerCharacter, _ = data.ListPowerChar(m.account)

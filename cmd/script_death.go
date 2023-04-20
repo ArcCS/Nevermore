@@ -81,6 +81,9 @@ func (scriptDeath) process(s *state) {
 	s.actor.ParentId = healingHand.RoomId
 
 	s.actor.Write([]byte(text.Cyan + "In what seems like a dream, an imposing black gate shrouded in fog speeds into view.. There is nothing else here to greet you, except a sorrowful sense of loneliness and longing... A chilling thought claws at the inside of your skull, behind your eyes, that this scene isn't right.. and just as swiftly as you arrived, the gate races past... and you awaken in another place..\n\n\n " + text.Reset))
+	s.actor.RemoveEffect("blind")
+	s.actor.RemoveEffect("poison")
+	s.actor.RemoveEffect("disease")
 	s.actor.Stam.Current = s.actor.Stam.Max
 	s.actor.Vit.Current = s.actor.Vit.Max
 	s.actor.Mana.Current = s.actor.Mana.Max

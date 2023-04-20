@@ -325,6 +325,44 @@ func (c *Character) ToggleFlag(flagName string, provider string) {
 	}
 }
 
+func (c *Character) FlagOn(flagName string, provider string) {
+
+	if _, exists := c.Flags[flagName]; exists {
+		if c.Flags[flagName] == true && !utils.StringIn(provider, c.FlagProviders[flagName]) && len(c.FlagProviders[flagName]) >= 1 {
+			c.FlagProviders[flagName] = append(c.FlagProviders[flagName], provider)
+		} else if c.Flags[flagName] == false {
+			c.Flags[flagName] = true
+			c.FlagProviders[flagName] = []string{provider}
+		}
+	} else {
+		c.Flags[flagName] = true
+		c.FlagProviders[flagName] = []string{provider}
+	}
+}
+
+func (c *Character) FlagOff(flagName string, provider string) {
+	if _, exists := c.Flags[flagName]; exists {
+		if c.Flags[flagName] == true && utils.StringIn(provider, c.FlagProviders[flagName]) && len(c.FlagProviders[flagName]) > 1 {
+			c.FlagProviders[flagName][utils.IndexOf(provider, c.FlagProviders[flagName])] = c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] // Copy last element to index i.
+			c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] = ""                                                                            // Erase last element (write zero value).
+			c.FlagProviders[flagName] = c.FlagProviders[flagName][:len(c.FlagProviders[flagName])-1]                                                    // Truncate slice.
+		} else if c.Flags[flagName] == true && len(c.FlagProviders[flagName]) == 1 {
+			c.Flags[flagName] = false
+			c.FlagProviders[flagName] = []string{}
+		}
+	}
+}
+
+func (c *Character) FlagOnAndMsg(flagName string, provider string, msg string) {
+	c.FlagOn(flagName, provider)
+	c.Write([]byte(msg))
+}
+
+func (c *Character) FlagOffAndMsg(flagName string, provider string, msg string) {
+	c.FlagOff(flagName, provider)
+	c.Write([]byte(msg))
+}
+
 func (c *Character) ToggleFlagAndMsg(flagName string, provider string, msg string) {
 	c.ToggleFlag(flagName, provider)
 	c.Write([]byte(msg))
@@ -346,12 +384,12 @@ func (c *Character) CheckFlag(flagName string) bool {
 
 // SerialSaveEffects serializes all current user effects, removes them, and saves them to the database
 func (c *Character) SerialSaveEffects() string {
-	effectList := make(map[string]float64)
+	effectList := make(map[string]map[string]interface{})
 
 	for efN, effect := range c.Effects {
 		// Ignore any bard songs, we won't take them with us.
 		if !strings.Contains(efN, "_song") && !strings.Contains(efN, "sing") {
-			effectList[efN] = effect.TimeRemaining()
+			effectList[efN] = effect.ReturnEffectProps()
 		}
 	}
 
@@ -364,15 +402,15 @@ func (c *Character) SerialSaveEffects() string {
 }
 
 func (c *Character) SerialRestoreEffects(effectsBlob string) {
-	obj := make(map[string]float64, 0)
+	obj := make(map[string]map[string]interface{}, 0)
 	err := json.Unmarshal([]byte(effectsBlob), &obj)
 	if err != nil {
 		return
 	}
-	for name, duration := range obj {
+	for name, properties := range obj {
 		if !strings.Contains(name, "_song") && !strings.Contains(name, "sing") {
-			Effects[name](c, c, 0)
-			c.Effects[name].AlterTime(duration)
+			Effects[name](c, c, int(properties["magnitude"].(float64)))
+			c.Effects[name].AlterTime(properties["timeRemaining"].(float64))
 		}
 	}
 }
@@ -385,10 +423,10 @@ func (c *Character) PurgeEffects() {
 
 // SerialSaveTimers serializes all current user timers
 func (c *Character) SerialSaveTimers() string {
-	timerList := make(map[string]float64)
+	timerList := make(map[string]int)
 
 	for efN, effect := range c.Timers {
-		timerList[efN] = effect.Sub(time.Now()).Seconds()
+		timerList[efN] = int(math.Ceil(effect.Sub(time.Now()).Seconds()))
 	}
 
 	data, err := json.Marshal(timerList)
@@ -490,8 +528,6 @@ func (c *Character) Save() {
 	charData["oocswap"] = c.OOCSwap
 	charData["ooc"] = utils.Btoi(c.Flags["ooc"])
 	data.SaveChar(charData)
-
-	//TODO Process Effects
 }
 
 func (c *Character) SetPromptStyle(new PromptStyle) (old PromptStyle) {
@@ -602,14 +638,14 @@ func (c *Character) Look() (buildText string) {
 	return buildText
 }
 
-func (c *Character) ApplyEffect(effectName string, length string, interval string, effect func(triggers int), effectOff func()) {
+func (c *Character) ApplyEffect(effectName string, length string, interval int, magnitude int, effect func(triggers int), effectOff func()) {
 	if effectInstance, ok := c.Effects[effectName]; ok {
 		//TODO: Allow for intensifying effects instead of extending them
 		durExtend, _ := strconv.ParseFloat(length, 64)
 		effectInstance.ExtendDuration(durExtend)
 		return
 	}
-	c.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
+	c.Effects[effectName] = NewEffect(length, interval, magnitude, effect, effectOff)
 	c.Effects[effectName].RunEffect()
 }
 

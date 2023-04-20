@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"log"
 	"strconv"
 	"time"
 )
@@ -10,14 +11,15 @@ type Effect struct {
 	length    time.Duration
 
 	lastTrigger time.Time
-	interval    time.Duration
+	interval    int
 	triggers    int
 	effect      func(triggers int)
 	effectOff   func()
+	magnitude   int
 }
 
 func (s *Effect) AlterTime(duration float64) {
-	s.length = time.Duration(duration) * time.Second
+	s.length = time.Duration(duration) * time.Minute
 }
 
 func (s *Effect) ExtendDuration(duration float64) {
@@ -25,17 +27,17 @@ func (s *Effect) ExtendDuration(duration float64) {
 	s.length = time.Duration(duration)*time.Second - time.Duration(calc.Seconds())
 }
 
-func NewEffect(length string, interval string, effect func(triggers int), effectOff func()) *Effect {
+func NewEffect(length string, interval int, magnitude int, effect func(triggers int), effectOff func()) *Effect {
 	lengthTime, _ := strconv.Atoi(length)
 	parseLength := time.Duration(lengthTime) * time.Second
-	parseInterval, _ := time.ParseDuration(interval)
 	return &Effect{time.Now(),
 		parseLength,
 		time.Now(),
-		parseInterval,
+		interval,
 		0,
 		effect,
-		effectOff}
+		effectOff,
+		magnitude}
 }
 
 func (s *Effect) RunEffect() {
@@ -54,7 +56,18 @@ func (s *Effect) TimeRemaining() float64 {
 	return calc.Minutes()
 }
 
-func (s *Effect) LastTriggerInterval() float64 {
-	calc := s.interval - (time.Now().Sub(s.lastTrigger))
-	return calc.Minutes()
+func (s *Effect) LastTriggerInterval() int {
+	lTrigger := time.Now().Sub(s.lastTrigger)
+	calc := s.interval - int(lTrigger.Seconds())
+	log.Println("Last Trigger Interval: ", calc, " last trigger: ", s.lastTrigger.String(), " interval: ", s.interval)
+	return calc
+}
+
+// Function to return only the modifiable properties
+func (s *Effect) ReturnEffectProps() map[string]interface{} {
+	serialList := map[string]interface{}{
+		"timeRemaining": s.TimeRemaining(),
+		"magnitude":     s.magnitude,
+	}
+	return serialList
 }

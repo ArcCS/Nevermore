@@ -22,7 +22,7 @@ func (train) process(s *state) {
 		s.msg.Actor.SendBad("You don't have enough experience earned to train to the next tier.")
 		return
 	}
-	if !(s.actor.Gold.Value <= config.GoldPerLevel[s.actor.Tier+1]) {
+	if !(s.actor.Gold.Value >= config.GoldPerLevel[s.actor.Tier+1]) {
 		s.msg.Actor.SendBad("You don't have enough gold to train to the next tier. (" + strconv.Itoa(config.GoldPerLevel[s.actor.Tier+1]) + ")")
 		return
 	}
