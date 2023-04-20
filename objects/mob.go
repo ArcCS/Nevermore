@@ -360,6 +360,7 @@ func (m *Mob) Tick() {
 				// Am I against a fighter and they succeed in a parry roll?
 				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
 				target.RunHook("attacked")
+				m.CheckForExtraAttack(target)
 				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(config.WeaponLevel(target.Skills[target.Equipment.Main.ItemType].Value, target.Class)) {
 					if target.Tier >= 10 {
 						// It's a riposte
@@ -404,6 +405,40 @@ func (m *Mob) Tick() {
 			}
 		}
 	}
+}
+
+func (m *Mob) CheckForExtraAttack(target *Character) {
+
+	if m.Flags["blinds"] {
+		if utils.Roll(100, 1, 0) > 50 {
+			Effects["blind"](m, target, 0)
+			return
+		}
+	}
+
+	if m.Flags["diseases"] {
+		if utils.Roll(100, 1, 0) > 50 {
+			Effects["disease"](m, target, 0)
+			return
+		}
+	}
+	if m.Flags["poisons"] {
+		if utils.Roll(100, 1, 0) > 50 {
+			Effects["poison"](m, target, 0)
+			return
+		}
+	}
+	if m.Flags["spits_acid"] {
+		if utils.Roll(100, 1, 0) > 50 {
+			target.Write([]byte(text.Red + m.Name + " spits acid on you, damaging your armor !" + "\n" + text.Reset))
+			msg := target.Equipment.DamageRandomArmor()
+			if msg != "" {
+				target.Write([]byte(text.Info + msg + "\n" + text.Reset))
+			}
+			return
+		}
+	}
+	return
 }
 
 func (m *Mob) Follow(params []string) {
@@ -586,7 +621,7 @@ func (m *Mob) AddThreatDamage(damage int, attacker *Character) {
 	}
 }
 
-func (m *Mob) ApplyEffect(effectName string, length string, interval string, effect func(), effectOff func()) {
+func (m *Mob) ApplyEffect(effectName string, length string, interval string, effect func(triggers int), effectOff func()) {
 	if effectInstance, ok := m.Effects[effectName]; ok {
 		durExtend, _ := strconv.ParseFloat(length, 64)
 		effectInstance.ExtendDuration(durExtend)
@@ -594,7 +629,7 @@ func (m *Mob) ApplyEffect(effectName string, length string, interval string, eff
 		//m.Effects[effectName].effectOff()
 	}
 	m.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
-	effect()
+	m.Effects[effectName].RunEffect()
 }
 
 func (m *Mob) RemoveEffect(effectName string) {

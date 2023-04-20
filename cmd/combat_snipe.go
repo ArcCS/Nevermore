@@ -24,9 +24,12 @@ func (snipe) process(s *state) {
 		s.msg.Actor.SendBad("Snipe what exactly?")
 		return
 	}
-
-	if s.actor.Tier < 10 {
-		s.msg.Actor.SendBad("You must be at least tier 10 to use this skill.")
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+	if s.actor.Tier < 7 {
+		s.msg.Actor.SendBad("You must be at least tier 7 to use this skill.")
 		return
 	}
 

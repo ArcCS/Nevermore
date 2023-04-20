@@ -59,6 +59,11 @@ func (godir) process(s *state) {
 		return
 	}
 
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	// Decide what exit we are going to
 	if utils.StringIn(s.cmd, directionals) {
 		exitName = directionIndex[s.cmd]

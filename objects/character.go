@@ -574,13 +574,11 @@ const (
 
 func (c *Character) Tick() {
 	if Rooms[c.ParentId].Flags["heal_fast"] {
-		c.Stam.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
-		c.Vit.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
-		c.Mana.Add(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod * 2)))
+		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
+		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod * 2)))
 	} else {
-		c.Stam.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
-		c.Vit.Add(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
-		c.Mana.Add(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod)))
+		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
+		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod)))
 	}
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
@@ -604,14 +602,15 @@ func (c *Character) Look() (buildText string) {
 	return buildText
 }
 
-func (c *Character) ApplyEffect(effectName string, length string, interval string, effect func(), effectOff func()) {
+func (c *Character) ApplyEffect(effectName string, length string, interval string, effect func(triggers int), effectOff func()) {
 	if effectInstance, ok := c.Effects[effectName]; ok {
+		//TODO: Allow for intensifying effects instead of extending them
 		durExtend, _ := strconv.ParseFloat(length, 64)
 		effectInstance.ExtendDuration(durExtend)
 		return
 	}
 	c.Effects[effectName] = NewEffect(length, interval, effect, effectOff)
-	effect()
+	c.Effects[effectName].RunEffect()
 }
 
 func (c *Character) RemoveEffect(effectName string) {
@@ -834,7 +833,7 @@ func (c *Character) InflictDamage() (damage int) {
 	}
 
 	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod * float64(c.GetStat("str")))))
-	log.Println("Plus Damage" + strconv.Itoa(int(config.StrDamageMod*float64(c.GetStat("str")))))
+
 	// Add any modified base damage
 	baseDamage, ok := c.Modifiers["base_damage"]
 	if !ok {

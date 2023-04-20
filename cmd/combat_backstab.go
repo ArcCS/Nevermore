@@ -26,7 +26,12 @@ func (backstab) process(s *state) {
 		return
 	}
 
-	if s.actor.Tier < 10 {
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
+	if s.actor.Tier < 7 {
 		s.msg.Actor.SendBad("You must be at least tier 10 to use this skill.")
 		return
 	}

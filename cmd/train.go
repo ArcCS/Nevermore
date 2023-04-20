@@ -22,6 +22,10 @@ func (train) process(s *state) {
 		s.msg.Actor.SendBad("You don't have enough experience earned to train to the next tier.")
 		return
 	}
+	if !(s.actor.Gold.Value <= config.GoldPerLevel[s.actor.Tier+1]) {
+		s.msg.Actor.SendBad("You don't have enough gold to train to the next tier. (" + strconv.Itoa(config.GoldPerLevel[s.actor.Tier+1]) + ")")
+		return
+	}
 	if len(s.words) < 2 {
 		s.msg.Actor.SendBad("You must enter both of the stat points you wish to advance into your coming tier.")
 		return
@@ -82,6 +86,7 @@ func (train) process(s *state) {
 		}
 	}
 	s.actor.Tier += 1
+	s.actor.Gold.Subtract(config.GoldPerLevel[s.actor.Tier])
 	s.actor.Stam.Max = config.CalcStamina(s.actor.Tier, s.actor.Con.Current, s.actor.Class)
 	s.actor.Stam.Current = s.actor.Stam.Max
 	s.actor.Vit.Max = config.CalcHealth(s.actor.Tier, s.actor.Con.Current, s.actor.Class)

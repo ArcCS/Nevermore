@@ -25,6 +25,11 @@ func (sing) process(s *state) {
 		return
 	}
 
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	if s.actor.CheckFlag("singing") {
 		s.msg.Actor.SendBad("You are already singing!")
 		return
@@ -73,7 +78,7 @@ func (sing) process(s *state) {
 	tickRate := 8 - int(math.Floor(float64(s.actor.Tier/5)))
 
 	s.actor.ApplyEffect("sing", strconv.Itoa(duration), "0",
-		func() {
+		func(triggers int) {
 			s.actor.SingSong(song, tickRate)
 		},
 		func() {

@@ -11,9 +11,9 @@ type Effect struct {
 
 	lastTrigger time.Time
 	interval    time.Duration
-
-	effect    func()
-	effectOff func()
+	triggers    int
+	effect      func(triggers int)
+	effectOff   func()
 }
 
 func (s *Effect) AlterTime(duration float64) {
@@ -25,7 +25,7 @@ func (s *Effect) ExtendDuration(duration float64) {
 	s.length = time.Duration(duration)*time.Second - time.Duration(calc.Seconds())
 }
 
-func NewEffect(length string, interval string, effect func(), effectOff func()) *Effect {
+func NewEffect(length string, interval string, effect func(triggers int), effectOff func()) *Effect {
 	lengthTime, _ := strconv.Atoi(length)
 	parseLength := time.Duration(lengthTime) * time.Second
 	parseInterval, _ := time.ParseDuration(interval)
@@ -33,12 +33,14 @@ func NewEffect(length string, interval string, effect func(), effectOff func()) 
 		parseLength,
 		time.Now(),
 		parseInterval,
+		0,
 		effect,
 		effectOff}
 }
 
 func (s *Effect) RunEffect() {
-	s.effect()
+	s.effect(s.triggers)
+	s.triggers += 1
 	s.lastTrigger = time.Now()
 }
 

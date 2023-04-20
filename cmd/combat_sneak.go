@@ -26,6 +26,11 @@ func (sneak) process(s *state) {
 		return
 	}
 
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	if len(from.Exits) == 0 {
 		s.msg.Actor.SendInfo("You can't see anywhere to sneak from here.")
 		return

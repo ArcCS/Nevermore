@@ -15,6 +15,11 @@ func init() {
 type haste cmd
 
 func (haste) process(s *state) {
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	if s.actor.Tier < 5 {
 		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
 		return

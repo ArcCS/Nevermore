@@ -17,10 +17,16 @@ func init() {
 type ooc cmd
 
 func (ooc) process(s *state) {
-	if s.actor.Flags["ooc"]{
+	if s.actor.Flags["ooc"] {
 		s.msg.Actor.SendBad("You are already OOC.")
 		return
 	}
+
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	if to, ok := objects.Rooms[config.OocRoom]; ok {
 		if !utils.IntIn(to.RoomId, s.cLocks) {
 			s.AddCharLock(to.RoomId)

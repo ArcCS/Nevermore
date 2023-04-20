@@ -23,6 +23,11 @@ func (bash) process(s *state) {
 		s.msg.Actor.SendBad("Bash what exactly?")
 		return
 	}
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	if s.actor.Tier < 5 {
 		s.msg.Actor.SendBad("You must be at least tier 5 to use this skill.")
 		return

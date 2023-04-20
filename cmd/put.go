@@ -21,6 +21,11 @@ func (put) process(s *state) {
 		return
 	}
 
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	if len(s.words) == 1 {
 		s.msg.Actor.SendInfo("Put it where?")
 		return

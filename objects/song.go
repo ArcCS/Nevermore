@@ -82,7 +82,7 @@ func RunAway(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Mob:
 		target.ApplyEffect(singer.Name+"_run_away", "16", "0",
-			func() {
+			func(triggers int) {
 				target.ToggleFlag("run_away")
 			},
 			func() {
@@ -95,7 +95,7 @@ func SweetComfort(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Mob:
 		target.ApplyEffect(singer.Name+"_sweet_comfort", "16", "0",
-			func() {
+			func(triggers int) {
 				target.ToggleFlag("sweet_comfort")
 			},
 			func() {
@@ -108,7 +108,7 @@ func CuriousCanticle(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Mob:
 		target.ApplyEffect(singer.Name+"_curious_canticle", "16", "0",
-			func() {
+			func(triggers int) {
 				target.ToggleFlag("curious_canticle")
 			},
 			func() {
@@ -128,7 +128,7 @@ func ChampionsAnthem(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Character:
 		target.ApplyEffect(singer.Name+"_champions_anthem", "16", "0",
-			func() {
+			func(triggers int) {
 				target.SetModifier("base_damage", singer.GetStat("pie")*config.ScalePerPiety)
 			},
 			func() {

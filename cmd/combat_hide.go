@@ -17,6 +17,11 @@ func init() {
 type hide cmd
 
 func (hide) process(s *state) {
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	if s.actor.Flags["hidden"] {
 		s.msg.Actor.SendGood("You're already hidden")
 		return

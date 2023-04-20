@@ -16,7 +16,12 @@ type berserk cmd
 
 func (berserk) process(s *state) {
 	// Check some timers
-	if s.actor.Tier < 10 {
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
+	if s.actor.Tier < 7 {
 		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
 		return
 	}

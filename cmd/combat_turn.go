@@ -23,6 +23,10 @@ func (turn) process(s *state) {
 		s.msg.Actor.SendBad("Turn what exactly?")
 		return
 	}
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
 	if s.actor.Tier < 5 {
 		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
 		return
@@ -81,17 +85,17 @@ func (turn) process(s *state) {
 			whatMob.Stam.Current = 0
 			DeathCheck(s, whatMob)
 			whatMob = nil
-		}else if curChance >= 100 || turnRoll <= curChance {
+		} else if curChance >= 100 || turnRoll <= curChance {
 			s.msg.Actor.SendInfo("Your faith pours into " + whatMob.Name + " and causes " + strconv.Itoa(whatMob.Stam.Current/2) + " damage.")
 			s.msg.Observers.SendInfo(s.actor.Name + " turned " + whatMob.Name)
 			whatMob.AddThreatDamage(whatMob.Stam.Current/2, s.actor)
-			whatMob.Stam.Subtract(whatMob.Stam.Current/2)
-		}else{
+			whatMob.Stam.Subtract(whatMob.Stam.Current / 2)
+		} else {
 			s.msg.Actor.SendBad("You fail to turn the " + whatMob.Name + ".  They charge you!")
 			whatMob.CurrentTarget = s.actor.Name
 			whatMob.AddThreatDamage(whatMob.Stam.Current, s.actor)
-			s.actor.ReceiveDamage(s.actor.Stam.Max/2)
-			s.msg.Observers.SendInfo(s.actor.Name + " turn attempt fails and enrages " + whatMob.Name )
+			s.actor.ReceiveDamage(s.actor.Stam.Max / 2)
+			s.msg.Observers.SendInfo(s.actor.Name + " turn attempt fails and enrages " + whatMob.Name)
 		}
 		return
 	}

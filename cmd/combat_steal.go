@@ -25,6 +25,11 @@ func (steal) process(s *state) {
 		return
 	}
 
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	// Check some timers
 	ready, msg := s.actor.TimerReady("steal")
 	if !ready {

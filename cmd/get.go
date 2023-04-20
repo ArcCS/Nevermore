@@ -21,6 +21,11 @@ func (get) process(s *state) {
 		return
 	}
 
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	targetStr := s.words[0]
 	targetNum := 1
 	whereStr := ""

@@ -43,4 +43,3 @@ func (pray) process(s *state) {
 
 	s.ok = true
 }
-

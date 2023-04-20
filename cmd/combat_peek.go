@@ -24,6 +24,11 @@ func (peek) process(s *state) {
 		return
 	}
 
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
 	// Check some timers
 	ready, msg := s.actor.TimerReady("peek")
 	if !ready {
@@ -54,10 +59,10 @@ func (peek) process(s *state) {
 		} else {
 			s.msg.Actor.Send("  ", strings.Join(whatMob.Inventory.List(), ", "))
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("Peek whose inventory?")
 	}
-	s.ok=true
+	s.ok = true
 	return
 
 }
