@@ -18,6 +18,11 @@ func init() {
 type tod cmd
 
 func (tod) process(s *state) {
+	if s.actor.CheckFlag("blind") {
+		s.msg.Actor.SendBad("You can't see anything!")
+		return
+	}
+
 	if len(s.input) < 1 {
 		s.msg.Actor.SendBad("Touch of Death what exactly?")
 		return

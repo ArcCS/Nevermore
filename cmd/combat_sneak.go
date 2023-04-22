@@ -18,6 +18,11 @@ func init() {
 type sneak cmd
 
 func (sneak) process(s *state) {
+	if s.actor.CheckFlag("blind") {
+		s.msg.Actor.SendBad("You can't see anything!")
+		return
+	}
+
 	var exitName string
 	from := s.where
 	// Does this place even have exits?

@@ -30,9 +30,9 @@ func (look) process(s *state) {
 	}
 
 	// Check if they have darkvision, a light source, or if they are a GM
-	if !s.actor.CheckFlag("darkvision") && !s.actor.CheckFlag("light") && !s.where.Flags["light_always"] && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+	if !s.actor.CheckFlag("darkvision") && !s.actor.CheckFlag("light") && !objects.Rooms[s.actor.ParentId].Flags["light_always"] && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		// Check if they are flagged for a light source
-		if s.where.Flags["dark_always"] || (s.where.Flags["natural_light"] && !objects.DayTime) {
+		if objects.Rooms[s.actor.ParentId].Flags["dark_always"] || (objects.Rooms[s.actor.ParentId].Flags["natural_light"] && !objects.DayTime) {
 			s.msg.Actor.SendBad("It's too dark to see anything!")
 			return
 		}

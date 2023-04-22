@@ -10,7 +10,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/utils"
 	"io"
-	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -102,7 +101,6 @@ func newState(o *objects.Character, input string) *state {
 //	s.input = []string{"I'm", "in", "need", "of", "help!"}
 //	s.words = []string{"I'M", "NEED", "HELP!"}
 func (s *state) tokenizeInput(input string) {
-	log.Println("Tokenizer received: ", input)
 	quoteReg := regexp.MustCompile("\"(.*)\"")
 	for _, match := range quoteReg.FindStringSubmatch(input) {
 		input = strings.ReplaceAll(input, match, strings.ReplaceAll(match, " ", "%_R%"))

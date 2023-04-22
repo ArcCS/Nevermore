@@ -123,6 +123,20 @@ func (i *ItemInventory) List() []string {
 	return items
 }
 
+// ListChars the items in this CharInventory
+func (i *ItemInventory) ListHiddenItems(observer *Character) []*Item {
+	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	items := make([]*Item, 0)
+
+	for _, item := range i.Contents {
+		// List all
+		if item.Flags["hidden"] {
+			items = append(items, item)
+		}
+	}
+	return items
+}
+
 // ListItems List the items in this ItemInventory
 func (i *ItemInventory) ListItems() []*Item {
 	items := make([]*Item, 0)
@@ -269,6 +283,9 @@ func RestoreInventory(jsonString string) *ItemInventory {
 			newItem.Name = item["name"].(string)
 			newItem.MaxUses = int(item["uses"].(float64))
 			newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
+			if _, ok := item["adjustment"]; ok {
+				newItem.Adjustment = int(item["adjustment"].(float64))
+			}
 			if _, ok := item["infinite"]; ok {
 				newItem.Flags["infinite"] = int(item["infinite"].(float64)) != 0
 			}

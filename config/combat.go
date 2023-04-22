@@ -20,8 +20,16 @@ var CombatModifiers = map[string]int{
 	"snipe":    8,
 }
 
+var MobVital = 3
+var MobCritical = 10
+var MobDouble = 25
+var MobFollowVital = 25
+
 var BindCost = 75000
 var RenameCost = 150000
+
+var MissPerLevel = 8 // This is a percentage
+var SearchPerInt = 3 // This is a percentage
 
 // Thief & Ranger
 var PeekCD = 8
@@ -302,4 +310,21 @@ func RollLethal(skill int) bool {
 		}
 	}
 	return false
+}
+
+func BreatheDamage(level int) int {
+	switch {
+	case level < 5:
+		return 8
+	case level < 10:
+		return 20
+	case level < 15:
+		return 40
+	case level < 20:
+		return 90
+	case level < 25:
+		return 125
+	default:
+		return 8
+	}
 }

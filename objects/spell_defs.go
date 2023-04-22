@@ -407,15 +407,6 @@ var Spells = map[string]Spell{
 		Effect:      "stun",
 		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "barbarian": 7, "fighter": 5, "monk": 3},
 	},
-	"enchant": {
-		Name:        "enchant",
-		Description: "This spell infuses a weapon or armour with a magical en Chantment. the power of the en Chantment is dependant upon the caster's skill in the art, and it is important to note that no item can be en Chanted more than once. when the spell is cast, the target object becomes magically reinforced, prolonging its life, as well as increasing its usefulness. in order to cast this spell, the mage speaks the spell Chant and touches the object. as the spell Chant is spoken, the mages eyes begin to glow, and that glow then surrounds the object. the glow fades from both the mage's eyes and the object a few seconds later. only magi may cast this spell. ",
-		Cost:        25,
-		Chant:       "I inject my magicks into thee!",
-		Magnitude:   1,
-		Effect:      "enchant",
-		Classes:     map[string]int{"cleric": 3, "mage": 3},
-	},
 	"word of recall": {
 		Description: "this spell, strictly in the realm of clerical magic, instantly transports the target to safety. to cast this spell, the cleric grips their holy symbol in one hand, while speaking the spell Chant. the cleric then need only point at the target, and they will be returned to the safest place in the nexus... the chamber of the order of the healing hand. while similar in effet to the spell, teleport, this spell functions entirely differently. when word-of-recall is cast, a manifestation of the cleric's deity (a ray of light for aalynor, an aura of black fire for tilnar, etc.) surrounds the target and safely transport the target, along with all carried equipment to the destination",
 		Cost:        25,

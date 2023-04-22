@@ -60,22 +60,15 @@ var WeaponExpLevels = map[int]int{
 }
 
 var SkillAdvancement = map[int]float32{
-	0:	1,
-	1:	.7,
-	2:	.7,
-	3:	.7,
-	6:	.7,
-	8:	.5,
-	7:	.5,
-	5:	.4,
-	4:	.4,
-}
-
-type WeaponClass struct {
-	Title          string
-	DoubleDamage   float64
-	CriticalStrike float64
-	LethalRate     float64
+	0: 1,
+	1: .7,
+	2: .7,
+	3: .7,
+	6: .7,
+	8: .5,
+	7: .5,
+	5: .4,
+	4: .4,
 }
 
 var WeaponTitles = []string{
@@ -117,7 +110,7 @@ func WeaponExpTitle(exp int, class int) string {
 	case exp >= WeaponExpLevels[10]:
 		if class == 0 {
 			return WeaponTitles[10]
-		}else{
+		} else {
 			return WeaponTitles[9]
 		}
 	default:
@@ -150,9 +143,9 @@ func WeaponLevel(exp int, class int) int {
 	case exp > WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
 		return 10
 	case exp >= WeaponExpLevels[11]:
-		if class==0 {
+		if class == 0 {
 			return 11
-		}else{
+		} else {
 			return 10
 		}
 	default:
@@ -183,12 +176,31 @@ func WeaponExpNext(exp int, class int) int {
 	case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
 		if class == 0 {
 			return WeaponExpLevels[10]
-		}else{
+		} else {
 			return 0
 		}
 	case exp >= WeaponExpLevels[10]:
 		return 0
 	default:
 		return WeaponExpLevels[1]
+	}
+}
+
+func WeaponMissChance(exp int, class int) int {
+	switch {
+	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
+		return 50
+	case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
+		return 40
+	case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+		return 30
+	case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
+		return 20
+	case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
+		return 10
+	case exp > WeaponExpLevels[5]:
+		return 0
+	default:
+		return 50
 	}
 }

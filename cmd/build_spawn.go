@@ -15,7 +15,7 @@ func init() {
 			"  -->  If you wish to save it as the template for that item, use the 'savetemplate item' command\n"+
 			"Mob:  Mob will be spawned into your room. \n"+
 			"  -->  If you wish to save it as the template for that mob, use the 'savetemplate mob' command\n\n",
-		permissions.Player,
+		permissions.Builder,
 		"spawn")
 }
 

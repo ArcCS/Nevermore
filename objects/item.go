@@ -21,8 +21,8 @@ type Item struct {
 	MaxUses      int
 	Value        int
 	Spell        string
-	StorePrice 	int
-	Adjustment int
+	StorePrice   int
+	Adjustment   int
 
 	Storage *ItemInventory
 	Weight  int
@@ -40,7 +40,7 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 			Name:        itemData["name"].(string),
 			Description: description,
 			Placement:   3,
-			Commands: DeserializeCommands(itemData["commands"].(string)),
+			Commands:    DeserializeCommands(itemData["commands"].(string)),
 		},
 		0,
 		int(itemData["item_id"].(int64)),
@@ -79,7 +79,7 @@ func (i *Item) GetWeight() int {
 
 func (i *Item) Look() string {
 	resString := i.Description + "\n\n"
-	if i.ItemType==9 {
+	if i.ItemType == 9 {
 		items := i.Storage.ReducedList()
 		if len(items) > 0 {
 			resString += "The " + i.Name + " contains " + strconv.Itoa(len(i.Storage.Contents)) + " items: \n" + items
@@ -89,37 +89,57 @@ func (i *Item) Look() string {
 }
 
 // DisplayName Return a display name with numerics
-func (i *Item) DisplayName() string{
+func (i *Item) DisplayName() string {
 	typeReturn := 0
+	preName := ""
+	if i.Flags["magic"] {
+		preName += "magic "
+	}
 	// Mapping value definitions
-	switch i.ItemType{
-		case 0:  typeReturn = 1
-		case 1:  typeReturn = 1
-		case 2:  typeReturn = 1
-		case 3:  typeReturn = 1
-		case 4:  typeReturn = 1
-		case 5:  typeReturn = 2
-		case 15: typeReturn = 1
-		case 16: typeReturn = 1
-		case 19: typeReturn = 2
-		case 20: typeReturn = 2
-		case 21: typeReturn = 2
-		case 22: typeReturn = 2
-		case 23: typeReturn = 2
-		case 24: typeReturn = 2
-		case 25: typeReturn = 2
-		case 26: typeReturn = 2
+	switch i.ItemType {
+	case 0:
+		typeReturn = 1
+	case 1:
+		typeReturn = 1
+	case 2:
+		typeReturn = 1
+	case 3:
+		typeReturn = 1
+	case 4:
+		typeReturn = 1
+	case 5:
+		typeReturn = 2
+	case 15:
+		typeReturn = 1
+	case 16:
+		typeReturn = 1
+	case 19:
+		typeReturn = 2
+	case 20:
+		typeReturn = 2
+	case 21:
+		typeReturn = 2
+	case 22:
+		typeReturn = 2
+	case 23:
+		typeReturn = 2
+	case 24:
+		typeReturn = 2
+	case 25:
+		typeReturn = 2
+	case 26:
+		typeReturn = 2
 	}
 	if typeReturn == 1 {
-		return i.Name + " (" + strconv.Itoa(i.Adjustment) + ")"
-	}else if typeReturn == 2 {
+		return preName + i.Name + " (" + strconv.Itoa(i.Adjustment) + ")"
+	} else if typeReturn == 2 {
 		if i.Armor > 0 {
-			return i.Name + " (" + strconv.Itoa(i.Armor) + ")"
-		}else{
-			return i.Name
+			return preName + i.Name + " (" + strconv.Itoa(i.Armor) + ")"
+		} else {
+			return preName + i.Name
 		}
 	}
-	return i.Name
+	return preName + i.Name
 }
 
 func (i *Item) ToggleFlag(flagName string) bool {
@@ -160,12 +180,13 @@ func (i *Item) Save() {
 // Function to return only the modifiable properties
 func ReturnItemInstanceProps(item *Item) map[string]interface{} {
 	serialList := map[string]interface{}{
-		"itemId": item.ItemId,
-		"name":   item.Name,
-		"uses":   item.MaxUses,
-		"magic":  utils.Btoi(item.Flags["magic"]),
-		"spell":  item.Spell,
-		"armor":  item.Armor,
+		"itemId":     item.ItemId,
+		"name":       item.Name,
+		"uses":       item.MaxUses,
+		"adjustment": item.Adjustment, //  Adjustable by Mages
+		"magic":      utils.Btoi(item.Flags["magic"]),
+		"spell":      item.Spell,
+		"armor":      item.Armor, // Adjustable by Paladins
 	}
 	if _, ok := item.Flags["infinite"]; ok {
 		serialList["infinite"] = utils.Btoi(item.Flags["infinite"])
@@ -189,36 +210,36 @@ func (i *Item) Eval() string {
 	} else if utils.IntIn(i.ItemType, []int{5, 26, 25, 24, 23, 22, 21, 20, 19}) { // Armor
 		stringOut += "It is " + config.ItemTypes[i.ItemId] + " armor. \n" +
 			"It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks. \n"
-	} else if i.ItemType == 17{  // Beverage
+	} else if i.ItemType == 17 { // Beverage
 		stringOut += "It is a beverage. \n" +
 			"It has " + strconv.Itoa(i.MaxUses) + " sips remaining. \n"
-	} else if i.ItemType == 18 {  // Music
+	} else if i.ItemType == 18 { // Music
 		stringOut += "It is sheet music. \n" +
-			"It contains "+ i.Spell +".\n"
-	} else if i.ItemType == 16 {  // Instrument
+			"It contains " + i.Spell + ".\n"
+	} else if i.ItemType == 16 { // Instrument
 		stringOut += "It is an instrument. \n"
-	} else if i.ItemType == 15 {  // Ammo  //TODO Implement if we do ammo.
+	} else if i.ItemType == 15 { // Ammo  //TODO Implement if we do ammo.
 		stringOut += "It is ammunition, and not implemented. \n"
-	} else if i.ItemType == 6 || i.ItemType == 8 {  //device/wand
+	} else if i.ItemType == 6 || i.ItemType == 8 { //device/wand
 		stringOut += "It is a " + config.ItemTypes[i.ItemType] + ". \n" +
-		"It is charged with "+ i.Spell +".\n" +
-		"It has " + strconv.Itoa(i.MaxUses) + " uses remaining. \n"
-	} else if i.ItemType == 7{
+			"It is charged with " + i.Spell + ".\n" +
+			"It has " + strconv.Itoa(i.MaxUses) + " uses remaining. \n"
+	} else if i.ItemType == 7 {
 		stringOut += "It is a scroll. \n" +
-			"It contains "+ i.Spell +".\n"
-	} else if i.ItemType == 9{  //chest
+			"It contains " + i.Spell + ".\n"
+	} else if i.ItemType == 9 { //chest
 		stringOut += "It is a container. \n" +
 			"It can hold " + strconv.Itoa(i.MaxUses) + " items. \n"
 		if i.Flags["weightless_chest"] {
 			stringOut += "It holds it's contents weightlessly. \n"
 		}
-	} else if i.ItemType == 10{ //gold
+	} else if i.ItemType == 10 { //gold
 		stringOut += "It is gold. \n"
-	} else if i.ItemType == 11{ //key
+	} else if i.ItemType == 11 { //key
 		stringOut += "It is a key. \n"
-	} else if i.ItemType == 12{ //light
+	} else if i.ItemType == 12 { //light
 		stringOut += "It is a light source. \n"
-	} else if i.ItemType == 13{ //object
+	} else if i.ItemType == 13 { //object
 		stringOut += "It's just an object. \n"
 	}
 
@@ -229,6 +250,6 @@ func (i *Item) Eval() string {
 		stringOut += "It cannot be picked up \n"
 	}
 
-	stringOut += "\n You determine its weight to be "+ strconv.Itoa(i.Weight)+"lbs. \nYou judge its value to be "+ strconv.Itoa(i.Value)+" gold marks."
+	stringOut += "\n You determine its weight to be " + strconv.Itoa(i.Weight) + "lbs. \nYou judge its value to be " + strconv.Itoa(i.Value) + " gold marks."
 	return stringOut
 }

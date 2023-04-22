@@ -75,7 +75,6 @@ type Character struct {
 	// Extra
 	MinutesPlayed int
 
-	//TODO: Class Properties Heals/Enchants/Restores/Finales
 	ClassProps map[string]int
 
 	Spells            []string
@@ -101,6 +100,7 @@ type Character struct {
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 	charData, err := data.LoadChar(charName)
 	lastRefresh, _ := time.Parse(time.RFC3339, charData["lastrefresh"].(string))
+	log.Println("Last Refresh: ", lastRefresh)
 	if err {
 		return nil, true
 	} else {
@@ -203,6 +203,16 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			}
 		}
 
+		if FilledCharacter.Class == 4 || FilledCharacter.Class == 6 {
+			FilledCharacter.ClassProps["enchants"] = int(charData["enchants"].(int64))
+		}
+		if FilledCharacter.Class == 5 || FilledCharacter.Class == 6 {
+			FilledCharacter.ClassProps["heals"] = int(charData["heals"].(int64))
+		}
+		if FilledCharacter.Class == 7 || FilledCharacter.Class == 6 {
+			FilledCharacter.ClassProps["restores"] = int(charData["restores"].(int64))
+		}
+
 		// GM Specifics:
 		if FilledCharacter.Class >= 99 {
 			FilledCharacter.Flags["hidden"] = true
@@ -211,9 +221,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 
 		// Refresh or not to refresh on load?
 		if time.Since(lastRefresh) > 24*time.Hour {
-			log.Println("refreshing character..")
 			FilledCharacter.Refresh()
-			FilledCharacter.LastRefresh = lastRefresh
+			FilledCharacter.LastRefresh = time.Now()
 		}
 
 		FilledCharacter.CharTicker = time.NewTicker(8 * time.Second)
@@ -413,7 +422,6 @@ func (c *Character) SerialSaveEffects() string {
 func (c *Character) SerialRestoreEffects(effectsBlob string) {
 	obj := make(map[string]map[string]interface{}, 0)
 	err := json.Unmarshal([]byte(effectsBlob), &obj)
-	log.Println(obj)
 	if err != nil {
 		return
 	}
@@ -535,9 +543,21 @@ func (c *Character) Save() {
 	charData["inventory"] = c.Inventory.Jsonify()
 	charData["effects"] = c.SerialSaveEffects()
 	charData["timers"] = c.SerialSaveTimers()
-	charData["lastrefresh"] = c.LastRefresh.String()
+	charData["lastrefresh"] = c.LastRefresh.Format(time.RFC3339)
 	charData["oocswap"] = c.OOCSwap
 	charData["ooc"] = utils.Btoi(c.Flags["ooc"])
+	charData["enchants"] = 0
+	charData["heals"] = 0
+	charData["restores"] = 0
+	if c.Class == 4 || c.Class == 6 {
+		charData["enchants"] = c.ClassProps["enchants"]
+	}
+	if c.Class == 5 || c.Class == 6 {
+		c.ClassProps["heals"] = c.ClassProps["heals"]
+	}
+	if c.Class == 7 || c.Class == 6 {
+		c.ClassProps["restores"] = c.ClassProps["restores"]
+	}
 	data.SaveChar(charData)
 }
 
@@ -886,7 +906,7 @@ func (c *Character) InflictDamage() (damage int) {
 	if !ok {
 		baseDamage = 0
 	}
-	damage += baseDamage
+	damage += baseDamage + c.Equipment.Main.Adjustment
 	if damage < 0 {
 		damage = 0
 	}
@@ -898,14 +918,16 @@ func (c *Character) MaxWeight() int {
 }
 
 func (c *Character) Refresh() {
-	//TODO: Add refresh for heals/broadcast/enchants
 	c.Broadcasts = config.BaseBroads + (c.GetStat("int") * config.IntBroad)
 	c.Evals = config.BaseEvals + (int(math.Ceil(float64(c.GetStat("int")) / float64(config.IntEvalDivInt))))
-	if c.Class == 4 {
+	if c.Class == 4 || c.Class == 6 {
 		c.ClassProps["enchants"] = 3
 	}
 	if c.Class == 5 || c.Class == 6 {
 		c.ClassProps["heals"] = 5
+	}
+	if c.Class == 7 || c.Class == 6 {
+		c.ClassProps["restores"] = 5
 	}
 }
 

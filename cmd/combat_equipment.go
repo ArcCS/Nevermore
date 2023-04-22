@@ -19,6 +19,11 @@ type equipment cmd
 
 func (equipment) process(s *state) {
 
+	if s.actor.CheckFlag("blind") {
+		s.msg.Actor.SendBad("You can't see anything!")
+		return
+	}
+
 	equip_template := " You take a look at your equipment..." +
 		" {{if .Chest}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Chest}} about {{.Pos_pronoun}} body{{end}}" +
 		" {{if .Neck}}\n{{.Sub_pronoun}} {{.Isare}} a {{.Neck}} around {{.Pos_pronoun}} neck.{{end}}" +

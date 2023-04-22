@@ -1,18 +1,12 @@
 package cmd
 
-import (
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/permissions"
-	"strconv"
-)
-
+/*
 func init() {
 	addHandler(autolevel{}, "autolevel ## \n PLAYTEST ONLY,  use this command to auto adjust your level to the chosen level, all attributes are reset to default and attribute points are assigned for you to apply with autostat", permissions.Player, "autolevel", "autotier")
 }
 
 type autolevel cmd
 
-//TODO: DISABLE THIS,  do not go into production
 func (autolevel) process(s *state) {
 	if len(s.words) < 1 {
 		s.msg.Actor.SendBad("You must enter the level that you want")
@@ -41,3 +35,4 @@ func (autolevel) process(s *state) {
 	s.msg.Actor.SendGood("Tier changed to " + strconv.Itoa(s.actor.Tier))
 	return
 }
+*/

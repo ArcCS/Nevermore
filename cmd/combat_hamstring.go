@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 )
 
@@ -19,6 +20,11 @@ type hamstring cmd
 func (hamstring) process(s *state) {
 	if len(s.input) < 1 {
 		s.msg.Actor.SendBad("Hamstring what exactly?")
+		return
+	}
+
+	if s.actor.CheckFlag("blind") {
+		s.msg.Actor.SendBad("You can't see anything!")
 		return
 	}
 
@@ -62,9 +68,13 @@ func (hamstring) process(s *state) {
 			return
 		}
 
-		//skillLevel := config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value)
+		// Check for a miss
+		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
+			s.msg.Actor.SendBad("You missed!!")
+			s.msg.Observers.SendBad(s.actor.Name + " fails to hamstring " + whatMob.Name)
+			return
+		}
 
-		// TODO: Parry/Miss/Resist being hamstringed
 		whatMob.AddThreatDamage(whatMob.Stam.Max/2, s.actor)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		s.msg.Actor.SendInfo("You hamstring " + whatMob.Name)

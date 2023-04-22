@@ -63,6 +63,9 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"lastrefresh: a.lastrefresh, "+
 		"effects: a.effects, "+
 		"timers: a.timers, "+
+		"enchants: a.enchants, "+
+		"heals: a.heals, "+
+		"restores: a.restores, "+
 		"oocswap: a.oocswap, "+
 		"flags:{invisible: a.invisible, darkvision: a.darkvision, hidden: a.hidden, ooc: a.ooc}}",
 
@@ -137,6 +140,9 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.darkvision = $darkvision, "+
 			"a.effects = '[]', "+
 			"a.timers = '[]', "+
+			"a.enchants = 0, "+
+			"a.heals = 0, "+
+			"a.restores = 0, "+
 			"a.ooc = 0, "+
 			"a.oocswap = 0, "+
 			"a.hidden = 0 ",
@@ -227,6 +233,9 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.timers = $timers, "+
 			"a.lastrefresh = $lastrefresh, "+
 			"a.oocswap = $oocswap, "+
+			"a.enchants = $enchants, "+
+			"a.heals = $heals, "+
+			"a.restores = $restores, "+
 			"a.ooc = $ooc, "+
 			"a.experience = $experience",
 		map[string]interface{}{
@@ -267,6 +276,9 @@ func SaveChar(charData map[string]interface{}) bool {
 			"timers":      charData["timers"],
 			"oocswap":     charData["oocswap"],
 			"ooc":         charData["ooc"],
+			"enchants":    charData["enchants"],
+			"heals":       charData["heals"],
+			"restores":    charData["restores"],
 		},
 	)
 	if err != nil {

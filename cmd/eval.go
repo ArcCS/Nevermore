@@ -36,6 +36,7 @@ func (evaluate) process(s *state) {
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	// It was a mob!
 	if whatMob != nil {
+		s.actor.Evals -= 1
 		s.msg.Actor.SendInfo(whatMob.Eval())
 		return
 	}
@@ -45,6 +46,7 @@ func (evaluate) process(s *state) {
 
 	// Item in the room?
 	if whatItem != nil {
+		s.actor.Evals -= 1
 		s.msg.Actor.SendInfo(whatItem.Eval())
 		return
 	}
@@ -53,6 +55,7 @@ func (evaluate) process(s *state) {
 
 	// It was on you the whole time
 	if whatItem != nil {
+		s.actor.Evals -= 1
 		s.msg.Actor.SendInfo(whatItem.Eval())
 		return
 	}
@@ -61,11 +64,12 @@ func (evaluate) process(s *state) {
 
 	// Check your equipment
 	if whatItem != nil {
+		s.actor.Evals -= 1
 		s.msg.Actor.SendInfo(whatItem.Eval())
 		return
 	}
 
-	s.ok=true
+	s.ok = true
 	s.msg.Actor.SendInfo("Could not find anything to evaluate based on your input.")
 	return
 

@@ -113,13 +113,11 @@ func (c *client) process() {
 			if config.Server.Running == false {
 				_ = c.Close()
 			}
-			//TODO: Post beta put this back to normal.
-			//useTime := config.Server.IdleTimeout
-			useTime := 30 * time.Minute
+			useTime := config.Server.IdleTimeout
 			if ok := c.frontend.GetCharacter(); ok != nil {
-				if c.frontend.GetCharacter().Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster){
+				if c.frontend.GetCharacter().Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					useTime = 30 * time.Minute
-				}else if c.frontend.GetCharacter().Flags["AFK"] {
+				} else if c.frontend.GetCharacter().Flags["AFK"] {
 					useTime = config.Server.AFKTimeout
 				} else if c.frontend.GetCharacter().Flags["OOC"] {
 					useTime = config.Server.OOCTimeout

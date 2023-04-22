@@ -45,7 +45,7 @@ var Server = struct {
 	SearchResults:     15,
 	Running:           true,
 	CreateChars:       true,
-	PermissionDefault: 15,
+	PermissionDefault: 2,
 }
 
 // Stats default configuration

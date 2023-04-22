@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
 	"math"
 	"strconv"
 )
@@ -23,6 +24,11 @@ func (bash) process(s *state) {
 		s.msg.Actor.SendBad("Bash what exactly?")
 		return
 	}
+	if s.actor.CheckFlag("blind") {
+		s.msg.Actor.SendBad("You can't see anything!")
+		return
+	}
+
 	if s.actor.Stam.Current <= 0 {
 		s.msg.Actor.SendBad("You are far too tired to do that.")
 		return
@@ -78,7 +84,12 @@ func (bash) process(s *state) {
 			return
 		}
 
-		//TODO: Parry/Miss/Resist being bashed?
+		// Check for a miss
+		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
+			s.msg.Actor.SendBad("You missed!!")
+			s.msg.Observers.SendBad(s.actor.Name + " fails to bash " + whatMob.Name)
+			return
+		}
 
 		s.actor.Victim = whatMob
 		// Check the rolls in reverse order from hardest to lowest for bash rolls.

@@ -1,18 +1,11 @@
 package cmd
 
-import (
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/permissions"
-	"strconv"
-)
-
+/*
 func init() {
 	addHandler(autostat{}, "autostat ## ## ## ## ## \n PLAYTEST ONLY, str, con, dex, int, pie use this command to adjust your stats, must enter all of them and all must be values 50 or less", permissions.Player, "autostat")
 }
 
 type autostat cmd
-
-//TODO: DISABLE THIS,  do not go into production
 
 func (autostat) process(s *state) {
 	if len(s.words) < 5 {
@@ -55,3 +48,4 @@ func (autostat) process(s *state) {
 	s.actor.Mana.Current = s.actor.Mana.Max
 	return
 }
+*/

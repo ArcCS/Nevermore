@@ -34,6 +34,26 @@ func (information) process(s *state) {
 		monk = true
 	}
 
+	showEnchants := false
+	enchants := 0
+	showHeals := false
+	heals := 0
+	showRestores := false
+	restores := 0
+
+	if s.actor.Class == 4 || s.actor.Class == 6 {
+		showEnchants = true
+		enchants = s.actor.ClassProps["enchants"]
+	}
+	if (s.actor.Class == 5 && s.actor.Tier >= 8) || (s.actor.Class == 6 && s.actor.Tier >= 12) {
+		showHeals = true
+		heals = s.actor.ClassProps["heals"]
+	}
+	if (s.actor.Class == 7 && s.actor.Tier >= 14) || (s.actor.Class == 6 && s.actor.Tier >= 13) {
+		showRestores = true
+		restores = s.actor.ClassProps["restores"]
+	}
+
 	age := (config.ImperialYearStart + objects.YearPlus) - s.actor.Birthyear
 
 	char_template := "{{.Charname}}, the {{.Tier}} tier {{.Race}} {{.Title}}\n" +
@@ -47,10 +67,13 @@ func (information) process(s *state) {
 		"You are carrying {{.Gold}} gold marks in your coin purse.\n" +
 		"{{if .Poisoned}}" + text.Red + "You have poison coursing through your veins.\n{{end}}" + text.Good +
 		"{{if .Diseased}}" + text.Brown + "You are suffering from affliction.\n{{end}}" + text.Good +
-		"{{if .Blind}}" + text.Blue + "You havec been blinded!!\n{{end}}" + text.Good +
+		"{{if .Blind}}" + text.Blue + "You have been blinded!!\n{{end}}" + text.Good +
 		"{{if .Dark_vision}}You can see in the dark naturally. \n{{end}}" +
 		"You have {{.Broadcasts}} broadcasts remaining today.\n" +
 		"You have {{.Evals}} evaluates remaining today.\n" +
+		"{{if .ShowEnchants}}You can enchant {{.Enchants}} more items today.\n{{end}}" +
+		"{{if .ShowHeals}}You can cast the heal spell {{.Heals}} more times today.\n{{end}}" +
+		"{{if .ShowRestores}}You can cast the restore spell {{.Restores}} more times today.\n{{end}}" +
 		"You have logged {{.Hours}} hours and {{.Minutes}} minutes with this character.\n" +
 		"You have {{.Bonus_points}} role-play bonus points.\n" +
 		"You were born on {{.Day}}, the {{.Day_number}} of the month of {{.Month}}\n" +
@@ -87,6 +110,12 @@ func (information) process(s *state) {
 		Diseased         bool
 		Blind            bool
 		Dark_vision      bool
+		ShowEnchants     bool
+		ShowHeals        bool
+		ShowRestores     bool
+		Enchants         int
+		Heals            int
+		Restores         int
 		Broadcasts       int
 		Evals            int
 		Hours            int
@@ -129,6 +158,12 @@ func (information) process(s *state) {
 		s.actor.CheckFlag("diseased"),
 		s.actor.CheckFlag("blind"),
 		s.actor.CheckFlag("darkvision"),
+		showEnchants,
+		showHeals,
+		showRestores,
+		enchants,
+		heals,
+		restores,
 		s.actor.Broadcasts,
 		s.actor.Evals,
 		s.actor.MinutesPlayed / 60,

@@ -178,6 +178,22 @@ func (i *MobInventory) ListMobs(observer *Character) []*Mob {
 	return items
 }
 
+// ListChars the items in this CharInventory
+func (i *MobInventory) ListHiddenMobs(observer *Character) []*Mob {
+	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	items := make([]*Mob, 0)
+
+	for _, m := range i.Contents {
+		// List all
+		if m.CheckFlag("hidden") {
+			if !m.CheckFlag("invisible") || observer.CheckFlag("detect-invisible") {
+				items = append(items, m)
+			}
+		}
+	}
+	return items
+}
+
 // List the items in this MobInventory
 func (i *MobInventory) ListAttackers(observer *Character) string {
 	items := ""

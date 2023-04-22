@@ -279,7 +279,39 @@ func (m *Mob) Tick() {
 				return
 			}
 
-			// TODO: Add a check for breathe weapons, and if they're next to or 1 block away, do a breath attack
+			if m.CurrentTarget != "" && m.BreathWeapon != "" &&
+				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) == 1) {
+
+				// Roll to see if we're going to breathe
+				if utils.Roll(100, 1, 0) <= 30 {
+					target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
+					targets := []*Character{target}
+					for _, character := range Rooms[m.ParentId].Chars.Contents {
+						if character.Placement == target.Placement {
+							targets = append(targets, character)
+						}
+					}
+
+					Rooms[m.ParentId].MessageAll("The " + m.Name + " breathes " + m.BreathWeapon + " at " + target.Name + "\n")
+					damageTotal := config.BreatheDamage(m.Level)
+					for _, t := range targets {
+						if utils.StringIn(m.BreathWeapon, []string{"fire", "air", "earth", "water"}) {
+							t.RunHook("attacked")
+							t.ReceiveMagicDamage(damageTotal, m.BreathWeapon)
+							t.Write([]byte("You take " + strconv.Itoa(damageTotal) + " damage from the " + m.BreathWeapon + " breath.\n"))
+							t.DeathCheck("was slain by a " + m.Name + ".")
+						} else if m.BreathWeapon == "paralytic" {
+							t.Write([]byte(text.Gray + m.Name + " breathes paralytic gas on to you.\n"))
+							target.SetTimer("global", 24)
+						} else if m.BreathWeapon == "pestilence" {
+							t.Write([]byte(text.Gray + m.Name + " breathes infectious gas on to you.\n"))
+							Effects["disease"](m, target, m.Level)
+						}
+					}
+					return
+				}
+			}
+
 			if m.CurrentTarget != "" && m.ChanceCast > 0 &&
 				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) >= 1) {
 				// Try to cast a spell first
@@ -304,8 +336,6 @@ func (m *Mob) Tick() {
 						if !ok {
 							spellSelected = false
 						}
-						// TODO: Humanoid/Can Talk Check?
-						// Rooms[m.ParentId].MessageAll(m.Name + " chants: " + spellInstance.Chant + "\n")
 						Rooms[m.ParentId].MessageAll(m.Name + " casts a " + spellInstance.Name + " spell on " + target.Name + "\n")
 						target.RunHook("attacked")
 						m.Mana.Subtract(spellInstance.Cost)
@@ -319,11 +349,40 @@ func (m *Mob) Tick() {
 				}
 			}
 
+			// Calculate Vital/Crit/Double
+			multiplier := float64(1)
+			vitalStrike := false
+			critRoll := utils.Roll(100, 1, 0)
+			if critRoll <= config.MobVital {
+				vitalStrike = true
+			} else if critRoll <= config.MobCritical {
+				multiplier = 4
+			} else if critRoll <= config.MobDouble {
+				multiplier = 2
+			}
+
 			if m.CurrentTarget != "" && m.Flags["ranged_attack"] &&
 				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) >= 1) {
 				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
+				missChance := 0
+				lvlDiff := target.Tier - m.Level
+				if lvlDiff >= 1 {
+					missChance += lvlDiff * config.MissPerLevel
+				}
+				if utils.Roll(100, 1, 0) <= missChance {
+					target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset))
+					return
+				}
 				// If we made it here, default out and do a range hit.
-				stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
+				stamDamage := 0
+				vitDamage := 0
+				if vitalStrike {
+					vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()) * multiplier)))
+					target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
+				} else {
+					stamDamage, vitDamage = target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()) * multiplier)))
+				}
+
 				buildString := ""
 				if stamDamage != 0 {
 					buildString += strconv.Itoa(stamDamage) + " stamina"
@@ -357,8 +416,18 @@ func (m *Mob) Tick() {
 				// Next to attack
 			} else if m.CurrentTarget != "" &&
 				m.Placement == Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement {
+				// Check to see if the mob misses:
 				// Am I against a fighter and they succeed in a parry roll?
 				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
+				missChance := 0
+				lvlDiff := target.Tier - m.Level
+				if lvlDiff >= 1 {
+					missChance += lvlDiff * config.MissPerLevel
+				}
+				if utils.Roll(100, 1, 0) <= missChance {
+					target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset))
+					return
+				}
 				target.RunHook("attacked")
 				m.CheckForExtraAttack(target)
 				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(config.WeaponLevel(target.Skills[target.Equipment.Main.ItemType].Value, target.Class)) {
@@ -384,7 +453,14 @@ func (m *Mob) Tick() {
 						m.Stun(config.ParryStuns * 8)
 					}
 				} else {
-					stamDamage, vitDamage := target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()))))
+					stamDamage := 0
+					vitDamage := 0
+					if vitalStrike {
+						vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()) * multiplier)))
+						target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
+					} else {
+						stamDamage, vitDamage = target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()) * multiplier)))
+					}
 					buildString := ""
 					if stamDamage != 0 {
 						buildString += strconv.Itoa(stamDamage) + " stamina"
@@ -465,8 +541,17 @@ func (m *Mob) Follow(params []string) {
 				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name)
 				previousRoom := m.ParentId
 				Rooms[m.ParentId].Mobs.Remove(m)
-				//TODO Calculate Vital?
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
+				if utils.Roll(100, 1, 0) <= config.MobFollowVital {
+					vitDamage := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()))))
+					if vitDamage == 0 {
+						targetChar.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset))
+					} else {
+						targetChar.Write([]byte(text.Red + "Vital Strike!!!!\n" + text.Reset))
+						targetChar.Write([]byte(text.Red + m.Name + " attacks you for " + strconv.Itoa(vitDamage) + " points of vital damage!" + "\n" + text.Reset))
+					}
+					targetChar.DeathCheck("was slain by a " + m.Name + ".")
+				}
 				m.CurrentTarget = targetChar.Name
 				Rooms[previousRoom].Chars.Unlock()
 				Rooms[previousRoom].Mobs.Unlock()

@@ -39,7 +39,6 @@ var Effects = map[string]func(caller interface{}, target interface{}, magnitude 
 	"detect-invisible": detectInvisible,
 	"teleport":         teleport,
 	"stun":             stun,
-	"enchant":          enchant,
 	"recall":           recall,
 	"summon":           summon,
 	"wizard-walk":      wizardwalk,
@@ -280,13 +279,6 @@ func restore(caller interface{}, target interface{}, magnitude int) string {
 	if caller == target {
 		return "You can only cast this spell on others."
 	}
-	/*TODO: Restore this after class props are implemented
-	switch caller := caller.(type) {
-
-	case *Character:
-		caller.ClassProps["restore"] -= 1
-	}
-	*/
 	switch target := target.(type) {
 	case *Character:
 		target.Mana.Current = target.Mana.Max
@@ -1102,5 +1094,3 @@ func removecurse(caller interface{}, target interface{}, magnitude int) string {
 	//TODO: Remove Curse?
 	return ""
 }
-
-func enchant(caller interface{}, target interface{}, magnitude int) string { return "" }

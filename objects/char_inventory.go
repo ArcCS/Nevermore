@@ -164,6 +164,24 @@ func (i *CharInventory) ListChars(observer *Character) []*Character {
 	return items
 }
 
+// ListChars the items in this CharInventory
+func (i *CharInventory) ListHiddenChars(observer *Character) []*Character {
+	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	items := make([]*Character, 0)
+
+	for _, c := range i.Contents {
+		// List all
+		if strings.ToLower(c.Name) != strings.ToLower(observer.Name) {
+			if c.CheckFlag("hidden") && !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				if !c.CheckFlag("invisible") || observer.CheckFlag("detect-invisible") {
+					items = append(items, c)
+				}
+			}
+		}
+	}
+	return items
+}
+
 // MobList lists characters for a mobs point of view
 func (i *CharInventory) MobList(observer *Mob) []string {
 	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing

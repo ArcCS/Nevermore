@@ -19,6 +19,11 @@ func init() {
 type cast cmd
 
 func (cast) process(s *state) {
+	if s.actor.CheckFlag("blind") {
+		s.msg.Actor.SendBad("You can't see anything to cast a spell!!")
+		return
+	}
+
 	if len(s.words) < 1 {
 		s.msg.Actor.SendInfo("What do you want to cast?")
 		return
@@ -137,6 +142,24 @@ func (cast) process(s *state) {
 					s.msg.Actor.SendBad("No PVP implemented yet. ")
 					s.ok = true
 					return
+				}
+				if spellInstance.Name == "heal" {
+					if s.actor.ClassProps["heals"] <= 0 {
+						s.msg.Actor.SendBad("You cannot cast heal anymore today.")
+						s.ok = true
+						return
+					} else {
+						s.actor.ClassProps["heals"]--
+					}
+				}
+				if spellInstance.Name == "restore" {
+					if s.actor.ClassProps["restores"] <= 0 {
+						s.msg.Actor.SendBad("You cannot cast restore anymore today.")
+						s.ok = true
+						return
+					} else {
+						s.actor.ClassProps["restore"]--
+					}
 				}
 				msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
 				s.actor.Mana.Subtract(cost)

@@ -26,6 +26,11 @@ func (kill) process(s *state) {
 		return
 	}
 
+	if s.actor.CheckFlag("blind") {
+		s.msg.Actor.SendBad("You can't see anything!")
+		return
+	}
+
 	if s.actor.Stam.Current <= 0 {
 		s.msg.Actor.SendBad("You are far too tired to do that.")
 		return
@@ -148,18 +153,22 @@ func (kill) process(s *state) {
 		}
 
 		// start executing the attacks
+		weaponDamage := 1
 		weapMsg := ""
 		alwaysCrit := false
 		if s.actor.Class != 8 {
 			alwaysCrit = s.actor.Equipment.Main.Flags["always_crit"]
 		}
 		for _, mult := range attacks {
-			// Lets try to crit:
-			//	TODO: Parry/Miss?
+			// Check for a miss
+			if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
+				s.msg.Actor.SendBad("You missed!!")
+				return
+			}
 			if config.RollCritical(skillLevel) || alwaysCrit {
 				mult *= float64(config.CombatModifiers["critical"])
 				s.msg.Actor.SendGood("Critical Strike!")
-				// TODO: Something something shattered weapons something or other
+				weaponDamage = 10
 			} else if config.RollDouble(skillLevel) {
 				mult *= float64(config.CombatModifiers["double"])
 				s.msg.Actor.SendGood("Double Damage!")
@@ -173,7 +182,7 @@ func (kill) process(s *state) {
 		}
 		DeathCheck(s, whatMob)
 		if s.actor.Class != 8 {
-			weapMsg = s.actor.Equipment.DamageWeapon("main", 1)
+			weapMsg = s.actor.Equipment.DamageWeapon("main", weaponDamage)
 			if weapMsg != "" {
 				s.msg.Actor.SendInfo(weapMsg)
 			}
@@ -237,4 +246,16 @@ func DeathCheck(s *state, m *objects.Mob) {
 
 		s.where.Mobs.Remove(m)
 	}
+}
+
+// Determine Miss Chance based on weapon Skills
+func DetermineMissChance(s *state, lvlDiff int) int {
+	missChance := config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
+	if lvlDiff >= 1 {
+		missChance += lvlDiff * config.MissPerLevel
+	}
+	if missChance >= 100 {
+		missChance = 95
+	}
+	return missChance
 }

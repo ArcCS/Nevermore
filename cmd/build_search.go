@@ -11,7 +11,7 @@ import (
 func init() {
 	addHandler(find{},
 		"Usage:  find (room|mob|item) name|desc|maxdam|range (text) (page #) \n \n Use this command to search the database and find a list of matching items \n Items can also be replace name or desc with maxdam example: \n find item maxdam 25 \n To find a weapon with a maximum damage associated with it. \n Mobs/Items can also be replace name or desc with range example: \n find item range 225-250 \n To find all mobs in a specific id range. ",
-		permissions.Player,
+		permissions.Builder,
 		"find")
 }
 
@@ -86,7 +86,7 @@ func (find) process(s *state) {
 			s.actor.AddCommands("more", "find mob desc "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
 		} else if searchType == "range" {
-			if !strings.Contains(searchText, "-"){
+			if !strings.Contains(searchText, "-") {
 				s.msg.Actor.SendBad("Dash in range not optional, examples: 250-280 3000-3500")
 				return
 			}
@@ -148,8 +148,8 @@ func (find) process(s *state) {
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
 			s.actor.AddCommands("more", "find item range "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
-		}else if searchType == "range" {
-			if !strings.Contains(searchText, "-"){
+		} else if searchType == "range" {
+			if !strings.Contains(searchText, "-") {
 				s.msg.Actor.SendBad("Dash in range not optional, examples: 250-280 3000-3500")
 				return
 			}
