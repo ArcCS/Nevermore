@@ -31,9 +31,9 @@ func init() {
 	StartingGear[1] = []int{227, 3615}
 	StartingGear[2] = []int{2628, 3615}
 	StartingGear[3] = []int{665, 3615}
-	StartingGear[4] = []int{665, 1180, 3343, 3615, 2287}
-	StartingGear[5] = []int{227, 1179, 242, 3615, 2287}
-	StartingGear[6] = []int{129, 1179, 3615, 2287}
+	StartingGear[4] = []int{665, 1180, 3343, 3615}
+	StartingGear[5] = []int{227, 1179, 242, 3615}
+	StartingGear[6] = []int{129, 1179, 3615}
 	StartingGear[7] = []int{665, 129, 1179, 3615, 3430, 3848, 3398}
 	StartingGear[8] = []int{3343, 3615}
 }
