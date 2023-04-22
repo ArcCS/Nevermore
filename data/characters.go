@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"strings"
+	"time"
 )
 
 // LoadChar Retrieve character information
@@ -59,6 +60,7 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"spells: a.spells, "+
 		"equipment: a.equipment, "+
 		"inventory: a.inventory, "+
+		"lastrefresh: a.lastrefresh, "+
 		"effects: a.effects, "+
 		"timers: a.timers, "+
 		"oocswap: a.oocswap, "+
@@ -131,6 +133,7 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.inventory = '[]',"+
 			"a.experience = 0, "+
 			"a.invisible = 0, "+
+			"a.lastrefresh = $lastrefresh, "+
 			"a.darkvision = $darkvision, "+
 			"a.effects = '[]', "+
 			"a.timers = '[]', "+
@@ -152,6 +155,7 @@ func CreateChar(charData map[string]interface{}) bool {
 			"birth_date":  charData["birthdate"],
 			"birth_year":  charData["birthyear"],
 			"birth_month": charData["birthmonth"],
+			"lastrefresh": time.Now().String(),
 			"darkvision":  utils.Btoi(charData["darkvision"].(bool)),
 			"curr_mana":   config.CalcMana(1, charData["con"].(int), charData["class"].(int)),
 			"curr_vit":    config.CalcHealth(1, charData["intel"].(int), charData["class"].(int)),
@@ -221,6 +225,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.inventory = $inventory,"+
 			"a.effects = $effects, "+
 			"a.timers = $timers, "+
+			"a.lastrefresh = $lastrefresh, "+
 			"a.oocswap = $oocswap, "+
 			"a.ooc = $ooc, "+
 			"a.experience = $experience",
@@ -258,6 +263,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"equipment":   charData["equipment"],
 			"inventory":   charData["inventory"],
 			"effects":     charData["effects"],
+			"lastrefresh": charData["lastrefresh"],
 			"timers":      charData["timers"],
 			"oocswap":     charData["oocswap"],
 			"ooc":         charData["ooc"],

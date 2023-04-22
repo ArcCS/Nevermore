@@ -77,7 +77,7 @@ func (steal) process(s *state) {
 		}
 	}
 
-	//TODO: Steal from players inventory if PvP flag is set
+	// TODO: Steal from players inventory if PvP flag is set
 
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(targetStr, targetNum, s.actor)

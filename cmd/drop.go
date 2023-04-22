@@ -42,6 +42,11 @@ func (drop) process(s *state) {
 		return
 	}
 
+	if target.Flags["permament"] {
+		s.msg.Actor.SendBad("You cannot drop this item.. it is bound to you.")
+		return
+	}
+
 	s.actor.RunHook("act")
 	where := s.where.Items
 

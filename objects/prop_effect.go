@@ -19,7 +19,9 @@ type Effect struct {
 }
 
 func (s *Effect) AlterTime(duration float64) {
-	s.length = time.Duration(duration) * time.Minute
+	//log.Println("AlterTime: ", duration)
+	s.length = time.Duration(duration * float64(time.Second))
+	//log.Println("AlterTime Post Alter: ", s.length)
 }
 
 func (s *Effect) ExtendDuration(duration float64) {
@@ -53,7 +55,7 @@ func (s *Effect) Reset(t time.Duration) {
 
 func (s *Effect) TimeRemaining() float64 {
 	calc := s.length - (time.Now().Sub(s.startTime))
-	return calc.Minutes()
+	return calc.Seconds()
 }
 
 func (s *Effect) LastTriggerInterval() int {

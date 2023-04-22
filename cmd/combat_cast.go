@@ -58,6 +58,19 @@ func (cast) process(s *state) {
 		return
 	}
 
+	if s.actor.GetStat("int") < config.IntMinCast {
+		s.msg.Actor.SendBad("You simply do not have the mental capacity to cast spells.")
+		return
+	}
+
+	if s.actor.GetStat("int") < config.IntNoFizzle {
+		if utils.Roll(100, 1, 0) <= config.FizzleSave {
+			s.msg.Actor.SendBad("You attempt to cast the spell, but it fizzles out.")
+			s.actor.Mana.Current -= cost
+			return
+		}
+	}
+
 	if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		if minLevel, ok := spellInstance.Classes[config.AvailableClasses[s.actor.Class]]; !ok {
 			s.msg.Actor.SendBad("The comprehension of this spell is beyond you.")

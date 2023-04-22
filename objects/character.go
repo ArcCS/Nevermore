@@ -20,8 +20,7 @@ type Character struct {
 	Object
 	io.Writer
 	PromptStyle
-	CharId int
-	// Our stuff!
+	CharId     int
 	Equipment  *Equipment
 	Inventory  *ItemInventory
 	Permission permissions.Permissions
@@ -88,6 +87,7 @@ type Character struct {
 	SongTicker       *time.Ticker
 	SongTickerUnload chan bool
 	Hooks            map[string]map[string]*Hook
+	LastRefresh      time.Time
 	LastAction       time.Time
 	LoginTime        time.Time
 	//Party Stuff
@@ -100,6 +100,7 @@ type Character struct {
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 	charData, err := data.LoadChar(charName)
+	lastRefresh, _ := time.Parse(time.RFC3339, charData["lastrefresh"].(string))
 	if err {
 		return nil, true
 	} else {
@@ -178,6 +179,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				"use":      make(map[string]*Hook),
 				"attacked": make(map[string]*Hook),
 			},
+			lastRefresh,
 			time.Now(),
 			time.Now(),
 			nil,
@@ -205,6 +207,13 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 		if FilledCharacter.Class >= 99 {
 			FilledCharacter.Flags["hidden"] = true
 			FilledCharacter.Flags["invisible"] = true
+		}
+
+		// Refresh or not to refresh on load?
+		if time.Since(lastRefresh) > 24*time.Hour {
+			log.Println("refreshing character..")
+			FilledCharacter.Refresh()
+			FilledCharacter.LastRefresh = lastRefresh
 		}
 
 		FilledCharacter.CharTicker = time.NewTicker(8 * time.Second)
@@ -404,6 +413,7 @@ func (c *Character) SerialSaveEffects() string {
 func (c *Character) SerialRestoreEffects(effectsBlob string) {
 	obj := make(map[string]map[string]interface{}, 0)
 	err := json.Unmarshal([]byte(effectsBlob), &obj)
+	log.Println(obj)
 	if err != nil {
 		return
 	}
@@ -423,10 +433,10 @@ func (c *Character) PurgeEffects() {
 
 // SerialSaveTimers serializes all current user timers
 func (c *Character) SerialSaveTimers() string {
-	timerList := make(map[string]int)
+	timerList := make(map[string]float64)
 
 	for efN, effect := range c.Timers {
-		timerList[efN] = int(math.Ceil(effect.Sub(time.Now()).Seconds()))
+		timerList[efN] = math.Ceil(effect.Sub(time.Now()).Seconds())
 	}
 
 	data, err := json.Marshal(timerList)
@@ -525,6 +535,7 @@ func (c *Character) Save() {
 	charData["inventory"] = c.Inventory.Jsonify()
 	charData["effects"] = c.SerialSaveEffects()
 	charData["timers"] = c.SerialSaveTimers()
+	charData["lastrefresh"] = c.LastRefresh.String()
 	charData["oocswap"] = c.OOCSwap
 	charData["ooc"] = utils.Btoi(c.Flags["ooc"])
 	data.SaveChar(charData)
@@ -716,7 +727,7 @@ func (c *Character) AdvanceElementalExp(amount int) {
 // ReceiveDamage Return stam and vital damage
 func (c *Character) ReceiveDamage(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
-	resist := int(math.Ceil(float64(damage) * (float64(c.GetStat("armor")/config.ArmorReductionPoints) * config.ArmorReduction)))
+	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
@@ -861,8 +872,8 @@ func (c *Character) InflictDamage() (damage int) {
 			c.Equipment.Main.NumDice,
 			c.Equipment.Main.PlusDice)
 	} else {
-		plusDamage := config.MaxWeaponDamage[c.Tier] / 4
-		// Lets uses dex to determine dice. more dex = more dice = higher lower damage threshold
+		plusDamage := config.MaxWeaponDamage[c.Tier] / 3
+		// Lets use dex to determine dice. more dex = more dice = higher lower damage threshold
 		nDice := int(math.Floor(config.MonkDexPerDice * float64(c.GetStat("dex"))))
 		sDice := (plusDamage * 3) / nDice
 		damage = utils.Roll(int(sDice), int(nDice), int(plusDamage))
@@ -888,6 +899,14 @@ func (c *Character) MaxWeight() int {
 
 func (c *Character) Refresh() {
 	//TODO: Add refresh for heals/broadcast/enchants
+	c.Broadcasts = config.BaseBroads + (c.GetStat("int") * config.IntBroad)
+	c.Evals = config.BaseEvals + (int(math.Ceil(float64(c.GetStat("int")) / float64(config.IntEvalDivInt))))
+	if c.Class == 4 {
+		c.ClassProps["enchants"] = 3
+	}
+	if c.Class == 5 || c.Class == 6 {
+		c.ClassProps["heals"] = 5
+	}
 }
 
 func (c *Character) WriteMovement(previous int, new int, subject string) {

@@ -67,6 +67,11 @@ func (give) process(s *state) {
 		return
 	}
 
+	if target.Flags["permament"] {
+		s.msg.Actor.SendBad("You cannot get rid of this item.. it is bound to you.")
+		return
+	}
+
 	if (who.GetCurrentWeight() + target.GetWeight()) <= who.MaxWeight() {
 		s.actor.RunHook("act")
 		s.actor.Inventory.Lock()

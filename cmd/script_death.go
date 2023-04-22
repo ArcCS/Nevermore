@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
+	"strconv"
 	"strings"
 )
 
@@ -68,6 +69,14 @@ func (scriptDeath) process(s *state) {
 					newItem.Storage.Add(item)
 				}
 			}
+		}
+		if s.actor.Gold.Value > 0 {
+			newGold := objects.Item{}
+			copier.CopyWithOption(&newGold, objects.Items[3456], copier.Option{DeepCopy: true})
+			newGold.Name = strconv.Itoa(s.actor.Gold.Value) + " gold marks"
+			newGold.Value = s.actor.Gold.Value
+			newItem.Storage.Add(&newGold)
+			s.actor.Gold.Value = 0
 		}
 		s.where.MessageAll("The lifeless body of " + s.actor.Name + " falls to the ground.\n\n" + text.Reset)
 		s.where.Items.Add(&newItem)

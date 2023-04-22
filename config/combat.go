@@ -20,6 +20,9 @@ var CombatModifiers = map[string]int{
 	"snipe":    8,
 }
 
+var BindCost = 75000
+var RenameCost = 150000
+
 // Thief & Ranger
 var PeekCD = 8
 var PeekFailCD = 32
@@ -105,10 +108,13 @@ var IntOffensiveMod = .01
 var IntManaPool = 2             // Number of points of mana to add
 var IntManaPoolDiv = 5          // Number to divide by
 var IntSpellEffectDuration = 30 // Seconds to add
-var IntBroadDaily = 1
-var IntEvalDaily = 1
-var IntEvalDailyDiv = 3
-var BaseEvals = 3
+var IntBroad = 1                // Number of broadcasts per int point
+var IntEvalDivInt = 3           //Divide int by this number to get eval
+var BaseEvals = 1
+var BaseBroads = 5
+var IntMinCast = 5
+var IntNoFizzle = 10
+var FizzleSave = 45
 
 // Piety Mods
 var PieRegenMod = .1 // Regen Mana per tick

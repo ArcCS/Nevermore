@@ -27,6 +27,8 @@ var ScriptList = map[string]string{
 	"$ECHO":       "Usage: $ECHO, sends a message to the actor using the command",
 	"$ECHOALL":    "Usage: $ECHOALL, sends a messae to the actor and everyone in the room",
 	"$TEACH":      "Usage: $TEACH, teaches a spell to the actor",
+	"$MELD":       "Usage: $MELD, melds 2 like items together",
+	"$SOULBIND":   "Usage: $SOULBIND, binds an item to a player",
 }
 
 func (scripts) process(s *state) {

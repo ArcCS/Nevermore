@@ -602,7 +602,7 @@ func (m *Mob) DropInventory() string {
 	if m.Gold > 0 {
 		newGold := Item{}
 		copier.CopyWithOption(&newGold, Items[3456], copier.Option{DeepCopy: true})
-		newGold.Name = strconv.Itoa(m.Gold) + " gold pieces"
+		newGold.Name = strconv.Itoa(m.Gold) + " gold marks"
 		newGold.Value = m.Gold
 		newGold.Placement = m.Placement
 		Rooms[m.ParentId].Items.Add(&newGold)

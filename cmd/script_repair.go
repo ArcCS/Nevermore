@@ -43,7 +43,8 @@ func (scriptRepair) process(s *state) {
 		if utils.IntIn(what.ItemType, config.ArmorTypes) || utils.IntIn(what.ItemType, config.WeaponTypes) {
 			// Calculate a cost of repair
 			// TODO: Replace this with a formula based on int, later with crafting/blacksmithing
-			cost := int(math.Round(3 * (float64(what.Value) * float64(objects.Items[what.ItemId].MaxUses/(objects.Items[what.ItemId].MaxUses-what.MaxUses)))))
+
+			cost := int(math.Round(float64(3) * (float64(what.Value)) * (float64(objects.Items[what.ItemId].MaxUses-what.MaxUses) / float64(objects.Items[what.ItemId].MaxUses))))
 			s.msg.Actor.SendInfo("The cost to repair this item will be " + strconv.Itoa(cost) + ".  Do you want to repair it? (Type yes to repair)")
 			s.actor.AddCommands("yes", "$CONFIRMREPAIR "+targetStr+" "+strconv.Itoa(targetNum))
 		} else {
@@ -77,8 +78,7 @@ func (confirmRepair) process(s *state) {
 
 	if what != nil {
 		if utils.IntIn(what.ItemType, config.ArmorTypes) || utils.IntIn(what.ItemType, config.WeaponTypes) {
-			// TODO: Replace this with a formula based on int, later with crafting/blacksmithing
-			cost := int(math.Round(3 * (float64(what.Value) * float64(objects.Items[what.ItemId].MaxUses/(objects.Items[what.ItemId].MaxUses-what.MaxUses)))))
+			cost := int(math.Round(float64(3) * (float64(what.Value)) * (float64(objects.Items[what.ItemId].MaxUses-what.MaxUses) / float64(objects.Items[what.ItemId].MaxUses))))
 			if s.actor.Gold.CanSubtract(cost) {
 				s.actor.Gold.Subtract(cost)
 				what.MaxUses = objects.Items[what.ItemId].MaxUses

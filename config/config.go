@@ -36,7 +36,7 @@ var Server = struct {
 	Port:              "4001",
 	Greeting:          []byte("Welcome to Aalynor's Nexus."),
 	Motd:              "",
-	IdleTimeout:       5 * time.Minute,
+	IdleTimeout:       10 * time.Minute,
 	AFKTimeout:        30 * time.Minute,
 	OOCTimeout:        15 * time.Minute,
 	MaxPlayers:        1024,
