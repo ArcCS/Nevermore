@@ -13,7 +13,7 @@ func init() {
 	addHandler(destroy{},
 		"Usage:  destroy (room|mob|item|exit) ID/name) \n \n Delete the item entirely from the database.  If this is a builder account, you must be the creator of the item to delete.  If you delete a room, it will delete the exits to and from it; be mindful and grab id's or tunnel around prior to deletion.",
 		permissions.Builder,
-		"destroy", "delete", "del")
+		"destroy")
 }
 
 type destroy cmd

@@ -30,11 +30,6 @@ How to Run Locally:
   ```
   
 
-Test Data
-  Coming soon
-
-Code Interactions and Layout:
-  Coming Soon
-
 # Credits
-The original codebase and licenses are in tact for the original fork from WolfMUD https://www.wolfmud.org/ by Andrew 'Diddymus' Rolfe
+The original licenses are in tact for the original fork from WolfMUD https://www.wolfmud.org/ by Andrew 'Diddymus' Rolfe, code has been heavily modified over the past several years, but I owe the start to WolfMud
+
