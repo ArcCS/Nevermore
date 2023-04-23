@@ -79,6 +79,12 @@ func (i *Item) GetWeight() int {
 
 func (i *Item) Look() string {
 	resString := i.Description + "\n\n"
+	if utils.IntIn(i.ItemType, config.WeaponTypes) {
+		resString = "It is a " + config.ItemTypes[i.ItemType] + " weapon \n" + resString
+	}
+	if utils.IntIn(i.ItemType, config.ArmorTypes) {
+		resString = "It is a " + config.ItemTypes[i.ItemType] + " armor \n" + resString
+	}
 	if i.ItemType == 9 {
 		items := i.Storage.ReducedList()
 		if len(items) > 0 {

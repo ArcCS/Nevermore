@@ -66,7 +66,12 @@ func (enchant) process(s *state) {
 	s.actor.ClassProps["enchants"]--
 	target.Flags["magic"] = true
 	if utils.IntIn(target.ItemType, config.ArmorTypes) {
-		target.Armor += DetermineEnchant(s.actor.Tier)
+		if target.ItemType == 24 {
+			target.Flags["light"] = true
+			s.msg.Actor.SendGood("The ", target.Name, " glows brightly.")
+		} else {
+			target.Armor += DetermineEnchant(s.actor.Tier)
+		}
 	}
 	if utils.IntIn(target.ItemType, config.WeaponTypes) {
 		target.Adjustment += DetermineEnchant(s.actor.Tier)

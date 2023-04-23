@@ -9,7 +9,6 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"io"
-	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -100,7 +99,6 @@ type Character struct {
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 	charData, err := data.LoadChar(charName)
 	lastRefresh, _ := time.Parse(time.RFC3339, charData["lastrefresh"].(string))
-	log.Println("Last Refresh: ", lastRefresh)
 	if err {
 		return nil, true
 	} else {
@@ -752,7 +750,6 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
 	}
-	log.Println(c.Name + " receives " + strconv.Itoa(damage) + " and resists " + strconv.Itoa(resist))
 	finalDamage := damage - resist
 	if finalDamage > c.Stam.Current {
 		stamDamage = c.Stam.Current

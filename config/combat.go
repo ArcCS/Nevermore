@@ -86,7 +86,7 @@ var ParryStuns = 2
 var CircleStuns = 1
 var CircleTimer = 30
 var BashStuns = 16
-var BashTimer = 30
+var BashTimer = 45
 
 // Mob Things
 var MobBlock = 25

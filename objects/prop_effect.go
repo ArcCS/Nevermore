@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"log"
 	"strconv"
 	"time"
 )
@@ -19,9 +18,7 @@ type Effect struct {
 }
 
 func (s *Effect) AlterTime(duration float64) {
-	//log.Println("AlterTime: ", duration)
 	s.length = time.Duration(duration * float64(time.Second))
-	//log.Println("AlterTime Post Alter: ", s.length)
 }
 
 func (s *Effect) ExtendDuration(duration float64) {
@@ -61,7 +58,6 @@ func (s *Effect) TimeRemaining() float64 {
 func (s *Effect) LastTriggerInterval() int {
 	lTrigger := time.Now().Sub(s.lastTrigger)
 	calc := s.interval - int(lTrigger.Seconds())
-	log.Println("Last Trigger Interval: ", calc, " last trigger: ", s.lastTrigger.String(), " interval: ", s.interval)
 	return calc
 }
 

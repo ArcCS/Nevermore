@@ -98,6 +98,12 @@ func (kill) process(s *state) {
 			} else if s.actor.Equipment.Main.ItemType == 4 && (s.actor.Placement == whatMob.Placement) {
 				s.msg.Actor.SendBad("You are too close to attack.")
 				return
+			} else if s.actor.Equipment.Main.ItemType == 3 && (s.actor.Placement == whatMob.Placement) {
+				s.msg.Actor.SendBad("You are too close to attack.")
+				return
+			} else if s.actor.Equipment.Main.ItemType == 4 && (int(math.Abs(float64(s.actor.Placement-whatMob.Placement))) > 1) {
+				s.msg.Actor.SendBad("You are too far away to attack.")
+				return
 			}
 		} else {
 			if s.actor.Placement != whatMob.Placement {
@@ -163,22 +169,21 @@ func (kill) process(s *state) {
 			// Check for a miss
 			if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
 				s.msg.Actor.SendBad("You missed!!")
-				return
+			} else {
+				if config.RollCritical(skillLevel) || alwaysCrit {
+					mult *= float64(config.CombatModifiers["critical"])
+					s.msg.Actor.SendGood("Critical Strike!")
+					weaponDamage = 10
+				} else if config.RollDouble(skillLevel) {
+					mult *= float64(config.CombatModifiers["double"])
+					s.msg.Actor.SendGood("Double Damage!")
+				}
+				actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
+				whatMob.AddThreatDamage(actualDamage, s.actor)
+				log.Println(strconv.Itoa(whatMob.Stam.Max))
+				s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
+				s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			}
-			if config.RollCritical(skillLevel) || alwaysCrit {
-				mult *= float64(config.CombatModifiers["critical"])
-				s.msg.Actor.SendGood("Critical Strike!")
-				weaponDamage = 10
-			} else if config.RollDouble(skillLevel) {
-				mult *= float64(config.CombatModifiers["double"])
-				s.msg.Actor.SendGood("Double Damage!")
-			}
-			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
-			whatMob.AddThreatDamage(actualDamage, s.actor)
-			log.Println(strconv.Itoa(whatMob.Stam.Max))
-			s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
-			s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
-
 		}
 		DeathCheck(s, whatMob)
 		if s.actor.Class != 8 {
