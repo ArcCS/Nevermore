@@ -19,7 +19,7 @@ func init() {
 type suicide cmd
 
 func (suicide) process(s *state) {
-	s.msg.Actor.SendGood("Oh jeeze; are you sure you want to do this?  This action cannot be undone, and your character cannot be restored. \n In order to complete this action you must type \"DELETE" + s.actor.Name + "\" (without quotes)")
+	s.msg.Actor.SendGood("Oh jeeze; are you sure you want to do this?  This action cannot be undone, and your character cannot be restored. \n In order to complete this action you must type \"DELETE" + s.actor.Name + "\" (without quotes, and no space between DELETE and your character name)")
 	s.actor.AddCommands("DELETE"+s.actor.Name, "$confirm_suicide")
 	s.ok = true
 }
@@ -27,7 +27,7 @@ func (suicide) process(s *state) {
 type suicideConfirm cmd
 
 func (suicideConfirm) process(s *state) {
-	s.msg.Observers.SendInfo(s.actor.Name, " falls to the ground dead and vanishes complete.")
+	s.msg.Observers.SendInfo(s.actor.Name, " falls to the ground dead and vanishes completely.")
 	s.msg.Actor.SendGood("As the life drains from you, the world fades and goes dark")
 	data.DeleteChar(s.actor.Name)
 	s.scriptActor("quit")

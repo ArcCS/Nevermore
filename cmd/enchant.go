@@ -70,18 +70,18 @@ func (enchant) process(s *state) {
 			target.Flags["light"] = true
 			s.msg.Actor.SendGood("The ", target.Name, " glows brightly.")
 		} else {
-			target.Armor += DetermineEnchant(s.actor.Tier)
+			target.Armor += DetermineArmorEnchant(s.actor.Tier)
 		}
 	}
 	if utils.IntIn(target.ItemType, config.WeaponTypes) {
-		target.Adjustment += DetermineEnchant(s.actor.Tier)
+		target.Adjustment += DetermineWeaponEnchant(s.actor.Tier)
 	}
 	s.actor.Inventory.Unlock()
 	s.msg.Actor.SendGood("You enchanted ", target.Name, ".")
 	s.ok = true
 }
 
-func DetermineEnchant(tier int) int {
+func DetermineWeaponEnchant(tier int) int {
 	switch {
 	case tier < 5:
 		return 2
@@ -95,5 +95,22 @@ func DetermineEnchant(tier int) int {
 		return 6
 	default:
 		return 2
+	}
+}
+
+func DetermineArmorEnchant(tier int) int {
+	switch {
+	case tier < 5:
+		return 1
+	case tier < 10:
+		return 2
+	case tier < 15:
+		return 3
+	case tier < 20:
+		return 4
+	case tier < 25:
+		return 5
+	default:
+		return 1
 	}
 }

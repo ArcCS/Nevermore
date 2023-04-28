@@ -246,6 +246,10 @@ func (m *Mob) Tick() {
 				if Rooms[m.ParentId].Chars.SearchAll(m.CurrentTarget) == nil {
 					m.CurrentTarget = ""
 				}
+				if Rooms[m.ParentId].Chars.SearchAll(m.CurrentTarget).ParentId != m.ParentId {
+					// We shouldn't be able to see them at all, what's going on here?
+					m.CurrentTarget = ""
+				}
 			}
 
 			// Do I want to change targets? 33% chance if the current target isn't the highest on the threat table
@@ -508,6 +512,10 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 		}
 	}
 	if m.Flags["spits_acid"] {
+		if target.CheckFlag("resilient-aura") {
+			target.Write([]byte(text.Red + m.Name + " spits acid on you, but your aura protects your gear!" + "\n" + text.Reset))
+			return
+		}
 		if utils.Roll(100, 1, 0) > 50 {
 			target.Write([]byte(text.Red + m.Name + " spits acid on you, damaging your armor !" + "\n" + text.Reset))
 			msg := target.Equipment.DamageRandomArmor()
@@ -817,20 +825,24 @@ func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {
 
 	switch element {
 	case "fire":
+		resisting = float64(m.FireResistance) / 100
 		if m.CheckFlag("resist_fire") {
-			resisting = .25
+			resisting += .25
 		}
 	case "air":
+		resisting = float64(m.AirResistance) / 100
 		if m.CheckFlag("resist_air") {
-			resisting = .25
+			resisting += .25
 		}
 	case "earth":
+		resisting = float64(m.EarthResistance) / 100
 		if m.CheckFlag("resist_earth") {
-			resisting = .25
+			resisting += .25
 		}
 	case "water":
+		resisting = float64(m.WaterResistance) / 100
 		if m.CheckFlag("resist_water") {
-			resisting = .25
+			resisting += .25
 		}
 	}
 	if resisting > 0 {

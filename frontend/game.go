@@ -12,7 +12,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/jinzhu/copier"
-	"strings"
 )
 
 // game embeds a frontend instance adding fields and methods specific to
@@ -78,7 +77,7 @@ func (g *game) gameInit() {
 // restored - see gameInit.
 func (g *game) gameProcess() {
 	c := cmd.Parse(g.character, string(g.input))
-	if c == "QUIT" || c == strings.ToUpper("DELETE"+g.GetCharacter().Name) {
+	if c == "QUIT" {
 		g.character.Unload()
 		g.character = nil
 		g.buf = message.AcquireBuffer()

@@ -21,39 +21,39 @@ type skills cmd
 
 func (skills) process(s *state) {
 	skill_header :=
-`Skill                Level of Mastery (Experience/NextLevel)
+		`Skill                Level of Mastery (Experience/NextLevel)
 -----------------------------------------------------------------
 `
-standard_skills :=
-`Sharp Weapons        {{.Sharp}} ({{.SharpTotal}}/{{.SharpNext}})
+	standard_skills :=
+		`Sharp Weapons        {{.Sharp}} ({{.SharpTotal}}/{{.SharpNext}})
 Thrust Weapons       {{.Thrust}} ({{.ThrustTotal}}/{{.ThrustNext}})
 Blunt Weapons        {{.Blunt}} ({{.BluntTotal}}/{{.BluntNext}})
 Pole Weapons         {{.Pole}} ({{.PoleTotal}}/{{.PoleNext}})
 Missile Weapons      {{.Missile}} ({{.MissileTotal}}/{{.MissileNext}})
 `
 
-monk_skills :=
-`hand-to-hand combat  {{.Unarmed}}    {{.UnarmedTotal}}/{{.UnarmedNext}}`
+	monk_skills :=
+		`Hand-to-Hand combat  {{.Unarmed}}    {{.UnarmedTotal}}/{{.UnarmedNext}}`
 
 	data := struct {
-		Sharp   string
-		Thrust  string
-		Blunt   string
-		Pole    string
-		Missile string
-		Unarmed string
-		SharpTotal string
-		SharpNext string
-		ThrustTotal string
-		ThrustNext string
-		BluntTotal string
-		BluntNext string
-		PoleTotal string
-		PoleNext string
+		Sharp        string
+		Thrust       string
+		Blunt        string
+		Pole         string
+		Missile      string
+		Unarmed      string
+		SharpTotal   string
+		SharpNext    string
+		ThrustTotal  string
+		ThrustNext   string
+		BluntTotal   string
+		BluntNext    string
+		PoleTotal    string
+		PoleNext     string
 		MissileTotal string
-		MissileNext string
+		MissileNext  string
 		UnarmedTotal string
-		UnarmedNext string
+		UnarmedNext  string
 	}{
 		config.WeaponExpTitle(s.actor.Skills[0].Value, s.actor.Class),
 		config.WeaponExpTitle(s.actor.Skills[1].Value, s.actor.Class),
@@ -77,7 +77,7 @@ monk_skills :=
 
 	if s.actor.Class == 8 {
 		skill_header += monk_skills
-	}else{
+	} else {
 		skill_header += standard_skills
 	}
 	tmpl, _ := template.New("stat_info").Parse(skill_header)

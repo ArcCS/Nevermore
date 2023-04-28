@@ -407,7 +407,7 @@ var Spells = map[string]Spell{
 		Effect:      "stun",
 		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "barbarian": 7, "fighter": 5, "monk": 3},
 	},
-	"word of recall": {
+	"word-of-recall": {
 		Description: "this spell, strictly in the realm of clerical magic, instantly transports the target to safety. to cast this spell, the cleric grips their holy symbol in one hand, while speaking the spell Chant. the cleric then need only point at the target, and they will be returned to the safest place in the nexus... the chamber of the order of the healing hand. while similar in effet to the spell, teleport, this spell functions entirely differently. when word-of-recall is cast, a manifestation of the cleric's deity (a ray of light for aalynor, an aura of black fire for tilnar, etc.) surrounds the target and safely transport the target, along with all carried equipment to the destination",
 		Cost:        25,
 		Chant:       "The gods rescue thee!",
@@ -534,7 +534,7 @@ var Spells = map[string]Spell{
 	},
 	"attraction": {
 		Name:        "attraction",
-		Description: "autumnfire's attraction, or attraction, was developed by the wizardress autumnfire in an attempt to gain more experience. the spell causes a tiny, annoying sprite to appear, and to wander about the area, taunting, until it flushes out a creature. the direct benefit of this is that, under normal circumstances, casting the attraction spell causes one native monster to appear. unfortunately, sprites are not the most reliable of creatures, and, as such, this spell is subject to a few quirks. the sprites are known to sometimes rebel, give up before completing their mission, or, worse of all, complete their mission too well, enraging several creatures. casters are advised to be careful in use of this spell. to cast this spell, the mage drums the fingers of their right hand on the air, as if bored, while speaking the spell Chant. when the spell Chant is done, the mage throws their right hand out, and the sprite appears at their fingertips. ",
+		Description: "autumnfire's attraction, or attraction, was developed by the wizardress autumnfire in an attempt to gain more experience. the spell causes a tiny, magical, annoying sprite to appear, and to wander about the area, taunting, until it flushes out a creature. the direct benefit of this is that, under normal circumstances, casting the attraction spell causes one native monster to appear.",
 		Cost:        15,
 		Chant:       "Sprite arrive, and bring excitement.",
 		Magnitude:   1,

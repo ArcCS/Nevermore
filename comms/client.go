@@ -95,6 +95,7 @@ func (c *client) process() {
 				log.Printf("%s: %s", err, debug.Stack())
 			}
 		}
+		log.Print("Ending game loop: ", c.RemoteAddr(), " for character: ", c.frontend.GetCharacter().Name)
 		c.close()
 	}()
 
@@ -108,7 +109,7 @@ func (c *client) process() {
 			in  []byte                                // Input string from buffer
 		)
 
-		//log.Printf("Starting game loop: %s", c.RemoteAddr())
+		log.Print("Starting game loop: ", c.RemoteAddr())
 		for c.Error() == nil {
 			if config.Server.Running == false {
 				_ = c.Close()

@@ -9,6 +9,7 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"io"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -94,6 +95,7 @@ type Character struct {
 	Victim         interface{}
 	Resist         bool
 	OOCSwap        int
+	LastTickLog    time.Time
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -185,6 +187,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			nil,
 			true,
 			int(charData["oocswap"].(int64)),
+			time.Now(),
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
@@ -569,7 +572,7 @@ func (c *Character) SetPromptStyle(new PromptStyle) (old PromptStyle) {
 func (c *Character) buildPrompt() []byte {
 	switch c.PromptStyle {
 	case StyleNone:
-		return []byte(text.Prompt + " > ")
+		return []byte(text.Prompt + "> ")
 	case StyleStat:
 		return []byte(text.Prompt +
 			strconv.Itoa(c.Stam.Current) + "|" +
@@ -638,6 +641,9 @@ const (
 )
 
 func (c *Character) Tick() {
+	if time.Now().Sub(c.LastTickLog) > 3*time.Minute {
+		log.Println("Character", c.Name, "tick log at every 3m, character thread still alive.")
+	}
 	if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
 		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod * 2)))
