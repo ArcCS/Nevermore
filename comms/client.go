@@ -95,7 +95,7 @@ func (c *client) process() {
 				log.Printf("%s: %s", err, debug.Stack())
 			}
 		}
-		log.Print("Ending game loop: ", c.RemoteAddr(), " for character: ", c.frontend.GetCharacter().Name)
+		log.Print("Ending game loop: ", c.RemoteAddr())
 		c.close()
 	}()
 
