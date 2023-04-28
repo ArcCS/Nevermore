@@ -642,8 +642,12 @@ const (
 
 func (c *Character) Tick() {
 	if time.Now().Sub(c.LastTickLog) > 3*time.Minute {
-		log.Println("Character", c.Name, "tick log at every 3m, character thread still alive.")
+		lastActivity := time.Now().Sub(c.LastAction).Minutes()
+		log.Println("Character", c.Name, "tick log at every 3m, character thread still alive. Last action was ", lastActivity, " ago.")
 		c.LastTickLog = time.Now()
+		if lastActivity > config.Server.IdleTimeout.Minutes()+5 {
+			Script(c, "quit")
+		}
 	}
 	if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))

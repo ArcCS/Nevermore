@@ -30,6 +30,7 @@ package frontend
 
 import (
 	"bytes"
+	"github.com/ArcCS/Nevermore/cmd"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"io"
@@ -116,9 +117,11 @@ func (f *frontend) Close() {
 	f.err = closedError{}
 
 	// If player is still in the game force them to quit
-	/*if stats.ActiveCharacters.Find(f.character) {
-		cmd.Parse(f.character, "QUIT")
-	}*/
+	if f.character != nil {
+		if objects.ActiveCharacters.Find(f.character.Name) != nil {
+			cmd.Parse(f.character, "QUIT")
+		}
+	}
 
 	// Remove account from inuse list
 	accounts.Lock()
