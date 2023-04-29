@@ -12,7 +12,7 @@ func init() {
 	addHandler(scriptMeld{},
 		"",
 		permissions.Player,
-		"$REPAIR")
+		"$MELD")
 	addHandler(confirmMeld{},
 		"",
 		permissions.Player,
