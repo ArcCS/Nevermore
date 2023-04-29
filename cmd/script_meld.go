@@ -67,7 +67,7 @@ func (scriptMeld) process(s *state) {
 				s.msg.Actor.SendBad("These items do not contain the same spell.")
 				return
 			}
-			cost := int(float64(target.Value+target.Value/2) + ((float64(meld.MaxUses) / float64(objects.Items[meld.ItemId].MaxUses)) * float64(objects.Items[meld.ParentItemId].Value)))
+			cost := int(float64(target.Value+target.Value/2) + ((float64(meld.MaxUses) / float64(objects.Items[meld.ItemId].MaxUses)) * float64(objects.Items[meld.ItemId].Value)))
 			s.msg.Actor.SendInfo("The cost to meld this item will be " + strconv.Itoa(cost) + ".  Do you want to meld it? (Type yes to meld)")
 			s.actor.AddCommands("yes", "$CONFIRMMELD "+targetStr+" "+strconv.Itoa(targetNum)+" "+meldStr+" "+strconv.Itoa(meldNum))
 		} else {
@@ -116,7 +116,7 @@ func (confirmMeld) process(s *state) {
 		return
 	} else {
 		if utils.IntIn(target.ItemType, config.ArmorTypes) || utils.IntIn(meld.ItemType, config.WeaponTypes) || utils.IntIn(meld.ItemType, []int{6, 15}) {
-			cost := int(float64(target.Value+target.Value/2) + ((float64(meld.MaxUses) / float64(objects.Items[meld.ItemId].MaxUses)) * float64(objects.Items[meld.ParentItemId].Value)))
+			cost := int(float64(target.Value+target.Value/2) + ((float64(meld.MaxUses) / float64(objects.Items[meld.ItemId].MaxUses)) * float64(objects.Items[meld.ItemId].Value)))
 			if s.actor.Gold.Value < cost {
 				s.msg.Actor.SendBad("You do not have enough money to meld this item.")
 				return

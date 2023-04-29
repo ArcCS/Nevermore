@@ -27,6 +27,8 @@ func (search) process(s *state) {
 		return
 	}
 
+	s.msg.Actor.SendInfo(s.actor.Name + " you search about in the area.")
+
 	if !s.actor.CheckFlag("hidden") && !s.actor.CheckFlag("invisible") {
 		s.msg.Observers.SendInfo(s.actor.Name + " searches the area.")
 	}

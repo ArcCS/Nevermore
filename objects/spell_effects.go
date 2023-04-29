@@ -221,8 +221,7 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		target.HealStam(damage)
-		target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"))
-		return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " stamina"
+		return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
 	case *Mob:
 		target.HealStam(damage)
 		return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " stamina"
@@ -240,8 +239,7 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		target.HealVital(damage)
-		target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"))
-		return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " vitality."
+		return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
 	case *Mob:
 		target.HealVital(damage)
 		return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " vitality."
@@ -264,9 +262,8 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 
 	switch target := target.(type) {
 	case *Character:
-		stamDam, vitDam := target.Heal(damage)
-		target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"))
-		return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
+		target.Heal(damage)
+		return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
 	case *Mob:
 		stamDam, vitDam := target.Heal(damage)
 		return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
@@ -282,8 +279,7 @@ func restore(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		target.Mana.Current = target.Mana.Max
-		target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Mana.Current) + " mana" + text.Reset + "\n"))
-		return "You cast a restore on " + target.Name + " and replenish their mana stores."
+		return text.Info + "You now have " + strconv.Itoa(target.Mana.Current) + " mana" + text.Reset + "\n"
 	case *Mob:
 		target.Mana.Current = target.Mana.Max
 		return "You cast a restore on " + target.Name + " and replenish their mana stores."
@@ -295,9 +291,8 @@ func restore(caller interface{}, target interface{}, magnitude int) string {
 func healall(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
-		stamDam, vitDam := target.Heal(2000)
-		target.Write([]byte(text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"))
-		return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
+		target.Heal(2000)
+		return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
 	case *Mob:
 		stamDam, vitDam := target.Heal(2000)
 		return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
@@ -332,45 +327,51 @@ func firedamage(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		stamDam, vitDam, resisted := target.ReceiveMagicDamage(damage, "fire")
-		target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+		returnString := text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				caller.ReceiveMagicDamage(reflectDamage, "fire")
-				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
+				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
 				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
 				caller.DeathCheck(" was slain by reflection!")
 			}
+			return returnString
 		case *Mob:
+			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				caller.ReceiveMagicDamage(reflectDamage, "fire")
 				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
 				caller.DeathCheck(target)
 			}
+			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+			return ""
 		}
-		return "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " fire damage. They resisted " + strconv.Itoa(resisted) + "."
+
 	case *Mob:
 		damage, _, resisted := target.ReceiveMagicDamage(damage, "fire")
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
 		}
+		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " fire damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
 				caller.ReceiveMagicDamage(reflectDamage, "fire")
-				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
+				returnString += "\n" + text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!"
 				caller.DeathCheck(" was slain by reflection!")
 			}
 		case *Mob:
 			log.Println("mob on mob violence not implemented yet")
 		}
-		return "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " fire damage. They resisted " + strconv.Itoa(resisted) + "."
+		return returnString
 	}
 	return ""
 }
@@ -402,45 +403,51 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		stamDam, vitDam, resisted := target.ReceiveMagicDamage(damage, "earth")
-		target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+		returnString := text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				caller.ReceiveMagicDamage(reflectDamage, "earth")
-				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
+				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
 				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
 				caller.DeathCheck(" was slain by reflection!")
 			}
+			return returnString
 		case *Mob:
+			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				caller.ReceiveMagicDamage(reflectDamage, "earth")
 				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
 				caller.DeathCheck(target)
 			}
+			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+			return ""
 		}
-		return "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " earth damage. They resisted " + strconv.Itoa(resisted) + "."
+
 	case *Mob:
 		damage, _, resisted := target.ReceiveMagicDamage(damage, "earth")
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
 		}
+		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " earth damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
 				caller.ReceiveMagicDamage(reflectDamage, "earth")
-				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
+				returnString += "\n" + text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n"
 				caller.DeathCheck(" was slain by reflection!")
 			}
 		case *Mob:
 			log.Println("mob on mob violence not implemented yet")
 		}
-		return "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " earth damage. They resisted " + strconv.Itoa(resisted) + "."
+		return returnString
 	}
 	return ""
 }
@@ -499,45 +506,51 @@ func airdamage(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		stamDam, vitDam, resisted := target.ReceiveMagicDamage(damage, "air")
-		target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+		returnString := text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				caller.ReceiveMagicDamage(reflectDamage, "air")
-				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
+				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
 				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
 				caller.DeathCheck(" was slain by reflection!")
 			}
+			return returnString
 		case *Mob:
+			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				caller.ReceiveMagicDamage(reflectDamage, "air")
 				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
 				caller.DeathCheck(target)
 			}
+			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+			return ""
 		}
-		return "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " air damage. They resisted " + strconv.Itoa(resisted) + "."
+
 	case *Mob:
 		damage, _, resisted := target.ReceiveMagicDamage(damage, "air")
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
 		}
+		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " air damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
 				caller.ReceiveMagicDamage(reflectDamage, "air")
-				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
+				returnString += "\n" + text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n"
 				caller.DeathCheck(" was slain by reflection!")
 			}
 		case *Mob:
 			log.Println("mob on mob violence not implemented yet")
 		}
-		return "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " air damage. They resisted " + strconv.Itoa(resisted) + "."
+		return returnString
 	}
 	return ""
 }
@@ -569,45 +582,51 @@ func waterdamage(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		stamDam, vitDam, resisted := target.ReceiveMagicDamage(damage, "water")
-		target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+		returnString := text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				caller.ReceiveMagicDamage(reflectDamage, "water")
-				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
+				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
 				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
 				caller.DeathCheck(" was slain by reflection!")
 			}
+			return returnString
 		case *Mob:
+			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				caller.ReceiveMagicDamage(reflectDamage, "water")
 				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
 				caller.DeathCheck(target)
 			}
+			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+			return ""
 		}
-		return "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " water damage. They resisted " + strconv.Itoa(resisted) + "."
+
 	case *Mob:
 		damage, _, resisted := target.ReceiveMagicDamage(damage, "water")
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
 		}
+		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " water damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
 				caller.ReceiveMagicDamage(reflectDamage, "water")
-				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
+				returnString += "\n" + text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n"
 				caller.DeathCheck(" was slain by reflection!")
 			}
 		case *Mob:
 			log.Println("mob on mob violence not implemented yet")
 		}
-		return "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " water damage. They resisted " + strconv.Itoa(resisted) + "."
+		return returnString
 	}
 	return ""
 }
@@ -1330,11 +1349,7 @@ func disruptmagic(caller interface{}, target interface{}, magnitude int) string 
 		if target.CheckFlag("resist-magic") {
 			// 50:50 chance to resist the disrupt spell
 			if utils.Roll(100, 1, 0) > 50 {
-				switch caller := caller.(type) {
-				case *Character:
-					caller.Write([]byte(text.Bad + target.Name + " resisted the disruption from your spell.\n"))
-				}
-				return ""
+				return text.Bad + target.Name + " resisted the disruption from your spell.\n"
 			}
 		}
 		var spellEffects []string

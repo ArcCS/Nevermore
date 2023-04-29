@@ -136,6 +136,7 @@ func (cast) process(s *state) {
 			whatChar = objects.ActiveCharacters.Find(name)
 			// It was a person!
 			if whatChar != nil {
+				s.participant = whatChar
 				s.actor.RunHook("combat")
 				s.actor.Victim = whatChar
 				if strings.Contains(spellInstance.Effect, "damage") {
@@ -171,7 +172,7 @@ func (cast) process(s *state) {
 				if strings.Contains(msg, "$CRIPT") {
 					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
 				} else if msg != "" {
-					s.msg.Actor.SendGood(msg)
+					s.msg.Participant.SendGood(msg)
 				}
 				s.ok = true
 				return
