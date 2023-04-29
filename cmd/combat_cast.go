@@ -72,6 +72,7 @@ func (cast) process(s *state) {
 		if utils.Roll(100, 1, 0) <= config.FizzleSave {
 			s.msg.Actor.SendBad("You attempt to cast the spell, but it fizzles out.")
 			s.actor.Mana.Current -= cost
+			s.actor.SetTimer("combat", 8)
 			return
 		}
 	}

@@ -29,7 +29,7 @@ type suicideConfirm cmd
 func (suicideConfirm) process(s *state) {
 	s.msg.Observers.SendInfo(s.actor.Name, " falls to the ground dead and vanishes completely.")
 	s.msg.Actor.SendGood("As the life drains from you, the world fades and goes dark")
-	data.DeleteChar(s.actor.Name)
 	s.scriptActor("quit")
+	go data.DeleteChar(s.actor.Name)
 	s.ok = true
 }
