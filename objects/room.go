@@ -344,7 +344,7 @@ func (r *Room) LastPerson() {
 		}
 	}
 
-	// TODO: Disintegrate corpses
+	go r.Save()
 
 }
 

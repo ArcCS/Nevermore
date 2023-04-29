@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -189,7 +190,14 @@ func (help) process(s *state) {
 
 		// Search Spells:
 		if spell, ok := objects.Spells[strings.ToLower(subject)]; ok {
-			s.msg.Actor.SendGood("Spell: ", subject, "\n\n", spell.Description)
+			s.msg.Actor.SendGood("Spell: ", subject, "\n", spell.Description, "\n")
+			s.msg.Actor.SendGood("Chant: ", spell.Chant, "\n")
+			s.msg.Actor.SendGood("Mana Cost: ", strconv.Itoa(spell.Cost), "\n")
+			s.msg.Actor.SendGood("Castable by: ")
+			for class, val := range spell.Classes {
+				s.msg.Actor.SendGood("	", class, ": Tier ", strconv.Itoa(val))
+			}
+
 			return
 		}
 

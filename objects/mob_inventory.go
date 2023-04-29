@@ -301,8 +301,6 @@ func RestoreMobs(ParentID int, jsonString string) *MobInventory {
 	for _, mob := range obj {
 		newMob := Mob{}
 		copier.CopyWithOption(&newMob, Mobs[int(mob["mobId"].(float64))], copier.Option{DeepCopy: true})
-		newMob.Stam.Current = int(mob["health"].(float64))
-		newMob.Mana.Current = int(mob["mana"].(float64))
 		newMob.Placement = int(mob["placement"].(float64))
 		newMob.Inventory = RestoreInventory(mob["inventory"].(string))
 		NewInventory.Add(&newMob, true)
