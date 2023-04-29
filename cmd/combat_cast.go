@@ -184,6 +184,7 @@ func (cast) process(s *state) {
 		whatChar = s.where.Chars.Search(name, s.actor)
 		// It was a person!
 		if whatChar != nil {
+			s.participant = whatChar
 			s.actor.RunHook("combat")
 			s.actor.Victim = whatChar
 			if strings.Contains(spellInstance.Effect, "damage") {
@@ -196,15 +197,15 @@ func (cast) process(s *state) {
 			s.actor.Mana.Subtract(cost)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
+			s.msg.Participant.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 			s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatChar.Name)
 			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatChar.Name)
-			s.participant = whatChar
 			s.msg.Participant.SendInfo(s.actor.Name + " cast a " + spellInstance.Name + " spell on you")
 			if strings.Contains(msg, "$CRIPT") {
 				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
 			} else if msg != "" {
-				s.msg.Actor.SendGood(msg)
+				s.msg.Participant.Send(msg)
 			}
 			s.ok = true
 			return
