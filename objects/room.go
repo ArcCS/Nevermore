@@ -230,28 +230,7 @@ func (r *Room) FirstPerson() {
 					return
 				case <-r.roomTicker.C:
 					// Is the room crowded?
-					if len(r.Mobs.Contents) < 10 {
-						// Roll the dice and see if we get a mob here
-						if utils.Roll(100, 1, 0) <= r.EncounterRate {
-							// Successful roll:  Roll again to pick the mob
-							mobCalc := 0
-							mobPick := utils.Roll(100, 1, 0)
-							for mob, chance := range r.EncounterTable {
-								if (DayTime && !Mobs[mob].Flags["night_only"]) || (!DayTime && !Mobs[mob].Flags["day_only"]) {
-									mobCalc += chance
-									if mobPick <= mobCalc {
-										// This is the mob!  Put it in the room!
-										newMob := Mob{}
-										copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true})
-										newMob.Placement = 5
-										r.Mobs.Add(&newMob, false)
-										newMob.StartTicking()
-										break
-									}
-								}
-							}
-						}
-					}
+					r.Encounter()
 				}
 			}
 		}()
@@ -307,6 +286,31 @@ func (r *Room) FirstPerson() {
 		}()
 	}
 	r.Mobs.RestartPerms()
+}
+
+func (r *Room) Encounter() {
+	if len(r.Mobs.Contents) < 10 {
+		// Roll the dice and see if we get a mob here
+		if utils.Roll(100, 1, 0) <= r.EncounterRate {
+			// Successful roll:  Roll again to pick the mob
+			mobCalc := 0
+			mobPick := utils.Roll(100, 1, 0)
+			for mob, chance := range r.EncounterTable {
+				if (DayTime && !Mobs[mob].Flags["night_only"]) || (!DayTime && !Mobs[mob].Flags["day_only"]) {
+					mobCalc += chance
+					if mobPick <= mobCalc {
+						// This is the mob!  Put it in the room!
+						newMob := Mob{}
+						copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true})
+						newMob.Placement = 5
+						r.Mobs.Add(&newMob, false)
+						newMob.StartTicking()
+						break
+					}
+				}
+			}
+		}
+	}
 }
 
 func (r *Room) LastPerson() {

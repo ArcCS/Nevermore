@@ -170,6 +170,12 @@ func (m *Mob) StartTicking() {
 		}
 	}
 	m.MobTicker = time.NewTicker(time.Duration(8-tickModifier) * time.Second)
+	for _, spell := range m.Spells {
+		if utils.StringIn(spell, MobSupportSpells) {
+			Cast(m, m, spell, 0)
+			log.Println("Casting support spell", spell, "on", m.Name)
+		}
+	}
 	go func() {
 		for {
 			select {
@@ -298,11 +304,18 @@ func (m *Mob) Tick() {
 
 					Rooms[m.ParentId].MessageAll("The " + m.Name + " breathes " + m.BreathWeapon + " at " + target.Name + "\n")
 					damageTotal := config.BreatheDamage(m.Level)
+					reflectDamage := 0
 					for _, t := range targets {
 						if utils.StringIn(m.BreathWeapon, []string{"fire", "air", "earth", "water"}) {
 							t.RunHook("attacked")
 							t.ReceiveMagicDamage(damageTotal, m.BreathWeapon)
 							t.Write([]byte("You take " + strconv.Itoa(damageTotal) + " damage from the " + m.BreathWeapon + " breath.\n"))
+							if target.CheckFlag("reflection") {
+								reflectDamage = int(float64(damageTotal) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
+								m.ReceiveDamage(reflectDamage)
+								target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset))
+								m.DeathCheck(target)
+							}
 							t.DeathCheck("was slain by a " + m.Name + ".")
 						} else if m.BreathWeapon == "paralytic" {
 							t.Write([]byte(text.Gray + m.Name + " breathes paralytic gas on to you.\n"))
@@ -380,11 +393,13 @@ func (m *Mob) Tick() {
 				// If we made it here, default out and do a range hit.
 				stamDamage := 0
 				vitDamage := 0
+				reflectDamage := 0
+				actualDamage := m.InflictDamage()
 				if vitalStrike {
-					vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()) * multiplier)))
+					vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 					target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
 				} else {
-					stamDamage, vitDamage = target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()) * multiplier)))
+					stamDamage, vitDamage = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 				}
 
 				buildString := ""
@@ -398,6 +413,12 @@ func (m *Mob) Tick() {
 					buildString += strconv.Itoa(vitDamage) + " vitality"
 				}
 				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
+				if target.CheckFlag("reflection") {
+					reflectDamage = int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
+					m.ReceiveDamage(reflectDamage)
+					target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset))
+					m.DeathCheck(target)
+				}
 				target.RunHook("attacked")
 				target.DeathCheck("was slain by a " + m.Name + ".")
 				return
@@ -439,16 +460,7 @@ func (m *Mob) Tick() {
 						// It's a riposte
 						actualDamage, _ := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
 						target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))
-						if m.Stam.Current <= 0 {
-							Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
-							stringExp := strconv.Itoa(m.Experience)
-							for k := range m.ThreatTable {
-								Rooms[m.ParentId].Chars.MobSearch(k, m).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
-								Rooms[m.ParentId].Chars.MobSearch(k, m).Experience.Add(m.Experience)
-							}
-							Rooms[m.ParentId].MessageAll(m.Name + " dies.")
-							target.Write([]byte(text.White + m.DropInventory()))
-							go Rooms[m.ParentId].ClearMob(m)
+						if m.DeathCheck(target) {
 							return
 						}
 						m.Stun(config.ParryStuns * 8)
@@ -459,11 +471,13 @@ func (m *Mob) Tick() {
 				} else {
 					stamDamage := 0
 					vitDamage := 0
+					actualDamage := m.InflictDamage()
+					reflectDamage := 0
 					if vitalStrike {
-						vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()) * multiplier)))
+						vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 						target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
 					} else {
-						stamDamage, vitDamage = target.ReceiveDamage(int(math.Ceil(float64(m.InflictDamage()) * multiplier)))
+						stamDamage, vitDamage = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 					}
 					buildString := ""
 					if stamDamage != 0 {
@@ -480,11 +494,33 @@ func (m *Mob) Tick() {
 					} else {
 						target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 					}
+					if target.CheckFlag("reflection") {
+						reflectDamage = int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
+						m.ReceiveDamage(reflectDamage)
+						target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset))
+						m.DeathCheck(target)
+					}
 					target.DeathCheck("was slain by a " + m.Name + ".")
 				}
 			}
 		}
 	}
+}
+
+func (m *Mob) DeathCheck(target *Character) bool {
+	if m.Stam.Current <= 0 {
+		Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
+		stringExp := strconv.Itoa(m.Experience)
+		for k := range m.ThreatTable {
+			Rooms[m.ParentId].Chars.MobSearch(k, m).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
+			Rooms[m.ParentId].Chars.MobSearch(k, m).Experience.Add(m.Experience)
+		}
+		Rooms[m.ParentId].MessageAll(m.Name + " dies.")
+		target.Write([]byte(text.White + m.DropInventory()))
+		go Rooms[m.ParentId].ClearMob(m)
+		return true
+	}
+	return false
 }
 
 func (m *Mob) CheckForExtraAttack(target *Character) {
@@ -804,6 +840,9 @@ func (m *Mob) CheckFlag(flagName string) bool {
 
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
 	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction))))
+	if m.CheckFlag("inertial-barrier") {
+		finalDamage -= int(math.Ceil(float64(damage) * config.InertialDamageIgnore))
+	}
 	m.Stam.Subtract(finalDamage)
 	if finalDamage > m.WimpyValue && m.CheckFlag("flees") {
 		m.MobCommands <- "flee"

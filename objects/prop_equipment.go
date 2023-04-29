@@ -267,12 +267,13 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 		itemSlot = "off"
 		ok = true
 	} //just random crap to hold I guess.
+	/* TODO: Lets look at ammo later
 	if item.ItemType == 15 && e.Ammo == (*Item)(nil) && e.Main != (*Item)(nil) {
 		if e.Main.ItemType == 4 {
 			e.Ammo = item
 			ok = true
 		}
-	} //ammo",
+	} //ammo", */
 	if item.ItemType == 16 && e.Off == (*Item)(nil) {
 		e.Off = item
 		itemSlot = "off"

@@ -19,9 +19,9 @@ func (pray) process(s *state) {
 		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
 		return
 	}
-	haste, ok := s.actor.Flags["pray"]
+	pray, ok := s.actor.Flags["pray"]
 	if ok {
-		if haste {
+		if pray {
 			s.msg.Actor.SendBad("You've recently prayed.'")
 			return
 		}

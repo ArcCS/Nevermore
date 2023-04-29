@@ -106,6 +106,12 @@ func (backstab) process(s *state) {
 			whatMob.AddThreatDamage(actualDamage, s.actor)
 			s.msg.Actor.SendInfo("You backstabbed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			s.msg.Observers.SendInfo(s.actor.Name + " backstabs " + whatMob.Name)
+			if whatMob.CheckFlag("reflection") {
+				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
+				s.actor.ReceiveDamage(reflectDamage)
+				s.msg.Actor.Send("The " + whatMob.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back at you!")
+				s.actor.DeathCheck(" was killed by reflection!")
+			}
 			DeathCheck(s, whatMob)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			msg := s.actor.Equipment.DamageWeapon("main", 4)
@@ -126,6 +132,12 @@ func (backstab) process(s *state) {
 					s.msg.Actor.SendGood(whatMob.Name, " vital strike bounces off of you for no damage!")
 				} else {
 					s.msg.Actor.SendInfo(whatMob.Name, " attacks you for "+strconv.Itoa(vitDamage)+" points of vitality damage!")
+					if s.actor.CheckFlag("reflection") {
+						reflectDamage := int(float64(vitDamage) * (float64(s.actor.GetStat("int")) * config.ReflectDamagePerInt))
+						whatMob.ReceiveDamage(reflectDamage)
+						s.msg.Actor.Send(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + whatMob.Name + "!\n" + text.Reset)
+						whatMob.DeathCheck(s.actor)
+					}
 				}
 				s.actor.DeathCheck("was slain while trying to backstab a " + strings.Title(whatMob.Name))
 			}

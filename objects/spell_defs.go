@@ -412,7 +412,7 @@ var Spells = map[string]Spell{
 		Cost:        25,
 		Chant:       "The gods rescue thee!",
 		Magnitude:   1,
-		Effect:      "word-of-recall",
+		Effect:      "recall",
 		Classes:     map[string]int{"cleric": 10, "paladin": 16},
 	},
 	"summon": {
@@ -460,15 +460,18 @@ var Spells = map[string]Spell{
 		Effect:      "resist-magic",
 		Classes:     map[string]int{"cleric": 9, "mage": 8, "paladin": 14, "ranger": 14, "bard": 12},
 	},
-	"remove-curse": {
-		Name:        "remove-curse",
-		Description: "remove curse allows the recipient to safely dispose of a cursed item in their posession. to cast the spell, the caster must carefully study the aura of the recipient, attempting to find the link between the cursed item's aura and that of the recipient, while speaking the spell Chant. when the link is found, the caster need only wave a hand to sever the link, freeing the recipient. it is important to note, however, that this spell does not prevent the recipient from being cursed again, not even from the same item. thus, it is recommended the item be disposed of as quickly as possible. ",
-		Cost:        18,
-		Chant:       "Be freed from thy affliction...",
-		Magnitude:   1,
-		Effect:      "remove-curse",
-		Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 7, "ranger": 9, "bard": 9, "thief": 13, "monk": 10},
-	},
+	/*
+		"remove-curse": {
+			Name:        "remove-curse",
+			Description: "remove curse allows the recipient to safely dispose of a cursed item in their posession. to cast the spell, the caster must carefully study the aura of the recipient, attempting to find the link between the cursed item's aura and that of the recipient, while speaking the spell Chant. when the link is found, the caster need only wave a hand to sever the link, freeing the recipient. it is important to note, however, that this spell does not prevent the recipient from being cursed again, not even from the same item. thus, it is recommended the item be disposed of as quickly as possible. ",
+			Cost:        18,
+			Chant:       "Be freed from thy affliction...",
+			Magnitude:   1,
+			Effect:      "remove-curse",
+			Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 7, "ranger": 9, "bard": 9, "thief": 13, "monk": 10},
+		},
+
+	*/
 	"resist-air": {
 		Name:        "resist-air",
 		Description: "the resist-air spell causes its recipient to take less damage from air-based attacks and environments. this spell causes a small magical shell to appear around the recipient, which redirects incoming air energies into the realm of frost, where it can dissipate harmlessly. to cast this spell, the caster speaks the spell Chant through chattering teeth, while rubbing their arms. when the spell Chant is complete, the caster need only touch the recipient of the spell to complete the casting. ",
@@ -523,15 +526,17 @@ var Spells = map[string]Spell{
 		Effect:      "remove-blindness",
 		Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 6, "ranger": 7, "bard": 7},
 	},
-	"polymorph": {
-		Name:        "polymorph",
-		Description: "the polymorph spell is powerful shaping magic. it allows the caster to change the form of its target, completely, drawing on ethereal energies to fill in the blanks. this in effect, allows its caster to create a lion from a mouse, with the lion having all the physical attributes of a lion (including mass, size, strength, etc). that said, it should be made very clear that magic of this magnitude is not often seen in a spell of this level. it still puzzles some researchers as to how a relatively inexperienced mage can cast this spell, yet they can. the major drawback however, is that it is completely uncontrollable. the caster may have an idea for the result in his head, however, it is extremely rare that he will get what he is wishing for (in fact, in game mechanics terms, it is not necessary to specify your intended result, but merely to say it quietly to yourself, only specifying the target of the spell to the game on the command line). the target of this spell can resist this spell, and if they successfully resist, they will most likely be very pissed off. ",
-		Cost:        25,
-		Chant:       "Magics mutate, wild and free, bringing a new form to thee.",
-		Magnitude:   1,
-		Effect:      "polymorph",
-		Classes:     map[string]int{"mage": 10},
-	},
+	/*
+		"polymorph": {
+			Name:        "polymorph",
+			Description: "the polymorph spell is powerful shaping magic. it allows the caster to change the form of its target, completely, drawing on ethereal energies to fill in the blanks. this in effect, allows its caster to create a lion from a mouse, with the lion having all the physical attributes of a lion (including mass, size, strength, etc). that said, it should be made very clear that magic of this magnitude is not often seen in a spell of this level. it still puzzles some researchers as to how a relatively inexperienced mage can cast this spell, yet they can. the major drawback however, is that it is completely uncontrollable. the caster may have an idea for the result in his head, however, it is extremely rare that he will get what he is wishing for (in fact, in game mechanics terms, it is not necessary to specify your intended result, but merely to say it quietly to yourself, only specifying the target of the spell to the game on the command line). the target of this spell can resist this spell, and if they successfully resist, they will most likely be very pissed off. ",
+			Cost:        25,
+			Chant:       "Magics mutate, wild and free, bringing a new form to thee.",
+			Magnitude:   1,
+			Effect:      "polymorph",
+			Classes:     map[string]int{"mage": 10},
+		},
+	*/
 	"attraction": {
 		Name:        "attraction",
 		Description: "autumnfire's attraction, or attraction, was developed by the wizardress autumnfire in an attempt to gain more experience. the spell causes a tiny, magical, annoying sprite to appear, and to wander about the area, taunting, until it flushes out a creature. the direct benefit of this is that, under normal circumstances, casting the attraction spell causes one native monster to appear.",
@@ -588,7 +593,7 @@ var Spells = map[string]Spell{
 	},
 	"disrupt-magic": {
 		Name:        "disrupt-magic",
-		Description: "the disrupt-magic spell was researched by tra'nis the goblin archwizardress, along with a council of the most powerful ancient wyrm of chromatic scale in the realms. disrupt-magic was a natural expansion of the spell she reasearched to weaken and disrupt the barrier around nexus, and is more sinister. like the anti-barrier spell, disrupt-magic fires essentially a bolt of unfocussed mana, which strikes the target, causing a disruption in the magical enchants bound to the target. ",
+		Description: "the disrupt-magic spell was researched by tra'nis the goblin archwizardress, along with a council of the most powerful ancient wyrm of chromatic scale in the realms. disrupt-magic was a natural expansion of the spell she reasearched to weaken and disrupt the barrier around nexus, and is more sinister. like the anti-barrier spell, disrupt-magic fires essentially a bolt of unfocussed mana, which strikes the target, causing a disruption in the magical enchantments bound to the target. ",
 		Cost:        40,
 		Chant:       "Magical tethers, twist, disrupt, nullify!",
 		Magnitude:   1,
@@ -621,16 +626,16 @@ var Spells = map[string]Spell{
 		Magnitude:   1,
 		Effect:      "resist-acid",
 		Classes:     map[string]int{"cleric": 9, "mage": 10, "paladin": 13, "ranger": 13, "bard": 13, "thief": 15, "monk": 11},
-	},
-	"embolden": {
-		Name:        "embolden",
-		Description: "the spell, embolden, was created by the cleric gifford in an attempt to neutralize one of the most feared attack forms in the realms: magical fear. to cast the spell, the caster simply concentrates on warm, comforting thoughts, as they speak the spell Chant. a warm emotional glow will fill the caster, which may be directed at a target. the effect of the spell is that it obliterates magical or mundane fear in the target, allowing them to act as they would like to. it is important to note, however, that this spell does not convey an immunity to fear - merely a cure.",
-		Cost:        5,
-		Chant:       "There is naught to fear save fear.",
-		Magnitude:   1,
-		Effect:      "embolden",
-		Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 8, "ranger": 8, "bard": 10, "thief": 12, "fighter": 15, "monk": 9},
-	},
+	}, /*
+		"embolden": {
+			Name:        "embolden",
+			Description: "the spell, embolden, was created by the cleric gifford in an attempt to neutralize one of the most feared attack forms in the realms: magical fear. to cast the spell, the caster simply concentrates on warm, comforting thoughts, as they speak the spell Chant. a warm emotional glow will fill the caster, which may be directed at a target. the effect of the spell is that it obliterates magical or mundane fear in the target, allowing them to act as they would like to. it is important to note, however, that this spell does not convey an immunity to fear - merely a cure.",
+			Cost:        5,
+			Chant:       "There is naught to fear save fear.",
+			Magnitude:   1,
+			Effect:      "embolden",
+			Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 8, "ranger": 8, "bard": 10, "thief": 12, "fighter": 15, "monk": 9},
+		},*/
 }
 
 var RemoteSpells = []string{
@@ -690,7 +695,6 @@ var SupportSpells = []string{
 	"detect-invisible",
 	"resist-fire",
 	"resist-magic",
-	"remove-curse",
 	"resist-air",
 	"resist-water",
 	"resist-earth",
@@ -704,18 +708,33 @@ var SupportSpells = []string{
 	"reflection",
 	"dodge",
 	"resist-acid",
-	"embolden",
+	//"embolden",
 }
 
 var MiscSpells = []string{
 	"teleport",
 	"stun",
-	"enchant",
 	"word of recall",
 	"summon",
 	"wizard-walk",
 	"levitate",
 	"clairvoyance",
-	"polymorph",
+	//"polymorph",
 	"attraction",
+}
+
+var AmbiguousTargets = []string{
+	"attraction",
+	"clairvoyance",
+}
+
+var MobSupportSpells = []string{
+	"protection",
+	"resist-fire",
+	"resist-magic",
+	"resist-air",
+	"resist-water",
+	"resist-earth",
+	"inertial-barrier",
+	"reflection",
 }

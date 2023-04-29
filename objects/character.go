@@ -645,7 +645,7 @@ func (c *Character) Tick() {
 		lastActivity := time.Now().Sub(c.LastAction).Minutes()
 		log.Println("Character", c.Name, "tick log at every 3m, character thread still alive. Last action was ", lastActivity, " ago.")
 		c.LastTickLog = time.Now()
-		if lastActivity > config.Server.IdleTimeout.Minutes()+5 {
+		if lastActivity > config.Server.IdleTimeout.Minutes()+5 && !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			Script(c, "quit")
 		}
 	}
@@ -755,8 +755,15 @@ func (c *Character) AdvanceElementalExp(amount int) {
 
 // ReceiveDamage Return stam and vital damage
 func (c *Character) ReceiveDamage(damage int) (int, int) {
+	if c.CheckFlag("surge") {
+		damage += int(math.Ceil(float64(damage) * config.SurgeExtraDamage))
+	}
+	if c.CheckFlag("inertial-barrier") {
+		damage -= int(math.Ceil(float64(damage) * config.InertialDamageIgnore))
+	}
 	stamDamage, vitalDamage := 0, 0
 	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
+
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
@@ -817,28 +824,36 @@ func (c *Character) ReceiveVitalDamage(damage int) int {
 }
 
 func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, int) {
-	var resisting float64
+	resisting := 0.0
+	// dodge spell
+	if c.CheckFlag("dodge") {
+		// Did they dodge completely?
+		if utils.Roll(100, 1, 0) <= (int(float64(c.GetStat("dex")) * config.FullDodgeChancePerDex)) {
+			c.Write([]byte(text.Info + "You dodge the spell completely!\n" + text.Reset))
+			return 0, 0, 0
+		} else {
+			c.Write([]byte(text.Info + "Your magically quickened reflexes allow you to lessen the effect of the magic!\n" + text.Reset))
+			resisting = math.Ceil(float64(c.GetStat("dex")) * config.DodgeDamagePerDex)
+		}
+	}
 
 	switch element {
 	case "fire":
 		if c.CheckFlag("resist_fire") {
-			resisting = .25
+			resisting += .25
 		}
 	case "air":
 		if c.CheckFlag("resist_air") {
-			resisting = .25
+			resisting += .25
 		}
 	case "earth":
 		if c.CheckFlag("resist_air") {
-			resisting = .25
+			resisting += .25
 		}
 	case "water":
 		if c.CheckFlag("resist_air") {
-			resisting = .25
+			resisting += .25
 		}
-	}
-	if resisting > 0 {
-		resisting = (float64(c.Int.Current) / 30) * resisting
 	}
 
 	if c.CheckFlag("resist_magic") {
@@ -908,6 +923,10 @@ func (c *Character) InflictDamage() (damage int) {
 	}
 
 	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod * float64(c.GetStat("str")))))
+
+	if c.CheckFlag("surge") {
+		damage += int(math.Ceil(float64(damage) * config.SurgeDamageBonus))
+	}
 
 	// Add any modified base damage
 	baseDamage, ok := c.Modifiers["base_damage"]

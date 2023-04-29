@@ -101,6 +101,12 @@ func (snipe) process(s *state) {
 			s.msg.Actor.SendInfo("You sniped the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 			s.msg.Observers.SendInfo(s.actor.Name + " snipes " + whatMob.Name)
+			if whatMob.CheckFlag("reflection") {
+				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
+				s.actor.ReceiveDamage(reflectDamage)
+				s.msg.Actor.Send("The " + whatMob.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back at you!")
+				s.actor.DeathCheck(" was killed by reflection!")
+			}
 			DeathCheck(s, whatMob)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			return

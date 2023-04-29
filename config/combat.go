@@ -31,6 +31,15 @@ var RenameCost = 150000
 var MissPerLevel = 8 // This is a percentage
 var SearchPerInt = 3 // This is a percentage
 
+var SurgeExtraDamage = .15
+var SurgeDamageBonus = .20     // Percentage added when using surge
+var InertialDamageIgnore = .20 // Percentage ignored when using inertial barrier
+var ReflectDamagePerInt = .02  // Percentage of damage reflected per int point
+var ReflectDamageFromMob = .15 // Percentage of damage reflected from mob
+
+var DodgeDamagePerDex = .01
+var FullDodgeChancePerDex = .01
+
 // Thief & Ranger
 var PeekCD = 8
 var PeekFailCD = 32

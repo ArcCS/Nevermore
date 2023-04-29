@@ -102,6 +102,12 @@ func (bash) process(s *state) {
 		whatMob.CurrentTarget = s.actor.Name
 		s.msg.Actor.SendInfo("You bashed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 		s.msg.Observers.SendInfo(s.actor.Name + " bashes " + whatMob.Name)
+		if whatMob.CheckFlag("reflection") {
+			reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
+			s.actor.ReceiveDamage(reflectDamage)
+			s.msg.Actor.Send("The " + whatMob.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back at you!")
+			s.actor.DeathCheck(" was killed by reflection!")
+		}
 		DeathCheck(s, whatMob)
 		s.actor.SetTimer("combat_bash", config.BashTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)

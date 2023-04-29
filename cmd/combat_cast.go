@@ -220,8 +220,13 @@ func (cast) process(s *state) {
 		s.actor.Mana.Subtract(cost)
 		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
-		s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
-		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + config.TextDescPronoun[s.actor.Gender] + "self.")
+		if utils.StringIn(spellInstance.Name, objects.AmbiguousTargets) {
+			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell.")
+			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell.")
+		} else {
+			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
+			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + config.TextDescPronoun[s.actor.Gender] + "self.")
+		}
 		if strings.Contains(msg, "$CRIPT") {
 			go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
 		} else if msg != "" {

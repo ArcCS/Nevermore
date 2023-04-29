@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strings"
@@ -30,7 +31,9 @@ You sense the following enchantments bound to your lifeforce:
 
 	var spell_effects []string
 	for k := range s.actor.Effects {
-		spell_effects = append(spell_effects, k)
+		if _, ok := objects.Spells[k]; ok {
+			spell_effects = append(spell_effects, k)
+		}
 	}
 
 	data := struct {
