@@ -453,28 +453,28 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 }
 
 func elementalDamage(magnitude int, intel int) (damage int) {
-	power := intel / 45
+	power := 0
 	if magnitude == 1 {
-		power *= utils.Roll(3, 2, 0)
-		damage = 7 + int(power)
+		power = utils.Roll(3, 2, 0)
+		damage = 7 + power
 	} else if magnitude == 2 {
-		power *= utils.Roll(3, 4, 0)
+		power = utils.Roll(3, 4, 0)
 		damage = 21 + power
 	} else if magnitude == 3 {
-		power *= utils.Roll(3, 7, 0)
+		power = utils.Roll(3, 7, 0)
 		damage = 42 + power
 	} else if magnitude == 4 {
-		power *= utils.Roll(4, 10, 0)
+		power = utils.Roll(4, 10, 0)
 		damage = 84 + power
 	} else if magnitude == 5 {
-		power *= utils.Roll(5, 16, 0)
+		power = utils.Roll(5, 16, 0)
 		damage = 175 + power
 	} else if magnitude == 6 {
-		power *= utils.Roll(5, 18, 0)
+		power = utils.Roll(5, 18, 0)
 		damage = 280 + power
 	} else if magnitude == 7 {
-		power *= utils.Roll(6, 35, 0)
-		damage = 7 + (45/intel)*utils.Roll(6, 35, 0)
+		power = utils.Roll(6, 35, 0)
+		damage = 350 + (45/intel)*utils.Roll(6, 35, 0)
 	}
 	return damage
 }

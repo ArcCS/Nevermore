@@ -83,11 +83,13 @@ func (cast) process(s *state) {
 			return
 		} else if s.actor.Tier < minLevel {
 			s.msg.Actor.SendBad("You are not high enough level to cast this spell.")
+			return
 		}
 	}
 
 	if s.actor.Mana.Current < cost && s.actor.Class != 100 {
 		s.msg.Actor.SendBad("You do not have enough mana to cast this spell. ")
+		return
 	}
 
 	if len(s.words) > 1 {

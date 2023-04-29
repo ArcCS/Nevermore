@@ -70,6 +70,7 @@ func (scriptMeld) process(s *state) {
 			cost := int(float64(target.Value+target.Value/2) + ((float64(meld.MaxUses) / float64(objects.Items[meld.ItemId].MaxUses)) * float64(objects.Items[meld.ItemId].Value)))
 			s.msg.Actor.SendInfo("The cost to meld this item will be " + strconv.Itoa(cost) + ".  Do you want to meld it? (Type yes to meld)")
 			s.actor.AddCommands("yes", "$CONFIRMMELD "+targetStr+" "+strconv.Itoa(targetNum)+" "+meldStr+" "+strconv.Itoa(meldNum))
+			s.actor.AddCommands("y", "$CONFIRMMELD "+targetStr+" "+strconv.Itoa(targetNum)+" "+meldStr+" "+strconv.Itoa(meldNum))
 		} else {
 			s.msg.Actor.SendBad("These are not meldable items")
 			return
@@ -126,6 +127,7 @@ func (confirmMeld) process(s *state) {
 			s.actor.Inventory.Lock()
 			target.MaxUses += meld.MaxUses
 			s.actor.Inventory.Remove(meld)
+			s.msg.Actor.SendGood("Meld completed.")
 			s.actor.Inventory.Unlock()
 			meld = nil
 		} else {

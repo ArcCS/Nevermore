@@ -149,6 +149,8 @@ func (use) process(s *state) {
 				msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 				if strings.Contains(msg, "$CRIPT") {
 					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+				} else {
+					s.msg.Actor.SendGood(msg)
 				}
 				s.actor.Inventory.Lock()
 				what.MaxUses -= 1
