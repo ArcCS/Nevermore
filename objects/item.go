@@ -80,10 +80,10 @@ func (i *Item) GetWeight() int {
 func (i *Item) Look() string {
 	resString := i.Description + "\n\n"
 	if utils.IntIn(i.ItemType, config.WeaponTypes) {
-		resString = "It is a " + config.ItemTypes[i.ItemType] + " weapon \n" + resString
+		resString = "It is a " + config.ItemTypes[i.ItemType] + " weapon, and it" + i.ReturnState() + "\n" + resString
 	}
 	if utils.IntIn(i.ItemType, config.ArmorTypes) {
-		resString = "It is a " + config.ItemTypes[i.ItemType] + " armor \n" + resString
+		resString = "It is a " + config.ItemTypes[i.ItemType] + " armor, and it" + i.ReturnState() + "\n" + resString
 	}
 	if i.ItemType == 9 {
 		items := i.Storage.ReducedList()
@@ -181,6 +181,22 @@ func (i *Item) Save() {
 	itemData["commands"] = i.SerializeCommands()
 	data.UpdateItem(itemData)
 	return
+}
+
+func (i *Item) ReturnState() string {
+	stamStatus := "slightly used"
+	if i.MaxUses == Items[i.ItemId].MaxUses {
+		stamStatus = "pristine"
+	} else if i.MaxUses < (Items[i.ItemId].MaxUses - int(.90*float32(Items[i.ItemId].MaxUses))) {
+		stamStatus = "about to break"
+	} else if i.MaxUses < (Items[i.ItemId].MaxUses - int(.75*float32(Items[i.ItemId].MaxUses))) {
+		stamStatus = "badly damaged"
+	} else if i.MaxUses < (Items[i.ItemId].MaxUses - int(.5*float32(Items[i.ItemId].MaxUses))) {
+		stamStatus = "well used"
+	} else if i.MaxUses < (Items[i.ItemId].MaxUses - int(.25*float32(Items[i.ItemId].MaxUses))) {
+		stamStatus = "used"
+	}
+	return " looks " + stamStatus
 }
 
 // Function to return only the modifiable properties

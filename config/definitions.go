@@ -7,7 +7,7 @@ var ItemTypes = map[int]string{
 	1:  "thrust",
 	2:  "blunt",
 	3:  "pole",
-	4:  "range",
+	4:  "ranged",
 	5:  "body",
 	6:  "device",
 	7:  "scroll",

@@ -99,6 +99,11 @@ func (put) process(s *state) {
 		return
 	}
 
+	if len(where.Storage.Contents) >= where.MaxUses {
+		s.msg.Actor.SendBad("That container is full.")
+		return
+	}
+
 	s.actor.RunHook("act")
 
 	s.actor.Inventory.Lock()
