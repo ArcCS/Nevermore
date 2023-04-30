@@ -92,21 +92,26 @@ func (kill) process(s *state) {
 
 		if s.actor.Class != 8 {
 			// Shortcut target not being in the right location, check if it's a missile weapon, or that they are placed right.
-			if s.actor.Equipment.Main.ItemType != 4 && (s.actor.Placement != whatMob.Placement) {
+			if (s.actor.Equipment.Main.ItemType != 4 && s.actor.Equipment.Main.ItemType != 3) && (s.actor.Placement != whatMob.Placement) {
+				log.Println("1 Weapon type: ", s.actor.Equipment.Main.ItemType)
 				s.msg.Actor.SendBad("You are too far away to attack.")
 				return
 			} else if s.actor.Equipment.Main.ItemType == 4 && (s.actor.Placement == whatMob.Placement) {
+				log.Println("2 Weapon type: ", s.actor.Equipment.Main.ItemType)
 				s.msg.Actor.SendBad("You are too close to attack.")
 				return
 			} else if s.actor.Equipment.Main.ItemType == 3 && (s.actor.Placement == whatMob.Placement) {
+				log.Println("3 Weapon type: ", s.actor.Equipment.Main.ItemType)
 				s.msg.Actor.SendBad("You are too close to attack.")
 				return
-			} else if s.actor.Equipment.Main.ItemType == 4 && (int(math.Abs(float64(s.actor.Placement-whatMob.Placement))) > 1) {
+			} else if s.actor.Equipment.Main.ItemType == 3 && (int(math.Abs(float64(s.actor.Placement-whatMob.Placement))) > 1) {
+				log.Println("4 Weapon type: ", s.actor.Equipment.Main.ItemType)
 				s.msg.Actor.SendBad("You are too far away to attack.")
 				return
 			}
 		} else {
 			if s.actor.Placement != whatMob.Placement {
+				log.Println("5 Weapon type: ", s.actor.Equipment.Main.ItemType)
 				s.msg.Actor.SendBad("You are too far away to attack.")
 				return
 			}

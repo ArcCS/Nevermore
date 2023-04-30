@@ -262,7 +262,7 @@ func (m *Mob) Tick() {
 			if len(m.ThreatTable) > 1 {
 				rankedThreats := utils.RankMapStringInt(m.ThreatTable)
 				if m.CurrentTarget != rankedThreats[0] {
-					if utils.Roll(3, 1, 0) == 1 {
+					if utils.Roll(100, 1, 0) <= 15 {
 						if utils.StringIn(rankedThreats[0], Rooms[m.ParentId].Chars.MobList(m)) {
 							m.CurrentTarget = rankedThreats[0]
 							Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + "\n" + text.Reset)
@@ -369,13 +369,17 @@ func (m *Mob) Tick() {
 			// Calculate Vital/Crit/Double
 			multiplier := float64(1)
 			vitalStrike := false
+			criticalStrike := false
+			doubleDamage := false
 			critRoll := utils.Roll(100, 1, 0)
 			if critRoll <= config.MobVital {
 				vitalStrike = true
 			} else if critRoll <= config.MobCritical {
-				multiplier = 4
+				multiplier = 3
+				criticalStrike = true
 			} else if critRoll <= config.MobDouble {
 				multiplier = 2
+				doubleDamage = true
 			}
 
 			if m.CurrentTarget != "" && m.Flags["ranged_attack"] &&
@@ -411,6 +415,12 @@ func (m *Mob) Tick() {
 				}
 				if vitDamage != 0 {
 					buildString += strconv.Itoa(vitDamage) + " vitality"
+				}
+				if criticalStrike {
+					target.Write([]byte(text.Red + "Critical Strike!!!\n" + text.Reset))
+				}
+				if doubleDamage {
+					target.Write([]byte(text.Red + "Double Damage!!!\n" + text.Reset))
 				}
 				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 				if target.CheckFlag("reflection") {
@@ -492,6 +502,12 @@ func (m *Mob) Tick() {
 					if stamDamage == 0 && vitDamage == 0 {
 						target.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset))
 					} else {
+						if criticalStrike {
+							target.Write([]byte(text.Red + "Critical Strike!!!\n" + text.Reset))
+						}
+						if doubleDamage {
+							target.Write([]byte(text.Red + "Double Damage!!!\n" + text.Reset))
+						}
 						target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 					}
 					if target.CheckFlag("reflection") {
