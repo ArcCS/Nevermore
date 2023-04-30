@@ -21,6 +21,11 @@ func (evaluate) process(s *state) {
 		return
 	}
 
+	if s.actor.Evals <= 0 {
+		s.msg.Actor.SendBad("You cannot perform anymore evaluations today.")
+		return
+	}
+
 	name := s.input[0]
 	nameNum := 1
 

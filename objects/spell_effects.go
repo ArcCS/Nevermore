@@ -216,15 +216,21 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
 		damage = damage + int(float64(caller.Pie.Current)*config.PieHealMod)
-	}
 
-	switch target := target.(type) {
-	case *Character:
-		target.HealStam(damage)
-		return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
-	case *Mob:
-		target.HealStam(damage)
-		return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " stamina"
+		switch target := target.(type) {
+		case *Character:
+			target.HealStam(damage)
+			for _, mob := range Rooms[target.ParentId].Mobs.Contents {
+				if mob.Flags["hostile"] {
+					mob.AddThreatDamage(damage, caller)
+				}
+			}
+			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
+		case *Mob:
+			target.HealStam(damage)
+			return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " stamina"
+		}
+		return ""
 	}
 	return ""
 }
@@ -234,18 +240,24 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
 		damage = damage + int(float64(caller.Pie.Current)*config.PieHealMod)
-	}
 
-	switch target := target.(type) {
-	case *Character:
-		target.HealVital(damage)
-		return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
-	case *Mob:
-		target.HealVital(damage)
-		return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " vitality."
+		switch target := target.(type) {
+		case *Character:
+			target.HealVital(damage)
+			target.HealStam(damage)
+			for _, mob := range Rooms[target.ParentId].Mobs.Contents {
+				if mob.Flags["hostile"] {
+					mob.AddThreatDamage(damage, caller)
+				}
+			}
+			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
+		case *Mob:
+			target.HealVital(damage)
+			return "You heal " + target.Name + " for " + strconv.Itoa(damage) + " vitality."
+		}
+		return ""
 	}
 	return ""
-
 }
 
 func heal(caller interface{}, target interface{}, magnitude int) string {
@@ -258,18 +270,24 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
 		damage = damage + int(float64(caller.Pie.Current)*config.PieHealMod)
-	}
 
-	switch target := target.(type) {
-	case *Character:
-		target.Heal(damage)
-		return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
-	case *Mob:
-		stamDam, vitDam := target.Heal(damage)
-		return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
+		switch target := target.(type) {
+		case *Character:
+			stam, vit := target.Heal(damage)
+			target.HealStam(damage)
+			for _, mob := range Rooms[target.ParentId].Mobs.Contents {
+				if mob.Flags["hostile"] {
+					mob.AddThreatDamage(stam+vit, caller)
+				}
+			}
+			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
+		case *Mob:
+			stamDam, vitDam := target.Heal(damage)
+			return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
+		}
+		return ""
 	}
 	return ""
-
 }
 
 func restore(caller interface{}, target interface{}, magnitude int) string {

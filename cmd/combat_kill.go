@@ -221,27 +221,6 @@ func DeathCheck(s *state, m *objects.Mob) {
 			charClean := s.where.Chars.SearchAll(k)
 			if charClean != nil {
 				if threat > 0 {
-					if m.Level+3 < charClean.Tier {
-						totalExperience = int(math.Abs(float64(m.Experience / (6 + (charClean.Tier - m.Level)))))
-					} else {
-						if threat >= m.Stam.Max/2 {
-							totalExperience = m.Experience
-						} else if threat >= m.Stam.Max/4 && threat < m.Stam.Max/2 {
-							totalExperience = m.Experience/2 + utils.Roll(m.Experience/8, 2, 0)
-						} else {
-							totalExperience = m.Experience / 8
-						}
-					}
-				} else {
-					totalExperience = 0
-				}
-
-				if totalExperience == 0 {
-					buildActorString += text.Cyan + "You earn no experience for the defeat of the " + m.Name + "\n"
-				} else if totalExperience <= m.Experience/8 {
-					buildActorString += text.Cyan + "You earn merely " + strconv.Itoa(totalExperience) + " experience for the defeat of the " + m.Name + "\n"
-					charClean.Experience.Add(totalExperience)
-				} else {
 					buildActorString += text.Cyan + "You earn " + strconv.Itoa(totalExperience) + " experience for the defeat of the " + m.Name + "\n"
 					charClean.Experience.Add(totalExperience)
 				}
