@@ -216,13 +216,12 @@ func DeathCheck(s *state, m *objects.Mob) {
 		s.msg.Actor.SendGood("You killed " + m.Name)
 		s.msg.Observers.SendGood(s.actor.Name + " killed " + m.Name)
 		for k, threat := range m.ThreatTable {
-			totalExperience := 0
 			buildActorString := ""
 			charClean := s.where.Chars.SearchAll(k)
 			if charClean != nil {
 				if threat > 0 {
-					buildActorString += text.Cyan + "You earn " + strconv.Itoa(totalExperience) + " experience for the defeat of the " + m.Name + "\n"
-					charClean.Experience.Add(totalExperience)
+					buildActorString += text.Cyan + "You earn " + strconv.Itoa(m.Experience) + " experience for the defeat of the " + m.Name + "\n"
+					charClean.Experience.Add(m.Experience)
 				}
 				if charClean == s.actor {
 					buildActorString += text.Green + m.DropInventory() + "\n"
