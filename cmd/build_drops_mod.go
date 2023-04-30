@@ -46,9 +46,9 @@ func (moddrop) process(s *state) {
 			} else {
 				mob.ItemList[item_id] = drop_rate
 				data.UpdateDrop(map[string]interface{}{
-					"mobId":  mob_id,
-					"itemId": item_id,
-					"chance": drop_rate})
+					"mob_id":  mob_id,
+					"item_id": item_id,
+					"chance":  drop_rate})
 				s.msg.Actor.SendGood("Drop rate updated")
 			}
 		} else {

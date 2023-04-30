@@ -197,21 +197,26 @@ func (i *MobInventory) ListHiddenMobs(observer *Character) []*Mob {
 // List the items in this MobInventory
 func (i *MobInventory) ListAttackers(observer *Character) string {
 	items := ""
+	victim := ""
 
 	for _, o := range i.Contents {
 		if o.CurrentTarget != "" {
+			victim = o.CurrentTarget
+			if o.CurrentTarget == observer.Name {
+				victim = text.Bold + "you" + text.Reset
+			}
 			// List all
 			if observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-				items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + o.CurrentTarget + "!\n"
+				items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + victim + "!\n"
 				// List non-hiddens invis
 			} else if observer.Flags["detect_invisible"] {
 				if o.Flags["hidden"] != true {
-					items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + o.CurrentTarget + "!\n"
+					items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + victim + "!\n"
 				}
 				// List non-hiddens
 			} else {
 				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
-					items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + o.CurrentTarget + "!\n"
+					items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + victim + "!\n"
 				}
 			}
 		}

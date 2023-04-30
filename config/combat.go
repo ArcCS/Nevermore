@@ -22,7 +22,7 @@ var CombatModifiers = map[string]int{
 
 var MobVital = 3
 var MobCritical = 10
-var MobDouble = 25
+var MobDouble = 20
 var MobFollowVital = 25
 
 var BindCost = 75000

@@ -163,8 +163,8 @@ func UpdateItem(itemData map[string]interface{}) bool {
 			"light":            itemData["light"],
 			"no_take":          itemData["no_take"],
 			"weightless_chest": itemData["weightless_chest"],
-			"commands": 		itemData["commands"],
-			"adjustment":		itemData["adjustment"],
+			"commands":         itemData["commands"],
+			"adjustment":       itemData["adjustment"],
 		},
 	)
 	if err != nil {
@@ -183,7 +183,7 @@ func CopyItem(itemId int) (int, bool) {
 	results, err := execWrite("MATCH (i:item{item_id:$itemId}) CALL apoc.refactor.cloneNodes([i]) YIELD output SET output.item_id=$newId RETURN output.item_id",
 		map[string]interface{}{
 			"itemId": itemId,
-			"newId": newItemId,
+			"newId":  newItemId,
 		},
 	)
 	if err != nil {
@@ -252,6 +252,7 @@ func UpdateDrop(mobData map[string]interface{}) bool {
 		log.Println(err)
 		return false
 	}
+	log.Println(results)
 	if results.Counters().ContainsUpdates() {
 		return true
 	} else {
@@ -337,10 +338,10 @@ func SearchItemMaxDamage(searchStr string, skip int) []interface{} {
 func SearchItemRange(loId int, hiId int, skip int) []interface{} {
 	results, err := execRead("MATCH (i:item) WHERE i.item_id >= $loid AND i.item_id <= $hiid RETURN {name: i.name, item_id: i.item_id, type: i.type} ORDER BY i.item_id SKIP $skip LIMIT $limit",
 		map[string]interface{}{
-			"loid": loId,
-			"hiid": hiId,
-			"skip":   skip,
-			"limit":  config.Server.SearchResults,
+			"loid":  loId,
+			"hiid":  hiId,
+			"skip":  skip,
+			"limit": config.Server.SearchResults,
 		},
 	)
 	if err != nil {

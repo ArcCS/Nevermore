@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"math/rand"
 	"regexp"
 	"strconv"
@@ -369,7 +370,7 @@ func (a *newCharacter) confirmProcess() {
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
-	case inputVal == "y":
+	case inputVal == "y" || inputVal == "yes":
 		a.storyFinish()
 	default:
 		a.buf.Send(text.Info, "Unrecognized input, please try again. \n", text.Reset)
@@ -530,12 +531,13 @@ Cancel (c) Leave the character builder
 }
 
 func (a *newCharacter) confirmFastProcess() {
+	log.Println("entering confirmFastProcess with input: ", string(a.input))
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
 		a.buf.Send(text.Info, "No input given. Please try again. \n", text.Reset)
 		a.nextFunc = a.confirmFastProcess
-	case inputVal == "n":
+	case inputVal == "n" || inputVal == "no":
 		a.buf.Send(text.Info, "Returning to previous step. \n", text.Reset)
 		a.fastStep1Display()
 	case inputVal == "c":
@@ -544,7 +546,7 @@ func (a *newCharacter) confirmFastProcess() {
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
-	case inputVal == "y":
+	case inputVal == "y" || inputVal == "yes":
 		a.completeBuilder()
 	default:
 		a.buf.Send(text.Info, "Unrecognized input, please try again. \n", text.Reset)

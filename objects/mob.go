@@ -371,13 +371,12 @@ func (m *Mob) Tick() {
 			vitalStrike := false
 			criticalStrike := false
 			doubleDamage := false
-			critRoll := utils.Roll(100, 1, 0)
-			if critRoll <= config.MobVital {
+			if utils.Roll(100, 1, 0) <= config.MobVital {
 				vitalStrike = true
-			} else if critRoll <= config.MobCritical {
+			} else if utils.Roll(100, 1, 0) <= config.MobCritical {
 				multiplier = 3
 				criticalStrike = true
-			} else if critRoll <= config.MobDouble {
+			} else if utils.Roll(100, 1, 0) <= config.MobDouble {
 				multiplier = 2
 				doubleDamage = true
 			}

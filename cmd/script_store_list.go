@@ -6,6 +6,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jedib0t/go-pretty/table"
+	"strconv"
 )
 
 func init() {
@@ -33,6 +34,14 @@ func (list) process(s *state) {
 				t.AppendRows([]table.Row{
 					{item.DisplayName(), item.StorePrice, config.ItemTypes[item.ItemType]},
 				})
+			} else if item.ItemType == 7 {
+				t.AppendRows([]table.Row{
+					{item.Name, item.StorePrice, "(S) " + objects.Spells[item.Spell].Name},
+				})
+			} else if item.ItemType == 18 {
+				t.AppendRows([]table.Row{
+					{item.Name, item.StorePrice, "(M) " + objects.Spells[item.Spell].Name},
+				})
 			} else if item.ItemType == 6 {
 				t.AppendRows([]table.Row{
 					{item.Name, item.StorePrice, "(D) " + objects.Spells[item.Spell].Name},
@@ -40,6 +49,10 @@ func (list) process(s *state) {
 			} else if item.ItemType == 8 {
 				t.AppendRows([]table.Row{
 					{item.Name, item.StorePrice, "(W) " + objects.Spells[item.Spell].Name},
+				})
+			} else if item.ItemType == 9 {
+				t.AppendRows([]table.Row{
+					{item.Name, item.StorePrice, "bag ( " + strconv.Itoa(item.MaxUses) + " )"},
 				})
 
 			} else {
