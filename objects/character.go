@@ -83,6 +83,7 @@ type Character struct {
 
 	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
+	CharCommands     chan string
 	SongTicker       *time.Ticker
 	SongTickerUnload chan bool
 	Hooks            map[string]map[string]*Hook
@@ -167,6 +168,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				"air":   {0}},
 			nil,
 			make(chan bool),
+			make(chan string),
 			nil,
 			make(chan bool),
 			map[string]map[string]*Hook{
@@ -230,6 +232,9 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 		go func() {
 			for {
 				select {
+				case msg := <-FilledCharacter.CharCommands:
+					// This function call will immediately call a command off the stack and push it to script
+					go Script(FilledCharacter, msg)
 				case <-FilledCharacter.CharTickerUnload:
 					return
 				case <-FilledCharacter.CharTicker.C:
@@ -922,7 +927,11 @@ func (c *Character) InflictDamage() (damage int) {
 		damage = utils.Roll(int(sDice), int(nDice), int(plusDamage))
 	}
 
-	damage += int(math.Ceil(float64(damage) * (config.StrDamageMod * float64(c.GetStat("str")))))
+	if utils.IntIn(c.Class, []int{2, 3, 8}) {
+		damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("dex")))))
+	} else {
+		damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("str")))))
+	}
 
 	if c.CheckFlag("surge") {
 		damage += int(math.Ceil(float64(damage) * config.SurgeDamageBonus))

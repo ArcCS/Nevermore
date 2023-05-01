@@ -107,7 +107,7 @@ var MobTakeChance = 10 // Percent
 // Str Mods
 var StrCarryMod = 10 // Per Point
 var BaseCarryWeight = 40
-var StrDamageMod = .03 // Per Point
+var StatDamageMod = .03 // Per Point
 
 // Con Mods
 var ConArmorMod = .01
@@ -152,21 +152,21 @@ func CalcHealth(tier int, con int, class int) int {
 	if class >= 99 {
 		return 800
 	}
-	return (tier * Classes[AvailableClasses[class]].Health) + int(float64(tier)*float64(con/ConBonusHealthDiv)*float64(ConBonusHealth))
+	return (tier * Classes[AvailableClasses[class]].Health) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv))*float64(ConBonusHealth))
 }
 
 func CalcStamina(tier int, con int, class int) int {
 	if class >= 99 {
 		return 800
 	}
-	return (tier * Classes[AvailableClasses[class]].Stamina) + int(float64(tier)*float64(con/ConBonusHealthDiv)*float64(ConBonusHealth))
+	return (tier * Classes[AvailableClasses[class]].Stamina) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv))*float64(ConBonusHealth))
 }
 
 func CalcMana(tier int, intel int, class int) int {
 	if class >= 99 {
 		return 800
 	}
-	return (tier * Classes[AvailableClasses[class]].Mana) + int(float64(tier)*float64(intel/IntManaPoolDiv)*float64(IntManaPool))
+	return (tier * Classes[AvailableClasses[class]].Mana) + int(float64(tier)*(float64(intel)/float64(IntManaPoolDiv))*float64(IntManaPool))
 }
 
 func CalcHaste(tier int) int {
