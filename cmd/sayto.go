@@ -24,9 +24,7 @@ func (sayto) process(s *state) {
 
 	for _, loc := range s.where.Exits {
 		room := objects.Rooms[loc.ToId]
-		room.Chars.Lock()
 		room.MessageAll("You hear someone speaking nearby.")
-		room.Chars.Unlock()
 	}
 
 	whoSays := s.actor.Name
@@ -59,7 +57,6 @@ func (sayto) process(s *state) {
 		s.msg.Participant.SendInfo(whoSays, " says to you: \"", msg, "\"")
 		s.msg.Observers.SendInfo(whoSays, " says to "+who.Name+": \"", msg, "\"")
 	}
-
 
 	s.ok = true
 	return

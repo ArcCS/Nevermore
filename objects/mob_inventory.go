@@ -8,14 +8,12 @@ import (
 	"github.com/jinzhu/copier"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 type MobInventory struct {
 	ParentId int
 	Contents []*Mob
-	sync.Mutex
-	Flags map[string]bool
+	Flags    map[string]bool
 }
 
 // NewMobInventory returns a new basic MobInventory structure

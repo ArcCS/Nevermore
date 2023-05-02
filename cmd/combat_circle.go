@@ -82,6 +82,8 @@ func (circle) process(s *state) {
 		// Check for a miss
 		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
 			s.msg.Actor.SendBad("You missed!!")
+			s.actor.SetTimer("combat_circle", config.CircleTimer)
+			s.actor.SetTimer("combat", config.CombatCooldown)
 			s.msg.Observers.SendBad(s.actor.Name + " fails to circle " + whatMob.Name)
 			return
 		}

@@ -90,8 +90,8 @@ func (godir) process(s *state) {
 		// Check that the room ID exists
 		if to, ok := objects.Rooms[toE.ToId]; ok {
 			// Apply a lock
-			if !utils.IntIn(toE.ToId, s.cLocks) {
-				s.AddCharLock(toE.ToId)
+			if !utils.IntIn(toE.ToId, s.rLocks) {
+				s.AddLocks(toE.ToId)
 				s.ok = false
 				return
 			} else {
@@ -195,16 +195,18 @@ func (godir) process(s *state) {
 					}
 
 					if len(s.actor.PartyFollowers) > 0 {
-						for _, party := range s.actor.PartyFollowers {
-							if party.ParentId == s.where.RoomId {
-								go Script(party, s.cmd+" "+strings.Join(s.input, " "))
+						for _, peo := range s.actor.PartyFollowers {
+							instanceChar := peo
+							if instanceChar.ParentId == s.where.RoomId {
+								go func() { instanceChar.CharCommands <- "go " + exitTxt }()
 							}
 						}
 					}
 
 					// Character has been removed, invoke any follows
 					for _, mob := range followList {
-						go func() { mob.MobCommands <- "follow " + s.actor.Name }()
+						mobProc := mob
+						go func() { mobProc.MobCommands <- "follow " + s.actor.Name }()
 					}
 
 					s.scriptActor("LOOK")
@@ -221,14 +223,6 @@ func (godir) process(s *state) {
 					if s.actor.Flags["invisible"] == false {
 						s.msg.Observers[from.RoomId].SendInfo("You see ", s.actor.Name, " go to the ", strings.ToLower(toE.Name), ".")
 						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
-					}
-
-					if len(s.actor.PartyFollowers) > 0 {
-						for _, party := range s.actor.PartyFollowers {
-							if party.ParentId == s.where.RoomId {
-								go func() { party.CharCommands <- "go " + exitTxt }()
-							}
-						}
 					}
 
 					s.scriptActor("LOOK")

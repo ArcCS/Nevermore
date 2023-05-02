@@ -234,6 +234,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				select {
 				case msg := <-FilledCharacter.CharCommands:
 					// This function call will immediately call a command off the stack and push it to script
+					log.Println(FilledCharacter.Name + "Processing command: " + msg)
 					go Script(FilledCharacter, msg)
 				case <-FilledCharacter.CharTickerUnload:
 					return
@@ -1002,10 +1003,10 @@ func (c *Character) WriteMovement(previous int, new int, subject string) {
 func (c *Character) LoseParty() {
 	if len(c.PartyFollowers) > 0 {
 		for _, player := range c.PartyFollowers {
-			player.PartyFollow = nil
+			player.PartyFollow = (*Character)(nil)
 			player.Write([]byte(text.Info + c.Name + " loses you."))
 		}
-		c.PartyFollowers = nil
+		c.PartyFollowers = []*Character{}
 	}
 	return
 }

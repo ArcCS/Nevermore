@@ -24,9 +24,7 @@ func (say) process(s *state) {
 
 	for _, loc := range s.where.Exits {
 		room := objects.Rooms[loc.ToId]
-		room.Chars.Lock()
 		room.MessageAll("You hear someone speaking nearby.")
-		room.Chars.Unlock()
 	}
 
 	who := s.actor.Name

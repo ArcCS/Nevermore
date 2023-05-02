@@ -366,7 +366,6 @@ func firedamage(caller interface{}, target interface{}, magnitude int) string {
 				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
 				caller.DeathCheck(target)
 			}
-			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
 			return ""
 		}
 
@@ -442,7 +441,6 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
 				caller.DeathCheck(target)
 			}
-			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
 			return ""
 		}
 
@@ -545,7 +543,6 @@ func airdamage(caller interface{}, target interface{}, magnitude int) string {
 				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
 				caller.DeathCheck(target)
 			}
-			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
 			return ""
 		}
 
@@ -621,7 +618,6 @@ func waterdamage(caller interface{}, target interface{}, magnitude int) string {
 				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
 				caller.DeathCheck(target)
 			}
-			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
 			return ""
 		}
 

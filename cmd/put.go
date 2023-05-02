@@ -106,15 +106,11 @@ func (put) process(s *state) {
 
 	s.actor.RunHook("act")
 
-	s.actor.Inventory.Lock()
-	where.Storage.Lock()
 	s.actor.Inventory.Remove(target)
 	where.Storage.Add(target)
 	if recalc {
 		s.actor.Inventory.ReCalcWeight()
 	}
-	s.actor.Inventory.Unlock()
-	where.Storage.Unlock()
 
 	s.msg.Actor.SendGood("You put ", target.Name, " into ", where.Name, ".")
 	s.msg.Observers.SendInfo("You see ", s.actor.Name, " put ", target.Name, " into ", where.Name, ".")

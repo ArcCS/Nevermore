@@ -8,9 +8,9 @@ import (
 
 func init() {
 	addHandler(additem{},
-	"Usage: additem name # price, adds an item to a store if you own it at the given price",
-	permissions.Player,
-	"additem")
+		"Usage: additem name # price, adds an item to a store if you own it at the given price",
+		permissions.Player,
+		"additem")
 }
 
 type additem cmd
@@ -33,7 +33,7 @@ func (additem) process(s *state) {
 			if val2, err2 := strconv.Atoi(s.words[2]); err2 == nil {
 				priceStr = val2
 			}
-		}else {
+		} else {
 			if val2, err2 := strconv.Atoi(s.words[1]); err2 == nil {
 				priceStr = val2
 			}
@@ -43,28 +43,20 @@ func (additem) process(s *state) {
 		whatItem := s.actor.Inventory.Search(targetStr, targetNum)
 		if whatItem != nil {
 			if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-				s.actor.Inventory.Lock()
-				s.where.StoreInventory.Lock()
 				s.actor.Inventory.Remove(whatItem)
 				s.where.AddStoreItem(whatItem, priceStr, true)
-				s.where.StoreInventory.Unlock()
-				s.actor.Inventory.Unlock()
 				s.where.Save()
 				s.msg.Actor.SendGood("You add " + whatItem.Name + " to the store.")
-			}else{
-				s.actor.Inventory.Lock()
-				s.where.StoreInventory.Lock()
+			} else {
 				s.actor.Inventory.Remove(whatItem)
 				s.where.AddStoreItem(whatItem, priceStr, false)
-				s.where.StoreInventory.Unlock()
-				s.actor.Inventory.Unlock()
 				s.where.Save()
 				s.msg.Actor.SendGood("You add " + whatItem.Name + " to the store.")
 			}
-		}else{
+		} else {
 			s.msg.Actor.SendBad("That's not an item in your inventory.")
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("This isn't your store to modify.")
 	}
 }

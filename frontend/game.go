@@ -62,10 +62,10 @@ func (g *game) gameInit() {
 		g.character.Permission.ToggleFlag(permissions.Player)
 		g.character.Permission.ToggleFlag(config.ClassPerms[g.character.Class])
 	}
-	objects.Rooms[g.character.ParentId].Chars.Lock()
+	objects.Rooms[g.character.ParentId].Lock()
 	objects.Rooms[g.character.ParentId].Chars.Add(g.character)
 	objects.ActiveCharacters.Add(g.character, g.remoteAddr)
-	objects.Rooms[g.character.ParentId].Chars.Unlock()
+	objects.Rooms[g.character.ParentId].Unlock()
 
 	cmd.Script(g.character, "$POOF")
 	// Initialize this characters ticker

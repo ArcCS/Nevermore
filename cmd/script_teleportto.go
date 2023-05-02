@@ -37,16 +37,16 @@ func (scriptTeleportTo) process(s *state) {
 		return
 	}
 
-	if !utils.IntIn(newRoom.RoomId, s.cLocks) {
-		s.AddCharLock(newRoom.RoomId)
+	if !utils.IntIn(newRoom.RoomId, s.rLocks) {
+		s.AddLocks(newRoom.RoomId)
 		s.ok = false
 		return
 	}
 
 	target := objects.ActiveCharacters.Find(s.words[0])
 	if target != nil {
-		if !utils.IntIn(newRoom.RoomId, s.cLocks) {
-			s.AddCharLock(newRoom.RoomId)
+		if !utils.IntIn(newRoom.RoomId, s.rLocks) {
+			s.AddLocks(newRoom.RoomId)
 			s.ok = false
 			return
 		}
@@ -72,8 +72,8 @@ func (scriptTeleportTo) process(s *state) {
 		go Script(target, "LOOK")
 		s.ok = true
 		return
-	}else{
-		s.msg.Actor.SendBad("Could not find dthat person to cast the spell on.")
+	} else {
+		s.msg.Actor.SendBad("Could not find that person to cast the spell on.")
 	}
 
 }

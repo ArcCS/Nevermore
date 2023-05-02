@@ -28,8 +28,8 @@ func (ooc) process(s *state) {
 	}
 
 	if to, ok := objects.Rooms[config.OocRoom]; ok {
-		if !utils.IntIn(to.RoomId, s.cLocks) {
-			s.AddCharLock(to.RoomId)
+		if !utils.IntIn(to.RoomId, s.rLocks) {
+			s.AddLocks(to.RoomId)
 			return
 		} else {
 			s.actor.OOCSwap = s.actor.ParentId

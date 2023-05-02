@@ -6,12 +6,10 @@ import (
 	"github.com/jinzhu/copier"
 	"log"
 	"strings"
-	"sync"
 )
 
 type ItemInventory struct {
-	Contents []*Item
-	sync.Mutex
+	Contents    []*Item
 	TotalWeight int
 	Flags       map[string]bool
 }

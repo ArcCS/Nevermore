@@ -60,7 +60,6 @@ func (enchant) process(s *state) {
 	}
 
 	s.actor.RunHook("act")
-	s.actor.Inventory.Lock()
 	s.msg.Actor.SendGood("You chant: \"I inject my magicks into thee!\"")
 	s.msg.Observers.SendGood(s.actor.Name + " chants: \"I inject my magicks into thee!\"")
 	s.actor.ClassProps["enchants"]--
@@ -76,7 +75,6 @@ func (enchant) process(s *state) {
 	if utils.IntIn(target.ItemType, config.WeaponTypes) {
 		target.Adjustment += DetermineWeaponEnchant(s.actor.Tier)
 	}
-	s.actor.Inventory.Unlock()
 	s.msg.Actor.SendGood("You enchanted ", target.Name, ".")
 	s.ok = true
 }

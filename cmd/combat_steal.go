@@ -116,12 +116,8 @@ func (steal) process(s *state) {
 				curChance += s.actor.Dex.Current * config.StealChancePerPoint
 
 				if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
-					whatMob.Inventory.Lock()
-					s.actor.Inventory.Lock()
 					whatMob.Inventory.Remove(what)
 					s.actor.Inventory.Add(what)
-					whatMob.Inventory.Unlock()
-					s.actor.Inventory.Unlock()
 					s.msg.Actor.SendGood("You steal a ", what.Name, " from ", whatMob.Name, ".")
 					return
 				} else {

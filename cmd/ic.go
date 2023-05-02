@@ -16,13 +16,13 @@ func init() {
 type ic cmd
 
 func (ic) process(s *state) {
-	if !s.actor.Flags["ooc"]{
+	if !s.actor.Flags["ooc"] {
 		s.msg.Actor.SendBad("You are already in-character.")
 		return
 	}
 	if to, ok := objects.Rooms[s.actor.OOCSwap]; ok {
-		if !utils.IntIn(to.RoomId, s.cLocks) {
-			s.AddCharLock(to.RoomId)
+		if !utils.IntIn(to.RoomId, s.rLocks) {
+			s.AddLocks(to.RoomId)
 			return
 		} else {
 			s.actor.OOCSwap = 0

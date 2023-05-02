@@ -3,14 +3,12 @@ package objects
 import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
-	"sync"
 )
 
 type CharInventory struct {
 	ParentId int
 	Contents []*Character
-	sync.Mutex
-	Flags map[string]bool
+	Flags    map[string]bool
 }
 
 // New CharInventory returns a new basic CharInventory structure

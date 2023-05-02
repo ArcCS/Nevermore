@@ -27,12 +27,12 @@ func (moveto) process(s *state) {
 	if who != nil {
 		roomId, _ := strconv.Atoi(s.words[1])
 		if to, ok := objects.Rooms[roomId]; ok {
-			if !utils.IntIn(to.RoomId, s.cLocks) {
-				s.AddCharLock(to.RoomId)
+			if !utils.IntIn(to.RoomId, s.rLocks) {
+				s.AddLocks(to.RoomId)
 				s.ok = false
 				return
-			}else if !utils.IntIn(who.ParentId, s.cLocks) {
-				s.AddCharLock(who.ParentId)
+			} else if !utils.IntIn(who.ParentId, s.rLocks) {
+				s.AddLocks(who.ParentId)
 				s.ok = false
 				return
 			} else {
@@ -45,7 +45,7 @@ func (moveto) process(s *state) {
 				s.ok = true
 				return
 			}
-		}else{
+		} else {
 			s.msg.Actor.SendBad("Send who where?")
 			return
 		}

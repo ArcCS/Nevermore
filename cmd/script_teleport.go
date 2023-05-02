@@ -23,8 +23,8 @@ func (scriptTeleport) process(s *state) {
 	rand.Seed(time.Now().Unix())
 	newRoom := objects.Rooms[objects.TeleportTable[rand.Intn(len(objects.TeleportTable))]]
 
-	if !utils.IntIn(newRoom.RoomId, s.cLocks) {
-		s.AddCharLock(newRoom.RoomId)
+	if !utils.IntIn(newRoom.RoomId, s.rLocks) {
+		s.AddLocks(newRoom.RoomId)
 		s.ok = false
 		return
 	}

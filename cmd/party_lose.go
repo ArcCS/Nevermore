@@ -17,11 +17,11 @@ func init() {
 type lose cmd
 
 func (lose) process(s *state) {
-	if len(s.input) < 1  || strings.ToLower(s.words[0]) == "all"{
+	if len(s.input) < 1 || strings.ToLower(s.words[0]) == "all" {
 		if len(s.actor.PartyFollowers) > 0 {
 			s.actor.LoseParty()
 			s.msg.Actor.SendInfo("You lose everyone following you.")
-		}else{
+		} else {
 			s.msg.Actor.SendInfo("There is no one following you.")
 		}
 		return
@@ -35,7 +35,7 @@ func (lose) process(s *state) {
 			if player == whatChar {
 				if !player.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					copy(s.actor.PartyFollowers[c:], s.actor.PartyFollowers[c+1:])
-					s.actor.PartyFollowers[len(s.actor.PartyFollowers)-1] = nil
+					s.actor.PartyFollowers[len(s.actor.PartyFollowers)-1] = (*objects.Character)(nil)
 					s.actor.PartyFollowers = s.actor.PartyFollowers[:len(s.actor.PartyFollowers)-1]
 
 					s.msg.Actor.SendInfo("You lose " + player.Name + ".")
@@ -46,7 +46,7 @@ func (lose) process(s *state) {
 			s.msg.Actor.SendInfo("That person isn't in your party.")
 		}
 
-	}else{
+	} else {
 		s.msg.Actor.SendBad("Who ya followin'??")
 	}
 

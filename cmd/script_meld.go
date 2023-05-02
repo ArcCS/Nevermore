@@ -124,11 +124,9 @@ func (confirmMeld) process(s *state) {
 			} else {
 				s.actor.Gold.Subtract(cost)
 			}
-			s.actor.Inventory.Lock()
 			target.MaxUses += meld.MaxUses
 			s.actor.Inventory.Remove(meld)
 			s.msg.Actor.SendGood("Meld completed.")
-			s.actor.Inventory.Unlock()
 			meld = nil
 		} else {
 			s.msg.Actor.SendBad("These are not meldable items")

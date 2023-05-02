@@ -61,7 +61,7 @@ func (equip) process(s *state) {
 				return
 			}
 		}
-		s.actor.Inventory.Lock()
+
 		if s.actor.Equipment.Equip(what) {
 			s.msg.Actor.SendGood("You equip " + what.DisplayName())
 			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.DisplayName())
@@ -69,8 +69,6 @@ func (equip) process(s *state) {
 		} else {
 			s.msg.Actor.SendBad("You cannot equip that.")
 		}
-
-		s.actor.Inventory.Unlock()
 
 		s.ok = true
 		return

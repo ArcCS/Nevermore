@@ -9,12 +9,14 @@ import (
 	"github.com/jinzhu/copier"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 // Room contains the map of fields for a room in nexus
 type Room struct {
 	Object
+	sync.Mutex
 
 	RoomId  int //room_id from database
 	Creator string
@@ -34,6 +36,7 @@ type Room struct {
 	StoreOwner         string
 	StoreInventory     *ItemInventory
 	Songs              map[string]string
+	LockPriority       string
 }
 
 // Pop the room data
@@ -45,6 +48,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 			Placement:   3,
 			Commands:    DeserializeCommands(roomData["commands"].(string)),
 		},
+		sync.Mutex{},
 		int(roomData["room_id"].(int64)),
 		roomData["creator"].(string),
 		make(map[string]*Exit),
@@ -61,6 +65,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		roomData["store_owner"].(string),
 		RestoreInventory(roomData["store_inventory"].(string)),
 		make(map[string]string),
+		"",
 	}
 
 	for _, encounter := range roomData["encounters"].([]interface{}) {
@@ -377,8 +382,7 @@ func (r *Room) MessageMovement(previous int, new int, subject string) {
 }
 
 func (r *Room) WanderMob(o *Mob) {
-	r.Chars.Lock()
-	r.Mobs.Lock()
+	r.Lock()
 	if o.Flags["invisible"] {
 		r.MessageVisible(o.Name + " wanders away. \n" + text.Reset)
 	} else if !o.Flags["hidden"] {
@@ -386,13 +390,11 @@ func (r *Room) WanderMob(o *Mob) {
 	}
 	r.Mobs.Remove(o)
 	o = nil
-	r.Mobs.Unlock()
-	r.Chars.Unlock()
+	r.Unlock()
 }
 
 func (r *Room) FleeMob(o *Mob) {
-	r.Chars.Lock()
-	r.Mobs.Lock()
+	r.Lock()
 	if o.Flags["invisible"] {
 		r.MessageVisible(o.Name + " flees!! \n" + text.Reset)
 	} else if !o.Flags["hidden"] {
@@ -400,8 +402,7 @@ func (r *Room) FleeMob(o *Mob) {
 	}
 	r.Mobs.Remove(o)
 	o = nil
-	r.Mobs.Unlock()
-	r.Chars.Unlock()
+	r.Unlock()
 }
 
 func (r *Room) ClearMob(o *Mob) {

@@ -37,8 +37,6 @@ func (buy) process(s *state) {
 			if s.actor.Gold.Value > purchaseItem.StorePrice {
 				if (s.actor.GetCurrentWeight() + purchaseItem.GetWeight()) <= s.actor.MaxWeight() {
 					s.actor.RunHook("act")
-					s.actor.Inventory.Lock()
-					s.where.StoreInventory.Lock()
 					s.actor.Gold.Subtract(purchaseItem.StorePrice)
 					if purchaseItem.Flags["infinite"] {
 						newItem := objects.Item{}
@@ -48,8 +46,6 @@ func (buy) process(s *state) {
 						s.where.StoreInventory.Remove(purchaseItem)
 						s.actor.Inventory.Add(purchaseItem)
 					}
-					s.where.StoreInventory.Unlock()
-					s.actor.Inventory.Unlock()
 					s.msg.Actor.SendGood("You purchase ", purchaseItem.Name, ".")
 					s.msg.Observers.SendInfo(s.actor.Name, " purchases ", purchaseItem.Name, ".")
 					return

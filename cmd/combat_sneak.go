@@ -67,8 +67,8 @@ func (sneak) process(s *state) {
 		// Check that the room ID exists
 		if to, ok := objects.Rooms[toE.ToId]; ok {
 			// Apply a lock
-			if !utils.IntIn(toE.ToId, s.cLocks) {
-				s.AddCharLock(toE.ToId)
+			if !utils.IntIn(toE.ToId, s.rLocks) {
+				s.AddLocks(toE.ToId)
 				s.ok = false
 				return
 			} else {

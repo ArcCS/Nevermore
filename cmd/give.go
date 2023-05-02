@@ -74,12 +74,8 @@ func (give) process(s *state) {
 
 	if (who.GetCurrentWeight() + target.GetWeight()) <= who.MaxWeight() {
 		s.actor.RunHook("act")
-		s.actor.Inventory.Lock()
-		who.Inventory.Lock()
 		s.actor.Inventory.Remove(target)
 		who.Inventory.Add(target)
-		s.actor.Inventory.Unlock()
-		who.Inventory.Unlock()
 	} else {
 		s.msg.Actor.SendInfo("They can't carry anymore.")
 		return

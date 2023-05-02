@@ -186,13 +186,9 @@ func (m *Mob) StartTicking() {
 			case <-m.MobTickerUnload:
 				return
 			case <-m.MobTicker.C:
-				Rooms[m.ParentId].Chars.Lock()
-				Rooms[m.ParentId].Mobs.Lock()
-				Rooms[m.ParentId].Items.Lock()
+				Rooms[m.ParentId].Lock()
 				m.Tick()
-				Rooms[m.ParentId].Chars.Unlock()
-				Rooms[m.ParentId].Mobs.Unlock()
-				Rooms[m.ParentId].Items.Unlock()
+				Rooms[m.ParentId].Unlock()
 			}
 		}
 	}()
@@ -580,8 +576,10 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 }
 
 func (m *Mob) Follow(params []string) {
+	return
 	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
 	if params[0] == m.CurrentTarget && m.MobStunned == 0 {
+		log.Println("I'm gonna try to follow")
 		// I am, lets process that -> First we need to step up in the world to find that character
 		targetChar := ActiveCharacters.Find(params[0])
 		if targetChar != nil {
@@ -590,17 +588,52 @@ func (m *Mob) Follow(params []string) {
 				curChance = 85
 			}
 			if utils.Roll(100, 1, 0) <= curChance {
-				Rooms[m.ParentId].Chars.Lock()
-				Rooms[m.ParentId].Mobs.Lock()
-				Rooms[m.ParentId].Items.Lock()
-				Rooms[targetChar.ParentId].Chars.Lock()
-				Rooms[targetChar.ParentId].Mobs.Lock()
-				Rooms[targetChar.ParentId].Items.Lock()
-				targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n"))
+				log.Println("I'm gonna follow")
+				// Halt processing
+				neededLocks := make([]int, 2)
+				neededLocks[0] = m.ParentId
+				neededLocks[1] = targetChar.ParentId
+				ready := false
+				// Lets not compete with other mobs for the same locks by using names
+				log.Println("Mob is trying to gain lock priority")
+				tempName := utils.RandString(10)
+				for !ready {
+					ready = true
+					for _, l := range neededLocks {
+						if Rooms[l].LockPriority == "" {
+							Rooms[l].LockPriority = tempName
+						} else if Rooms[l].LockPriority != tempName {
+							ready = false
+						}
+					}
+					if !ready {
+						for _, l := range neededLocks {
+							//log.Println(s.actor.Name + " releasing incomplete priority" + strconv.Itoa(l))
+							if Rooms[l].LockPriority == tempName {
+								Rooms[l].LockPriority = ""
+							}
+						}
+						log.Println("Mob is sleeping before trying to acquire again")
+						rand.Seed(time.Now().UnixNano())
+						r := rand.Int()
+						t, _ := time.ParseDuration(string(r) + "ms")
+						time.Sleep(t)
+					}
+				}
+				m.MobTickerUnload <- true
+				log.Println("Let everyone know there is a follow")
 				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name)
+				log.Println("Processing Previous Room Lock")
+				Rooms[m.ParentId].Lock()
+				log.Println("Processing New Room Lock")
+				Rooms[targetChar.ParentId].Lock()
+				targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n"))
 				previousRoom := m.ParentId
+				log.Println("Remove mob")
 				Rooms[m.ParentId].Mobs.Remove(m)
+				log.Println("Add the mob")
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
+				log.Println("Check for Vital")
 				if utils.Roll(100, 1, 0) <= config.MobFollowVital {
 					vitDamage := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()))))
 					if vitDamage == 0 {
@@ -611,13 +644,15 @@ func (m *Mob) Follow(params []string) {
 					}
 					targetChar.DeathCheck("was slain by a " + m.Name + ".")
 				}
-				m.CurrentTarget = targetChar.Name
-				Rooms[previousRoom].Chars.Unlock()
-				Rooms[previousRoom].Mobs.Unlock()
-				Rooms[previousRoom].Items.Unlock()
-				Rooms[targetChar.ParentId].Chars.Unlock()
-				Rooms[targetChar.ParentId].Mobs.Unlock()
-				Rooms[targetChar.ParentId].Items.Unlock()
+				log.Println("Set Target")
+				log.Println("Previous room Unlock")
+				Rooms[previousRoom].Unlock()
+				log.Println("New Room Unlock")
+				Rooms[targetChar.ParentId].Unlock()
+				// Release the priorities
+				for _, l := range neededLocks {
+					Rooms[l].LockPriority = ""
+				}
 				m.StartTicking()
 			}
 		}
@@ -684,18 +719,17 @@ func (m *Mob) Teleport(target string) {
 			}
 		}
 		targetChar.Write([]byte(m.Name + " teleported you.\n"))
-		newRoom.Chars.Lock()
+		newRoom.Lock()
 		workingRoom.Chars.Remove(targetChar)
 		newRoom.Chars.Add(targetChar)
 		targetChar.ParentId = newRoom.RoomId
 		targetChar.Write([]byte(newRoom.Look(targetChar)))
-		newRoom.Chars.Unlock()
+		newRoom.Unlock()
 	}
 }
 
 // On copy to a room calculate the inventory
 func (m *Mob) CalculateInventory() {
-	//log.Println("Attempting to add some inventory...")
 	if len(m.ItemList) > 0 {
 		for k, v := range m.ItemList {
 			if utils.Roll(100, 1, 0) <= v {
@@ -811,13 +845,11 @@ func (m *Mob) RunHook(hook string) {
 			continue
 		}
 		if hookInstance.interval > 0 {
-			log.Println("Executing Hook", hook)
 			log.Println(hookInstance.LastTriggerInterval())
 			if hookInstance.LastTriggerInterval() <= 0 {
 				hookInstance.RunHook()
 			}
 		} else if hookInstance.interval == -1 {
-			log.Println("Executing Hook", hook)
 			hookInstance.RunHook()
 		}
 	}
@@ -907,7 +939,6 @@ func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {
 		resisting += .10
 	}
 	resisted := int(math.Ceil(float64(damage) * resisting))
-	//log.Println(m.Name + " is resisting at " + fmt.Sprintf("%f", resisting) + " damage was " + strconv.Itoa(damage) + " and element was " + element)
 	stamDam, vitDam := m.ReceiveDamageNoArmor(damage - resisted)
 	return stamDam, vitDam, resisted
 }

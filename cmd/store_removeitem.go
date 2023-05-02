@@ -7,9 +7,9 @@ import (
 
 func init() {
 	addHandler(removeitem{},
-	"Usage: removeitem name #  Remove an item from the store inventory.",
-	permissions.Player,
-	"removeitem")
+		"Usage: removeitem name #  Remove an item from the store inventory.",
+		permissions.Player,
+		"removeitem")
 }
 
 type removeitem cmd
@@ -32,15 +32,11 @@ func (removeitem) process(s *state) {
 
 	whatItem := s.where.StoreInventory.Search(name, nameNum)
 	if whatItem != nil {
-		s.where.StoreInventory.Lock()
-		s.actor.Inventory.Lock()
 		s.where.StoreInventory.Remove(whatItem)
 		s.actor.Inventory.Add(whatItem)
-		s.where.StoreInventory.Unlock()
-		s.actor.Inventory.Unlock()
 		s.where.Save()
 		s.msg.Actor.SendGood("You remove " + whatItem.Name + " from the store front.")
-	}else{
+	} else {
 		s.msg.Actor.SendBad("There's no matching item.")
 	}
 }

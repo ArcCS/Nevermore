@@ -81,10 +81,8 @@ func (get) process(s *state) {
 				return
 			} else if (s.actor.GetCurrentWeight()+roomInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				s.actor.RunHook("act")
-				s.actor.Inventory.Lock()
 				s.where.Items.Remove(roomInventory)
 				s.actor.Inventory.Add(roomInventory)
-				s.actor.Inventory.Unlock()
 				s.msg.Actor.SendGood("You get ", roomInventory.Name, ".")
 				s.msg.Observers.SendInfo(s.actor.Name, " takes ", roomInventory.Name, ".")
 				if roomInventory.Flags["permanent"] {
@@ -116,21 +114,15 @@ func (get) process(s *state) {
 			if whereInventory != nil {
 				if whereInventory.ItemType == 10 {
 					s.actor.RunHook("act")
-					where.Storage.Lock()
 					where.Storage.Remove(whereInventory)
 					s.actor.Gold.Add(whereInventory.Value)
 					s.msg.Actor.SendGood("You take ", whereInventory.Name, " from ", where.Name, " and put it in your gold pouch.")
 					s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
-					where.Storage.Unlock()
 					return
 				} else if (s.actor.GetCurrentWeight()+whereInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					s.actor.RunHook("act")
-					where.Storage.Lock()
-					s.actor.Inventory.Lock()
 					where.Storage.Remove(whereInventory)
 					s.actor.Inventory.Add(whereInventory)
-					where.Storage.Unlock()
-					s.actor.Inventory.Unlock()
 					s.msg.Actor.SendGood("You take ", whereInventory.Name, " from ", where.Name, ".")
 					if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 						s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " take ", where.Name, ".")

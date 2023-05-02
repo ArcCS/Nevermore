@@ -10,6 +10,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/utils"
 	"io"
+	"math/rand"
 	"regexp"
 	"strings"
 	"time"
@@ -37,9 +38,7 @@ type state struct {
 	scripting   bool               // Is state in scripting mode?
 
 	// DO NOT MANIPULATE LOCKS DIRECTLY - use AddLock and see it's comments
-	cLocks []int
-	mLocks []int
-	iLocks []int
+	rLocks []int
 
 	// msg contains the message buffers for sending data to different recipients
 	msg message.Msg
@@ -85,7 +84,7 @@ func newState(o *objects.Character, input string) *state {
 	s.tokenizeInput(input)
 	//log.Println("Received command ", input)
 	s.where = objects.Rooms[o.ParentId]
-	s.AddAllLocks(s.where.RoomId)
+	s.AddLocks(s.where.RoomId)
 
 	return s
 }
@@ -146,7 +145,7 @@ func (s *state) sync() (inSync bool) {
 	s.LockAll()
 	defer s.UnlockAll()
 
-	s.msg.Allocate(s.where.RoomId, s.cLocks)
+	s.msg.Allocate(s.where.RoomId, s.rLocks)
 	l := s.TotalLocks()
 
 	dispatchHandler(s)
@@ -235,105 +234,83 @@ func (s *state) messenger() {
 	s.msg.Deallocate()
 }
 
-func (s *state) AddAllLocks(r int) {
-	s.AddMobLock(r)
-	s.AddItemLock(r)
-	s.AddCharLock(r)
+func (s *state) AddLocks(r int) {
+	if !utils.IntIn(r, s.rLocks) {
+		if r == 0 {
+			return
+		}
+
+		s.rLocks = append(s.rLocks, r)
+		l := len(s.rLocks)
+
+		if l == 1 {
+			return
+		}
+
+		for x := 0; x < l; x++ {
+			_ = copy(s.rLocks[x+1:l], s.rLocks[x:l-1])
+			s.rLocks[x] = r
+			break
+		}
+		//log.Println(s.actor.Name + " locking Room" + strconv.Itoa(r))
+		objects.Rooms[r].Lock()
+		//log.Println(s.actor.Name + " locking Successful" + strconv.Itoa(r))
+	}
 }
 
 func (s *state) TotalLocks() int {
-	return len(s.cLocks) + len(s.iLocks) + len(s.mLocks)
+	return len(s.rLocks)
 }
 
 func (s *state) LockAll() {
-	for _, l := range s.cLocks {
-		objects.Rooms[l].Chars.Lock()
-	}
-	for _, l := range s.mLocks {
-		objects.Rooms[l].Mobs.Lock()
-	}
-	for _, l := range s.iLocks {
-		objects.Rooms[l].Items.Lock()
+	s.AcquireLockPriority()
+	for _, l := range s.rLocks {
+		//log.Println(s.actor.Name + " locking Room" + strconv.Itoa(l))
+		objects.Rooms[l].Lock()
+		//log.Println(s.actor.Name + " successful locking Room" + strconv.Itoa(l))
 	}
 }
 
 func (s *state) UnlockAll() {
-	for _, l := range s.cLocks {
-		objects.Rooms[l].Chars.Unlock()
-	}
-	for _, l := range s.mLocks {
-		objects.Rooms[l].Mobs.Unlock()
-	}
-	for _, l := range s.iLocks {
-		objects.Rooms[l].Items.Unlock()
+	s.RemoveLockPriority()
+	for _, l := range s.rLocks {
+		//log.Println(s.actor.Name + " unlocking rooms" + strconv.Itoa(l))
+		objects.Rooms[l].Unlock()
+		//log.Println(s.actor.Name + " successful unlocking Room" + strconv.Itoa(l))
+
 	}
 }
 
-func (s *state) AddItemLock(i int) {
-	if !utils.IntIn(i, s.iLocks) {
-		if i == 0 {
-			return
+func (s *state) AcquireLockPriority() {
+	ready := false
+	for !ready {
+		ready = true
+		for _, l := range s.rLocks {
+			//log.Println(s.actor.Name + " acquiring lock priority" + strconv.Itoa(l))
+			if objects.Rooms[l].LockPriority == "" {
+				objects.Rooms[l].LockPriority = s.actor.Name
+			} else if objects.Rooms[l].LockPriority != s.actor.Name {
+				ready = false
+			}
 		}
-
-		s.iLocks = append(s.iLocks, i)
-		l := len(s.iLocks)
-
-		if l == 1 {
-			return
+		if !ready {
+			for _, l := range s.rLocks {
+				//log.Println(s.actor.Name + " releasing incomplete priority" + strconv.Itoa(l))
+				if objects.Rooms[l].LockPriority == s.actor.Name {
+					objects.Rooms[l].LockPriority = ""
+				}
+			}
+			//log.Println("Temporary Sleep before trying to acquire again")
+			rand.Seed(time.Now().UnixNano())
+			r := rand.Int()
+			t, _ := time.ParseDuration(string(r) + "ms")
+			time.Sleep(t)
 		}
-
-		for x := 0; x < l; x++ {
-			_ = copy(s.iLocks[x+1:l], s.iLocks[x:l-1])
-			s.iLocks[x] = i
-			break
-		}
-		// After adding the lock to the context, lock the item
-		objects.Rooms[i].Items.Lock()
 	}
 }
 
-func (s *state) AddMobLock(i int) {
-	if !utils.IntIn(i, s.mLocks) {
-		if i == 0 {
-			return
-		}
-
-		s.mLocks = append(s.mLocks, i)
-		l := len(s.mLocks)
-
-		if l == 1 {
-			return
-		}
-
-		for x := 0; x < l; x++ {
-			_ = copy(s.mLocks[x+1:l], s.mLocks[x:l-1])
-			s.mLocks[x] = i
-			break
-		}
-		// After adding the lock to the context, lock the item
-		objects.Rooms[i].Mobs.Lock()
-	}
-}
-
-func (s *state) AddCharLock(i int) {
-	if !utils.IntIn(i, s.cLocks) {
-		if i == 0 {
-			return
-		}
-
-		s.cLocks = append(s.cLocks, i)
-		l := len(s.cLocks)
-
-		if l == 1 {
-			return
-		}
-
-		// After adding the lock to the context, lock the item
-		objects.Rooms[i].Chars.Lock()
-		for x := 0; x < l; x++ {
-			_ = copy(s.cLocks[x+1:l], s.cLocks[x:l-1])
-			s.cLocks[x] = i
-			break
-		}
+func (s *state) RemoveLockPriority() {
+	for _, l := range s.rLocks {
+		objects.Rooms[l].LockPriority = ""
 	}
 }

@@ -24,8 +24,8 @@ type scriptDeath cmd
 func (scriptDeath) process(s *state) {
 
 	healingHand := objects.Rooms[config.HealingHand]
-	if !utils.IntIn(healingHand.RoomId, s.cLocks) {
-		s.AddCharLock(healingHand.RoomId)
+	if !utils.IntIn(healingHand.RoomId, s.rLocks) {
+		s.AddLocks(healingHand.RoomId)
 		s.ok = false
 		return
 	}

@@ -119,9 +119,7 @@ func (snipe) process(s *state) {
 				s.actor.SetTimer("global", 25)
 				_, what := s.actor.Equipment.Unequip(s.actor.Equipment.Main.Name)
 				if what != nil {
-					s.actor.Inventory.Lock()
 					s.actor.Inventory.Add(what)
-					s.actor.Inventory.Unlock()
 				}
 			} else {
 				s.msg.Observer.SendInfo(s.actor.Name + " fails to snipe " + whatMob.Name)

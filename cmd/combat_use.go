@@ -103,13 +103,11 @@ func (use) process(s *state) {
 						s.msg.Actor.SendGood(msg)
 					}
 					DeathCheck(s, whatMob)
-					s.actor.Inventory.Lock()
 					what.MaxUses -= 1
 					if what.MaxUses <= 0 {
 						s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
 						s.actor.Inventory.Remove(what)
 					}
-					s.actor.Inventory.Unlock()
 					return
 				}
 
@@ -134,13 +132,11 @@ func (use) process(s *state) {
 					} else if msg != "" {
 						s.msg.Actor.SendGood(msg)
 					}
-					s.actor.Inventory.Lock()
 					what.MaxUses -= 1
 					if what.MaxUses <= 0 {
 						s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
 						s.actor.Inventory.Remove(what)
 					}
-					s.actor.Inventory.Unlock()
 					return
 				}
 			} else {
@@ -152,13 +148,11 @@ func (use) process(s *state) {
 				} else {
 					s.msg.Actor.SendGood(msg)
 				}
-				s.actor.Inventory.Lock()
 				what.MaxUses -= 1
 				if what.MaxUses <= 0 {
 					s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
 					s.actor.Inventory.Remove(what)
 				}
-				s.actor.Inventory.Unlock()
 				return
 			}
 		}
