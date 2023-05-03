@@ -97,6 +97,7 @@ type Character struct {
 	Resist         bool
 	OOCSwap        int
 	LastTickLog    time.Time
+	Unloader       func()
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -190,6 +191,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			true,
 			int(charData["oocswap"].(int64)),
 			time.Now(),
+			nil,
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
@@ -305,7 +307,9 @@ func (c *Character) SingSong(song string, tickRate int) {
 			case <-c.SongTicker.C:
 				if SongEffects[song].target == "mobs" {
 					for _, mob := range Rooms[c.ParentId].Mobs.Contents {
-						SongEffects[song].effect(mob, c)
+						if mob.CheckFlag("hostile") {
+							SongEffects[song].effect(mob, c)
+						}
 					}
 				}
 				if SongEffects[song].target == "players" {

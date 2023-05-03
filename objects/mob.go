@@ -248,10 +248,6 @@ func (m *Mob) Tick() {
 				if Rooms[m.ParentId].Chars.SearchAll(m.CurrentTarget) == nil {
 					m.CurrentTarget = ""
 				}
-				if Rooms[m.ParentId].Chars.SearchAll(m.CurrentTarget).ParentId != m.ParentId {
-					// We shouldn't be able to see them at all, what's going on here?
-					m.CurrentTarget = ""
-				}
 			}
 
 			// Do I want to change targets? 33% chance if the current target isn't the highest on the threat table
@@ -576,7 +572,6 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 }
 
 func (m *Mob) Follow(params []string) {
-	return
 	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
 	if params[0] == m.CurrentTarget && m.MobStunned == 0 {
 		log.Println("I'm gonna try to follow")
@@ -594,6 +589,8 @@ func (m *Mob) Follow(params []string) {
 				neededLocks[0] = m.ParentId
 				neededLocks[1] = targetChar.ParentId
 				ready := false
+				previousRoom := m.ParentId
+				Rooms[m.ParentId].StagedClearing = false
 				// Lets not compete with other mobs for the same locks by using names
 				log.Println("Mob is trying to gain lock priority")
 				tempName := utils.RandString(10)
@@ -620,7 +617,6 @@ func (m *Mob) Follow(params []string) {
 						time.Sleep(t)
 					}
 				}
-				m.MobTickerUnload <- true
 				log.Println("Let everyone know there is a follow")
 				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name)
 				log.Println("Processing Previous Room Lock")
@@ -628,7 +624,6 @@ func (m *Mob) Follow(params []string) {
 				log.Println("Processing New Room Lock")
 				Rooms[targetChar.ParentId].Lock()
 				targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n"))
-				previousRoom := m.ParentId
 				log.Println("Remove mob")
 				Rooms[m.ParentId].Mobs.Remove(m)
 				log.Println("Add the mob")
@@ -644,7 +639,9 @@ func (m *Mob) Follow(params []string) {
 					}
 					targetChar.DeathCheck("was slain by a " + m.Name + ".")
 				}
+				// Clean the previous room
 				log.Println("Set Target")
+				m.CurrentTarget = targetChar.Name
 				log.Println("Previous room Unlock")
 				Rooms[previousRoom].Unlock()
 				log.Println("New Room Unlock")
@@ -653,6 +650,8 @@ func (m *Mob) Follow(params []string) {
 				for _, l := range neededLocks {
 					Rooms[l].LockPriority = ""
 				}
+				// Clean the previous room
+				Rooms[previousRoom].LastPerson()
 				m.StartTicking()
 			}
 		}

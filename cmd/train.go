@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 	"strings"
 )
@@ -32,6 +33,10 @@ func (train) process(s *state) {
 	}
 	message := ""
 
+	if !utils.StringIn(strings.ToLower(s.words[0]), []string{"str", "dex", "con", "int", "pie"}) || !utils.StringIn(strings.ToLower(s.words[1]), []string{"str", "dex", "con", "int", "pie"}) {
+		s.msg.Actor.SendBad("You must enter a valid stat to train. (pie, int, con, dex, str)")
+		return
+	}
 	for _, val := range s.input {
 		proc := strings.ToLower(val)
 		// Verify Moves

@@ -44,7 +44,7 @@ func (i *CharInventory) Remove(o *Character) {
 		}
 	}
 	if len(i.Contents) == 0 {
-		Rooms[i.ParentId].LastPerson()
+		go Rooms[i.ParentId].LastPerson()
 	}
 	if len(i.Contents) == 0 {
 		i.Contents = make([]*Character, 0, 10)

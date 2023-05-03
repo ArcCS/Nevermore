@@ -62,6 +62,7 @@ func (g *game) gameInit() {
 		g.character.Permission.ToggleFlag(permissions.Player)
 		g.character.Permission.ToggleFlag(config.ClassPerms[g.character.Class])
 	}
+	g.character.Unloader = g.CharUnloader
 	objects.Rooms[g.character.ParentId].Lock()
 	objects.Rooms[g.character.ParentId].Chars.Add(g.character)
 	objects.ActiveCharacters.Add(g.character, g.remoteAddr)
@@ -78,10 +79,14 @@ func (g *game) gameInit() {
 func (g *game) gameProcess() {
 	c := cmd.Parse(g.character, string(g.input))
 	if c == "QUIT" {
-		g.character.Unload()
-		g.character = nil
-		g.buf = message.AcquireBuffer()
-		g.buf.OmitLF(true)
-		NewStart(g.frontend)
+		g.CharUnloader()
 	}
+}
+
+func (g *game) CharUnloader() {
+	g.character.Unload()
+	g.character = nil
+	g.buf = message.AcquireBuffer()
+	g.buf.OmitLF(true)
+	NewStart(g.frontend)
 }

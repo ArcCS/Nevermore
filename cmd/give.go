@@ -33,6 +33,12 @@ func (give) process(s *state) {
 		s.msg.Actor.SendInfo("Give who what???")
 		return
 	}
+
+	if s.actor.Placement != who.Placement {
+		s.msg.Actor.SendBad("They are too far away from you to give them anything.")
+		return
+	}
+
 	s.participant = who
 
 	// We're going to process a money transaction.

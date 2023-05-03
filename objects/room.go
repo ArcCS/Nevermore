@@ -7,6 +7,7 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -37,6 +38,7 @@ type Room struct {
 	StoreInventory     *ItemInventory
 	Songs              map[string]string
 	LockPriority       string
+	StagedClearing     bool
 }
 
 // Pop the room data
@@ -66,6 +68,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		RestoreInventory(roomData["store_inventory"].(string)),
 		make(map[string]string),
 		"",
+		false,
 	}
 
 	for _, encounter := range roomData["encounters"].([]interface{}) {
@@ -226,6 +229,7 @@ func (r *Room) ToggleFlag(flagName string) bool {
 func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
 	//*
+	r.StagedClearing = false
 	if r.Flags["encounters_on"] {
 		r.roomTicker = time.NewTicker(10 * time.Second)
 		go func() {
@@ -319,6 +323,14 @@ func (r *Room) Encounter() {
 }
 
 func (r *Room) LastPerson() {
+
+	// Set the room to staged clearing and then wait 2 seconds to actually tear down
+	r.StagedClearing = true
+	time.Sleep(2 * time.Second)
+	if !r.StagedClearing {
+		log.Println("Room clearing was cancelled.")
+		return
+	}
 
 	r.Mobs.RemoveNonPerms()
 

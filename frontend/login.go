@@ -9,10 +9,8 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/ArcCS/Nevermore/permissions"
-	"log"
-
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 )
 
@@ -94,16 +92,7 @@ func (l *login) passwordProcess() {
 		return
 	}
 
-	// Check if account already in use to prevent multiple logins
 	accounts.Lock()
-	if _, inuse := accounts.inuse[l.account]; inuse {
-		log.Printf("Account already logged in: %s", l.account)
-		l.buf.Send(text.Bad, "Account is already logged in. If your connection to the server was unexpectedly terminated you may need to wait a while for the account to automatically logout.\n", text.Reset)
-		NewLogin(l.frontend)
-		accounts.Unlock()
-		return
-	}
-
 	l.frontend.account = acctData["name"].(string)
 	l.frontend.permissions = permissions.Permissions(acctData["permissions"].(int64))
 	accounts.inuse[l.inputName] = struct{}{}

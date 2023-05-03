@@ -23,6 +23,7 @@ func (ic) process(s *state) {
 	if to, ok := objects.Rooms[s.actor.OOCSwap]; ok {
 		if !utils.IntIn(to.RoomId, s.rLocks) {
 			s.AddLocks(to.RoomId)
+			s.ok = false
 			return
 		} else {
 			s.actor.OOCSwap = 0

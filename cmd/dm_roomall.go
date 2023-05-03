@@ -1,13 +1,14 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
 
 func init() {
 	addHandler(roomall{},
 		"Usage:  roomall A mouse darts by in the corner of the square",
-		0,
+		permissions.Dungeonmaster,
 		"roomall")
 }
 

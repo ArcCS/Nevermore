@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
+	"time"
 )
 
 func init() {
@@ -29,7 +30,10 @@ type suicideConfirm cmd
 func (suicideConfirm) process(s *state) {
 	s.msg.Observers.SendInfo(s.actor.Name, " falls to the ground dead and vanishes completely.")
 	s.msg.Actor.SendGood("As the life drains from you, the world fades and goes dark")
-	s.scriptActor("quit")
-	go data.DeleteChar(s.actor.Name)
+	s.msg.Actor.SendInfo("### System deleting character.. there may be a brief pause...")
+	s.scriptActor("QUIT")
+	data.DeleteChar(s.actor.Name)
+	time.Sleep(120)
+	s.actor.Unloader()
 	s.ok = true
 }
