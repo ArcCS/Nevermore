@@ -12,7 +12,7 @@ func init() {
 	addHandler(equipment{},
 		"Usage:  equipment \n\n Display currently equipped gear",
 		permissions.Player,
-		"equipment", "gear")
+		"equipment", "gear", "eq")
 }
 
 type equipment cmd
