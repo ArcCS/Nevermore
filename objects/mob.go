@@ -184,6 +184,8 @@ func (m *Mob) StartTicking() {
 				var params = strings.Split(msg, " ")
 				go m.ProcessCommand(params[0], params[1:])
 			case <-m.MobTickerUnload:
+				log.Println("Unloading Mob Ticker for ", m.Name)
+				m.MobTicker.Stop()
 				return
 			case <-m.MobTicker.C:
 				log.Println("Locking Room for tick ", m.Name)
@@ -209,6 +211,7 @@ func (m *Mob) CheckThreatTable(charName string) bool {
 
 // The mob brain is this ticker
 func (m *Mob) Tick() {
+	// Am I actually in the room?
 	if m.MobStunned > 0 {
 		m.MobStunned -= 8
 	} else {
