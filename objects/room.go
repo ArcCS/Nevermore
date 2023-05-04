@@ -229,7 +229,11 @@ func (r *Room) ToggleFlag(flagName string) bool {
 func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
 	//*
-	r.StagedClearing = false
+	reloadMobs := true
+	if r.StagedClearing {
+		r.StagedClearing = false
+		reloadMobs = false
+	}
 	if r.Flags["encounters_on"] {
 		r.roomTicker = time.NewTicker(10 * time.Second)
 		go func() {
@@ -294,7 +298,9 @@ func (r *Room) FirstPerson() {
 			}
 		}()
 	}
-	r.Mobs.RestartPerms()
+	if reloadMobs {
+		r.Mobs.RestartPerms()
+	}
 }
 
 func (r *Room) Encounter() {
