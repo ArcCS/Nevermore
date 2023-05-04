@@ -74,17 +74,17 @@ func (i *MobInventory) Remove(o *Mob) {
 
 // Clear all non permanent
 func (i *MobInventory) RemoveNonPerms() {
-	newContents := make([]*Mob, 0, 0)
+	var contentRef []*Mob
 	for _, mob := range i.Contents {
-		if mob.Flags["permanent"] == true {
-			newContents = append(newContents, mob)
-			mob.MobTickerUnload <- true
+		if mob.Flags["permanent"] != true {
+			contentRef = append(contentRef, mob)
 		} else {
 			mob.MobTickerUnload <- true
-			mob = nil
 		}
 	}
-	i.Contents = newContents
+	for _, mob := range contentRef {
+		i.Remove(mob)
+	}
 }
 
 func (i *MobInventory) RestartPerms() {

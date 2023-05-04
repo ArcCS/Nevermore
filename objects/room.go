@@ -7,6 +7,7 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -325,16 +326,15 @@ func (r *Room) Encounter() {
 }
 
 func (r *Room) LastPerson() {
-	/*
-		// Set the room to staged clearing and then wait 2 seconds to actually tear down
-		r.StagedClearing = true
-		time.Sleep(2 * time.Second)
-		if !r.StagedClearing {
-			log.Println("Room clearing was cancelled.")
-			return
-		}
-	*/
 
+	// Set the room to staged clearing and then wait 2 seconds to actually tear down
+	r.StagedClearing = true
+	time.Sleep(2 * time.Second)
+	if !r.StagedClearing {
+		log.Println("Room clearing was cancelled.")
+		return
+	}
+	log.Println("Clearing Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")")
 	r.Mobs.RemoveNonPerms()
 
 	r.Items.RemoveNonPerms()

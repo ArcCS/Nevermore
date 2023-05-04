@@ -186,8 +186,10 @@ func (m *Mob) StartTicking() {
 			case <-m.MobTickerUnload:
 				return
 			case <-m.MobTicker.C:
+				log.Println("Locking Room for tick ", m.Name)
 				Rooms[m.ParentId].Lock()
 				m.Tick()
+				log.Println("Unlocking Room post tick ", m.Name)
 				Rooms[m.ParentId].Unlock()
 			}
 		}
@@ -572,10 +574,9 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 }
 
 func (m *Mob) Follow(params []string) {
-	return
 	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
 	if params[0] == m.CurrentTarget && m.MobStunned == 0 {
-		log.Println("I'm gonna try to follow")
+		//log.Println("I'm gonna try to follow")
 		// I am, lets process that -> First we need to step up in the world to find that character
 		targetChar := ActiveCharacters.Find(params[0])
 		if targetChar != nil {
@@ -593,7 +594,7 @@ func (m *Mob) Follow(params []string) {
 				previousRoom := m.ParentId
 				Rooms[m.ParentId].StagedClearing = false
 				// Lets not compete with other mobs for the same locks by using names
-				log.Println("Mob is trying to gain lock priority")
+				//log.Println("Mob is trying to gain lock priority")
 				tempName := utils.RandString(10)
 				for !ready {
 					ready = true
@@ -611,25 +612,25 @@ func (m *Mob) Follow(params []string) {
 								Rooms[l].LockPriority = ""
 							}
 						}
-						log.Println("Mob is sleeping before trying to acquire again")
+						//log.Println("Mob is sleeping before trying to acquire again")
 						rand.Seed(time.Now().UnixNano())
 						r := rand.Int()
 						t, _ := time.ParseDuration(string(r) + "ms")
 						time.Sleep(t)
 					}
 				}
-				log.Println("Let everyone know there is a follow")
+				//log.Println("Let everyone know there is a follow")
 				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name)
-				log.Println("Processing Previous Room Lock")
+				//log.Println("Processing Previous Room Lock")
 				Rooms[m.ParentId].Lock()
-				log.Println("Processing New Room Lock")
+				//log.Println("Processing New Room Lock")
 				Rooms[targetChar.ParentId].Lock()
 				targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n"))
-				log.Println("Remove mob")
+				//log.Println("Remove mob")
 				Rooms[m.ParentId].Mobs.Remove(m)
-				log.Println("Add the mob")
+				//log.Println("Add the mob")
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
-				log.Println("Check for Vital")
+				//log.Println("Check for Vital")
 				if utils.Roll(100, 1, 0) <= config.MobFollowVital {
 					vitDamage := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()))))
 					if vitDamage == 0 {
@@ -640,20 +641,19 @@ func (m *Mob) Follow(params []string) {
 					}
 					targetChar.DeathCheck("was slain by a " + m.Name + ".")
 				}
-				// Clean the previous room
-				log.Println("Set Target")
-				m.CurrentTarget = targetChar.Name
-				log.Println("Previous room Unlock")
+				//log.Println("Previous room Unlock")
 				Rooms[previousRoom].Unlock()
-				log.Println("New Room Unlock")
+				//log.Println("New Room Unlock")
 				Rooms[targetChar.ParentId].Unlock()
-				// Release the priorities
+				//log.Println("Release lock priorities")
 				for _, l := range neededLocks {
 					Rooms[l].LockPriority = ""
 				}
 				// Clean the previous room
-				Rooms[previousRoom].LastPerson()
-				m.StartTicking()
+				go Rooms[previousRoom].LastPerson()
+				go m.StartTicking()
+				//log.Println("Set Target")
+				m.CurrentTarget = targetChar.Name
 			}
 		}
 	}

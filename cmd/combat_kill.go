@@ -241,7 +241,12 @@ func DeathCheck(s *state, m *objects.Mob) {
 
 // Determine Miss Chance based on weapon Skills
 func DetermineMissChance(s *state, lvlDiff int) int {
-	missChance := config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
+	missChance := 0
+	if s.actor.Class == 8 {
+		missChance = config.WeaponMissChance(s.actor.Skills[5].Value, s.actor.Class)
+	} else {
+		missChance = config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
+	}
 	if lvlDiff >= 1 {
 		missChance += lvlDiff * config.MissPerLevel
 	}

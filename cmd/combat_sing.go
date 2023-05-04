@@ -71,7 +71,12 @@ func (sing) process(s *state) {
 		return
 	}
 
-	if s.actor.Equipment.Off.ItemType != 16 {
+	if s.actor.Equipment.Off != (*objects.Item)(nil) {
+		if s.actor.Equipment.Off.ItemType != 16 {
+			s.msg.Actor.SendBad("You need to be holding an instrument to sing!")
+			return
+		}
+	} else {
 		s.msg.Actor.SendBad("You need to be holding an instrument to sing!")
 		return
 	}

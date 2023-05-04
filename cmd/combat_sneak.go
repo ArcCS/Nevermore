@@ -23,6 +23,12 @@ func (sneak) process(s *state) {
 		return
 	}
 
+	ready, msg := s.actor.TimerReady("combat")
+	if !ready {
+		s.msg.Actor.SendBad(msg)
+		return
+	}
+
 	var exitName string
 	from := s.where
 	// Does this place even have exits?
@@ -149,6 +155,7 @@ func (sneak) process(s *state) {
 				to.Chars.Add(s.actor)
 				s.actor.Placement = 3
 				s.actor.ParentId = toE.ToId
+				s.actor.SetTimer("combat", config.CombatCooldown)
 				s.scriptActor("LOOK")
 				s.ok = true
 				return

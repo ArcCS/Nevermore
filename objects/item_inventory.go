@@ -67,20 +67,19 @@ func (i *ItemInventory) ReCalcWeight() {
 
 // RemoveNonPerms Clear all non-permanent
 func (i *ItemInventory) RemoveNonPerms() {
-	newContents := make([]*Item, 0, 0)
-	newWeight := 0
+	var newItems []*Item
 	for _, item := range i.Contents {
 		//log.Println("Checking item storage", strconv.Itoa(len(item.Storage.List())))
 		if (strings.Contains(strings.ToLower(item.Name), "corpse of") && len(item.Storage.List()) != 0) ||
 			(item.Flags["permanent"] && !strings.Contains(strings.ToLower(item.Name), "corpse of")) {
-			newContents = append(newContents, item)
-			newWeight += item.GetWeight()
+			continue
 		} else {
-			item = nil
+			newItems = append(newItems, item)
 		}
 	}
-	i.Contents = newContents
-	i.TotalWeight = newWeight
+	for _, item := range newItems {
+		i.Remove(item)
+	}
 }
 
 // Search the ItemInventory to return a specific instance of something
