@@ -98,6 +98,7 @@ type Character struct {
 	OOCSwap        int
 	LastTickLog    time.Time
 	Unloader       func()
+	LastMessenger  string
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -192,6 +193,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			int(charData["oocswap"].(int64)),
 			time.Now(),
 			nil,
+			"",
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {

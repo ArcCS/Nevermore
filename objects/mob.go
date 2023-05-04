@@ -519,8 +519,8 @@ func (m *Mob) DeathCheck(target *Character) bool {
 		Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
 		stringExp := strconv.Itoa(m.Experience)
 		for k := range m.ThreatTable {
-			Rooms[m.ParentId].Chars.MobSearch(k, m).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
-			Rooms[m.ParentId].Chars.MobSearch(k, m).Experience.Add(m.Experience)
+			Rooms[m.ParentId].Chars.SearchAll(k).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
+			Rooms[m.ParentId].Chars.SearchAll(k).Experience.Add(m.Experience)
 		}
 		Rooms[m.ParentId].MessageAll(m.Name + " dies.")
 		target.Write([]byte(text.White + m.DropInventory()))
@@ -572,6 +572,7 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 }
 
 func (m *Mob) Follow(params []string) {
+	return
 	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
 	if params[0] == m.CurrentTarget && m.MobStunned == 0 {
 		log.Println("I'm gonna try to follow")
