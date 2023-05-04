@@ -326,6 +326,10 @@ func (r *Room) Encounter() {
 }
 
 func (r *Room) LastPerson() {
+	// Verify that no one else is in here after a follow mob invocation
+	if len(r.Chars.Contents) != 0 {
+		return
+	}
 
 	// Set the room to staged clearing and then wait 2 seconds to actually tear down
 	r.StagedClearing = true
