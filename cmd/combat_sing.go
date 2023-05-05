@@ -25,16 +25,6 @@ func (sing) process(s *state) {
 		return
 	}
 
-	if s.actor.Stam.Current <= 0 {
-		s.msg.Actor.SendBad("You are far too tired to do that.")
-		return
-	}
-
-	if s.actor.CheckFlag("singing") {
-		s.msg.Actor.SendBad("You are already singing!")
-		return
-	}
-
 	// Stop the song
 	if s.words[0] == "STOP" {
 		if s.actor.CheckFlag("singing") {
@@ -42,6 +32,16 @@ func (sing) process(s *state) {
 			return
 		}
 		s.msg.Actor.SendBad("You aren't singing!")
+		return
+	}
+
+	if s.actor.Stam.Current <= 0 {
+		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
+	if s.actor.CheckFlag("singing") {
+		s.msg.Actor.SendBad("You are already singing!")
 		return
 	}
 

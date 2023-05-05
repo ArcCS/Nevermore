@@ -929,11 +929,13 @@ func (c *Character) InflictDamage() (damage int) {
 			c.Equipment.Main.NumDice,
 			c.Equipment.Main.PlusDice)
 	} else {
-		plusDamage := config.MaxWeaponDamage[c.Tier] / 3
-		// Lets use dex to determine dice. more dex = more dice = higher lower damage threshold
-		nDice := int(math.Floor(config.MonkDexPerDice * float64(c.GetStat("dex"))))
-		sDice := (plusDamage * 3) / nDice
-		damage = utils.Roll(sDice, nDice, plusDamage)
+		// Monks do 1/3 of max damage no matter what
+		baseMonkDamage := config.MaxWeaponDamage[c.Tier] / 3
+		// Max dex is 45, divide current dex by 45 to get percentage and multiply that by the remaining 1/3rd of damage
+		dexDamage := int(math.Ceil(float64(c.GetStat("dex")) / float64(45) * float64(baseMonkDamage)))
+		// rng on the remaining 1/3rd
+		rngDamage := utils.Roll(baseMonkDamage, 1, 0)
+		damage = baseMonkDamage + dexDamage + rngDamage
 	}
 
 	if utils.IntIn(c.Class, []int{2, 3, 8}) {

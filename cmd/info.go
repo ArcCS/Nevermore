@@ -34,6 +34,11 @@ func (information) process(s *state) {
 		monk = true
 	}
 
+	singing, ok := s.actor.Flags["singing"]
+	if !ok {
+		singing = false
+	}
+
 	showEnchants := false
 	enchants := 0
 	showHeals := false
@@ -62,6 +67,7 @@ func (information) process(s *state) {
 		"You have an armor resistance of {{.Armor_resistance}}.\n" +
 		"{{if .God}} You bear the mark of a devotee of {{.God}}.\n{{end}}" +
 		"{{if .Berz}}" + text.Red + "The red rage grips you!" + text.Good +
+		"{{if .Singing}}" + text.Cyan + "You are currently performing a song!" + text.Good +
 		"{{else}}You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
 		"You require {{.Next_level}} additional experience pts for your next tier.\n" +
 		"You are carrying {{.Gold}} gold marks in your coin purse.\n" +
@@ -126,6 +132,7 @@ func (information) process(s *state) {
 		Month            string
 		Age              int
 		Berz             bool
+		Singing          bool
 		GodsYear         int
 		EmpYear          int
 	}{
@@ -174,6 +181,7 @@ func (information) process(s *state) {
 		utils.Title(config.Months[s.actor.Birthmonth]["name"].(string)),
 		age,
 		berz,
+		singing,
 		2705 - age,
 		2228 - age,
 	}

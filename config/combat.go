@@ -4,7 +4,7 @@ import "github.com/ArcCS/Nevermore/utils"
 
 var CombatModifiers = map[string]int{
 	// Attack Modifiers
-	"critical": 10,
+	"critical": 6,
 	"double":   2,
 
 	// Bash
@@ -16,8 +16,8 @@ var CombatModifiers = map[string]int{
 	"berserk": 5,
 
 	// Sneaky Types
-	"backstab": 8,
-	"snipe":    8,
+	"backstab": 6,
+	"snipe":    6,
 }
 
 var FreeDeathTier = 4
@@ -88,7 +88,7 @@ var DisintegrateChance = 5
 var TurnTimer = 60
 var SlamTimer = 30
 var ShieldDamage = 3
-var ShieldStun = 1
+var ShieldStun = .4
 var CombatCooldown = 8
 
 // Bard Stuff
@@ -112,7 +112,7 @@ var MobTakeChance = 10 // Percent
 // Str Mods
 var StrCarryMod = 10 // Per Point
 var BaseCarryWeight = 40
-var StatDamageMod = .03 // Per Point
+var StatDamageMod = .01 // Per Point
 
 // Con Mods
 var ConArmorMod = .01
