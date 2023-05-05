@@ -20,6 +20,11 @@ func init() {
 type steal cmd
 
 func (steal) process(s *state) {
+	if s.actor.Tier < config.MinorAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.MinorAbilityTier) + " to use this skill.")
+		return
+	}
+
 	if len(s.input) < 2 {
 		s.msg.Actor.SendBad("Steal what from who")
 		return

@@ -42,7 +42,7 @@ func (scriptDeath) process(s *state) {
 		jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", deathString)
 	}
 
-	if s.actor.Tier > 3 {
+	if s.actor.Tier > config.FreeDeathTier {
 		equipment := s.actor.Equipment.UnequipAll()
 
 		var tempStore []*objects.Item
@@ -124,5 +124,6 @@ func (scriptDeath) process(s *state) {
 		}
 	}
 
+	s.actor.DeathInProgress = false
 	s.scriptActor("LOOK")
 }

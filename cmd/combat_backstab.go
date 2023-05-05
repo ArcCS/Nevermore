@@ -8,7 +8,6 @@ import (
 	"github.com/ArcCS/Nevermore/utils"
 	"math"
 	"strconv"
-	"strings"
 )
 
 func init() {
@@ -36,8 +35,8 @@ func (backstab) process(s *state) {
 		return
 	}
 
-	if s.actor.Tier < 7 {
-		s.msg.Actor.SendBad("You must be at least tier 10 to use this skill.")
+	if s.actor.Tier < config.SpecialAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.SpecialAbilityTier) + " to use this skill.")
 		return
 	}
 
@@ -139,7 +138,7 @@ func (backstab) process(s *state) {
 						whatMob.DeathCheck(s.actor)
 					}
 				}
-				s.actor.DeathCheck("was slain while trying to backstab a " + strings.Title(whatMob.Name))
+				s.actor.DeathCheck("was slain while trying to backstab a " + utils.Title(whatMob.Name))
 			}
 			s.ok = true
 			return

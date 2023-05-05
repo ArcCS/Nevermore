@@ -20,6 +20,11 @@ var CombatModifiers = map[string]int{
 	"snipe":    8,
 }
 
+var FreeDeathTier = 4
+
+var SpecialAbilityTier = 10
+var MinorAbilityTier = 5
+
 var MobVital = 3
 var MobCritical = 10
 var MobDouble = 20

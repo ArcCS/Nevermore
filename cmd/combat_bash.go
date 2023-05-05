@@ -34,10 +34,11 @@ func (bash) process(s *state) {
 		return
 	}
 
-	if s.actor.Tier < 5 {
-		s.msg.Actor.SendBad("You must be at least tier 5 to use this skill.")
+	if s.actor.Tier < config.MinorAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.MinorAbilityTier) + " to use this skill.")
 		return
 	}
+
 	// Check some timers
 	ready, msg := s.actor.TimerReady("combat_bash")
 	if !ready {

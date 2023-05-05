@@ -40,7 +40,7 @@ func (closeExit) process(s *state) {
 		}
 
 		if what.Flags["closed"] {
-			s.msg.Actor.SendInfo(strings.Title(what.Name), " is already closed.")
+			s.msg.Actor.SendInfo(utils.Title(what.Name), " is already closed.")
 			return
 		}
 

@@ -6,8 +6,8 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
-	"strings"
 	"text/template"
 )
 
@@ -169,9 +169,9 @@ func (information) process(s *state) {
 		s.actor.MinutesPlayed / 60,
 		s.actor.MinutesPlayed % 60,
 		s.actor.BonusPoints.Value,
-		strings.Title(config.Days[s.actor.Birthday]),
+		utils.Title(config.Days[s.actor.Birthday]),
 		config.PrintNumbers[s.actor.Birthdate],
-		strings.Title(config.Months[s.actor.Birthmonth]["name"].(string)),
+		utils.Title(config.Months[s.actor.Birthmonth]["name"].(string)),
 		age,
 		berz,
 		2705 - age,

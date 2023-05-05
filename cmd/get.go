@@ -77,14 +77,18 @@ func (get) process(s *state) {
 				s.where.Items.Remove(roomInventory)
 				s.actor.Gold.Add(roomInventory.Value)
 				s.msg.Actor.SendGood("You picked up ", strconv.Itoa(roomInventory.Value), " gold pieces.")
-				s.msg.Observers.SendInfo("You see ", s.actor.Name, " get ", roomInventory.Name, ".")
+				if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+					s.msg.Observers.SendInfo("You see ", s.actor.Name, " get ", roomInventory.Name, ".")
+				}
 				return
 			} else if (s.actor.GetCurrentWeight()+roomInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				s.actor.RunHook("act")
 				s.where.Items.Remove(roomInventory)
 				s.actor.Inventory.Add(roomInventory)
 				s.msg.Actor.SendGood("You get ", roomInventory.Name, ".")
-				s.msg.Observers.SendInfo(s.actor.Name, " takes ", roomInventory.Name, ".")
+				if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+					s.msg.Observers.SendInfo(s.actor.Name, " takes ", roomInventory.Name, ".")
+				}
 				if roomInventory.Flags["permanent"] {
 					s.where.Save()
 				}
@@ -117,7 +121,9 @@ func (get) process(s *state) {
 					where.Storage.Remove(whereInventory)
 					s.actor.Gold.Add(whereInventory.Value)
 					s.msg.Actor.SendGood("You take ", whereInventory.Name, " from ", where.Name, " and put it in your gold pouch.")
-					s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
+					if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+						s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
+					}
 					return
 				} else if (s.actor.GetCurrentWeight()+whereInventory.GetWeight()) <= s.actor.MaxWeight() || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					s.actor.RunHook("act")
@@ -125,7 +131,7 @@ func (get) process(s *state) {
 					s.actor.Inventory.Add(whereInventory)
 					s.msg.Actor.SendGood("You take ", whereInventory.Name, " from ", where.Name, ".")
 					if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-						s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " take ", where.Name, ".")
+						s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
 					}
 					return
 				} else {

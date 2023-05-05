@@ -32,10 +32,11 @@ func (slam) process(s *state) {
 		return
 	}
 
-	if s.actor.Tier < 7 {
-		s.msg.Actor.SendBad("You must be at least tier 7 to use this skill.")
+	if s.actor.Tier < config.SpecialAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.SpecialAbilityTier) + " to use this skill.")
 		return
 	}
+
 	// Check some timers
 	ready, msg := s.actor.TimerReady("combat_shieldslam")
 	if !ready {

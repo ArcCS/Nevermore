@@ -31,10 +31,11 @@ func (snipe) process(s *state) {
 
 	if s.actor.Stam.Current <= 0 {
 		s.msg.Actor.SendBad("You are far too tired to do that.")
+
 		return
 	}
-	if s.actor.Tier < 7 {
-		s.msg.Actor.SendBad("You must be at least tier 7 to use this skill.")
+	if s.actor.Tier < config.SpecialAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.SpecialAbilityTier) + " to use this skill.")
 		return
 	}
 

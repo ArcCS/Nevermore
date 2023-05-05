@@ -3,6 +3,8 @@ package utils
 import (
 	"bufio"
 	"crypto/rand"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"math"
 	"os"
 	"sort"
@@ -137,4 +139,9 @@ func RandString(n int) string {
 		bytes[i] = alphanum[b%byte(len(alphanum))]
 	}
 	return string(bytes)
+}
+
+func Title(s string) string {
+	caser := cases.Title(language.AmericanEnglish)
+	return caser.String(s)
 }

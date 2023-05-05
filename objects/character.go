@@ -91,14 +91,15 @@ type Character struct {
 	LastAction       time.Time
 	LoginTime        time.Time
 	//Party Stuff
-	PartyFollow    *Character
-	PartyFollowers []*Character
-	Victim         interface{}
-	Resist         bool
-	OOCSwap        int
-	LastTickLog    time.Time
-	Unloader       func()
-	LastMessenger  string
+	PartyFollow     *Character
+	PartyFollowers  []*Character
+	Victim          interface{}
+	Resist          bool
+	OOCSwap         int
+	LastTickLog     time.Time
+	Unloader        func()
+	LastMessenger   string
+	DeathInProgress bool
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -109,7 +110,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 	} else {
 		FilledCharacter := &Character{
 			Object{
-				Name:        strings.Title(charData["name"].(string)),
+				Name:        utils.Title(charData["name"].(string)),
 				Description: charData["description"].(string),
 				Placement:   3,
 				Commands:    make(map[string]prompt.MenuItem),
@@ -194,6 +195,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			time.Now(),
 			nil,
 			"",
+			false,
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
@@ -931,7 +933,7 @@ func (c *Character) InflictDamage() (damage int) {
 		// Lets use dex to determine dice. more dex = more dice = higher lower damage threshold
 		nDice := int(math.Floor(config.MonkDexPerDice * float64(c.GetStat("dex"))))
 		sDice := (plusDamage * 3) / nDice
-		damage = utils.Roll(int(sDice), int(nDice), int(plusDamage))
+		damage = utils.Roll(sDice, nDice, plusDamage)
 	}
 
 	if utils.IntIn(c.Class, []int{2, 3, 8}) {
@@ -949,7 +951,10 @@ func (c *Character) InflictDamage() (damage int) {
 	if !ok {
 		baseDamage = 0
 	}
-	damage += baseDamage + c.Equipment.Main.Adjustment
+	damage += baseDamage
+	if c.Class != 8 {
+		damage += c.Equipment.Main.Adjustment
+	}
 	if damage < 0 {
 		damage = 0
 	}
@@ -1045,8 +1050,15 @@ func (c *Character) MessageParty(msg string) {
 }
 
 func (c *Character) DeathCheck(how string) {
+	if c.DeathInProgress {
+		return
+	} else {
+		c.DeathInProgress = true
+	}
 	if c.Vit.Current <= 0 {
 		go Script(c, "$DEATH "+how)
+	} else {
+		c.DeathInProgress = false
 	}
 	return
 }

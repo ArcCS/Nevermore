@@ -149,7 +149,7 @@ func CreateChar(charData map[string]interface{}) bool {
 		map[string]interface{}{
 			"characterId": nextId("character"),
 			"gender":      charData["gender"],
-			"name":        strings.Title(charData["name"].(string)),
+			"name":        utils.Title(charData["name"].(string)),
 			"class":       charData["class"],
 			"race":        charData["race"],
 			"strcur":      charData["str"],
@@ -179,7 +179,7 @@ func CreateChar(charData map[string]interface{}) bool {
 			"CREATE (a)-[o:owns]->(c) RETURN o",
 		map[string]interface{}{
 			"aname": charData["account"],
-			"cname": strings.Title(charData["name"].(string)),
+			"cname": utils.Title(charData["name"].(string)),
 		},
 	)
 	if oerr != nil {

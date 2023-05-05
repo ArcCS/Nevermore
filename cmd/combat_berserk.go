@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"strconv"
 )
 
 func init() {
@@ -21,10 +23,11 @@ func (berserk) process(s *state) {
 		return
 	}
 
-	if s.actor.Tier < 7 {
-		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
+	if s.actor.Tier < config.SpecialAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.SpecialAbilityTier) + " to use this skill.")
 		return
 	}
+
 	berz, ok := s.actor.Flags["berserk"]
 	if ok {
 		if berz {

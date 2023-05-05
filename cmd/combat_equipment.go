@@ -26,7 +26,7 @@ func (equipment) process(s *state) {
 
 	equip_template := " You take a look at your equipment..." +
 		" {{if .Chest}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Chest}} about {{.Pos_pronoun}} body{{end}}" +
-		" {{if .Neck}}\n{{.Sub_pronoun}} {{.Isare}} a {{.Neck}} around {{.Pos_pronoun}} neck.{{end}}" +
+		" {{if .Neck}}\n{{.Sub_pronoun}} {{.Isare}} wearing a {{.Neck}} around {{.Pos_pronoun}} neck.{{end}}" +
 		" {{if .Main}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Main}} in {{.Pos_pronoun}} main hand.{{end}}" +
 		" {{if .Offhand}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Offhand}} in {{.Pos_pronoun}} off hand.{{end}}" +
 		" {{if .Arms}}\n{{.Sub_pronoun}} {{.Isare}} wearing some {{.Arms}} on {{.Pos_pronoun}} arms.{{end}}" +
