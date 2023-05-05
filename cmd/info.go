@@ -33,9 +33,8 @@ func (information) process(s *state) {
 	if s.actor.Class == 8 {
 		monk = true
 	}
-
-	singing, ok := s.actor.Flags["singing"]
-	if !ok {
+	singing, singOk := s.actor.Flags["singing"]
+	if !singOk {
 		singing = false
 	}
 
@@ -66,8 +65,8 @@ func (information) process(s *state) {
 		"Str: {{.Str}}/{{.Max_str}}, Dex: {{.Dex}}/{{.Max_dex}}, Con: {{.Con}}/{{.Max_con}}, Int: {{.Int}}/{{.Max_int}}, Piety: {{.Pie}}/{{.Max_pie}}.\n" +
 		"You have an armor resistance of {{.Armor_resistance}}.\n" +
 		"{{if .God}} You bear the mark of a devotee of {{.God}}.\n{{end}}" +
-		"{{if .Berz}}" + text.Red + "The red rage grips you!" + text.Good +
-		"{{if .Singing}}" + text.Cyan + "You are currently performing a song!" + text.Good +
+		"{{if .Singing}}" + text.Cyan + "You are currently performing a song!\n{{end}}" + text.Good +
+		"{{if .Berz}}" + text.Red + "The red rage grips you!\n" + text.Good +
 		"{{else}}You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
 		"You require {{.Next_level}} additional experience pts for your next tier.\n" +
 		"You are carrying {{.Gold}} gold marks in your coin purse.\n" +
