@@ -70,6 +70,7 @@ type Mob struct {
 	MobTicker       *time.Ticker
 	// An int to hold a stun time.
 	MobStunned int
+	IsActive   bool
 }
 
 // Pop the mob data
@@ -131,6 +132,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		nil,
 		nil,
 		0,
+		false,
 	}
 
 	for _, spellN := range strings.Split(mobData["spells"].(string), ",") {
@@ -159,6 +161,9 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 }
 
 func (m *Mob) StartTicking() {
+	if m.IsActive {
+		return
+	}
 	m.CalculateInventory()
 	m.ThreatTable = make(map[string]int)
 	m.MobTickerUnload = make(chan bool)
@@ -186,6 +191,7 @@ func (m *Mob) StartTicking() {
 			case <-m.MobTickerUnload:
 				log.Println("Unloading Mob Ticker for ", m.Name)
 				m.MobTicker.Stop()
+				m.IsActive = false
 				return
 			case <-m.MobTicker.C:
 				log.Println("Locking Room for tick ", m.Name)
@@ -196,6 +202,7 @@ func (m *Mob) StartTicking() {
 			}
 		}
 	}()
+	m.IsActive = true
 }
 
 func (m *Mob) GetSpellMultiplier() float32 {
