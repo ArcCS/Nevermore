@@ -15,6 +15,6 @@ require (
 	github.com/neo4j/neo4j-go-driver/v4 v4.4.0
 	github.com/spf13/viper v1.12.0
 	go.mongodb.org/mongo-driver v1.8.1 // indirect
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.3.8
 
 )
