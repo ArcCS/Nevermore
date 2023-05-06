@@ -231,6 +231,7 @@ func (r *Room) FirstPerson() {
 	//*
 	reloadMobs := true
 	if r.StagedClearing {
+		log.Println("Stop clearing, and do not restart mobs.")
 		r.StagedClearing = false
 		reloadMobs = false
 	}
@@ -346,7 +347,6 @@ func (r *Room) LastPerson() {
 	}
 	log.Println("Clearing Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")")
 	r.Mobs.RemoveNonPerms()
-
 	r.Items.RemoveNonPerms()
 
 	for _, exit := range r.Exits {
@@ -374,6 +374,8 @@ func (r *Room) LastPerson() {
 		}
 	}
 
+	// Completed clearing, reset to default
+	r.StagedClearing = false
 	go r.Save()
 
 }

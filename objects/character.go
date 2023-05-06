@@ -777,7 +777,8 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 	}
 	stamDamage, vitalDamage := 0, 0
 	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
-
+	// Resist a little more based on con
+	resist += int(math.Ceil(float64(damage) * (float64(c.Con.Current) * config.ConArmorMod)))
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
@@ -798,6 +799,7 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 		stamDamage = finalDamage
 		vitalDamage = 0
 	}
+	log.Println(c.Name+"Receives Damage: ", damage, "Resist: ", resist, "Final Damage: ", finalDamage, "Stam Damage: ", stamDamage, "Vital Damage: ", vitalDamage)
 	return stamDamage, vitalDamage
 }
 
@@ -928,20 +930,21 @@ func (c *Character) InflictDamage() (damage int) {
 		damage = utils.Roll(c.Equipment.Main.SidesDice,
 			c.Equipment.Main.NumDice,
 			c.Equipment.Main.PlusDice)
+
+		if c.Equipment.Main.ItemType == 4 {
+			damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("dex")))))
+		} else {
+			damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("str")))))
+		}
+		damage += c.Equipment.Main.Adjustment
 	} else {
 		// Monks do 1/3 of max damage no matter what
 		baseMonkDamage := config.MaxWeaponDamage[c.Tier] / 3
 		// Max dex is 45, divide current dex by 45 to get percentage and multiply that by the remaining 1/3rd of damage
-		dexDamage := int(math.Ceil(float64(c.GetStat("dex")) / float64(45) * float64(baseMonkDamage)))
+		dexDamage := int(math.Ceil(float64(c.GetStat("str")) / float64(45) * float64(baseMonkDamage)))
 		// rng on the remaining 1/3rd
 		rngDamage := utils.Roll(baseMonkDamage, 1, 0)
 		damage = baseMonkDamage + dexDamage + rngDamage
-	}
-
-	if utils.IntIn(c.Class, []int{2, 3, 8}) {
-		damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("dex")))))
-	} else {
-		damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("str")))))
 	}
 
 	if c.CheckFlag("surge") {
@@ -954,9 +957,6 @@ func (c *Character) InflictDamage() (damage int) {
 		baseDamage = 0
 	}
 	damage += baseDamage
-	if c.Class != 8 {
-		damage += c.Equipment.Main.Adjustment
-	}
 	if damage < 0 {
 		damage = 0
 	}

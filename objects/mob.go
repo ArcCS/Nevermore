@@ -162,8 +162,11 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 
 func (m *Mob) StartTicking() {
 	if m.IsActive {
+		log.Println("mob active, not restarting")
 		return
 	}
+	log.Println("not active starting ticking" + m.Name)
+	m.IsActive = true
 	m.CalculateInventory()
 	m.ThreatTable = make(map[string]int)
 	m.MobTickerUnload = make(chan bool)
@@ -178,7 +181,6 @@ func (m *Mob) StartTicking() {
 	for _, spell := range m.Spells {
 		if utils.StringIn(spell, MobSupportSpells) {
 			Cast(m, m, spell, 0)
-			log.Println("Casting support spell", spell, "on", m.Name)
 		}
 	}
 	go func() {
@@ -202,7 +204,6 @@ func (m *Mob) StartTicking() {
 			}
 		}
 	}()
-	m.IsActive = true
 }
 
 func (m *Mob) GetSpellMultiplier() float32 {
@@ -855,7 +856,7 @@ func (m *Mob) RunHook(hook string) {
 			continue
 		}
 		if hookInstance.interval > 0 {
-			log.Println(hookInstance.LastTriggerInterval())
+			//log.Println(hookInstance.LastTriggerInterval())
 			if hookInstance.LastTriggerInterval() <= 0 {
 				hookInstance.RunHook()
 			}
@@ -896,7 +897,8 @@ func (m *Mob) CheckFlag(flagName string) bool {
 }
 
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
-	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction))))
+	resist := int(math.Ceil((float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction) * float64(damage)))
+	finalDamage := damage - resist
 	if m.CheckFlag("inertial-barrier") {
 		finalDamage -= int(math.Ceil(float64(damage) * config.InertialDamageIgnore))
 	}
@@ -904,6 +906,7 @@ func (m *Mob) ReceiveDamage(damage int) (int, int) {
 	if finalDamage > m.WimpyValue && m.CheckFlag("flees") {
 		m.MobCommands <- "flee"
 	}
+	log.Println(m.Name+" Receives Damage: ", damage, "Resist: ", resist, "Final Damage: ", finalDamage)
 	return finalDamage, 0
 }
 

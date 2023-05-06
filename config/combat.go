@@ -17,7 +17,7 @@ var CombatModifiers = map[string]int{
 
 	// Sneaky Types
 	"backstab": 6,
-	"snipe":    6,
+	"snipe":    4,
 }
 
 var FreeDeathTier = 4
@@ -61,8 +61,8 @@ var HideChancePerPoint = 3
 var SneakChancePerPoint = 1
 var SneakChancePerTier = 1
 var StealChancePerPoint = 2
-var BackStabChancePerPoint = 2
-var SnipeChancePerPoint = 2
+var BackStabChancePerPoint = 1
+var SnipeChancePerPoint = 1
 var SnipeChancePerLevel = 5
 var SnipeFumbleChance = 20
 var MobStealRevengeVitalChance = 5
@@ -144,7 +144,7 @@ var PieHealMod = .3  // Per point
 
 // Armor Values
 var ArmorReduction = .01
-var ArmorReductionPoints = 10
+var ArmorReductionPoints = 5
 
 var MobArmorReduction = .03
 var MobArmorReductionPoints = 10

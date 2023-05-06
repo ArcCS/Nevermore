@@ -82,7 +82,8 @@ func (i *MobInventory) RemoveNonPerms() {
 		if mob.Flags["permanent"] != true {
 			contentRef = append(contentRef, mob)
 		} else {
-			go func() { mob.MobTickerUnload <- true }()
+			log.Println("Unload mob: " + mob.Name + " ticker, but do not delete")
+			mob.MobTickerUnload <- true
 		}
 	}
 	for _, mob := range contentRef {

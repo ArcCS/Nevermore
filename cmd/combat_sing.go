@@ -28,7 +28,7 @@ func (sing) process(s *state) {
 	// Stop the song
 	if s.words[0] == "STOP" {
 		if s.actor.CheckFlag("singing") {
-			s.actor.SongTickerUnload <- true
+			s.actor.RemoveEffect("sing")
 			return
 		}
 		s.msg.Actor.SendBad("You aren't singing!")

@@ -89,13 +89,11 @@ func (backstab) process(s *state) {
 			return
 		}
 
-		curChance := config.BackStabChance + (config.BackStabChancePerLevel * (s.actor.Tier - whatMob.Level))
+		curChance := config.BackStabChance + (s.actor.Dex.Current * config.BackStabChancePerPoint) + (config.BackStabChancePerLevel * (s.actor.Tier - whatMob.Level))
 
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			curChance = 100
 		}
-
-		curChance += s.actor.Dex.Current * config.BackStabChancePerPoint
 
 		s.actor.Victim = whatMob
 		s.actor.RunHook("combat")
