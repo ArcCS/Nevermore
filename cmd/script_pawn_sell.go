@@ -87,10 +87,12 @@ func (sell_confirm) process(s *state) {
 	}
 
 	if target != nil {
-
-		if ok := s.actor.Inventory.Remove(target); ok != nil {
+		if ok := s.actor.Inventory.Remove(target); ok == nil {
 			s.actor.Gold.Add(targetPrice)
 			s.msg.Actor.SendGood("The pawn broker gives you ", strconv.Itoa(targetPrice), " for ", target.Name, ".")
+		} else {
+			s.msg.Actor.SendBad("Issue completing sell.")
+			log.Println("Error removing item from inventory: ", ok)
 		}
 
 	} else {
