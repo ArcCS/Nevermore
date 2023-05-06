@@ -143,7 +143,7 @@ func BansheesLament(target interface{}, singer *Character) {
 	case *Mob:
 		damage := (utils.Roll(singer.Equipment.Off.SidesDice, singer.Equipment.Off.NumDice, singer.Equipment.Off.PlusDice) + singer.Equipment.Off.Adjustment) / 2
 		singer.Write([]byte(text.Red + "Your song caused " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset))
-		target.ReceiveDamageNoArmor(singer.GetStat("pie") * config.ScalePerPiety)
-		target.AddThreatDamage(singer.GetStat("pie")*config.ScalePerPiety, singer)
+		target.ReceiveDamageNoArmor(damage)
+		target.AddThreatDamage(damage, singer)
 	}
 }

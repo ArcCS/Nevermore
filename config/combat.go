@@ -25,9 +25,9 @@ var FreeDeathTier = 4
 var SpecialAbilityTier = 10
 var MinorAbilityTier = 5
 
-var MobVital = 3
-var MobCritical = 10
-var MobDouble = 20
+var MobVital = 2
+var MobCritical = 8
+var MobDouble = 18
 var MobFollowVital = 25
 
 var BindCost = 75000
@@ -111,8 +111,11 @@ var MobTakeChance = 10 // Percent
 
 // Str Mods
 var StrCarryMod = 10 // Per Point
+var StrCarryPenalty = 5
 var BaseCarryWeight = 40
 var StatDamageMod = .01 // Per Point
+var StrRangePenaltyDamage = .15
+var StrMinorPenaltyChance = 25
 
 // Con Mods
 var ConArmorMod = .01
@@ -136,7 +139,7 @@ var BaseEvals = 1
 var BaseBroads = 5
 var IntMinCast = 5
 var IntNoFizzle = 10
-var FizzleSave = 45
+var FizzleSave = 50
 
 // Piety Mods
 var PieRegenMod = .1 // Regen Mana per tick
@@ -144,12 +147,19 @@ var PieHealMod = .3  // Per point
 
 // Armor Values
 var ArmorReduction = .01
-var ArmorReductionPoints = 5
+var ArmorReductionPoints = 10
 
 var MobArmorReduction = .03
 var MobArmorReductionPoints = 10
 
 func MaxWeight(str int) int {
+	// Strength Penalty
+	if str < 6 {
+		return BaseCarryWeight - ((6 - str) * StrCarryPenalty)
+	}
+	if str < 10 {
+		return BaseCarryWeight
+	}
 	return BaseCarryWeight + (str * StrCarryMod)
 }
 

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
@@ -34,6 +35,19 @@ func (use) process(s *state) {
 	itemNum := 1
 	name := ""
 	nameNum := 1
+
+	if s.actor.GetStat("int") < config.IntMajorPenalty {
+		s.msg.Actor.SendBad("You swing the item around wildly but can't figure out how to use it.")
+		return
+	}
+
+	if s.actor.GetStat("int") < config.IntMinorPenalty {
+		if utils.Roll(100, 1, 0) <= config.FizzleSave {
+			s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")
+			s.actor.SetTimer("use", 8)
+			return
+		}
+	}
 
 	if len(s.words) == 4 {
 		name = s.words[2]

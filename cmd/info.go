@@ -37,6 +37,10 @@ func (information) process(s *state) {
 	if !singOk {
 		singing = false
 	}
+	disprerolls := false
+	if s.actor.Rerolls > 0 {
+		disprerolls = true
+	}
 
 	showEnchants := false
 	enchants := 0
@@ -81,6 +85,7 @@ func (information) process(s *state) {
 		"{{if .ShowRestores}}You can cast the restore spell {{.Restores}} more times today.\n{{end}}" +
 		"You have logged {{.Hours}} hours and {{.Minutes}} minutes with this character.\n" +
 		"You have {{.Bonus_points}} role-play bonus points.\n" +
+		"{{if .DispRerolls}}You can reroll your character {{.Rerolls}} more times.\n{{end}}" +
 		"You were born on {{.Day}}, the {{.Day_number}} of the month of {{.Month}}\n" +
 		"in the year {{.GodsYear}} since the Godswar, and year {{.EmpYear}} of the Empire.\n" +
 		"You are {{.Age}} years old.\n\n"
@@ -134,6 +139,8 @@ func (information) process(s *state) {
 		Singing          bool
 		GodsYear         int
 		EmpYear          int
+		DispRerolls      bool
+		Rerolls          int
 	}{
 		s.actor.Name,
 		config.TextTiers[s.actor.Tier],
@@ -183,6 +190,8 @@ func (information) process(s *state) {
 		singing,
 		2705 - age,
 		2228 - age,
+		disprerolls,
+		s.actor.Rerolls,
 	}
 
 	tmpl, _ := template.New("char_info").Parse(char_template)

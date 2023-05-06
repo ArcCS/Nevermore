@@ -99,7 +99,7 @@ func (scriptDeath) process(s *state) {
 
 	totalExpNeeded := config.TierExpLevels[s.actor.Tier+1] - config.TierExpLevels[s.actor.Tier]
 	// Determine the death penalty
-	if s.actor.Tier > 3 {
+	if s.actor.Tier > config.FreeDeathTier {
 		deathRoll := utils.Roll(200, 1, 0)
 		switch {
 		case deathRoll <= 20: // Free Passage

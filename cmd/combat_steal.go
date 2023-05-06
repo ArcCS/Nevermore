@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"math"
 	"strconv"
 )
@@ -113,14 +114,15 @@ func (steal) process(s *state) {
 			if (s.actor.GetCurrentWeight() + what.GetWeight()) <= s.actor.MaxWeight() {
 				// base chance is 15% to hide
 				curChance := config.StealChance + (config.StealChancePerLevel * (s.actor.Tier - whatMob.Level))
-
-				if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-					curChance = 100
-				}
-
 				curChance += s.actor.Dex.Current * config.StealChancePerPoint
 
-				if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
+				if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+					curChance = 95
+				}
+
+				log.Println(s.actor.Name+"Peek Chance Roll: ", curChance)
+				
+				if utils.Roll(100, 1, 0) <= curChance {
 					whatMob.Inventory.Remove(what)
 					s.actor.Inventory.Add(what)
 					s.msg.Actor.SendGood("You steal a ", what.Name, " from ", whatMob.Name, ".")

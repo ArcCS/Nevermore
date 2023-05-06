@@ -100,6 +100,7 @@ type Character struct {
 	Unloader        func()
 	LastMessenger   string
 	DeathInProgress bool
+	Rerolls         int
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -196,6 +197,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			nil,
 			"",
 			false,
+			int(charData["rerolls"].(int64)),
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
@@ -275,6 +277,10 @@ func (c *Character) SetTimer(timer string, seconds int) {
 				return
 			}
 		}
+	}
+	// Dex Penalty
+	if c.GetStat("dex") < 6 {
+		seconds += 6 - c.GetStat("dex")
 	}
 	c.Timers[timer] = time.Now().Add(time.Duration(seconds) * time.Second)
 }
@@ -564,6 +570,7 @@ func (c *Character) Save() {
 	charData["enchants"] = 0
 	charData["heals"] = 0
 	charData["restores"] = 0
+	charData["rerolls"] = c.Rerolls
 	if c.Class == 4 || c.Class == 6 {
 		charData["enchants"] = c.ClassProps["enchants"]
 	}
@@ -666,10 +673,14 @@ func (c *Character) Tick() {
 	if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
 		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod * 2)))
+	} else if c.GetStat("pie") < config.PieMinorPenalty {
+		c.Heal(int(math.Ceil(float64(c.Con.Current)*config.ConHealRegenMod) / 3))
+		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current)*config.PieRegenMod) / 3))
 	} else {
 		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
 		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod)))
 	}
+
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
 		// Process Removing the effect
@@ -778,7 +789,9 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
 	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
 	// Resist a little more based on con
-	resist += int(math.Ceil(float64(damage) * (float64(c.Con.Current) * config.ConArmorMod)))
+	if c.GetStat("con") > config.ConMinorPenalty {
+		resist += int(math.Ceil(float64(damage) * (float64(c.Con.Current) * config.ConArmorMod)))
+	}
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
@@ -883,6 +896,7 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 
 func (c *Character) Heal(damage int) (int, int) {
 	stamHeal, vitalHeal := 0, 0
+	damage = c.CalcHealPenalty(damage)
 	if damage > (c.Vit.Max - c.Vit.Current) {
 		vitalHeal = c.Vit.Max - c.Vit.Current
 		c.Vit.Current = c.Vit.Max
@@ -900,15 +914,27 @@ func (c *Character) Heal(damage int) (int, int) {
 }
 
 func (c *Character) HealVital(damage int) {
+	damage = c.CalcHealPenalty(damage)
 	c.Vit.Add(damage)
 }
 
 func (c *Character) HealStam(damage int) {
+	damage = c.CalcHealPenalty(damage)
 	c.Stam.Add(damage)
 }
 
 func (c *Character) RestoreMana(damage int) {
+	damage = c.CalcHealPenalty(damage)
 	c.Mana.Add(damage)
+}
+
+func (c *Character) CalcHealPenalty(damage int) int {
+	if c.GetStat("pie") <= config.PieMajorPenalty {
+		// At most you receive 50% healing
+		damage /= 2
+		damage -= int(float64(damage) * (.18 * float64(6-c.GetStat("pie"))))
+	}
+	return damage
 }
 
 func (c *Character) GetSpellMultiplier() int {

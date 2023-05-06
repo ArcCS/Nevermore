@@ -376,15 +376,7 @@ func (m *Mob) Tick() {
 			vitalStrike := false
 			criticalStrike := false
 			doubleDamage := false
-			if utils.Roll(100, 1, 0) <= config.MobVital {
-				vitalStrike = true
-			} else if utils.Roll(100, 1, 0) <= config.MobCritical {
-				multiplier = 3
-				criticalStrike = true
-			} else if utils.Roll(100, 1, 0) <= config.MobDouble {
-				multiplier = 2
-				doubleDamage = true
-			}
+			penalty := 1
 
 			if m.CurrentTarget != "" && m.Flags["ranged_attack"] &&
 				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) >= 1) {
@@ -403,6 +395,18 @@ func (m *Mob) Tick() {
 				vitDamage := 0
 				reflectDamage := 0
 				actualDamage := m.InflictDamage()
+				if target.GetStat("dex") < config.DexMinorPenalty {
+					penalty = 2
+				}
+				if utils.Roll(100, 1, 0) <= config.MobVital*penalty {
+					vitalStrike = true
+				} else if utils.Roll(100, 1, 0) <= config.MobCritical*penalty {
+					multiplier = 4
+					criticalStrike = true
+				} else if utils.Roll(100, 1, 0) <= config.MobDouble*penalty {
+					multiplier = 2
+					doubleDamage = true
+				}
 				if vitalStrike {
 					vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 					target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
@@ -487,6 +491,18 @@ func (m *Mob) Tick() {
 					vitDamage := 0
 					actualDamage := m.InflictDamage()
 					reflectDamage := 0
+					if target.GetStat("dex") < config.DexMinorPenalty {
+						penalty = 2
+					}
+					if utils.Roll(100, 1, 0) <= config.MobVital*penalty {
+						vitalStrike = true
+					} else if utils.Roll(100, 1, 0) <= config.MobCritical*penalty {
+						multiplier = 4
+						criticalStrike = true
+					} else if utils.Roll(100, 1, 0) <= config.MobDouble*penalty {
+						multiplier = 2
+						doubleDamage = true
+					}
 					if vitalStrike {
 						vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 						target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
