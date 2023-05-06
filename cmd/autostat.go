@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	addHandler(reroll{}, "reroll ## ## ## ## ## \n reroll str, con, dex, int, pie use this command to adjust your stats, must enter all of them and all must be values 50+2per level or less", permissions.Player, "reroll")
+	addHandler(reroll{}, "reroll ## ## ## ## ## \n reroll str, dex, con, int, pie use this command to adjust your stats, must enter all of them and all must be values 50+2per level or less", permissions.Player, "reroll")
 }
 
 type reroll cmd
@@ -27,9 +27,9 @@ func (reroll) process(s *state) {
 			if i == 0 {
 				str = val
 			} else if i == 1 {
-				con = val
-			} else if i == 2 {
 				dex = val
+			} else if i == 2 {
+				con = val
 			} else if i == 3 {
 				intel = val
 			} else if i == 4 {
@@ -67,20 +67,19 @@ func validateStats(s *state, str int, con int, dex int, intel int, pie int) bool
 	if str+con+dex+intel+pie != 50+((s.actor.Tier*2)-2) {
 		return false
 	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMin > str || str > config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMax {
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMin <= str && str <= config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMax {
 		return false
 	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMin > dex || dex > config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMax {
-		return false
-
-	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMin > con || con > config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMax {
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMin <= dex || dex <= config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMax {
 		return false
 	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMin > intel || intel > config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMax {
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMin <= con || con <= config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMax {
 		return false
 	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMin > pie || pie > config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMax {
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMin <= intel || intel <= config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMax {
+		return false
+	}
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMin <= pie || pie <= config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMax {
 		return false
 	}
 	return true

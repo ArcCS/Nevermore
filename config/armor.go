@@ -10,10 +10,6 @@ var MaxArmor = map[int]map[int]int{
 	25: {5: 130, 20: 80, 21: 55, 19: 55, 25: 70, 22: 55, 26: 55, 23: 100, 24: 12},
 }
 
-func ReturnReduction(totalArmor int) float64 {
-	return float64(totalArmor/ArmorReductionPoints) * ArmorReduction
-}
-
 func CheckArmor(aType int, tier int, val int) bool {
 	for lev, vals := range MaxArmor {
 		if tier <= lev {

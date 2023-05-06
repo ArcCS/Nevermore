@@ -167,14 +167,14 @@ func CalcHealth(tier int, con int, class int) int {
 	if class >= 99 {
 		return 800
 	}
-	return (tier * Classes[AvailableClasses[class]].Health) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv))*float64(ConBonusHealth))
+	return (tier * Classes[AvailableClasses[class]].Health) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv)))
 }
 
 func CalcStamina(tier int, con int, class int) int {
 	if class >= 99 {
 		return 800
 	}
-	return (tier * Classes[AvailableClasses[class]].Stamina) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv))*float64(ConBonusHealth))
+	return (tier * Classes[AvailableClasses[class]].Stamina) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv)))
 }
 
 func CalcMana(tier int, intel int, class int) int {
