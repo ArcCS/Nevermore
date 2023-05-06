@@ -55,9 +55,9 @@ func (reroll) process(s *state) {
 	s.msg.Actor.SendGood("Piety changed to " + strconv.Itoa(pie))
 	s.actor.Stam.Max = config.CalcStamina(s.actor.Tier, s.actor.Con.Current, s.actor.Class)
 	s.actor.Stam.Current = s.actor.Stam.Max
-	s.actor.Vit.Max = config.CalcStamina(s.actor.Tier, s.actor.Con.Current, s.actor.Class)
+	s.actor.Vit.Max = config.CalcHealth(s.actor.Tier, s.actor.Con.Current, s.actor.Class)
 	s.actor.Vit.Current = s.actor.Vit.Max
-	s.actor.Mana.Max = config.CalcStamina(s.actor.Tier, s.actor.Con.Current, s.actor.Class)
+	s.actor.Mana.Max = config.CalcMana(s.actor.Tier, s.actor.Con.Current, s.actor.Class)
 	s.actor.Mana.Current = s.actor.Mana.Max
 	return
 }
