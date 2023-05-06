@@ -33,6 +33,11 @@ func (train) process(s *state) {
 	}
 	message := ""
 
+	if !validateStats(s, s.actor.Str.Current, s.actor.Con.Current, s.actor.Dex.Current, s.actor.Int.Current, s.actor.Pie.Current) {
+		s.msg.Actor.SendBad("Stats are not valid, you cannot train this character")
+		return
+	}
+
 	if !utils.StringIn(strings.ToLower(s.words[0]), []string{"str", "dex", "con", "int", "pie"}) || !utils.StringIn(strings.ToLower(s.words[1]), []string{"str", "dex", "con", "int", "pie"}) {
 		s.msg.Actor.SendBad("You must enter a valid stat to train. (pie, int, con, dex, str)")
 		return
@@ -67,6 +72,7 @@ func (train) process(s *state) {
 			}
 		}
 	}
+
 	for _, val := range s.input {
 		if message != "" {
 			message += " and "
@@ -90,6 +96,7 @@ func (train) process(s *state) {
 			message += "your piety"
 		}
 	}
+
 	s.actor.Tier += 1
 	s.actor.Gold.Subtract(config.GoldPerLevel[s.actor.Tier])
 	s.actor.Stam.Max = config.CalcStamina(s.actor.Tier, s.actor.Con.Current, s.actor.Class)

@@ -41,7 +41,7 @@ func (reroll) process(s *state) {
 		}
 	}
 
-	if validateStats(s, str, con, dex, intel, pie) {
+	if !validateStats(s, str, con, dex, intel, pie) {
 		s.msg.Actor.SendBad("Stats are not valid")
 		return
 	}
