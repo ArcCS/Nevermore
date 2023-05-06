@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 	"strconv"
 )
 
@@ -68,21 +69,27 @@ func (reroll) process(s *state) {
 func validateStats(s *state, str int, con int, dex int, intel int, pie int) bool {
 
 	if str+con+dex+intel+pie != 50+((s.actor.Tier-1)*2) {
+		log.Println("Stats do not add up to 50 + 2 per level")
 		return false
 	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMin >= str || str >= config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMax {
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMin > str || str > config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMax {
+		log.Println("fail str check")
 		return false
 	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMin >= dex || dex >= config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMax {
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMin > dex || dex > config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMax {
+		log.Println("fail dex check")
 		return false
 	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMin >= con || con >= config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMax {
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMin > con || con > config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMax {
+		log.Println("fail con check")
 		return false
 	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMin >= intel || intel >= config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMax {
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMin > intel || intel > config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMax {
+		log.Println("fail int check")
 		return false
 	}
-	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMin >= pie || pie >= config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMax {
+	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMin > pie || pie > config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMax {
+		log.Println("fail pie check")
 		return false
 	}
 	return true

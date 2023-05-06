@@ -13,7 +13,7 @@ func init() {
 	addHandler(cast{},
 		"Usage:  cast spell_name target # \n\n Attempts to cast a known spell from your spellbook",
 		permissions.Player,
-		"cast")
+		"cast", "ca", "c")
 }
 
 type cast cmd
