@@ -797,6 +797,9 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
 	}
 	finalDamage := damage - resist
+	if finalDamage < 0 {
+		finalDamage = 0
+	}
 	if finalDamage > c.Stam.Current {
 		stamDamage = c.Stam.Current
 		vitalDamage = finalDamage - stamDamage
@@ -819,6 +822,9 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 func (c *Character) ReceiveDamageNoArmor(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
 	finalDamage := damage
+	if finalDamage < 0 {
+		finalDamage = 0
+	}
 	if finalDamage > c.Stam.Current {
 		stamDamage = c.Stam.Current
 		vitalDamage = finalDamage - stamDamage
@@ -843,6 +849,9 @@ func (c *Character) ReceiveVitalDamage(damage int) int {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
 	}
 	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(c.GetStat("armor")/config.ArmorReductionPoints) * config.ArmorReduction))))
+	if finalDamage < 0 {
+		finalDamage = 0
+	}
 	if finalDamage > c.Vit.Current {
 		finalDamage = c.Vit.Current
 		c.Vit.Current = 0
@@ -930,9 +939,7 @@ func (c *Character) RestoreMana(damage int) {
 
 func (c *Character) CalcHealPenalty(damage int) int {
 	if c.GetStat("pie") <= config.PieMajorPenalty {
-		// At most you receive 50% healing
-		damage /= 2
-		damage -= int(float64(damage) * (.18 * float64(6-c.GetStat("pie"))))
+		damage -= int(float64(damage) * (.10 * float64(6-c.GetStat("pie"))))
 	}
 	return damage
 }

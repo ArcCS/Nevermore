@@ -5,7 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -37,11 +36,6 @@ func (use) process(s *state) {
 	nameNum := 1
 
 	if s.actor.GetStat("int") < config.IntMajorPenalty {
-		s.msg.Actor.SendBad("You swing the item around wildly but can't figure out how to use it.")
-		return
-	}
-
-	if s.actor.GetStat("int") < config.IntMinorPenalty {
 		if utils.Roll(100, 1, 0) <= config.FizzleSave {
 			s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")
 			s.actor.SetTimer("use", 8)
@@ -89,7 +83,13 @@ func (use) process(s *state) {
 				return
 			}
 			if utils.StringIn(spellInstance.Name, objects.OffensiveSpells) && s.actor.Victim != nil {
-				log.Println("offensive spell, victim is not nil")
+				if s.actor.GetStat("int") < config.IntMinorPenalty {
+					if utils.Roll(100, 1, 0) <= config.FizzleSave {
+						s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")
+						s.actor.SetTimer("use", 8)
+						return
+					}
+				}
 				switch s.actor.Victim.(type) {
 				case *objects.Character:
 					name = s.actor.Victim.(*objects.Character).Name
