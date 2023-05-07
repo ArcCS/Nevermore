@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -29,6 +30,9 @@ func (train) process(s *state) {
 	}
 	if len(s.words) < 2 {
 		s.msg.Actor.SendBad("You must enter both of the stat points you wish to advance into your coming tier.")
+		return
+	} else if len(s.words) > 2 {
+		s.msg.Actor.SendBad("You can only train two stats at a time.")
 		return
 	}
 	message := ""
@@ -73,7 +77,8 @@ func (train) process(s *state) {
 		}
 	}
 
-	for _, val := range s.input {
+	for count, val := range s.input {
+		log.Println(count)
 		if message != "" {
 			message += " and "
 		}

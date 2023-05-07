@@ -87,8 +87,8 @@ func (information) process(s *state) {
 		"You have {{.Bonus_points}} role-play bonus points.\n" +
 		"{{if .DispRerolls}}You can reroll your character {{.Rerolls}} more times.\n{{end}}" +
 		"You were born on {{.Day}}, the {{.Day_number}} of the month of {{.Month}}\n" +
-		"in the year {{.GodsYear}} since the Godswar, and year {{.EmpYear}} of the Empire.\n" +
-		"You are {{.Age}} years old.\n\n"
+		"in the year {{.GodsYear}} since the Godswar, and year {{.EmpYear}} of the Empire.\n"
+	//"You are {{.Age}} years old.\n\n"
 
 	data := struct {
 		Charname         string
