@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/jinzhu/copier"
 	"strconv"
+	"strings"
 )
 
 func init() {
@@ -22,14 +23,19 @@ func (buy) process(s *state) {
 		return
 	}
 
-	targetStr := s.words[0]
+	targetStr := ""
 	targetNum := 1
 
 	if len(s.words) > 1 {
-		if val, err := strconv.Atoi(s.words[1]); err == nil {
-			targetNum = val
+		for _, word := range s.words {
+			if val, err := strconv.Atoi(s.words[1]); err == nil {
+				targetNum = val
+			} else {
+				targetStr += " " + word
+			}
 		}
 	}
+	targetStr = strings.Trim(targetStr, " ")
 
 	if len(s.where.StoreInventory.Contents) > 0 {
 		purchaseItem := s.where.StoreInventory.Search(targetStr, targetNum)
