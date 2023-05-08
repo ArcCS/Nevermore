@@ -280,6 +280,9 @@ func RestoreInventory(jsonString string) *ItemInventory {
 			newItem.Name = item["name"].(string)
 			newItem.MaxUses = int(item["uses"].(float64))
 			newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
+			if _, ok := item["light"]; ok {
+				newItem.Flags["light"] = int(item["light"].(float64)) != 0
+			}
 			if _, ok := item["adjustment"]; ok {
 				newItem.Adjustment = int(item["adjustment"].(float64))
 			}

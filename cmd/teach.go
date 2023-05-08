@@ -1,5 +1,6 @@
 package cmd
 
+/*
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
@@ -55,3 +56,5 @@ func (teach) process(s *state) {
 
 	s.ok = true
 }
+
+*/

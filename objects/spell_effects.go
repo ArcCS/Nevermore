@@ -250,7 +250,6 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			target.HealVital(damage)
-			target.HealStam(damage)
 			for _, mob := range Rooms[target.ParentId].Mobs.Contents {
 				if mob.Flags["hostile"] {
 					mob.AddThreatDamage(damage, caller)

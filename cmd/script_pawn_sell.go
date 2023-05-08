@@ -42,14 +42,10 @@ func (sell) process(s *state) {
 		// real dumb
 		if s.actor.GetStat("int") < 5 {
 			finalValue = int(.10 * float64(target.Value))
-		} 
-		// too dumb to have int affect price
-		else if s.actor.GetStat("int") < 10 {
+		} else if s.actor.GetStat("int") < 10 {
 			finalValue = int((.25 * float64(target.Value)) +
 				(float64(utils.Roll(10, 1, 0))/float64(10))*(.25*float64(target.Value)))
-		}
-		// smart enough to estimate somethings value
-		else if s.actor.GetStat("int") >= 10 {
+		} else if s.actor.GetStat("int") >= 10 {
 			finalValue = int((.5 * float64(target.Value)) +
 				((float64(s.actor.Int.Current) / 45) * (.25 * float64(target.Value))) +
 				(float64(utils.Roll(10, 1, 0))/float64(10))*(.25*float64(target.Value)))

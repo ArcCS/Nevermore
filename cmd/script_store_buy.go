@@ -34,7 +34,7 @@ func (buy) process(s *state) {
 	if len(s.where.StoreInventory.Contents) > 0 {
 		purchaseItem := s.where.StoreInventory.Search(targetStr, targetNum)
 		if purchaseItem != nil {
-			if s.actor.Gold.Value > purchaseItem.StorePrice {
+			if s.actor.Gold.Value >= purchaseItem.StorePrice {
 				if (s.actor.GetCurrentWeight() + purchaseItem.GetWeight()) <= s.actor.MaxWeight() {
 					s.actor.RunHook("act")
 					s.actor.Gold.Subtract(purchaseItem.StorePrice)
