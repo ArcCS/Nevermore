@@ -308,8 +308,13 @@ func (r *Room) Encounter() {
 	// Check if encounters are off, a GM can change this live.
 	if r.Flags["encounters_on"] {
 		if len(r.Mobs.Contents) < 10 {
+			// Augment the encounter based on the number of players in the room
+			aug := len(r.Chars.Contents)
+			if aug <= 1 {
+				aug = 0
+			}
 			// Roll the dice and see if we get a mob here
-			if utils.Roll(100, 1, 0) <= r.EncounterRate {
+			if utils.Roll(100, 1, 0) <= r.EncounterRate+(aug*config.MobAugmentPerCharacter) {
 				// Successful roll:  Roll again to pick the mob
 				mobCalc := 0
 				mobPick := utils.Roll(100, 1, 0)
