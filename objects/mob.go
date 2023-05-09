@@ -678,8 +678,11 @@ func (m *Mob) Follow(params []string) {
 				}
 				// Clean the previous room
 				go Rooms[previousRoom].LastPerson()
-				go m.StartTicking()
-				//log.Println("Set Target")
+				go func() {
+					time.Sleep(1 * time.Second)
+					m.StartTicking()
+				}()
+
 				m.CurrentTarget = targetChar.Name
 			}
 		}
