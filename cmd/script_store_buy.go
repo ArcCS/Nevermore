@@ -26,15 +26,14 @@ func (buy) process(s *state) {
 	targetStr := ""
 	targetNum := 1
 
-	if len(s.words) > 1 {
-		for _, word := range s.words {
-			if val, err := strconv.Atoi(s.words[1]); err == nil {
-				targetNum = val
-			} else {
-				targetStr += " " + word
-			}
+	for _, word := range s.words {
+		if val, err := strconv.Atoi(word); err == nil {
+			targetNum = val
+		} else {
+			targetStr += " " + word
 		}
 	}
+
 	targetStr = strings.Trim(targetStr, " ")
 
 	if len(s.where.StoreInventory.Contents) > 0 {
