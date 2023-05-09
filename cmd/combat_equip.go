@@ -40,9 +40,17 @@ func (equip) process(s *state) {
 	what := s.actor.Inventory.Search(name, nameNum)
 	if what != nil {
 		s.actor.RunHook("combat")
-		if s.actor.Class == 8 && utils.IntIn(what.ItemType, []int{0, 1, 2, 3, 4}) {
-			s.msg.Actor.SendBad("You cannot wield weapons effectively.")
-			return
+		if s.actor.Class == 8 {
+			//check if weapon
+			if utils.IntIn(what.ItemType, []int{0, 1, 2, 3, 4}) {
+				s.msg.Actor.SendBad("You cannot wield weapons effectively.")
+				return
+			}
+			//Check if armor and has value greater than 0
+			if utils.IntIn(what.ItemType, []int{5, 19, 20, 21, 22, 23, 24, 25, 26}) && what.Armor > 0 {
+				s.msg.Actor.SendBad("This armor would disrupt the flow of your chi")
+				return
+			}
 		}
 		if utils.IntIn(what.ItemType, []int{5, 19, 20, 21, 22, 23, 24, 25, 26}) {
 			if !config.CheckArmor(what.ItemType, s.actor.Tier, what.Armor) {
