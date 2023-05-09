@@ -95,6 +95,7 @@ func (use) process(s *state) {
 					name = s.actor.Victim.(*objects.Character).Name
 				case *objects.Mob:
 					name = s.actor.Victim.(*objects.Mob).Name
+					nameNum = s.where.Mobs.GetNumber(s.actor.Victim.(*objects.Mob))
 				}
 			}
 			if name != "" {

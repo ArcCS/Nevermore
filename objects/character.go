@@ -255,7 +255,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 		FilledCharacter.SerialRestoreEffects(charData["effects"].(string))
 		FilledCharacter.SerialRestoreTimers(charData["timers"].(string))
 
-		FilledCharacter.Equipment.ToggleFlag = FilledCharacter.ToggleFlag
+		FilledCharacter.Equipment.FlagOn = FilledCharacter.FlagOn
+		FilledCharacter.Equipment.FlagOff = FilledCharacter.FlagOff
 		FilledCharacter.Equipment.PostEquipmentLight()
 		return FilledCharacter, false
 	}
@@ -306,13 +307,13 @@ func (c *Character) TimerReady(timer string) (bool, string) {
 // SingSong Bards get their own special ticker
 // TODO(?): Maybe eventually this is a generalized aura?
 func (c *Character) SingSong(song string, tickRate int) {
-	c.ToggleFlag("singing", "sing")
+	c.FlagOn("singing", "sing")
 	c.SongTicker = time.NewTicker(time.Duration(tickRate) * time.Second)
 	go func() {
 		for {
 			select {
 			case <-c.SongTickerUnload:
-				c.ToggleFlagAndMsg("singing", "sing", "You stop singing.")
+				c.FlagOffAndMsg("singing", "sing", "You stop singing.")
 				return
 			case <-c.SongTicker.C:
 				if SongEffects[song].target == "mobs" {

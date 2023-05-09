@@ -51,6 +51,7 @@ func (kill) process(s *state) {
 			name = s.actor.Victim.(*objects.Character).Name
 		case *objects.Mob:
 			name = s.actor.Victim.(*objects.Mob).Name
+			nameNum = s.where.Mobs.GetNumber(s.actor.Victim.(*objects.Mob))
 		}
 	} else {
 		name = s.input[0]
