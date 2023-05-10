@@ -22,8 +22,6 @@ func init() {
 type information cmd
 
 func (information) process(s *state) {
-	// Do a save just because.
-	s.actor.Save()
 
 	berz, ok := s.actor.Flags["berserk"]
 	if !ok {

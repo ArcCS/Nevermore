@@ -9,9 +9,8 @@ import (
 )
 
 type ItemInventory struct {
-	Contents    []*Item
-	TotalWeight int
-	Flags       map[string]bool
+	Contents []*Item
+	Flags    map[string]bool
 }
 
 // NewItemInventory New ItemInventory returns a new basic ItemInventory structure
@@ -27,10 +26,16 @@ func NewItemInventory(o ...*Item) *ItemInventory {
 	return i
 }
 
+func (i *ItemInventory) GetTotalWeight() (total int) {
+	for _, item := range i.Contents {
+		total += item.GetWeight()
+	}
+	return total
+}
+
 // Add adds the specified object to the Contents.
 func (i *ItemInventory) Add(o *Item) {
 	i.Contents = append(i.Contents, o)
-	i.TotalWeight += o.GetWeight()
 }
 
 // Remove Pass item as a pointer to be removed
@@ -53,16 +58,7 @@ func (i *ItemInventory) Remove(o *Item) (err error) {
 	if len(i.Contents) == 0 {
 		i.Contents = make([]*Item, 0, 0)
 	}
-	i.TotalWeight -= o.GetWeight()
 	return nil
-}
-
-// ReCalcWeight Recalculates the total weight of the inventory
-func (i *ItemInventory) ReCalcWeight() {
-	i.TotalWeight = 0
-	for _, item := range i.Contents {
-		i.TotalWeight += item.GetWeight()
-	}
 }
 
 // RemoveNonPerms Clear all non-permanent

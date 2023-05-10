@@ -96,7 +96,7 @@ type Character struct {
 	Victim          interface{}
 	Resist          bool
 	OOCSwap         int
-	LastTickLog     time.Time
+	LastSave        time.Time
 	Unloader        func()
 	LastMessenger   string
 	DeathInProgress bool
@@ -264,7 +264,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 
 // GetCurrentWeight returns the current carrying weight of the character.
 func (c *Character) GetCurrentWeight() int {
-	return c.Inventory.TotalWeight + c.Equipment.Weight
+	return c.Inventory.GetTotalWeight() + c.Equipment.GetWeight()
 }
 
 func (c *Character) SetTimer(timer string, seconds int) {
@@ -663,6 +663,10 @@ const (
 )
 
 func (c *Character) Tick() {
+	if time.Now().Sub(c.LastSave) > 5*time.Minute {
+		c.LastSave = time.Now()
+		c.Save()
+	}
 	if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
 		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod * 2)))

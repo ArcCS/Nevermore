@@ -71,7 +71,7 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 
 func (i *Item) GetWeight() int {
 	if i.ItemType == 9 && !i.Flags["weightless_chest"] {
-		return i.Weight + i.Storage.TotalWeight
+		return i.Weight + i.Storage.GetTotalWeight()
 	} else {
 		return i.Weight
 	}

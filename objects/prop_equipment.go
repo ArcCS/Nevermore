@@ -10,8 +10,7 @@ import (
 
 type Equipment struct {
 	// Status
-	Armor  int
-	Weight int
+	Armor int
 
 	Head  *Item
 	Chest *Item
@@ -31,6 +30,13 @@ type Equipment struct {
 
 	FlagOn  func(flagName string, provider string)
 	FlagOff func(flagName string, provider string)
+}
+
+func (e *Equipment) GetWeight() (total int) {
+	for _, item := range e.List() {
+		total += item.GetWeight()
+	}
+	return total
 }
 
 func (e *Equipment) List() []*Item {
@@ -362,7 +368,6 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 			e.FlagOn("light", itemSlot)
 		}
 		e.Armor += item.Armor
-		e.Weight += item.Weight
 	}
 	return ok
 }
@@ -370,13 +375,11 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 // UnequipSpecific removes a specific slot rather than searching for a name
 func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 	ok = true
-	iWeight := 0
 	iArmor := 0
 	lightBearing := false
 
 	if alias == "head" {
 		if e.Head != (*Item)(nil) {
-			iWeight = e.Head.GetWeight()
 			iArmor = e.Head.Armor
 			lightBearing = e.Head.Flags["light"]
 			e.Head = (*Item)(nil)
@@ -385,7 +388,6 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		}
 	} else if alias == "chest" {
 		if e.Chest != (*Item)(nil) {
-			iWeight = e.Chest.GetWeight()
 			iArmor = e.Chest.Armor
 			lightBearing = e.Chest.Flags["light"]
 			e.Chest = (*Item)(nil)
@@ -394,7 +396,6 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		}
 	} else if alias == "neck" {
 		if e.Neck != (*Item)(nil) {
-			iWeight = e.Neck.GetWeight()
 			iArmor = e.Neck.Armor
 			lightBearing = e.Neck.Flags["light"]
 			e.Neck = (*Item)(nil)
@@ -403,7 +404,6 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		}
 	} else if alias == "legs" {
 		if e.Legs != (*Item)(nil) {
-			iWeight = e.Legs.GetWeight()
 			iArmor = e.Legs.Armor
 			lightBearing = e.Legs.Flags["light"]
 			e.Legs = (*Item)(nil)
@@ -412,7 +412,6 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		}
 	} else if alias == "feet" {
 		if e.Feet != (*Item)(nil) {
-			iWeight = e.Feet.GetWeight()
 			iArmor = e.Feet.Armor
 			lightBearing = e.Feet.Flags["light"]
 			e.Feet = (*Item)(nil)
@@ -421,7 +420,6 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		}
 	} else if alias == "arms" {
 		if e.Arms != (*Item)(nil) {
-			iWeight = e.Arms.GetWeight()
 			iArmor = e.Arms.Armor
 			lightBearing = e.Arms.Flags["light"]
 			e.Arms = (*Item)(nil)
@@ -430,7 +428,6 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		}
 	} else if alias == "hands" {
 		if e.Hands != (*Item)(nil) {
-			iWeight = e.Hands.GetWeight()
 			iArmor = e.Hands.Armor
 			lightBearing = e.Hands.Flags["light"]
 			e.Hands = (*Item)(nil)
@@ -439,7 +436,6 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		}
 	} else if alias == "ring1" {
 		if e.Ring1 != (*Item)(nil) {
-			iWeight = e.Ring1.GetWeight()
 			iArmor = e.Ring1.Armor
 			lightBearing = e.Ring1.Flags["light"]
 			e.Ring1 = (*Item)(nil)
@@ -448,7 +444,6 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		}
 	} else if alias == "ring2" {
 		if e.Ring2 != (*Item)(nil) {
-			iWeight = e.Ring2.GetWeight()
 			iArmor = e.Ring2.Armor
 			lightBearing = e.Ring2.Flags["light"]
 			e.Ring2 = (*Item)(nil)
@@ -461,7 +456,6 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		e.FlagOff("light", alias)
 	}
 	e.Armor -= iArmor
-	e.Weight -= iWeight
 	return ok
 }
 
@@ -564,7 +558,6 @@ func (e *Equipment) Unequip(alias string) (ok bool, item *Item) {
 			e.FlagOff("light", itemSlot)
 		}
 		e.Armor -= item.Armor
-		e.Weight -= item.Weight
 	}
 	return ok, item
 }
@@ -651,7 +644,6 @@ func (e *Equipment) UnequipAll() (items []*Item) {
 	}
 
 	e.Armor = 0
-	e.Weight = 0
 
 	return items
 }
