@@ -229,7 +229,12 @@ func (r *Room) ToggleFlag(flagName string) bool {
 func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
 	//*
-	r.StagedClearing = false
+	reloadMobs := true
+	if r.StagedClearing {
+		log.Println("Stop clearing, and do not restart mobs.")
+		r.StagedClearing = false
+		reloadMobs = false
+	}
 	if r.Flags["encounters_on"] {
 		r.roomTicker = time.NewTicker(10 * time.Second)
 		go func() {
@@ -294,27 +299,37 @@ func (r *Room) FirstPerson() {
 			}
 		}()
 	}
-	r.Mobs.RestartPerms()
+	if reloadMobs {
+		r.Mobs.RestartPerms()
+	}
 }
 
 func (r *Room) Encounter() {
-	if len(r.Mobs.Contents) < 10 {
-		// Roll the dice and see if we get a mob here
-		if utils.Roll(100, 1, 0) <= r.EncounterRate {
-			// Successful roll:  Roll again to pick the mob
-			mobCalc := 0
-			mobPick := utils.Roll(100, 1, 0)
-			for mob, chance := range r.EncounterTable {
-				if (DayTime && !Mobs[mob].Flags["night_only"]) || (!DayTime && !Mobs[mob].Flags["day_only"]) {
-					mobCalc += chance
-					if mobPick <= mobCalc {
-						// This is the mob!  Put it in the room!
-						newMob := Mob{}
-						copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true})
-						newMob.Placement = 5
-						r.Mobs.Add(&newMob, false)
-						newMob.StartTicking()
-						break
+	// Check if encounters are off, a GM can change this live.
+	if r.Flags["encounters_on"] {
+		if len(r.Mobs.Contents) < 10 {
+			// Augment the encounter based on the number of players in the room
+			aug := len(r.Chars.Contents)
+			if aug <= 1 {
+				aug = 0
+			}
+			// Roll the dice and see if we get a mob here
+			if utils.Roll(100, 1, 0) <= r.EncounterRate+(aug*config.MobAugmentPerCharacter) {
+				// Successful roll:  Roll again to pick the mob
+				mobCalc := 0
+				mobPick := utils.Roll(100, 1, 0)
+				for mob, chance := range r.EncounterTable {
+					if (DayTime && !Mobs[mob].Flags["night_only"]) || (!DayTime && !Mobs[mob].Flags["day_only"]) {
+						mobCalc += chance
+						if mobPick <= mobCalc {
+							// This is the mob!  Put it in the room!
+							newMob := Mob{}
+							copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true})
+							newMob.Placement = 5
+							r.Mobs.Add(&newMob, false)
+							newMob.StartTicking()
+							break
+						}
 					}
 				}
 			}
@@ -323,6 +338,10 @@ func (r *Room) Encounter() {
 }
 
 func (r *Room) LastPerson() {
+	// Verify that no one else is in here after a follow mob invocation
+	if len(r.Chars.Contents) != 0 {
+		return
+	}
 
 	// Set the room to staged clearing and then wait 2 seconds to actually tear down
 	r.StagedClearing = true
@@ -331,9 +350,8 @@ func (r *Room) LastPerson() {
 		log.Println("Room clearing was cancelled.")
 		return
 	}
-
+	log.Println("Clearing Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")")
 	r.Mobs.RemoveNonPerms()
-
 	r.Items.RemoveNonPerms()
 
 	for _, exit := range r.Exits {
@@ -361,6 +379,8 @@ func (r *Room) LastPerson() {
 		}
 	}
 
+	// Completed clearing, reset to default
+	r.StagedClearing = false
 	go r.Save()
 
 }

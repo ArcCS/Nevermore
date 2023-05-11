@@ -35,7 +35,6 @@ func (put) process(s *state) {
 	argParse := 1
 	targetStr := s.words[0]
 	targetNum := 1
-	recalc := false
 
 	if val, err := strconv.Atoi(s.words[1]); err == nil {
 		targetNum = val
@@ -77,8 +76,6 @@ func (put) process(s *state) {
 		if where == nil {
 			s.msg.Actor.SendInfo("Put it where?")
 			return
-		} else if !where.Flags["weightless_chest"] {
-			recalc = true
 		}
 	}
 
@@ -108,9 +105,6 @@ func (put) process(s *state) {
 
 	s.actor.Inventory.Remove(target)
 	where.Storage.Add(target)
-	if recalc {
-		s.actor.Inventory.ReCalcWeight()
-	}
 
 	s.msg.Actor.SendGood("You put ", target.Name, " into ", where.Name, ".")
 	s.msg.Observers.SendInfo("You see ", s.actor.Name, " put ", target.Name, " into ", where.Name, ".")

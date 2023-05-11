@@ -56,6 +56,8 @@ func newClient(conn *net.TCPConn) *client {
 
 	// Setup connection parameters
 	conn.SetKeepAlive(true)
+	// Set keep alive period to 30 seconds, see if this helps with dead connections
+	conn.SetKeepAlivePeriod(300 * time.Second)
 	conn.SetLinger(10)
 	conn.SetNoDelay(false)
 	conn.SetWriteBuffer(termColumns * termLines)

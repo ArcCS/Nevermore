@@ -6,6 +6,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/jinzhu/copier"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -58,38 +59,45 @@ func (i *MobInventory) AddWithMessage(o *Mob, message string, silent bool) {
 
 // Pass mob as a pointer, compare and remove
 func (i *MobInventory) Remove(o *Mob) {
-	o.MobTickerUnload <- true
+	log.Println("Unloading mob from inventory: " + o.Name)
+	go func() { o.MobTickerUnload <- true }()
 	for c, p := range i.Contents {
 		if p == o {
 			copy(i.Contents[c:], i.Contents[c+1:])
 			i.Contents[len(i.Contents)-1] = nil
 			i.Contents = i.Contents[:len(i.Contents)-1]
-			break
 		}
+		p = nil
 	}
 	if len(i.Contents) == 0 {
+		i.Contents = nil
 		i.Contents = make([]*Mob, 0, 10)
 	}
 }
 
 // Clear all non permanent
 func (i *MobInventory) RemoveNonPerms() {
-	newContents := make([]*Mob, 0, 0)
+	var contentRef []*Mob
 	for _, mob := range i.Contents {
-		if mob.Flags["permanent"] == true {
-			newContents = append(newContents, mob)
-			mob.MobTickerUnload <- true
+		if mob.Flags["permanent"] != true {
+			contentRef = append(contentRef, mob)
 		} else {
+			log.Println("Unload mob: " + mob.Name + " ticker, but do not delete")
 			mob.MobTickerUnload <- true
-			mob = nil
 		}
 	}
-	i.Contents = newContents
+	for _, mob := range contentRef {
+		i.Remove(mob)
+		mob = nil
+	}
+	contentRef = nil
 }
 
 func (i *MobInventory) RestartPerms() {
 	for _, mob := range i.Contents {
-		mob.StartTicking()
+		if mob.Flags["permanent"] {
+			mob.StartTicking()
+		}
 	}
 }
 

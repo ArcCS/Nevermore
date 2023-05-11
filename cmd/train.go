@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -30,8 +31,16 @@ func (train) process(s *state) {
 	if len(s.words) < 2 {
 		s.msg.Actor.SendBad("You must enter both of the stat points you wish to advance into your coming tier.")
 		return
+	} else if len(s.words) > 2 {
+		s.msg.Actor.SendBad("You can only train two stats at a time.")
+		return
 	}
 	message := ""
+
+	if !validateStats(s, s.actor.Str.Current, s.actor.Con.Current, s.actor.Dex.Current, s.actor.Int.Current, s.actor.Pie.Current) {
+		s.msg.Actor.SendBad("Stats are not valid, you cannot train this character")
+		return
+	}
 
 	if !utils.StringIn(strings.ToLower(s.words[0]), []string{"str", "dex", "con", "int", "pie"}) || !utils.StringIn(strings.ToLower(s.words[1]), []string{"str", "dex", "con", "int", "pie"}) {
 		s.msg.Actor.SendBad("You must enter a valid stat to train. (pie, int, con, dex, str)")
@@ -67,7 +76,9 @@ func (train) process(s *state) {
 			}
 		}
 	}
-	for _, val := range s.input {
+
+	for count, val := range s.input {
+		log.Println(count)
 		if message != "" {
 			message += " and "
 		}
@@ -90,6 +101,7 @@ func (train) process(s *state) {
 			message += "your piety"
 		}
 	}
+
 	s.actor.Tier += 1
 	s.actor.Gold.Subtract(config.GoldPerLevel[s.actor.Tier])
 	s.actor.Stam.Max = config.CalcStamina(s.actor.Tier, s.actor.Con.Current, s.actor.Class)
@@ -99,6 +111,6 @@ func (train) process(s *state) {
 	s.actor.Mana.Max = config.CalcMana(s.actor.Tier, s.actor.Int.Current, s.actor.Class)
 	s.actor.Mana.Current = s.actor.Mana.Max
 	s.actor.ClassTitle = config.ClassTitle(s.actor.Class, s.actor.Gender, s.actor.Tier)
-	s.msg.Actor.SendGood(strings.Title(message + " were increased by 1 and tier increased to " + strconv.Itoa(s.actor.Tier)))
+	s.msg.Actor.SendGood(utils.Title(message + " were increased by 1 and tier increased to " + strconv.Itoa(s.actor.Tier)))
 	return
 }

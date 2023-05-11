@@ -71,7 +71,7 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 
 func (i *Item) GetWeight() int {
 	if i.ItemType == 9 && !i.Flags["weightless_chest"] {
-		return i.Weight + i.Storage.TotalWeight
+		return i.Weight + i.Storage.GetTotalWeight()
 	} else {
 		return i.Weight
 	}
@@ -208,6 +208,7 @@ func ReturnItemInstanceProps(item *Item) map[string]interface{} {
 		"adjustment": item.Adjustment, //  Adjustable by Mages
 		"magic":      utils.Btoi(item.Flags["magic"]),
 		"spell":      item.Spell,
+		"light":      utils.Btoi(item.Flags["light"]),
 		"armor":      item.Armor, // Adjustable by Paladins
 	}
 	if _, ok := item.Flags["infinite"]; ok {

@@ -134,7 +134,7 @@ func (godir) process(s *state) {
 						return
 					}
 
-					if s.actor.Equipment.Weight > s.actor.MaxWeight() {
+					if s.actor.Equipment.GetWeight() > s.actor.MaxWeight() {
 						s.msg.Actor.SendBad("You are carrying too much to move.")
 						return
 					}

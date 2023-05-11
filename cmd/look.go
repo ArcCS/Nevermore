@@ -116,7 +116,7 @@ func (look) process(s *state) {
 			Feet        string
 			Head        string
 		}{
-			strings.Title(config.TextSubPronoun[whatChar.Gender]),
+			utils.Title(config.TextSubPronoun[whatChar.Gender]),
 			config.TextPosPronoun[whatChar.Gender],
 			"is",
 			"has",

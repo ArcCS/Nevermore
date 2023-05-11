@@ -26,6 +26,7 @@ func (tell) process(s *state) {
 	who := objects.ActiveCharacters.Find(whoStr)
 	if who != nil {
 		objects.ActiveCharacters.Lock()
+		who.LastMessenger = s.actor.Name
 		who.Write([]byte(text.White + s.actor.Name + " flashes#, \"" + message + "\"" + text.Reset + "\n"))
 		objects.ActiveCharacters.Unlock()
 		if !who.Flags["invisible"] {

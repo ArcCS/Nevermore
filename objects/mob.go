@@ -70,6 +70,7 @@ type Mob struct {
 	MobTicker       *time.Ticker
 	// An int to hold a stun time.
 	MobStunned int
+	IsActive   bool
 }
 
 // Pop the mob data
@@ -131,6 +132,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		nil,
 		nil,
 		0,
+		false,
 	}
 
 	for _, spellN := range strings.Split(mobData["spells"].(string), ",") {
@@ -159,6 +161,12 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 }
 
 func (m *Mob) StartTicking() {
+	if m.IsActive {
+		log.Println("mob active, not restarting")
+		return
+	}
+	log.Println("not active starting ticking" + m.Name)
+	m.IsActive = true
 	m.CalculateInventory()
 	m.ThreatTable = make(map[string]int)
 	m.MobTickerUnload = make(chan bool)
@@ -173,7 +181,6 @@ func (m *Mob) StartTicking() {
 	for _, spell := range m.Spells {
 		if utils.StringIn(spell, MobSupportSpells) {
 			Cast(m, m, spell, 0)
-			log.Println("Casting support spell", spell, "on", m.Name)
 		}
 	}
 	go func() {
@@ -184,10 +191,15 @@ func (m *Mob) StartTicking() {
 				var params = strings.Split(msg, " ")
 				go m.ProcessCommand(params[0], params[1:])
 			case <-m.MobTickerUnload:
+				log.Println("Unloading Mob Ticker for ", m.Name)
+				m.MobTicker.Stop()
+				m.IsActive = false
 				return
 			case <-m.MobTicker.C:
+				log.Println("Locking Room for tick ", m.Name)
 				Rooms[m.ParentId].Lock()
 				m.Tick()
+				log.Println("Unlocking Room post tick ", m.Name)
 				Rooms[m.ParentId].Unlock()
 			}
 		}
@@ -207,6 +219,7 @@ func (m *Mob) CheckThreatTable(charName string) bool {
 
 // The mob brain is this ticker
 func (m *Mob) Tick() {
+	// Am I actually in the room?
 	if m.MobStunned > 0 {
 		m.MobStunned -= 8
 	} else {
@@ -363,15 +376,7 @@ func (m *Mob) Tick() {
 			vitalStrike := false
 			criticalStrike := false
 			doubleDamage := false
-			if utils.Roll(100, 1, 0) <= config.MobVital {
-				vitalStrike = true
-			} else if utils.Roll(100, 1, 0) <= config.MobCritical {
-				multiplier = 3
-				criticalStrike = true
-			} else if utils.Roll(100, 1, 0) <= config.MobDouble {
-				multiplier = 2
-				doubleDamage = true
-			}
+			penalty := 1
 
 			if m.CurrentTarget != "" && m.Flags["ranged_attack"] &&
 				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) >= 1) {
@@ -390,6 +395,18 @@ func (m *Mob) Tick() {
 				vitDamage := 0
 				reflectDamage := 0
 				actualDamage := m.InflictDamage()
+				if target.GetStat("dex") < config.DexMinorPenalty {
+					penalty = 2
+				}
+				if utils.Roll(100, 1, 0) <= config.MobVital*penalty {
+					vitalStrike = true
+				} else if utils.Roll(100, 1, 0) <= config.MobCritical*penalty {
+					multiplier = 4
+					criticalStrike = true
+				} else if utils.Roll(100, 1, 0) <= config.MobDouble*penalty {
+					multiplier = 2
+					doubleDamage = true
+				}
 				if vitalStrike {
 					vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 					target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
@@ -474,6 +491,18 @@ func (m *Mob) Tick() {
 					vitDamage := 0
 					actualDamage := m.InflictDamage()
 					reflectDamage := 0
+					if target.GetStat("dex") < config.DexMinorPenalty {
+						penalty = 2
+					}
+					if utils.Roll(100, 1, 0) <= config.MobVital*penalty {
+						vitalStrike = true
+					} else if utils.Roll(100, 1, 0) <= config.MobCritical*penalty {
+						multiplier = 4
+						criticalStrike = true
+					} else if utils.Roll(100, 1, 0) <= config.MobDouble*penalty {
+						multiplier = 2
+						doubleDamage = true
+					}
 					if vitalStrike {
 						vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 						target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
@@ -519,8 +548,8 @@ func (m *Mob) DeathCheck(target *Character) bool {
 		Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
 		stringExp := strconv.Itoa(m.Experience)
 		for k := range m.ThreatTable {
-			Rooms[m.ParentId].Chars.MobSearch(k, m).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
-			Rooms[m.ParentId].Chars.MobSearch(k, m).Experience.Add(m.Experience)
+			Rooms[m.ParentId].Chars.SearchAll(k).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
+			Rooms[m.ParentId].Chars.SearchAll(k).Experience.Add(m.Experience)
 		}
 		Rooms[m.ParentId].MessageAll(m.Name + " dies.")
 		target.Write([]byte(text.White + m.DropInventory()))
@@ -574,7 +603,7 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 func (m *Mob) Follow(params []string) {
 	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
 	if params[0] == m.CurrentTarget && m.MobStunned == 0 {
-		log.Println("I'm gonna try to follow")
+		//log.Println("I'm gonna try to follow")
 		// I am, lets process that -> First we need to step up in the world to find that character
 		targetChar := ActiveCharacters.Find(params[0])
 		if targetChar != nil {
@@ -592,7 +621,7 @@ func (m *Mob) Follow(params []string) {
 				previousRoom := m.ParentId
 				Rooms[m.ParentId].StagedClearing = false
 				// Lets not compete with other mobs for the same locks by using names
-				log.Println("Mob is trying to gain lock priority")
+				//log.Println("Mob is trying to gain lock priority")
 				tempName := utils.RandString(10)
 				for !ready {
 					ready = true
@@ -610,25 +639,25 @@ func (m *Mob) Follow(params []string) {
 								Rooms[l].LockPriority = ""
 							}
 						}
-						log.Println("Mob is sleeping before trying to acquire again")
+						//log.Println("Mob is sleeping before trying to acquire again")
 						rand.Seed(time.Now().UnixNano())
 						r := rand.Int()
 						t, _ := time.ParseDuration(string(r) + "ms")
 						time.Sleep(t)
 					}
 				}
-				log.Println("Let everyone know there is a follow")
+				//log.Println("Let everyone know there is a follow")
 				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name)
-				log.Println("Processing Previous Room Lock")
+				//log.Println("Processing Previous Room Lock")
 				Rooms[m.ParentId].Lock()
-				log.Println("Processing New Room Lock")
+				//log.Println("Processing New Room Lock")
 				Rooms[targetChar.ParentId].Lock()
 				targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n"))
-				log.Println("Remove mob")
+				//log.Println("Remove mob")
 				Rooms[m.ParentId].Mobs.Remove(m)
-				log.Println("Add the mob")
+				//log.Println("Add the mob")
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
-				log.Println("Check for Vital")
+				//log.Println("Check for Vital")
 				if utils.Roll(100, 1, 0) <= config.MobFollowVital {
 					vitDamage := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()))))
 					if vitDamage == 0 {
@@ -639,20 +668,22 @@ func (m *Mob) Follow(params []string) {
 					}
 					targetChar.DeathCheck("was slain by a " + m.Name + ".")
 				}
-				// Clean the previous room
-				log.Println("Set Target")
-				m.CurrentTarget = targetChar.Name
-				log.Println("Previous room Unlock")
+				//log.Println("Previous room Unlock")
 				Rooms[previousRoom].Unlock()
-				log.Println("New Room Unlock")
+				//log.Println("New Room Unlock")
 				Rooms[targetChar.ParentId].Unlock()
-				// Release the priorities
+				//log.Println("Release lock priorities")
 				for _, l := range neededLocks {
 					Rooms[l].LockPriority = ""
 				}
 				// Clean the previous room
-				Rooms[previousRoom].LastPerson()
-				m.StartTicking()
+				go Rooms[previousRoom].LastPerson()
+				go func() {
+					time.Sleep(1 * time.Second)
+					m.StartTicking()
+				}()
+
+				m.CurrentTarget = targetChar.Name
 			}
 		}
 	}
@@ -844,7 +875,7 @@ func (m *Mob) RunHook(hook string) {
 			continue
 		}
 		if hookInstance.interval > 0 {
-			log.Println(hookInstance.LastTriggerInterval())
+			//log.Println(hookInstance.LastTriggerInterval())
 			if hookInstance.LastTriggerInterval() <= 0 {
 				hookInstance.RunHook()
 			}
@@ -885,7 +916,8 @@ func (m *Mob) CheckFlag(flagName string) bool {
 }
 
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
-	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction))))
+	resist := int(math.Ceil((float64(m.Armor/config.MobArmorReductionPoints) * config.MobArmorReduction) * float64(damage)))
+	finalDamage := damage - resist
 	if m.CheckFlag("inertial-barrier") {
 		finalDamage -= int(math.Ceil(float64(damage) * config.InertialDamageIgnore))
 	}
@@ -893,6 +925,7 @@ func (m *Mob) ReceiveDamage(damage int) (int, int) {
 	if finalDamage > m.WimpyValue && m.CheckFlag("flees") {
 		m.MobCommands <- "flee"
 	}
+	log.Println(m.Name+" Receives Damage: ", damage, "Resist: ", resist, "Final Damage: ", finalDamage)
 	return finalDamage, 0
 }
 

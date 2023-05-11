@@ -16,7 +16,7 @@ func init() {
 type whisper cmd
 
 func (whisper) process(s *state) {
-	if len(s.words) < 1 {
+	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("What did you want to say?")
 		return
 	}
@@ -24,7 +24,7 @@ func (whisper) process(s *state) {
 	whoSays := s.actor.Name
 	whoStr := s.words[0]
 
-	if s.actor.Flags["invisible"] {
+	if s.actor.CheckFlag("invisible") {
 		whoSays = "Someone"
 	}
 
@@ -38,11 +38,9 @@ func (whisper) process(s *state) {
 
 	msg := strings.Join(s.input[1:], " ")
 
-	if msg[len(msg)-1:] == "?" {
-		s.msg.Actor.SendGood("You whisper to "+who.Name+": \"", msg, "\"")
-		s.msg.Participant.SendInfo(whoSays, " whispers to  you: \"", msg, "\"")
-		s.msg.Observers.SendInfo(whoSays, " whispers to "+who.Name)
-	}
+	s.msg.Actor.SendGood("You whisper to "+who.Name+": \"", msg, "\"")
+	s.msg.Participant.SendInfo(whoSays, " whispers to  you: \"", msg, "\"")
+	s.msg.Observers.SendInfo(whoSays, " whispers to "+who.Name)
 
 	s.ok = true
 	return

@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"strconv"
 )
 
 func init() {
@@ -15,8 +17,8 @@ func init() {
 type pray cmd
 
 func (pray) process(s *state) {
-	if s.actor.Tier < 5 {
-		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
+	if s.actor.Tier < config.MinorAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.MinorAbilityTier) + " to use this skill.")
 		return
 	}
 	pray, ok := s.actor.Flags["pray"]

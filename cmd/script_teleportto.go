@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
+	"strings"
 )
 
 func init() {
@@ -27,7 +28,7 @@ func (scriptTeleportTo) process(s *state) {
 	var newRoomId int
 	var newRoom *objects.Room
 
-	if newRoomId, err = strconv.Atoi(s.words[1]); err != nil {
+	if newRoomId, err = strconv.Atoi(s.words[0]); err != nil {
 		s.msg.Actor.SendInfo("Room parameter couldn't be resolved.")
 		return
 	}
@@ -43,37 +44,18 @@ func (scriptTeleportTo) process(s *state) {
 		return
 	}
 
-	target := objects.ActiveCharacters.Find(s.words[0])
-	if target != nil {
-		if !utils.IntIn(newRoom.RoomId, s.rLocks) {
-			s.AddLocks(newRoom.RoomId)
-			s.ok = false
-			return
-		}
-		if s.actor != target {
-			s.participant = target
-		}
-		if target.Resist && target != s.actor {
-			// For every 5 points of int over the target there's an extra 10% chance to teleport
-			diff := ((s.actor.GetStat("int") - target.GetStat("int")) / 5) * 10
-			chance := 30 + diff
-			if utils.Roll(100, 1, 0) > chance {
-				s.msg.Actor.SendBad("You failed to magically transport " + target.Name)
-				s.msg.Participant.SendBad(s.actor.Name + " failed to magically transport you")
-				s.ok = true
-				return
-			}
-		}
-		s.msg.Actor.SendGood("You magically transported " + target.Name)
-		s.msg.Participant.SendBad(s.actor.Name + " magically transported you.")
-		s.where.Chars.Remove(target)
-		newRoom.Chars.Add(target)
-		target.ParentId = newRoom.RoomId
-		go Script(target, "LOOK")
-		s.ok = true
+	if !utils.IntIn(newRoom.RoomId, s.rLocks) {
+		s.AddLocks(newRoom.RoomId)
+		s.ok = false
 		return
-	} else {
-		s.msg.Actor.SendBad("Could not find that person to cast the spell on.")
 	}
+
+	s.msg.Actor.SendInfo(utils.Title(strings.ToLower(strings.Join(s.words[1:], " "))))
+	s.where.Chars.Remove(s.actor)
+	newRoom.Chars.Add(s.actor)
+	s.actor.ParentId = newRoom.RoomId
+	s.scriptActor("LOOK")
+	s.ok = true
+	return
 
 }

@@ -51,6 +51,7 @@ func (kill) process(s *state) {
 			name = s.actor.Victim.(*objects.Character).Name
 		case *objects.Mob:
 			name = s.actor.Victim.(*objects.Mob).Name
+			nameNum = s.where.Mobs.GetNumber(s.actor.Victim.(*objects.Mob))
 		}
 	} else {
 		name = s.input[0]
@@ -180,6 +181,23 @@ func (kill) process(s *state) {
 					mult *= float64(config.CombatModifiers["double"])
 					s.msg.Actor.SendGood("Double Damage!")
 				}
+				// Str Penalty Check
+				if s.actor.Class != 8 {
+					if s.actor.Equipment.Main.ItemType == 4 && s.actor.GetStat("str") < config.StrMajorPenalty {
+						selfDamage, vitDamage := s.actor.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * config.StrRangePenaltyDamage)))
+						s.msg.Actor.SendBad("You aren't strong enough to handle the after-effects of the weapon and hit yourself for " + strconv.Itoa(selfDamage) + "stamina and " + strconv.Itoa(vitDamage) + " damage!")
+						s.actor.DeathCheck(" killed themselves from the kickback of their weapon.")
+					} else if s.actor.Equipment.Main.ItemType == 4 && s.actor.GetStat("str") < config.StrMinorPenalty {
+						if utils.Roll(100, 1, 0) <= config.StrMinorPenaltyChance {
+							selfDamage, vitDamage := s.actor.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * config.StrRangePenaltyDamage)))
+							s.msg.Actor.SendBad("You aren't strong enough to handle the after-effecs of the weapon and hit yourself for " + strconv.Itoa(selfDamage) + "stamina and " + strconv.Itoa(vitDamage) + " damage!")
+							s.actor.DeathCheck(" killed themselves from the kickback of their weapon.")
+						} else {
+							s.msg.Actor.SendGood("You narrowely avoid hitting yourself with your ranged weapon.")
+						}
+					}
+				}
+
 				actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
 				whatMob.AddThreatDamage(actualDamage, s.actor)
 				log.Println(strconv.Itoa(whatMob.Stam.Max))
@@ -241,7 +259,12 @@ func DeathCheck(s *state, m *objects.Mob) {
 
 // Determine Miss Chance based on weapon Skills
 func DetermineMissChance(s *state, lvlDiff int) int {
-	missChance := config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
+	missChance := 0
+	if s.actor.Class == 8 {
+		missChance = config.WeaponMissChance(s.actor.Skills[5].Value, s.actor.Class)
+	} else {
+		missChance = config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
+	}
 	if lvlDiff >= 1 {
 		missChance += lvlDiff * config.MissPerLevel
 	}

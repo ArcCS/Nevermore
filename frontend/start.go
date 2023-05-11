@@ -123,11 +123,17 @@ func (m *start) startProcess() {
 					StartGame(m.frontend, m.powerCharacter)
 				} else {
 					m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.", text.Reset)
+					return
 				}
 
 			}
 		} else if utils.StringInLower(string(m.input), m.characters) {
-			StartGame(m.frontend, string(m.input))
+			if objects.ActiveCharacters.Find(string(m.input)) == nil {
+				StartGame(m.frontend, string(m.input))
+			} else {
+				m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.  (If you were mysteriously disconnected, you may have to wait for the game to idle out your character.)", text.Reset)
+				return
+			}
 		}
 		m.buf.Send(text.Bad, "Invalid option selected. Please try again.", text.Reset)
 	}

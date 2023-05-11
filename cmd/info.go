@@ -6,8 +6,8 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
-	"strings"
 	"text/template"
 )
 
@@ -22,8 +22,6 @@ func init() {
 type information cmd
 
 func (information) process(s *state) {
-	// Do a save just because.
-	s.actor.Save()
 
 	berz, ok := s.actor.Flags["berserk"]
 	if !ok {
@@ -32,6 +30,14 @@ func (information) process(s *state) {
 	monk := false
 	if s.actor.Class == 8 {
 		monk = true
+	}
+	singing, singOk := s.actor.Flags["singing"]
+	if !singOk {
+		singing = false
+	}
+	disprerolls := false
+	if s.actor.Rerolls > 0 {
+		disprerolls = true
 	}
 
 	showEnchants := false
@@ -61,7 +67,8 @@ func (information) process(s *state) {
 		"Str: {{.Str}}/{{.Max_str}}, Dex: {{.Dex}}/{{.Max_dex}}, Con: {{.Con}}/{{.Max_con}}, Int: {{.Int}}/{{.Max_int}}, Piety: {{.Pie}}/{{.Max_pie}}.\n" +
 		"You have an armor resistance of {{.Armor_resistance}}.\n" +
 		"{{if .God}} You bear the mark of a devotee of {{.God}}.\n{{end}}" +
-		"{{if .Berz}}" + text.Red + "The red rage grips you!" + text.Good +
+		"{{if .Singing}}" + text.Cyan + "You are currently performing a song!\n{{end}}" + text.Good +
+		"{{if .Berz}}" + text.Red + "The red rage grips you!\n" + text.Good +
 		"{{else}}You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
 		"You require {{.Next_level}} additional experience pts for your next tier.\n" +
 		"You are carrying {{.Gold}} gold marks in your coin purse.\n" +
@@ -76,9 +83,10 @@ func (information) process(s *state) {
 		"{{if .ShowRestores}}You can cast the restore spell {{.Restores}} more times today.\n{{end}}" +
 		"You have logged {{.Hours}} hours and {{.Minutes}} minutes with this character.\n" +
 		"You have {{.Bonus_points}} role-play bonus points.\n" +
+		"{{if .DispRerolls}}You can reroll your character {{.Rerolls}} more times.\n{{end}}" +
 		"You were born on {{.Day}}, the {{.Day_number}} of the month of {{.Month}}\n" +
-		"in the year {{.GodsYear}} since the Godswar, and year {{.EmpYear}} of the Empire.\n" +
-		"You are {{.Age}} years old.\n\n"
+		"in the year {{.GodsYear}} since the Godswar, and year {{.EmpYear}} of the Empire.\n"
+	//"You are {{.Age}} years old.\n\n"
 
 	data := struct {
 		Charname         string
@@ -126,8 +134,11 @@ func (information) process(s *state) {
 		Month            string
 		Age              int
 		Berz             bool
+		Singing          bool
 		GodsYear         int
 		EmpYear          int
+		DispRerolls      bool
+		Rerolls          int
 	}{
 		s.actor.Name,
 		config.TextTiers[s.actor.Tier],
@@ -169,13 +180,16 @@ func (information) process(s *state) {
 		s.actor.MinutesPlayed / 60,
 		s.actor.MinutesPlayed % 60,
 		s.actor.BonusPoints.Value,
-		strings.Title(config.Days[s.actor.Birthday]),
+		utils.Title(config.Days[s.actor.Birthday]),
 		config.PrintNumbers[s.actor.Birthdate],
-		strings.Title(config.Months[s.actor.Birthmonth]["name"].(string)),
+		utils.Title(config.Months[s.actor.Birthmonth]["name"].(string)),
 		age,
 		berz,
+		singing,
 		2705 - age,
 		2228 - age,
+		disprerolls,
+		s.actor.Rerolls,
 	}
 
 	tmpl, _ := template.New("char_info").Parse(char_template)

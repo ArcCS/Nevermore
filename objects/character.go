@@ -91,13 +91,16 @@ type Character struct {
 	LastAction       time.Time
 	LoginTime        time.Time
 	//Party Stuff
-	PartyFollow    *Character
-	PartyFollowers []*Character
-	Victim         interface{}
-	Resist         bool
-	OOCSwap        int
-	LastTickLog    time.Time
-	Unloader       func()
+	PartyFollow     *Character
+	PartyFollowers  []*Character
+	Victim          interface{}
+	Resist          bool
+	OOCSwap         int
+	LastSave        time.Time
+	Unloader        func()
+	LastMessenger   string
+	DeathInProgress bool
+	Rerolls         int
 }
 
 func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
@@ -108,7 +111,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 	} else {
 		FilledCharacter := &Character{
 			Object{
-				Name:        strings.Title(charData["name"].(string)),
+				Name:        utils.Title(charData["name"].(string)),
 				Description: charData["description"].(string),
 				Placement:   3,
 				Commands:    make(map[string]prompt.MenuItem),
@@ -192,6 +195,9 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			int(charData["oocswap"].(int64)),
 			time.Now(),
 			nil,
+			"",
+			false,
+			int(charData["rerolls"].(int64)),
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
@@ -249,7 +255,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 		FilledCharacter.SerialRestoreEffects(charData["effects"].(string))
 		FilledCharacter.SerialRestoreTimers(charData["timers"].(string))
 
-		FilledCharacter.Equipment.ToggleFlag = FilledCharacter.ToggleFlag
+		FilledCharacter.Equipment.FlagOn = FilledCharacter.FlagOn
+		FilledCharacter.Equipment.FlagOff = FilledCharacter.FlagOff
 		FilledCharacter.Equipment.PostEquipmentLight()
 		return FilledCharacter, false
 	}
@@ -257,7 +264,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 
 // GetCurrentWeight returns the current carrying weight of the character.
 func (c *Character) GetCurrentWeight() int {
-	return c.Inventory.TotalWeight + c.Equipment.Weight
+	return c.Inventory.GetTotalWeight() + c.Equipment.GetWeight()
 }
 
 func (c *Character) SetTimer(timer string, seconds int) {
@@ -271,6 +278,10 @@ func (c *Character) SetTimer(timer string, seconds int) {
 				return
 			}
 		}
+	}
+	// Dex Penalty
+	if c.GetStat("dex") < 6 {
+		seconds += 6 - c.GetStat("dex")
 	}
 	c.Timers[timer] = time.Now().Add(time.Duration(seconds) * time.Second)
 }
@@ -296,13 +307,13 @@ func (c *Character) TimerReady(timer string) (bool, string) {
 // SingSong Bards get their own special ticker
 // TODO(?): Maybe eventually this is a generalized aura?
 func (c *Character) SingSong(song string, tickRate int) {
-	c.ToggleFlag("singing", "sing")
+	c.FlagOn("singing", "sing")
 	c.SongTicker = time.NewTicker(time.Duration(tickRate) * time.Second)
 	go func() {
 		for {
 			select {
 			case <-c.SongTickerUnload:
-				c.ToggleFlagAndMsg("singing", "sing", "You stop singing.")
+				c.FlagOffAndMsg("singing", "sing", "You stop singing.")
 				return
 			case <-c.SongTicker.C:
 				if SongEffects[song].target == "mobs" {
@@ -507,7 +518,7 @@ func (c *Character) GetStat(stat string) int {
 		return c.Con.Current + c.Modifiers["con"]
 	case "armor":
 		if c.Class == 8 {
-			return c.Equipment.Armor + c.Modifiers["armor"] + (c.Tier * config.MonkArmorPerLevel) + (c.GetStat("con") * config.ConMonkArmor)
+			return c.Modifiers["armor"] + (c.Tier * config.MonkArmorPerLevel) + (c.GetStat("con") * config.ConMonkArmor)
 		}
 		return c.Equipment.Armor + c.Modifiers["armor"]
 	default:
@@ -560,6 +571,7 @@ func (c *Character) Save() {
 	charData["enchants"] = 0
 	charData["heals"] = 0
 	charData["restores"] = 0
+	charData["rerolls"] = c.Rerolls
 	if c.Class == 4 || c.Class == 6 {
 		charData["enchants"] = c.ClassProps["enchants"]
 	}
@@ -651,13 +663,9 @@ const (
 )
 
 func (c *Character) Tick() {
-	if time.Now().Sub(c.LastTickLog) > 3*time.Minute {
-		lastActivity := time.Now().Sub(c.LastAction).Minutes()
-		log.Println("Character", c.Name, "tick log at every 3m, character thread still alive. Last action was ", lastActivity, " ago.")
-		c.LastTickLog = time.Now()
-		if lastActivity > config.Server.IdleTimeout.Minutes()+5 && !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			Script(c, "quit")
-		}
+	if time.Now().Sub(c.LastSave) > 5*time.Minute {
+		c.LastSave = time.Now()
+		c.Save()
 	}
 	if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
@@ -666,6 +674,7 @@ func (c *Character) Tick() {
 		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
 		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod)))
 	}
+
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
 		// Process Removing the effect
@@ -773,12 +782,18 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 	}
 	stamDamage, vitalDamage := 0, 0
 	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
-
+	// Resist a little more based on con
+	if c.GetStat("con") > config.ConMinorPenalty {
+		resist += int(math.Ceil(float64(damage) * (float64(c.Con.Current) * config.ConArmorMod)))
+	}
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
 	}
 	finalDamage := damage - resist
+	if finalDamage < 0 {
+		finalDamage = 0
+	}
 	if finalDamage > c.Stam.Current {
 		stamDamage = c.Stam.Current
 		vitalDamage = finalDamage - stamDamage
@@ -794,12 +809,16 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 		stamDamage = finalDamage
 		vitalDamage = 0
 	}
+	log.Println(c.Name+"Receives Damage: ", damage, "Resist: ", resist, "Final Damage: ", finalDamage, "Stam Damage: ", stamDamage, "Vital Damage: ", vitalDamage)
 	return stamDamage, vitalDamage
 }
 
 func (c *Character) ReceiveDamageNoArmor(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
 	finalDamage := damage
+	if finalDamage < 0 {
+		finalDamage = 0
+	}
 	if finalDamage > c.Stam.Current {
 		stamDamage = c.Stam.Current
 		vitalDamage = finalDamage - stamDamage
@@ -824,6 +843,9 @@ func (c *Character) ReceiveVitalDamage(damage int) int {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
 	}
 	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(c.GetStat("armor")/config.ArmorReductionPoints) * config.ArmorReduction))))
+	if finalDamage < 0 {
+		finalDamage = 0
+	}
 	if finalDamage > c.Vit.Current {
 		finalDamage = c.Vit.Current
 		c.Vit.Current = 0
@@ -877,6 +899,7 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 
 func (c *Character) Heal(damage int) (int, int) {
 	stamHeal, vitalHeal := 0, 0
+	damage = c.CalcHealPenalty(damage)
 	if damage > (c.Vit.Max - c.Vit.Current) {
 		vitalHeal = c.Vit.Max - c.Vit.Current
 		c.Vit.Current = c.Vit.Max
@@ -894,15 +917,25 @@ func (c *Character) Heal(damage int) (int, int) {
 }
 
 func (c *Character) HealVital(damage int) {
+	damage = c.CalcHealPenalty(damage)
 	c.Vit.Add(damage)
 }
 
 func (c *Character) HealStam(damage int) {
+	damage = c.CalcHealPenalty(damage)
 	c.Stam.Add(damage)
 }
 
 func (c *Character) RestoreMana(damage int) {
+	damage = c.CalcHealPenalty(damage)
 	c.Mana.Add(damage)
+}
+
+func (c *Character) CalcHealPenalty(damage int) int {
+	if c.GetStat("pie") <= config.PieMajorPenalty {
+		damage -= int(float64(damage) * (.10 * float64(6-c.GetStat("pie"))))
+	}
+	return damage
 }
 
 func (c *Character) GetSpellMultiplier() int {
@@ -924,18 +957,21 @@ func (c *Character) InflictDamage() (damage int) {
 		damage = utils.Roll(c.Equipment.Main.SidesDice,
 			c.Equipment.Main.NumDice,
 			c.Equipment.Main.PlusDice)
-	} else {
-		plusDamage := config.MaxWeaponDamage[c.Tier] / 3
-		// Lets use dex to determine dice. more dex = more dice = higher lower damage threshold
-		nDice := int(math.Floor(config.MonkDexPerDice * float64(c.GetStat("dex"))))
-		sDice := (plusDamage * 3) / nDice
-		damage = utils.Roll(int(sDice), int(nDice), int(plusDamage))
-	}
 
-	if utils.IntIn(c.Class, []int{2, 3, 8}) {
-		damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("dex")))))
+		if c.Equipment.Main.ItemType == 4 {
+			damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("dex")))))
+		} else {
+			damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("str")))))
+		}
+		damage += c.Equipment.Main.Adjustment
 	} else {
-		damage += int(math.Ceil(float64(damage) * (config.StatDamageMod * float64(c.GetStat("str")))))
+		// Monks do 1/3 of max damage no matter what
+		baseMonkDamage := config.MaxWeaponDamage[c.Tier] / 3
+		// Max dex is 45, divide current dex by 45 to get percentage and multiply that by the remaining 1/3rd of damage
+		dexDamage := int(math.Ceil(float64(c.GetStat("str")) / float64(45) * float64(baseMonkDamage)))
+		// rng on the remaining 1/3rd
+		rngDamage := utils.Roll(baseMonkDamage, 1, 0)
+		damage = baseMonkDamage + dexDamage + rngDamage
 	}
 
 	if c.CheckFlag("surge") {
@@ -947,7 +983,7 @@ func (c *Character) InflictDamage() (damage int) {
 	if !ok {
 		baseDamage = 0
 	}
-	damage += baseDamage + c.Equipment.Main.Adjustment
+	damage += baseDamage
 	if damage < 0 {
 		damage = 0
 	}
@@ -1043,8 +1079,15 @@ func (c *Character) MessageParty(msg string) {
 }
 
 func (c *Character) DeathCheck(how string) {
+	if c.DeathInProgress {
+		return
+	} else {
+		c.DeathInProgress = true
+	}
 	if c.Vit.Current <= 0 {
 		go Script(c, "$DEATH "+how)
+	} else {
+		c.DeathInProgress = false
 	}
 	return
 }

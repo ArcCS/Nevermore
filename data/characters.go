@@ -66,6 +66,7 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"enchants: a.enchants, "+
 		"heals: a.heals, "+
 		"restores: a.restores, "+
+		"rerolls: a.rerolls, "+
 		"oocswap: a.oocswap, "+
 		"flags:{invisible: a.invisible, darkvision: a.darkvision, hidden: a.hidden, ooc: a.ooc}}",
 
@@ -143,13 +144,14 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.enchants = 0, "+
 			"a.heals = 0, "+
 			"a.restores = 0, "+
+			"a.rerolls = 0, "+
 			"a.ooc = 0, "+
 			"a.oocswap = 0, "+
 			"a.hidden = 0 ",
 		map[string]interface{}{
 			"characterId": nextId("character"),
 			"gender":      charData["gender"],
-			"name":        strings.Title(charData["name"].(string)),
+			"name":        utils.Title(charData["name"].(string)),
 			"class":       charData["class"],
 			"race":        charData["race"],
 			"strcur":      charData["str"],
@@ -179,7 +181,7 @@ func CreateChar(charData map[string]interface{}) bool {
 			"CREATE (a)-[o:owns]->(c) RETURN o",
 		map[string]interface{}{
 			"aname": charData["account"],
-			"cname": strings.Title(charData["name"].(string)),
+			"cname": utils.Title(charData["name"].(string)),
 		},
 	)
 	if oerr != nil {
@@ -236,6 +238,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.enchants = $enchants, "+
 			"a.heals = $heals, "+
 			"a.restores = $restores, "+
+			"a.rerolls = $rerolls, "+
 			"a.ooc = $ooc, "+
 			"a.experience = $experience",
 		map[string]interface{}{
@@ -279,6 +282,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"enchants":    charData["enchants"],
 			"heals":       charData["heals"],
 			"restores":    charData["restores"],
+			"rerolls":     charData["rerolls"],
 		},
 	)
 	if err != nil {

@@ -32,10 +32,11 @@ func (turn) process(s *state) {
 		s.msg.Actor.SendBad("You are far too tired to do that.")
 		return
 	}
-	if s.actor.Tier < 5 {
-		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
+	if s.actor.Tier < config.SpecialAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.SpecialAbilityTier) + " to use this skill.")
 		return
 	}
+
 	// Check some timers
 	ready, msg := s.actor.TimerReady("combat_turn")
 	if !ready {

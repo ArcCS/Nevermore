@@ -4,7 +4,7 @@ import "github.com/ArcCS/Nevermore/utils"
 
 var CombatModifiers = map[string]int{
 	// Attack Modifiers
-	"critical": 10,
+	"critical": 6,
 	"double":   2,
 
 	// Bash
@@ -16,13 +16,20 @@ var CombatModifiers = map[string]int{
 	"berserk": 5,
 
 	// Sneaky Types
-	"backstab": 8,
-	"snipe":    8,
+	"backstab": 6,
+	"snipe":    4,
 }
 
-var MobVital = 3
-var MobCritical = 10
-var MobDouble = 20
+var MobAugmentPerCharacter = 3
+
+var FreeDeathTier = 3
+
+var SpecialAbilityTier = 10
+var MinorAbilityTier = 5
+
+var MobVital = 2
+var MobCritical = 8
+var MobDouble = 18
 var MobFollowVital = 25
 
 var BindCost = 75000
@@ -56,8 +63,8 @@ var HideChancePerPoint = 3
 var SneakChancePerPoint = 1
 var SneakChancePerTier = 1
 var StealChancePerPoint = 2
-var BackStabChancePerPoint = 2
-var SnipeChancePerPoint = 2
+var BackStabChancePerPoint = 1
+var SnipeChancePerPoint = 1
 var SnipeChancePerLevel = 5
 var SnipeFumbleChance = 20
 var MobStealRevengeVitalChance = 5
@@ -83,7 +90,7 @@ var DisintegrateChance = 5
 var TurnTimer = 60
 var SlamTimer = 30
 var ShieldDamage = 3
-var ShieldStun = 1
+var ShieldStun = .4
 var CombatCooldown = 8
 
 // Bard Stuff
@@ -106,8 +113,11 @@ var MobTakeChance = 10 // Percent
 
 // Str Mods
 var StrCarryMod = 10 // Per Point
+var StrCarryPenalty = 5
 var BaseCarryWeight = 40
-var StatDamageMod = .03 // Per Point
+var StatDamageMod = .01 // Per Point
+var StrRangePenaltyDamage = .15
+var StrMinorPenaltyChance = 25
 
 // Con Mods
 var ConArmorMod = .01
@@ -131,7 +141,7 @@ var BaseEvals = 1
 var BaseBroads = 5
 var IntMinCast = 5
 var IntNoFizzle = 10
-var FizzleSave = 45
+var FizzleSave = 50
 
 // Piety Mods
 var PieRegenMod = .1 // Regen Mana per tick
@@ -145,6 +155,13 @@ var MobArmorReduction = .03
 var MobArmorReductionPoints = 10
 
 func MaxWeight(str int) int {
+	// Strength Penalty
+	if str < 6 {
+		return BaseCarryWeight - ((6 - str) * StrCarryPenalty)
+	}
+	if str < 10 {
+		return BaseCarryWeight
+	}
 	return BaseCarryWeight + (str * StrCarryMod)
 }
 
@@ -152,14 +169,14 @@ func CalcHealth(tier int, con int, class int) int {
 	if class >= 99 {
 		return 800
 	}
-	return (tier * Classes[AvailableClasses[class]].Health) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv))*float64(ConBonusHealth))
+	return (tier * Classes[AvailableClasses[class]].Health) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv)))
 }
 
 func CalcStamina(tier int, con int, class int) int {
 	if class >= 99 {
 		return 800
 	}
-	return (tier * Classes[AvailableClasses[class]].Stamina) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv))*float64(ConBonusHealth))
+	return (tier * Classes[AvailableClasses[class]].Stamina) + int(float64(tier)*(float64(con)/float64(ConBonusHealthDiv)))
 }
 
 func CalcMana(tier int, intel int, class int) int {
@@ -273,15 +290,15 @@ var LethalDamage = []int{
 // BashChances Skill = Thunk, Crushing, Thwomp, Thump
 var BashChances = map[int][]int{
 	0: {0, 0, 0, 0},
-	1: {125, 0, 0, 0},
-	2: {250, 0, 0, 0},
-	3: {500, 0, 0, 0},
-	4: {750, 0, 0, 0},
-	5: {1000, 0, 0, 0},
-	6: {1250, 0, 0, 0},
-	7: {1500, 0, 0, 0},
-	8: {1875, 0, 0, 0},
-	9: {3000, 0, 0, 0},
+	1: {125, 600, 1200, 2400},
+	2: {250, 1000, 2000, 4000},
+	3: {500, 2000, 4000, 8000},
+	4: {750, 3000, 6000, 12000},
+	5: {1000, 4000, 8000, 16000},
+	6: {1250, 5000, 10000, 20000},
+	7: {1500, 6000, 12000, 24000},
+	8: {1875, 7500, 15000, 30000},
+	9: {3000, 12000, 24000, 48000},
 }
 
 func RollBash(skill int) (damModifier int, stunModifier int, output string) {

@@ -111,6 +111,9 @@ func poison(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		if !target.CheckFlag("resist_poison") {
+			if target.GetStat("con") <= config.ConMajorPenalty {
+				magnitude *= 2
+			}
 			target.ApplyEffect("poison", strconv.Itoa(magnitude*10), 8, magnitude, // magnitude maps to level of mob
 				func(triggers int) {
 					damage := magnitude
@@ -144,6 +147,9 @@ func disease(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		if !target.CheckFlag("resist_disease") {
+			if target.GetStat("con") <= config.ConMajorPenalty {
+				magnitude *= 2
+			}
 			target.ApplyEffect("poison", strconv.Itoa(magnitude*14), 8, magnitude,
 				func(triggers int) {
 					damage := magnitude
@@ -244,7 +250,6 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			target.HealVital(damage)
-			target.HealStam(damage)
 			for _, mob := range Rooms[target.ParentId].Mobs.Contents {
 				if mob.Flags["hostile"] {
 					mob.AddThreatDamage(damage, caller)

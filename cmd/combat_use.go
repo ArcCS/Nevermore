@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -34,6 +34,14 @@ func (use) process(s *state) {
 	itemNum := 1
 	name := ""
 	nameNum := 1
+
+	if s.actor.GetStat("int") < config.IntMajorPenalty {
+		if utils.Roll(100, 1, 0) <= config.FizzleSave {
+			s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")
+			s.actor.SetTimer("use", 8)
+			return
+		}
+	}
 
 	if len(s.words) == 4 {
 		name = s.words[2]
@@ -75,12 +83,19 @@ func (use) process(s *state) {
 				return
 			}
 			if utils.StringIn(spellInstance.Name, objects.OffensiveSpells) && s.actor.Victim != nil {
-				log.Println("offensive spell, victim is not nil")
+				if s.actor.GetStat("int") < config.IntMinorPenalty {
+					if utils.Roll(100, 1, 0) <= config.FizzleSave {
+						s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")
+						s.actor.SetTimer("use", 8)
+						return
+					}
+				}
 				switch s.actor.Victim.(type) {
 				case *objects.Character:
 					name = s.actor.Victim.(*objects.Character).Name
 				case *objects.Mob:
 					name = s.actor.Victim.(*objects.Mob).Name
+					nameNum = s.where.Mobs.GetNumber(s.actor.Victim.(*objects.Mob))
 				}
 			}
 			if name != "" {

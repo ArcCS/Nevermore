@@ -25,6 +25,16 @@ func (sing) process(s *state) {
 		return
 	}
 
+	// Stop the song
+	if s.words[0] == "STOP" {
+		if s.actor.CheckFlag("singing") {
+			s.actor.RemoveEffect("sing")
+			return
+		}
+		s.msg.Actor.SendBad("You aren't singing!")
+		return
+	}
+
 	if s.actor.Stam.Current <= 0 {
 		s.msg.Actor.SendBad("You are far too tired to do that.")
 		return
@@ -32,16 +42,6 @@ func (sing) process(s *state) {
 
 	if s.actor.CheckFlag("singing") {
 		s.msg.Actor.SendBad("You are already singing!")
-		return
-	}
-
-	// Stop the song
-	if s.words[0] == "STOP" {
-		if s.actor.CheckFlag("singing") {
-			s.actor.SongTickerUnload <- true
-			return
-		}
-		s.msg.Actor.SendBad("You aren't singing!")
 		return
 	}
 
@@ -71,7 +71,12 @@ func (sing) process(s *state) {
 		return
 	}
 
-	if s.actor.Equipment.Off.ItemType != 16 {
+	if s.actor.Equipment.Off != (*objects.Item)(nil) {
+		if s.actor.Equipment.Off.ItemType != 16 {
+			s.msg.Actor.SendBad("You need to be holding an instrument to sing!")
+			return
+		}
+	} else {
 		s.msg.Actor.SendBad("You need to be holding an instrument to sing!")
 		return
 	}

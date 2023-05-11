@@ -13,7 +13,7 @@ func init() {
 	addHandler(cast{},
 		"Usage:  cast spell_name target # \n\n Attempts to cast a known spell from your spellbook",
 		permissions.Player,
-		"cast")
+		"cast", "ca", "c")
 }
 
 type cast cmd
@@ -63,12 +63,12 @@ func (cast) process(s *state) {
 		return
 	}
 
-	if s.actor.GetStat("int") < config.IntMinCast {
+	if s.actor.GetStat("int") < config.IntMajorPenalty {
 		s.msg.Actor.SendBad("You simply do not have the mental capacity to cast spells.")
 		return
 	}
 
-	if s.actor.GetStat("int") < config.IntNoFizzle {
+	if s.actor.GetStat("int") < config.IntMinorPenalty {
 		if utils.Roll(100, 1, 0) <= config.FizzleSave {
 			s.msg.Actor.SendBad("You attempt to cast the spell, but it fizzles out.")
 			s.actor.Mana.Current -= cost

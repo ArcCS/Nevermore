@@ -31,10 +31,11 @@ func (snipe) process(s *state) {
 
 	if s.actor.Stam.Current <= 0 {
 		s.msg.Actor.SendBad("You are far too tired to do that.")
+
 		return
 	}
-	if s.actor.Tier < 7 {
-		s.msg.Actor.SendBad("You must be at least tier 7 to use this skill.")
+	if s.actor.Tier < config.SpecialAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.SpecialAbilityTier) + " to use this skill.")
 		return
 	}
 
@@ -88,13 +89,13 @@ func (snipe) process(s *state) {
 		}
 
 		s.actor.RunHook("combat")
-		curChance := config.SnipeChance + (config.SnipeChancePerLevel * (s.actor.Tier - whatMob.Level))
+
+		curChance := config.SnipeChance + (s.actor.Dex.Current * config.SnipeChancePerPoint) + (config.SnipeChancePerLevel * (s.actor.Tier - whatMob.Level))
 
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			curChance = 100
 		}
 
-		curChance += s.actor.Dex.Current * config.SnipeChancePerPoint
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
 			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["snipe"]))))

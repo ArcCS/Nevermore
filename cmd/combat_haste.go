@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"strconv"
 )
 
 func init() {
@@ -20,10 +22,11 @@ func (haste) process(s *state) {
 		return
 	}
 
-	if s.actor.Tier < 5 {
-		s.msg.Actor.SendBad("You aren't high enough level to perform that skill.")
+	if s.actor.Tier < config.MinorAbilityTier {
+		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.MinorAbilityTier) + " to use this skill.")
 		return
 	}
+	
 	haste, ok := s.actor.Flags["haste"]
 	if ok {
 		if haste {

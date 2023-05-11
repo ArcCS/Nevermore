@@ -8,15 +8,15 @@ import (
 )
 
 func init() {
-	addHandler(bug{},
-		"Usage:  bug Disconnected when attacking all the rats\n \n Send a bug report to the GM's, be sure to include a time if you are reporting a bug much later, it will be a tad bit easier to fix.", permissions.Player,
-		"BUG")
+	addHandler(error_report{},
+		"Usage:  error_report Disconnected when attacking all the rats\n \n Send a bug report to the GM's, be sure to include a time if you are reporting a bug much later, it will be a tad bit easier to fix.", permissions.Player,
+		"error_report")
 
 }
 
-type bug cmd
+type error_report cmd
 
-func (bug) process(s *state) {
+func (error_report) process(s *state) {
 	if len(s.words) == 0 {
 		s.msg.Actor.SendInfo("What did you want to say?")
 		return

@@ -9,9 +9,8 @@ import (
 )
 
 type ItemInventory struct {
-	Contents    []*Item
-	TotalWeight int
-	Flags       map[string]bool
+	Contents []*Item
+	Flags    map[string]bool
 }
 
 // NewItemInventory New ItemInventory returns a new basic ItemInventory structure
@@ -27,10 +26,16 @@ func NewItemInventory(o ...*Item) *ItemInventory {
 	return i
 }
 
+func (i *ItemInventory) GetTotalWeight() (total int) {
+	for _, item := range i.Contents {
+		total += item.GetWeight()
+	}
+	return total
+}
+
 // Add adds the specified object to the Contents.
 func (i *ItemInventory) Add(o *Item) {
 	i.Contents = append(i.Contents, o)
-	i.TotalWeight += o.GetWeight()
 }
 
 // Remove Pass item as a pointer to be removed
@@ -53,34 +58,24 @@ func (i *ItemInventory) Remove(o *Item) (err error) {
 	if len(i.Contents) == 0 {
 		i.Contents = make([]*Item, 0, 0)
 	}
-	i.TotalWeight -= o.GetWeight()
 	return nil
-}
-
-// ReCalcWeight Recalculates the total weight of the inventory
-func (i *ItemInventory) ReCalcWeight() {
-	i.TotalWeight = 0
-	for _, item := range i.Contents {
-		i.TotalWeight += item.GetWeight()
-	}
 }
 
 // RemoveNonPerms Clear all non-permanent
 func (i *ItemInventory) RemoveNonPerms() {
-	newContents := make([]*Item, 0, 0)
-	newWeight := 0
+	var newItems []*Item
 	for _, item := range i.Contents {
 		//log.Println("Checking item storage", strconv.Itoa(len(item.Storage.List())))
 		if (strings.Contains(strings.ToLower(item.Name), "corpse of") && len(item.Storage.List()) != 0) ||
 			(item.Flags["permanent"] && !strings.Contains(strings.ToLower(item.Name), "corpse of")) {
-			newContents = append(newContents, item)
-			newWeight += item.GetWeight()
+			continue
 		} else {
-			item = nil
+			newItems = append(newItems, item)
 		}
 	}
-	i.Contents = newContents
-	i.TotalWeight = newWeight
+	for _, item := range newItems {
+		i.Remove(item)
+	}
 }
 
 // Search the ItemInventory to return a specific instance of something
@@ -281,6 +276,9 @@ func RestoreInventory(jsonString string) *ItemInventory {
 			newItem.Name = item["name"].(string)
 			newItem.MaxUses = int(item["uses"].(float64))
 			newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
+			if _, ok := item["light"]; ok {
+				newItem.Flags["light"] = int(item["light"].(float64)) != 0
+			}
 			if _, ok := item["adjustment"]; ok {
 				newItem.Adjustment = int(item["adjustment"].(float64))
 			}

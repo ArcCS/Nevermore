@@ -92,6 +92,14 @@ func (l *login) passwordProcess() {
 		return
 	}
 
+	if acctData["permissions"].(int64) < 16 {
+		if _, ok := accounts.inuse[l.inputName]; ok {
+			l.buf.Send(text.Bad, "Account already in use.\n", text.Reset)
+			NewLogin(l.frontend)
+			return
+		}
+	}
+
 	accounts.Lock()
 	l.frontend.account = acctData["name"].(string)
 	l.frontend.permissions = permissions.Permissions(acctData["permissions"].(int64))
