@@ -123,14 +123,9 @@ func (f *frontend) Close() {
 		}
 	}
 
-	// Remove account from inuse list
-	accounts.Lock()
-	delete(accounts.inuse, f.account)
-	accounts.Unlock()
-
 	// Free up resources
 	message.ReleaseBuffer(f.buf)
-	f.buf = nil
+	f.buf = (*message.Buffer)(nil)
 
 	f.output = nil
 	f.nextFunc = nil
@@ -138,9 +133,9 @@ func (f *frontend) Close() {
 	if f.character != nil {
 		f.character.Free()
 	}
-	f.character = nil
+	f.character = (*objects.Character)(nil)
 
-	f = nil
+	f = (*frontend)(nil)
 }
 
 // Parse is the main input/output processing method for frontend. The input is

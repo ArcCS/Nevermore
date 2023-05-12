@@ -25,5 +25,6 @@ func (quit) process(s *state) {
 	s.actor.LoseParty()
 	s.actor.PurgeEffects()
 	objects.ActiveCharacters.Remove(s.actor)
+
 	s.ok = true
 }
