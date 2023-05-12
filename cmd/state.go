@@ -56,7 +56,6 @@ type state struct {
 // again. This repeats until the list of locks is complete, the command
 // processed and sync returns true.
 func Parse(o *objects.Character, input string) string {
-	objects.LastActMap[o.Name] = time.Now()
 	s := newState(o, input)
 	for !s.sync() {
 	}

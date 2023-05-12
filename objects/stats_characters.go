@@ -22,7 +22,6 @@ type characterStats struct {
 
 var ActiveCharacters = &characterStats{}
 var IpMap = make(map[string]string)
-var LastActMap = make(map[string]time.Time)
 
 // Add adds the specified character to the list of characters.
 func (c *characterStats) Add(character *Character, address string) {
@@ -55,7 +54,6 @@ func (c *characterStats) Remove(character *Character) {
 			c.list[len(c.list)-1] = nil
 			c.list = c.list[:len(c.list)-1]
 			delete(IpMap, character.Name)
-			delete(LastActMap, character.Name)
 			break
 		}
 	}
