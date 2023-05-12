@@ -92,6 +92,7 @@ func (l *login) passwordProcess() {
 		return
 	}
 
+	/* TODO: Fix multiboxing issue
 	if acctData["permissions"].(int64) < 16 {
 		if _, ok := accounts.inuse[l.inputName]; ok {
 			l.buf.Send(text.Bad, "Account already in use.\n", text.Reset)
@@ -99,6 +100,8 @@ func (l *login) passwordProcess() {
 			return
 		}
 	}
+
+	*/
 
 	accounts.Lock()
 	l.frontend.account = acctData["name"].(string)
