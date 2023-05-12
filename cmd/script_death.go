@@ -10,6 +10,7 @@ import (
 	"github.com/jinzhu/copier"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func init() {
@@ -42,44 +43,48 @@ func (scriptDeath) process(s *state) {
 		jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", deathString)
 	}
 
-	if s.actor.Tier > config.FreeDeathTier {
-		equipment := s.actor.Equipment.UnequipAll()
+	if time.Now().Sub(s.actor.LastAction).Minutes() > 2 {
+		if s.actor.Tier > config.FreeDeathTier {
+			equipment := s.actor.Equipment.UnequipAll()
 
-		var tempStore []*objects.Item
-		for _, item := range s.actor.Inventory.Contents {
-			tempStore = append(tempStore, item)
-		}
+			var tempStore []*objects.Item
+			for _, item := range s.actor.Inventory.Contents {
+				tempStore = append(tempStore, item)
+			}
 
-		newItem := objects.Item{}
-		copier.CopyWithOption(&newItem, objects.Items[1], copier.Option{DeepCopy: true})
-		newItem.Name = "corpse of " + s.actor.Name
-		newItem.Description = "It's the corpse of " + s.actor.Name + "."
-		newItem.Placement = s.actor.Placement
-		if len(tempStore) != 0 {
-			for _, item := range tempStore {
-				if !item.Flags["permanent"] {
-					s.actor.Inventory.Remove(item)
-					newItem.Storage.Add(item)
+			newItem := objects.Item{}
+			copier.CopyWithOption(&newItem, objects.Items[1], copier.Option{DeepCopy: true})
+			newItem.Name = "corpse of " + s.actor.Name
+			newItem.Description = "It's the corpse of " + s.actor.Name + "."
+			newItem.Placement = s.actor.Placement
+			if len(tempStore) != 0 {
+				for _, item := range tempStore {
+					if !item.Flags["permanent"] {
+						s.actor.Inventory.Remove(item)
+						newItem.Storage.Add(item)
+					}
 				}
 			}
-		}
-		if len(equipment) != 0 {
-			for _, item := range equipment {
-				if !item.Flags["permanent"] {
-					newItem.Storage.Add(item)
+			if len(equipment) != 0 {
+				for _, item := range equipment {
+					if !item.Flags["permanent"] {
+						newItem.Storage.Add(item)
+					}
 				}
 			}
+			if s.actor.Gold.Value > 0 {
+				newGold := objects.Item{}
+				copier.CopyWithOption(&newGold, objects.Items[3456], copier.Option{DeepCopy: true})
+				newGold.Name = strconv.Itoa(s.actor.Gold.Value) + " gold marks"
+				newGold.Value = s.actor.Gold.Value
+				newItem.Storage.Add(&newGold)
+				s.actor.Gold.Value = 0
+			}
+			s.where.MessageAll("The lifeless body of " + s.actor.Name + " falls to the ground.\n\n" + text.Reset)
+			s.where.Items.Add(&newItem)
+		} else {
+			s.msg.Actor.Send(text.Green + "An apprentice aura protects you from the worst of this death and ferries you and your gear safely to the healing hand...")
 		}
-		if s.actor.Gold.Value > 0 {
-			newGold := objects.Item{}
-			copier.CopyWithOption(&newGold, objects.Items[3456], copier.Option{DeepCopy: true})
-			newGold.Name = strconv.Itoa(s.actor.Gold.Value) + " gold marks"
-			newGold.Value = s.actor.Gold.Value
-			newItem.Storage.Add(&newGold)
-			s.actor.Gold.Value = 0
-		}
-		s.where.MessageAll("The lifeless body of " + s.actor.Name + " falls to the ground.\n\n" + text.Reset)
-		s.where.Items.Add(&newItem)
 	} else {
 		s.actor.Write([]byte(text.Green + "An apprentice aura protects you from the worst of this death and ferries you and your gear safely to the healing hand...\n\n" + text.Reset))
 	}
@@ -117,11 +122,14 @@ func (scriptDeath) process(s *state) {
 			s.actor.Write([]byte(text.Green + "The passage through the realm of death was traumatic and you feel like you might have lost something along the way.. (100% xp loss)\n\n" + text.Reset))
 			s.actor.Experience.Subtract(totalExpNeeded)
 			break
-		case deathRoll > 196: // 2x whole death penalty
+			/*case deathRoll > 196: // 2x whole death penalty
 			s.actor.Write([]byte(text.Green + "You pass through the realm of death kicking and screaming the entire way feeling as if your soul is being ripped apart as you go. (200% xp loss)\n\n" + text.Reset))
 			s.actor.Experience.Subtract(totalExpNeeded * 2)
 			break
+
+			*/
 		}
+
 	}
 
 	s.actor.DeathInProgress = false

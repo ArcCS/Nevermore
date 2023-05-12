@@ -18,6 +18,9 @@ func (a *Accumulator) CanSubtract(val int) (cansub bool) {
 
 func (a *Accumulator) Subtract(val int) {
 	a.Value -= val
+	if a.Value < 0 {
+		a.Value = 0
+	}
 }
 
 func (a *Accumulator) SubIfCan(val int) (ok bool) {
