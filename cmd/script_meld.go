@@ -1,11 +1,12 @@
 package cmd
 
 import (
+	"strconv"
+
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"strconv"
 )
 
 func init() {
@@ -58,6 +59,11 @@ func (scriptMeld) process(s *state) {
 		s.msg.Actor.SendBad("You have no " + targetStr + " to meld.")
 		return
 	} else {
+		if target == meld {
+			s.msg.Actor.SendBad("You cannot meld the item into itself.")
+			return
+		}
+
 		if utils.IntIn(meld.ItemType, []int{6, 15}) {
 			if meld.ItemType != target.ItemType {
 				s.msg.Actor.SendBad("These are not the same item type.")
