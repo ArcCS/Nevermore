@@ -130,8 +130,8 @@ func (kill) process(s *state) {
 				s.msg.Actor.SendInfo("You landed a lethal blow on the " + whatMob.Name)
 				s.msg.Observers.SendInfo(s.actor.Name + " landed a lethal blow on " + whatMob.Name)
 				s.actor.Equipment.DamageWeapon("main", 1)
+				whatMob.AddThreatDamage(whatMob.Stam.Current, s.actor)
 				whatMob.Stam.Current = 0
-				whatMob.AddThreatDamage(1, s.actor)
 				DeathCheck(s, whatMob)
 				s.actor.SetTimer("combat", 8)
 				return
