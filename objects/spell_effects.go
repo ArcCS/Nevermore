@@ -110,7 +110,7 @@ func blind(caller interface{}, target interface{}, magnitude int) string {
 func poison(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
-		if !target.CheckFlag("resist_poison") {
+		if !target.CheckFlag("resist-poison") {
 			if target.GetStat("con") <= config.ConMajorPenalty {
 				magnitude *= 2
 			}
@@ -146,7 +146,7 @@ func poison(caller interface{}, target interface{}, magnitude int) string {
 func disease(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
-		if !target.CheckFlag("resist_disease") {
+		if !target.CheckFlag("resist-disease") {
 			if target.GetStat("con") <= config.ConMajorPenalty {
 				magnitude *= 2
 			}
