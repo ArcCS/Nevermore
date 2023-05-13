@@ -167,7 +167,7 @@ func (e *Equipment) DamageRandomArmor() string {
 			e.Neck.MaxUses -= 1
 			if e.Neck.MaxUses <= 0 {
 				e.UnequipSpecific("neck")
-				return "The armor attached at your neckf alls apart."
+				return "The armor attached at your neck falls apart."
 			}
 			return ""
 		} else if damageItem == "legs" {
