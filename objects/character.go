@@ -633,8 +633,9 @@ func (c *Character) ReturnVictim() string {
 }
 
 func (c *Character) ReturnState() string {
-	stamStatus := "energetic "
+	stamStatus := "energetic"
 	vitStatus := "healthy"
+	effectStatus := ""
 	if c.Stam.Current < (c.Stam.Max - int(.75*float32(c.Stam.Max))) {
 		stamStatus = "exhausted"
 	} else if c.Stam.Current < (c.Stam.Max - int(.5*float32(c.Stam.Max))) {
@@ -651,7 +652,17 @@ func (c *Character) ReturnState() string {
 		vitStatus = "slightly injured"
 	}
 
-	return " looks " + stamStatus + " and " + vitStatus
+	if c.CheckFlag("poisoned") {
+		effectStatus = effectStatus + " and poisoned"
+	}
+	if c.CheckFlag("disease") {
+		effectStatus = effectStatus + " and diseased"
+	}
+	if c.CheckFlag("blind") {
+		effectStatus = effectStatus + " and blinded"
+	}
+
+	return " looks " + stamStatus + " and " + vitStatus + effectStatus
 
 }
 
