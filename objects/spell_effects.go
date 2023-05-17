@@ -1385,7 +1385,6 @@ func disruptmagic(caller interface{}, target interface{}, magnitude int) string 
 			caller.Write([]byte(text.Bad + "Your disruptive for removes " + chosenSpell + " from " + target.Name + " .\n"))
 		}
 		return ""
-		return ""
 	}
 	return ""
 
