@@ -85,36 +85,79 @@ var WeaponTitles = []string{
 	"Grandmaster",
 }
 
+var AffinityTitles = []string{
+	"Unattuned",
+	"Neophyte",
+	"Novice",
+	"Channeler",
+	"Artisan",
+	"Specialist",
+	"Attuned",
+	"Elementalist",
+	"Savant",
+	"Virtuoso",
+	"Ascended",
+}
+
 func WeaponExpTitle(exp int, class int) string {
-	switch {
-	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
-		return WeaponTitles[0]
-	case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
-		return WeaponTitles[1]
-	case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
-		return WeaponTitles[2]
-	case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
-		return WeaponTitles[3]
-	case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
-		return WeaponTitles[4]
-	case exp > WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
-		return WeaponTitles[5]
-	case exp > WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
-		return WeaponTitles[6]
-	case exp > WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
-		return WeaponTitles[7]
-	case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
-		return WeaponTitles[8]
-	case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
-		return WeaponTitles[9]
-	case exp >= WeaponExpLevels[10]:
-		if class == 0 {
-			return WeaponTitles[10]
-		} else {
-			return WeaponTitles[9]
+	if class == 4 {
+		switch {
+		case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
+			return AffinityTitles[0]
+		case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
+			return AffinityTitles[1]
+		case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+			return AffinityTitles[2]
+		case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
+			return AffinityTitles[3]
+		case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
+			return AffinityTitles[4]
+		case exp > WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
+			return AffinityTitles[5]
+		case exp > WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
+			return AffinityTitles[6]
+		case exp > WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
+			return AffinityTitles[7]
+		case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
+			return AffinityTitles[8]
+		case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
+			return AffinityTitles[9]
+		case exp >= WeaponExpLevels[10]:
+			return AffinityTitles[10]
+		default:
+			return AffinityTitles[0]
 		}
-	default:
-		return WeaponTitles[0]
+	} else {
+		switch {
+		case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
+			return WeaponTitles[0]
+		case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
+			return WeaponTitles[1]
+		case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+			return WeaponTitles[2]
+		case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
+			return WeaponTitles[3]
+		case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
+			return WeaponTitles[4]
+		case exp > WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
+			return WeaponTitles[5]
+		case exp > WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
+			return WeaponTitles[6]
+		case exp > WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
+			return WeaponTitles[7]
+		case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
+			return WeaponTitles[8]
+		case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
+			return WeaponTitles[9]
+		case exp >= WeaponExpLevels[10]:
+			if class == 0 {
+				return WeaponTitles[10]
+			} else {
+				return WeaponTitles[9]
+			}
+		default:
+			return WeaponTitles[0]
+		}
 	}
 }
 

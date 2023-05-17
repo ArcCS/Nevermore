@@ -164,7 +164,11 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 				2: {int(charData["bluntexp"].(int64))},
 				3: {int(charData["poleexp"].(int64))},
 				4: {int(charData["missileexp"].(int64))},
-				5: {int(charData["handexp"].(int64))}},
+				5: {int(charData["handexp"].(int64))},
+				6: {int(charData["fireexp"].(int64))},
+				7: {int(charData["airexp"].(int64))},
+				8: {int(charData["earthexp"].(int64))},
+				9: {int(charData["waterexp"].(int64))}},
 			map[string]*Accumulator{
 				"fire":  {0},
 				"earth": {0},
@@ -543,6 +547,10 @@ func (c *Character) Save() {
 	charData["handexp"] = c.Skills[5].Value
 	charData["poleexp"] = c.Skills[3].Value
 	charData["sharpexp"] = c.Skills[0].Value
+	charData["fireexp"] = c.Skills[6].Value
+	charData["airexp"] = c.Skills[7].Value
+	charData["earthexp"] = c.Skills[8].Value
+	charData["waterexp"] = c.Skills[9].Value
 	charData["bankgold"] = c.BankGold.Value
 	charData["gold"] = c.Gold.Value
 	charData["evals"] = c.Evals
