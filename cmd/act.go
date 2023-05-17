@@ -1,16 +1,17 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
-	"strings"
 )
 
 func init() {
 	addHandler(act{},
 		"Usage:  act performs for all to see \n \n Perform actions.",
 		permissions.Player,
-		"act", "blink", "burp", "cackle", "clap", "confused", "cough", "crossarms", "crossfingers", "dance", "emote", "frown", "grin", "hiccup", "jump", "laugh", "nod", "shake", "shrug", "sneeze", "snap", "smile", "smirk", "spit", "tap", "thumbsdown", "thumbsup", "whistle")
+		"act", "blink", "blush", "bow", "burp", "cackle", "cheer", "chuckle", "clap", "confused", "cough", "crossarms", "crossfingers", "cry", "dance", "emote", "flex", "flinch", "frown", "gasp", "giggle", "grin", "groan", "hiccup", "hug", "jump", "kneel", "laugh", "nod", "ponder", "salute", "shake", "shiver", "shrug", "sigh", "sneeze", "snap", "smile", "smirk", "spit", "stare", "stretch", "tap", "thumbsdown", "thumbsup", "wave", "whistle", "wink", "yawn")
 }
 
 type act cmd
