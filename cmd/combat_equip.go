@@ -57,7 +57,8 @@ func (equip) process(s *state) {
 				s.msg.Actor.SendBad("You are unsure of how to maximize the benefit of this armor and cannot wear it.")
 				return
 			}
-		if utils.IntIn(what.ItemType, []int{0, 1, 2, 3, 4}) &&
+		}
+		if utils.IntIn(what.ItemType, []int{0, 1, 2, 3, 4, 16}) &&
 			!s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			if !config.CanWield(s.actor.Tier, s.actor.Class, utils.RollMax(what.SidesDice, what.NumDice, what.PlusDice)) {
 				s.msg.Actor.SendBad("You are not well enough trained to wield " + what.Name)
