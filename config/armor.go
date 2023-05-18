@@ -10,12 +10,27 @@ var MaxArmor = map[int]map[int]int{
 	25: {5: 130, 20: 80, 21: 55, 19: 55, 25: 70, 22: 55, 26: 55, 23: 100, 24: 12},
 }
 
-func CheckArmor(aType int, tier int, val int) bool {
-	for lev, vals := range MaxArmor {
-		if tier <= lev {
-			if val <= vals[aType] {
-				return true
-			}
+func CheckArmor(aType, tier, val int) bool {
+	switch {
+	case tier <= 4:
+		if val <= MaxArmor[4][aType] {
+			return true
+		}
+	case tier <= 9:
+		if val <= MaxArmor[9][aType] {
+			return true
+		}
+	case tier <= 14:
+		if val <= MaxArmor[14][aType] {
+			return true
+		}
+	case tier <= 19:
+		if val <= MaxArmor[19][aType] {
+			return true
+		}
+	case tier <= 25:
+		if val <= MaxArmor[25][aType] {
+			return true
 		}
 	}
 	return false
