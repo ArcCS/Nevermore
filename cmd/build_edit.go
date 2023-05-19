@@ -494,6 +494,26 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					character.Skills[4].Value = value
 					s.msg.Actor.SendGood("Changed missile exp")
+				case "handexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[5].Value = value
+					s.msg.Actor.SendGood("Changed hand to hand exp")
+				case "fireexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[6].Value = value
+					s.msg.Actor.SendGood("Changed fire affinity")
+				case "airexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[7].Value = value
+					s.msg.Actor.SendGood("Changed air affinity")
+				case "earthexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[8].Value = value
+					s.msg.Actor.SendGood("Changed earth affinity")
+				case "waterexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[9].Value = value
+					s.msg.Actor.SendGood("Changed water affinity")
 
 				default:
 					s.msg.Actor.SendBad("Property not found.")
@@ -611,6 +631,26 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					character.Skills[4].Value = value
 					s.msg.Actor.SendGood("Changed missile exp")
+				case "handexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[5].Value = value
+					s.msg.Actor.SendGood("Changed hand to hand exp")
+				case "fireexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[6].Value = value
+					s.msg.Actor.SendGood("Changed fire affinity")
+				case "airexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[7].Value = value
+					s.msg.Actor.SendGood("Changed air affinity")
+				case "earthexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[8].Value = value
+					s.msg.Actor.SendGood("Changed earth affinity")
+				case "waterexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[9].Value = value
+					s.msg.Actor.SendGood("Changed water affinity")
 				case "parent_id":
 					value, _ := strconv.Atoi(s.words[3])
 					character.Skills[4].Value = value

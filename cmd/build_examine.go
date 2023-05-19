@@ -282,6 +282,11 @@ func (examine) process(s *state) {
 				{"V", "thrustexp", charData["thrustexp"].(int64), "Thrust Skill Experience"},
 				{"V", "bluntexp", charData["bluntexp"].(int64), "Blunt Skill Experience"},
 				{"V", "poleexp", charData["poleexp"].(int64), "Pole Skill Experience"},
+				{"V", "handexp", charData["handexp"].(int64), "Hand to Hand Experience"},
+				{"V", "fireexp", charData["fireexp"].(int64), "Fire Affinity"},
+				{"V", "airexp", charData["airexp"].(int64), "Air Affinity"},
+				{"V", "earthexp", charData["earthexp"].(int64), "Earth Affinity"},
+				{"V", "waterexp", charData["waterexp"].(int64), "Water Affinity"},
 				{"V", "missileexp", charData["missileexp"].(int64), "Missile Skill Experience"},
 				{"T", "darkvision", strconv.FormatBool(charData["flags"].(map[string]interface{})["darkvision"].(int64) != 0), "Permanent Dark Vision"},
 			})
@@ -320,6 +325,11 @@ func (examine) process(s *state) {
 				{"V", "bluntexp", character.Skills[2].Value, "Blunt Skill Experience"},
 				{"V", "poleexp", character.Skills[3].Value, "Pole Skill Experience"},
 				{"V", "missileexp", character.Skills[4].Value, "Missile Skill Experience"},
+				{"V", "handexp", character.Skills[5].Value, "Hand to Hand Experience"},
+				{"V", "fireexp", character.Skills[6].Value, "Fire Affinity"},
+				{"V", "airexp", character.Skills[7].Value, "Air Affinity"},
+				{"V", "earthexp", character.Skills[8].Value, "Earth Affinity"},
+				{"V", "waterexp", character.Skills[9].Value, "Water Affinity"},
 				{"T", "invisible", strconv.FormatBool(character.Flags["invisible"]), "Character is currently invisible"},
 				{"T", "darkvision", strconv.FormatBool(character.Flags["darkvision"]), "Permanent Dark Vision"},
 			})
