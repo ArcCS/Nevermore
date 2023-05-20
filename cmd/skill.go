@@ -109,11 +109,11 @@ Water Affinity        {{.Water}} ({{.WaterTotal}}/{{.WaterNext}})
 
 	if s.actor.Class == 8 {
 		skill_header += monk_skills
-	} else if s.actor.Class == 4 {
-		skill_header += standard_skills
-		skill_header += mage_skills
 	} else {
 		skill_header += standard_skills
+	}
+	if s.actor.Class == 4 {
+		skill_header += mage_skills
 	}
 	tmpl, _ := template.New("stat_info").Parse(skill_header)
 	var output bytes.Buffer
