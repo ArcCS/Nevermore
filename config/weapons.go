@@ -147,6 +147,7 @@ func WeaponExpTitle(exp int, class int) string {
 			return WeaponTitles[7]
 		case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
 			return WeaponTitles[8]
+<<<<<<< Updated upstream
 		case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
 			return WeaponTitles[9]
 		case exp >= WeaponExpLevels[10]:
@@ -155,6 +156,10 @@ func WeaponExpTitle(exp int, class int) string {
 			} else {
 				return WeaponTitles[9]
 			}
+=======
+		case exp >= WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
+			return WeaponTitles[9]
+>>>>>>> Stashed changes
 		default:
 			return WeaponTitles[0]
 		}
@@ -186,7 +191,7 @@ func WeaponLevel(exp int, class int) int {
 	case exp > WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
 		return 10
 	case exp >= WeaponExpLevels[11]:
-		if class == 0 {
+		if class == 0 || class == 4 {
 			return 11
 		} else {
 			return 10

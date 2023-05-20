@@ -229,6 +229,7 @@ func (i *Item) Eval() string {
 
 	if utils.IntIn(i.ItemType, []int{0, 1, 2, 3, 4}) { // Weapons
 		stringOut += "It is a " + config.ItemTypes[i.ItemId] + " weapon. \n" +
+			"It deals between " + strconv.Itoa(utils.RollMin(i.NumDice, i.PlusDice)+i.Adjustment) + " and " + strconv.Itoa(utils.RollMax(i.SidesDice, i.NumDice, i.PlusDice)+i.Adjustment) + " damage. \n" +
 			"It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks \n."
 	} else if utils.IntIn(i.ItemType, []int{5, 26, 25, 24, 23, 22, 21, 20, 19}) { // Armor
 		stringOut += "It is " + config.ItemTypes[i.ItemId] + " armor. \n" +
