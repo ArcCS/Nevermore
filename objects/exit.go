@@ -18,7 +18,7 @@ func NewExit(room_id int, exitData map[string]interface{}) *Exit {
 	placement := 3
 	if exitData["placement"] == nil {
 		placement = 3
-	}else{
+	} else {
 		placement = int(exitData["placement"].(int64))
 	}
 	ok := false
@@ -54,7 +54,7 @@ func NewExit(room_id int, exitData map[string]interface{}) *Exit {
 func (e *Exit) Look() string {
 	if e.Description == "" {
 		return "A standard run of the mill exit"
-	}else {
+	} else {
 		return e.Description
 	}
 }
@@ -70,7 +70,7 @@ func (e *Exit) Close() bool {
 func (e *Exit) Open() bool {
 	if e.Flags["locked"] == false {
 		if e.Flags["closeable"] == true {
-			e.Flags["closed"] = true
+			e.Flags["closed"] = false
 			return true
 		}
 	}

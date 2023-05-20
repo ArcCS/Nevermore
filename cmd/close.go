@@ -51,7 +51,7 @@ func (closeExit) process(s *state) {
 
 		s.actor.RunHook("act")
 
-		what.Open()
+		what.Close()
 
 		if s.actor.Flags["invisible"] == false {
 			who := s.actor.Name
