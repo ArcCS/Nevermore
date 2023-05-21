@@ -221,7 +221,9 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
 		damage := int(float64(caller.Pie.Current) * config.PieHealMod)
-
+		if utils.IntIn(caller.Class, []int{5, 6}) {
+			damage *= 3
+		}
 		switch target := target.(type) {
 		case *Character:
 			target.HealStam(damage)
@@ -244,7 +246,9 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
 		damage := int(float64(caller.Pie.Current) * config.PieHealMod)
-
+		if utils.IntIn(caller.Class, []int{5, 6}) {
+			damage *= 3
+		}
 		switch target := target.(type) {
 		case *Character:
 			target.HealVital(damage)
@@ -273,7 +277,9 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
 		damage = damage + int(float64(caller.Pie.Current)*config.PieHealMod)
-
+		if utils.IntIn(caller.Class, []int{5, 6}) {
+			damage *= 3
+		}
 		switch target := target.(type) {
 		case *Character:
 			stam, vit := target.Heal(damage)
