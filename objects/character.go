@@ -787,16 +787,18 @@ func (c *Character) AdvanceSkillExp(amount int) {
 	}
 }
 
-func (c *Character) AdvanceElementalExp(amount int, element string) {
-	switch element {
-	case "fire":
-		c.Skills[6].Add(amount)
-	case "air":
-		c.Skills[7].Add(amount)
-	case "earth":
-		c.Skills[8].Add(amount)
-	case "water":
-		c.Skills[9].Add(amount)
+func (c *Character) AdvanceElementalExp(amount int, element string, class int) {
+	if class == 4 {
+		switch element {
+		case "fire":
+			c.Skills[6].Add(amount)
+		case "air":
+			c.Skills[7].Add(amount)
+		case "earth":
+			c.Skills[8].Add(amount)
+		case "water":
+			c.Skills[9].Add(amount)
+		}
 	}
 	return
 }

@@ -373,7 +373,7 @@ func firedamage(caller interface{}, target interface{}, magnitude int) string {
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
-			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "fire")
+			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "fire", caller.Class)
 		}
 		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " fire damage. They resisted " + strconv.Itoa(resisted) + "."
 		//add affinity xp
@@ -446,7 +446,7 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
-			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "earth")
+			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "earth", caller.Class)
 		}
 		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " earth damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect
@@ -543,7 +543,7 @@ func airdamage(caller interface{}, target interface{}, magnitude int) string {
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
-			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "air")
+			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "air", caller.Class)
 		}
 		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " air damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect
@@ -613,7 +613,7 @@ func waterdamage(caller interface{}, target interface{}, magnitude int) string {
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
-			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "water")
+			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "water", caller.Class)
 		}
 		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " water damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect
