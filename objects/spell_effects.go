@@ -328,19 +328,13 @@ func firedamage(caller interface{}, target interface{}, magnitude int) string {
 	var intel int
 	actualDamage := 0
 	damage := 0
-	mult := 1
 	switch caller := caller.(type) {
 	case *Character:
 		name = caller.Name
 		intel = caller.Int.Current
-		if caller.Tier >= 15 {
-			mult = 2
-		}
-		if caller.Tier >= 20 {
-			mult = 4
-		}
 		actualDamage = elementalDamage(magnitude, intel)
-		damage = actualDamage * mult
+		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[6].Value, caller.Class)]
+		damage = int((float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod) * (1 + float64(affinityLevel)*.01))
 	case *Mob:
 		name = caller.Name
 		intel = caller.Int.Current
@@ -379,8 +373,11 @@ func firedamage(caller interface{}, target interface{}, magnitude int) string {
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
+			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "fire")
 		}
 		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " fire damage. They resisted " + strconv.Itoa(resisted) + "."
+		//add affinity xp
+
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
@@ -393,6 +390,7 @@ func firedamage(caller interface{}, target interface{}, magnitude int) string {
 		case *Mob:
 			log.Println("mob on mob violence not implemented yet")
 		}
+
 		return returnString
 	}
 	return ""
@@ -403,19 +401,13 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 	var intel int
 	actualDamage := 0
 	damage := 0
-	mult := 1
 	switch caller := caller.(type) {
 	case *Character:
 		name = caller.Name
 		intel = caller.Int.Current
-		if caller.Tier >= 15 {
-			mult = 2
-		}
-		if caller.Tier >= 20 {
-			mult = 4
-		}
 		actualDamage = elementalDamage(magnitude, intel)
-		damage = actualDamage * mult
+		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[8].Value, caller.Class)]
+		damage = int((float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod) * (1 + float64(affinityLevel)*.01))
 	case *Mob:
 		name = caller.Name
 		intel = caller.Int.Current
@@ -454,6 +446,7 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
+			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "earth")
 		}
 		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " earth damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect
@@ -495,7 +488,7 @@ func elementalDamage(magnitude int, intel int) (damage int) {
 		damage = 280 + power
 	} else if magnitude == 7 {
 		power = utils.Roll(6, 35, 0)
-		damage = 350 + (45/intel)*utils.Roll(6, 35, 0)
+		damage = 350 + power
 	}
 	return damage
 }
@@ -505,19 +498,13 @@ func airdamage(caller interface{}, target interface{}, magnitude int) string {
 	var intel int
 	actualDamage := 0
 	damage := 0
-	mult := 1
 	switch caller := caller.(type) {
 	case *Character:
 		name = caller.Name
 		intel = caller.Int.Current
-		if caller.Tier >= 15 {
-			mult = 2
-		}
-		if caller.Tier >= 20 {
-			mult = 4
-		}
 		actualDamage = elementalDamage(magnitude, intel)
-		damage = actualDamage * mult
+		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[7].Value, caller.Class)]
+		damage = int((float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod) * (1 + float64(affinityLevel)*.01))
 	case *Mob:
 		name = caller.Name
 		intel = caller.Int.Current
@@ -556,6 +543,7 @@ func airdamage(caller interface{}, target interface{}, magnitude int) string {
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
+			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "air")
 		}
 		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " air damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect
@@ -580,19 +568,13 @@ func waterdamage(caller interface{}, target interface{}, magnitude int) string {
 	var intel int
 	actualDamage := 0
 	damage := 0
-	mult := 1
 	switch caller := caller.(type) {
 	case *Character:
 		name = caller.Name
 		intel = caller.Int.Current
-		if caller.Tier >= 15 {
-			mult = 2
-		}
-		if caller.Tier >= 20 {
-			mult = 4
-		}
 		actualDamage = elementalDamage(magnitude, intel)
-		damage = actualDamage * mult
+		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[9].Value, caller.Class)]
+		damage = int((float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod) * (1 + float64(affinityLevel)*.01))
 	case *Mob:
 		name = caller.Name
 		intel = caller.Int.Current
@@ -631,6 +613,7 @@ func waterdamage(caller interface{}, target interface{}, magnitude int) string {
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
+			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "water")
 		}
 		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " water damage. They resisted " + strconv.Itoa(resisted) + "."
 		// Reflect

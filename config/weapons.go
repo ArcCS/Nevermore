@@ -85,27 +85,55 @@ var WeaponTitles = []string{
 	"Grandmaster",
 }
 
+var AffinityTitles = []string{
+	"Unattuned",
+	"Neophyte",
+	"Novice",
+	"Channeler",
+	"Artisan",
+	"Specialist",
+	"Attuned",
+	"Elementalist",
+	"Savant",
+	"Virtuoso",
+	"Ascended",
+}
+
+var SpellDmgSkill = map[int]int{
+	0:  0,
+	1:  5,
+	2:  10,
+	3:  15,
+	4:  30,
+	5:  45,
+	6:  60,
+	7:  75,
+	8:  90,
+	9:  105,
+	10: 120,
+}
+
 func WeaponExpTitle(exp int, class int) string {
 	switch {
-	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
+	case exp >= WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
 		return WeaponTitles[0]
-	case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
+	case exp >= WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
 		return WeaponTitles[1]
-	case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+	case exp >= WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
 		return WeaponTitles[2]
-	case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
+	case exp >= WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
 		return WeaponTitles[3]
-	case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
+	case exp >= WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
 		return WeaponTitles[4]
-	case exp > WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
+	case exp >= WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
 		return WeaponTitles[5]
-	case exp > WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
+	case exp >= WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
 		return WeaponTitles[6]
-	case exp > WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
+	case exp >= WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
 		return WeaponTitles[7]
-	case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
+	case exp >= WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
 		return WeaponTitles[8]
-	case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
+	case exp >= WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
 		return WeaponTitles[9]
 	case exp >= WeaponExpLevels[10]:
 		if class == 0 {
@@ -118,32 +146,61 @@ func WeaponExpTitle(exp int, class int) string {
 	}
 }
 
+func AffinityExpTitle(exp int) string {
+	switch {
+	case exp >= WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
+		return AffinityTitles[0]
+	case exp >= WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
+		return AffinityTitles[1]
+	case exp >= WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+		return AffinityTitles[2]
+	case exp >= WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
+		return AffinityTitles[3]
+	case exp >= WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
+		return AffinityTitles[4]
+	case exp >= WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
+		return AffinityTitles[5]
+	case exp >= WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
+		return AffinityTitles[6]
+	case exp >= WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
+		return AffinityTitles[7]
+	case exp >= WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
+		return AffinityTitles[8]
+	case exp >= WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
+		return AffinityTitles[9]
+	case exp >= WeaponExpLevels[10]:
+		return AffinityTitles[10]
+	default:
+		return AffinityTitles[0]
+	}
+}
+
 func WeaponLevel(exp int, class int) int {
 	switch {
-	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
+	case exp >= WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
 		return 0
-	case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
+	case exp >= WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
 		return 1
-	case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+	case exp >= WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
 		return 2
-	case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
+	case exp >= WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
 		return 3
-	case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
+	case exp >= WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
 		return 4
-	case exp > WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
+	case exp >= WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
 		return 5
-	case exp > WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
+	case exp >= WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
 		return 6
-	case exp > WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
+	case exp >= WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
 		return 7
-	case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
+	case exp >= WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
 		return 8
-	case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
+	case exp >= WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
 		return 9
-	case exp > WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
+	case exp >= WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
 		return 10
 	case exp >= WeaponExpLevels[11]:
-		if class == 0 {
+		if class == 0 || class == 4 {
 			return 11
 		} else {
 			return 10
@@ -155,26 +212,26 @@ func WeaponLevel(exp int, class int) int {
 
 func WeaponExpNext(exp int, class int) int {
 	switch {
-	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
+	case exp >= WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
 		return WeaponExpLevels[1]
-	case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
+	case exp >= WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
 		return WeaponExpLevels[2]
-	case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+	case exp >= WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
 		return WeaponExpLevels[3]
-	case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
+	case exp >= WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
 		return WeaponExpLevels[4]
-	case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
+	case exp >= WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
 		return WeaponExpLevels[5]
-	case exp > WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
+	case exp >= WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
 		return WeaponExpLevels[6]
-	case exp > WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
+	case exp >= WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
 		return WeaponExpLevels[7]
-	case exp > WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
+	case exp >= WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
 		return WeaponExpLevels[8]
-	case exp > WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
+	case exp >= WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
 		return WeaponExpLevels[9]
-	case exp > WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
-		if class == 0 {
+	case exp >= WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
+		if class == 0 || class == 4 {
 			return WeaponExpLevels[10]
 		} else {
 			return 0
@@ -188,17 +245,17 @@ func WeaponExpNext(exp int, class int) int {
 
 func WeaponMissChance(exp int, class int) int {
 	switch {
-	case exp > WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
+	case exp >= WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
 		return 45
-	case exp > WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
+	case exp >= WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
 		return 35
-	case exp > WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+	case exp >= WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
 		return 25
-	case exp > WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
+	case exp >= WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
 		return 15
-	case exp > WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
+	case exp >= WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
 		return 5
-	case exp > WeaponExpLevels[5]:
+	case exp >= WeaponExpLevels[5]:
 		return 0
 	default:
 		return 50

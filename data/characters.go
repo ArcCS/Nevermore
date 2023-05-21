@@ -57,6 +57,10 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"poleexp: a.poleexp, "+
 		"missileexp: a.missileexp, "+
 		"handexp: a.handexp, "+
+		"fireexp: a.fireexp, "+
+		"airexp: a.airexp, "+
+		"earthexp: a.earthexp, "+
+		"waterexp: a.waterexp, "+
 		"spells: a.spells, "+
 		"equipment: a.equipment, "+
 		"inventory: a.inventory, "+
@@ -132,6 +136,10 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.thrustexp = 0,"+
 			"a.missileexp = 0,"+
 			"a.handexp = 0,"+
+			"a.fireexp = 0,"+
+			"a.airexp = 0,"+
+			"a.earthexp = 0,"+
+			"a.waterexp = 0,"+
 			"a.spells = '',"+
 			"a.equipment = '[]',"+
 			"a.inventory = '[]',"+
@@ -228,6 +236,10 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.thrustexp = $thrustexp,"+
 			"a.missileexp = $missileexp,"+
 			"a.handexp = $handexp, "+
+			"a.fireexp = $fireexp, "+
+			"a.airexp = $airexp,"+
+			"a.earthexp = $earthexp,"+
+			"a.waterexp = $waterexp,"+
 			"a.spells = $spells,"+
 			"a.equipment = $equipment,"+
 			"a.inventory = $inventory,"+
@@ -254,6 +266,10 @@ func SaveChar(charData map[string]interface{}) bool {
 			"poleexp":     charData["poleexp"],
 			"sharpexp":    charData["sharpexp"],
 			"handexp":     charData["handexp"],
+			"fireexp":     charData["fireexp"],
+			"airexp":      charData["airexp"],
+			"earthexp":    charData["earthexp"],
+			"waterexp":    charData["waterexp"],
 			"bankgold":    charData["bankgold"],
 			"gold":        charData["gold"],
 			"evals":       charData["evals"],
