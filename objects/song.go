@@ -121,7 +121,9 @@ func CuriousCanticle(target interface{}, singer *Character) {
 func CelebrationNight(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Character:
-		target.Heal(singer.GetStat("pie") * config.ScalePerPiety)
+		damage := (utils.Roll(singer.Equipment.Off.SidesDice, singer.Equipment.Off.NumDice, singer.Equipment.Off.PlusDice) + singer.Equipment.Off.Adjustment) / len(Rooms[target.ParentId].Chars.Contents)
+		singer.Write([]byte(text.Red + "Your song healed " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset))
+		target.Heal(damage)
 	}
 }
 
