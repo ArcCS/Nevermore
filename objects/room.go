@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -133,6 +134,8 @@ func (r *Room) Look(looker *Character) (buildText string) {
 					}
 				}
 			}
+			sort.Strings(exitText)
+			sort.Strings(longExit)
 			if len(exitText) > 0 {
 				buildText += "Obvious exits are " + strings.Join(exitText, ", ")
 			}
@@ -178,6 +181,9 @@ func (r *Room) Look(looker *Character) (buildText string) {
 					}
 				}
 			}
+
+			sort.Strings(exitText)
+			sort.Strings(longExit)
 
 			if len(exitText) > 0 {
 				buildText += "Obvious exits are " + strings.Join(exitText, ", ")
