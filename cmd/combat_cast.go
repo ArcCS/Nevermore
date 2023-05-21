@@ -184,6 +184,10 @@ func (cast) process(s *state) {
 		whatChar = s.where.Chars.Search(name, s.actor)
 		// It was a person!
 		if whatChar != nil {
+			if whatChar == s.actor && spellInstance.Name == "restore" {
+				s.msg.Actor.SendBad("You can only cast this spell on others.")
+				return
+			}
 			s.participant = whatChar
 			s.actor.RunHook("combat")
 			s.actor.Victim = whatChar

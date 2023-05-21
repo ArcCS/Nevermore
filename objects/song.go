@@ -141,7 +141,7 @@ func ChampionsAnthem(target interface{}, singer *Character) {
 func BansheesLament(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Mob:
-		damage := (utils.Roll(singer.Equipment.Off.SidesDice, singer.Equipment.Off.NumDice, singer.Equipment.Off.PlusDice) + singer.Equipment.Off.Adjustment) / 2
+		damage := ((utils.Roll(singer.Equipment.Off.SidesDice, singer.Equipment.Off.NumDice, singer.Equipment.Off.PlusDice) + singer.Equipment.Off.Adjustment) / 2) / len(Rooms[target.ParentId].Mobs.Contents)
 		singer.Write([]byte(text.Red + "Your song caused " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset))
 		target.ReceiveDamageNoArmor(damage)
 		target.AddThreatDamage(damage, singer)

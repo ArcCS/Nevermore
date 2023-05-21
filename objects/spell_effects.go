@@ -296,9 +296,6 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 }
 
 func restore(caller interface{}, target interface{}, magnitude int) string {
-	if caller == target {
-		return "You can only cast this spell on others."
-	}
 	switch target := target.(type) {
 	case *Character:
 		target.Mana.Current = target.Mana.Max
