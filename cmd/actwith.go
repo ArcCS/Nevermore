@@ -9,7 +9,23 @@ func init() {
 	addHandler(actwith{},
 		"Usage:  'action-with' place holder, these actions require someone else to ",
 		permissions.Player,
-		"taunt", "bug", "bow", "love", "angry", "glare", "stare", "tickle", "poke", "slap", "kick", "wave", "wink")
+		"taunt", "bug", "bow", "hug", "angry", "glare", "stare", "tickle", "poke", "slap", "kick", "wave", "wink")
+}
+
+var actWithMap = map[string]string{
+	"taunt":  "taunts",
+	"bug":    "lightly harasses",
+	"bow":    "bows before",
+	"hug":    "hugs",
+	"angry":  "appears furious at",
+	"glare":  "glare at",
+	"stare":  "stares at",
+	"tickle": "tickles",
+	"poke":   "pokes",
+	"slap":   "slaps",
+	"kick":   "kicks",
+	"wave":   "waves at",
+	"wink":   "winks at",
 }
 
 type actwith cmd
@@ -39,38 +55,12 @@ func (actwith) process(s *state) {
 
 	cmdStr := strings.ToLower(s.cmd)
 	action := ""
+	var ok bool
 	s.actor.RunHook("act")
-	if cmdStr == "taunt" {
-		// Did they send an action?
-		if len(s.words) == 0 {
-			s.msg.Actor.SendBad("... what were you trying to do???")
-			return
-		}
-		action = strings.Join(s.input, " ")
-	} else if cmdStr == "bow" {
-		action = "bows before"
-	} else if cmdStr == "love" {
-		action = "loves"
-	} else if cmdStr == "angry" {
-		action = "appears furious at"
-	} else if cmdStr == "glare" {
-		action = "glares at"
-	} else if cmdStr == "bug" {
-		action = "lightly harasses"
-	} else if cmdStr == "stare" {
-		action = "stares at"
-	} else if cmdStr == "tickle" {
-		action = "tickles"
-	} else if cmdStr == "poke" {
-		action = "pokes"
-	} else if cmdStr == "slap" {
-		action = "slaps"
-	} else if cmdStr == "kick" {
-		action = "kicks"
-	} else if cmdStr == "wave" {
-		action = "waves at"
-	} else if cmdStr == "wink" {
-		action = "winks at"
+	if action, ok = actWithMap[cmdStr]; !ok {
+		s.msg.Actor.SendBad("Action not available")
+		s.ok = true
+		return
 	}
 
 	s.msg.Actor.SendInfo("You " + action + " " + whoWith)

@@ -21,8 +21,8 @@ type skills cmd
 
 func (skills) process(s *state) {
 	skill_header :=
-		`Weapon Skills                Level of Mastery (Experience/NextLevel)
------------------------------------------------------------------
+		`Weapon Skills   |    Level of Mastery (Experience/NextLevel)
+----------------------------------------------------------------
 `
 	standard_skills :=
 		`Sharp Weapons        {{.Sharp}} ({{.SharpTotal}}/{{.SharpNext}})
@@ -37,12 +37,12 @@ Missile Weapons      {{.Missile}} ({{.MissileTotal}}/{{.MissileNext}})
 
 	mage_skills :=
 		`
-Elemental Affinity                Level of Attunement (Experience/NextLevel)
+Elemental Affinity  |   Level of Attunement (Experience/NextLevel)
 -----------------------------------------------------------------
-Fire Affinity        {{.Fire}} ({{.FireTotal}}/{{.FireNext}})
-Air Affinity         {{.Air}} ({{.AirTotal}}/{{.AirNext}})
-Earth Affinity       {{.Earth}} ({{.EarthTotal}}/{{.EarthNext}})
-Water Affinity       {{.Water}} ({{.WaterTotal}}/{{.WaterNext}})
+Fire Affinity           {{.Fire}} ({{.FireTotal}}/{{.FireNext}})
+Air Affinity            {{.Air}} ({{.AirTotal}}/{{.AirNext}})
+Earth Affinity          {{.Earth}} ({{.EarthTotal}}/{{.EarthNext}})
+Water Affinity          {{.Water}} ({{.WaterTotal}}/{{.WaterNext}})
 `
 
 	data := struct {
