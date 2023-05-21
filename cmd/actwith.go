@@ -9,7 +9,7 @@ func init() {
 	addHandler(actwith{},
 		"Usage:  'action-with' place holder, these actions require someone else to ",
 		permissions.Player,
-		"taunt", "bug", "bow", "hug", "angry", "glare", "stare", "tickle", "poke", "slap", "kick", "wave", "wink")
+		"bug", "bow", "hug", "angry", "glare", "stare", "tickle", "poke", "slap", "kick", "wave", "wink")
 }
 
 var actWithMap = map[string]string{
