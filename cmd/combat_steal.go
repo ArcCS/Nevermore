@@ -88,6 +88,11 @@ func (steal) process(s *state) {
 		}
 	}
 
+	if nameStr == "" {
+		s.msg.Actor.SendBad("Steal what from who?")
+		return
+	}
+
 	// TODO: Steal from players inventory if PvP flag is set
 
 	var whatMob *objects.Mob
@@ -121,7 +126,7 @@ func (steal) process(s *state) {
 				}
 
 				log.Println(s.actor.Name+"Peek Chance Roll: ", curChance)
-				
+
 				if utils.Roll(100, 1, 0) <= curChance {
 					whatMob.Inventory.Remove(what)
 					s.actor.Inventory.Add(what)

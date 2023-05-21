@@ -3,8 +3,10 @@ package objects
 import (
 	"encoding/json"
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
 	"log"
+	"sort"
 	"strings"
 )
 
@@ -35,7 +37,11 @@ func (i *ItemInventory) GetTotalWeight() (total int) {
 
 // Add adds the specified object to the Contents.
 func (i *ItemInventory) Add(o *Item) {
-	i.Contents = append(i.Contents, o)
+	index := sort.Search(len(i.Contents), func(num int) bool { return i.Contents[num].DisplayName() >= o.DisplayName() })
+	if index < len(i.Contents) && i.Contents[index].DisplayName() == o.DisplayName() {
+		index++
+	}
+	i.Contents = append(i.Contents[:index], append([]*Item{o}, i.Contents[index:]...)...)
 }
 
 // Remove Pass item as a pointer to be removed
@@ -80,7 +86,7 @@ func (i *ItemInventory) RemoveNonPerms() {
 
 // Search the ItemInventory to return a specific instance of something
 func (i *ItemInventory) Search(alias string, num int) *Item {
-	if i == nil {
+	if i == nil || alias == "" {
 		return nil
 	}
 
@@ -197,11 +203,15 @@ func (i *ItemInventory) PermanentReducedList() string {
 	}
 
 	stringify := make([]string, 0)
-	for k, v := range items {
-		if v == 1 {
-			stringify = append(stringify, "a "+k)
-		} else {
-			stringify = append(stringify, config.TextNumbers[v]+" "+k+"s")
+	for _, v := range i.Contents {
+		if v.Flags["permanent"] {
+			if items[v.DisplayName()] == 1 {
+				stringify = append(stringify, "a "+v.DisplayName())
+			} else {
+				if !utils.StringIn(config.TextNumbers[items[v.DisplayName()]]+" "+v.DisplayName()+"s", stringify) {
+					stringify = append(stringify, config.TextNumbers[items[v.DisplayName()]]+" "+v.DisplayName()+"s")
+				}
+			}
 		}
 	}
 
@@ -225,11 +235,15 @@ func (i *ItemInventory) RoomReducedList() string {
 	}
 
 	stringify := make([]string, 0)
-	for k, v := range items {
-		if v == 1 {
-			stringify = append(stringify, "a "+k)
-		} else {
-			stringify = append(stringify, config.TextNumbers[v]+" "+k+"s")
+	for _, v := range i.Contents {
+		if !v.Flags["permanent"] {
+			if items[v.DisplayName()] == 1 {
+				stringify = append(stringify, "a "+v.DisplayName())
+			} else {
+				if !utils.StringIn(config.TextNumbers[items[v.DisplayName()]]+" "+v.DisplayName()+"s", stringify) {
+					stringify = append(stringify, config.TextNumbers[items[v.DisplayName()]]+" "+v.DisplayName()+"s")
+				}
+			}
 		}
 	}
 
@@ -251,11 +265,13 @@ func (i *ItemInventory) ReducedList() string {
 	}
 
 	stringify := make([]string, 0)
-	for k, v := range items {
-		if v == 1 {
-			stringify = append(stringify, "a "+k)
+	for _, v := range i.Contents {
+		if items[v.DisplayName()] == 1 {
+			stringify = append(stringify, "a "+v.DisplayName())
 		} else {
-			stringify = append(stringify, config.TextNumbers[v]+" "+k+"s")
+			if !utils.StringIn(config.TextNumbers[items[v.DisplayName()]]+" "+v.DisplayName()+"s", stringify) {
+				stringify = append(stringify, config.TextNumbers[items[v.DisplayName()]]+" "+v.DisplayName()+"s")
+			}
 		}
 	}
 
