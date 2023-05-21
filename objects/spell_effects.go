@@ -218,10 +218,9 @@ func pray(caller interface{}, target interface{}, magnitude int) string {
 }
 
 func healstam(caller interface{}, target interface{}, magnitude int) string {
-	damage := 10
 	switch caller := caller.(type) {
 	case *Character:
-		damage = damage + int(float64(caller.Pie.Current)*config.PieHealMod)
+		damage := int(float64(caller.Pie.Current) * config.PieHealMod)
 
 		switch target := target.(type) {
 		case *Character:
@@ -242,10 +241,9 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 }
 
 func healvit(caller interface{}, target interface{}, magnitude int) string {
-	damage := 10
 	switch caller := caller.(type) {
 	case *Character:
-		damage = damage + int(float64(caller.Pie.Current)*config.PieHealMod)
+		damage := int(float64(caller.Pie.Current) * config.PieHealMod)
 
 		switch target := target.(type) {
 		case *Character:
@@ -268,9 +266,9 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 func heal(caller interface{}, target interface{}, magnitude int) string {
 	damage := 0
 	if magnitude == 1 {
-		damage = 50
+		damage = 10
 	} else {
-		damage = 100
+		damage = 25
 	}
 	switch caller := caller.(type) {
 	case *Character:
