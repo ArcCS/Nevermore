@@ -28,8 +28,9 @@ type Equipment struct {
 	Main *Item
 	Off  *Item
 
-	FlagOn  func(flagName string, provider string)
-	FlagOff func(flagName string, provider string)
+	FlagOn   func(flagName string, provider string)
+	FlagOff  func(flagName string, provider string)
+	CanEquip func(item *Item) (bool, string)
 }
 
 func (e *Equipment) GetWeight() (total int) {
@@ -222,8 +223,14 @@ func (e *Equipment) DamageWeapon(whichHand string, damage int) string {
 	if whichHand == "main" {
 		e.Main.MaxUses -= damage
 		if e.Main.MaxUses <= 0 {
-			e.Main = nil
+			e.Main = (*Item)(nil)
 			return "Your weapon shatters!"
+		}
+	} else if whichHand == "off" {
+		e.Off.MaxUses -= damage
+		if e.Off.MaxUses <= 0 {
+			e.Off = (*Item)(nil)
+			return "Your instrument shatters!"
 		}
 	}
 	return ""
@@ -711,6 +718,64 @@ func RestoreEquipment(jsonString string) *Equipment {
 		NewEquipment.Equip(&newItem)
 	}
 	return NewEquipment
+}
+
+func (e *Equipment) CheckEquipment() {
+	if e.Head != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Head); !ok {
+			e.UnequipSpecific("head")
+		}
+	}
+	if e.Chest != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Chest); !ok {
+			e.UnequipSpecific("chest")
+		}
+	}
+	if e.Neck != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Neck); !ok {
+			e.UnequipSpecific("neck")
+		}
+	}
+	if e.Legs != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Legs); !ok {
+			e.UnequipSpecific("legs")
+		}
+	}
+	if e.Feet != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Feet); !ok {
+			e.UnequipSpecific("feet")
+		}
+	}
+	if e.Arms != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Arms); !ok {
+			e.UnequipSpecific("arms")
+		}
+	}
+	if e.Hands != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Hands); !ok {
+			e.UnequipSpecific("hands")
+		}
+	}
+	if e.Ring1 != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Ring1); !ok {
+			e.UnequipSpecific("ring1")
+		}
+	}
+	if e.Ring2 != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Ring2); !ok {
+			e.UnequipSpecific("ring2")
+		}
+	}
+	if e.Main != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Main); !ok {
+			e.UnequipSpecific("main")
+		}
+	}
+	if e.Off != (*Item)(nil) {
+		if ok, _ := e.CanEquip(e.Off); !ok {
+			e.UnequipSpecific("off")
+		}
+	}
 }
 
 func (e *Equipment) PostEquipmentLight() {

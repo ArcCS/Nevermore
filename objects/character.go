@@ -261,6 +261,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 
 		FilledCharacter.Equipment.FlagOn = FilledCharacter.FlagOn
 		FilledCharacter.Equipment.FlagOff = FilledCharacter.FlagOff
+		FilledCharacter.Equipment.CanEquip = FilledCharacter.CanEquip
 		FilledCharacter.Equipment.PostEquipmentLight()
 		return FilledCharacter, false
 	}
@@ -732,6 +733,31 @@ func (c *Character) RemoveEffect(effectName string) {
 		c.Effects[effectName].effectOff()
 		delete(c.Effects, effectName)
 	}
+}
+
+func (c *Character) CanEquip(item *Item) (bool, string) {
+	if c.Class == 8 {
+		//check if weapon
+		if utils.IntIn(item.ItemType, []int{0, 1, 2, 3, 4}) {
+			return false, "You cannot wield weapons effectively."
+		}
+		//Check if armor and has value greater than 0
+		if utils.IntIn(item.ItemType, []int{5, 19, 20, 21, 22, 23, 24, 25, 26}) && item.Armor > 0 {
+			return false, "This armor would disrupt the flow of your chi"
+		}
+	}
+	if utils.IntIn(item.ItemType, []int{5, 19, 20, 21, 22, 23, 24, 25, 26}) {
+		if !config.CheckArmor(item.ItemType, c.Tier, item.Armor) {
+			return false, "You are unsure of how to maximize the benefit of this armor and cannot wear it."
+		}
+	}
+	if utils.IntIn(item.ItemType, []int{0, 1, 2, 3, 4, 16}) &&
+		!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		if !config.CanWield(c.Tier, c.Class, utils.RollMax(item.SidesDice, item.NumDice, item.PlusDice)) {
+			return false, "You are not well enough trained to wield " + item.Name
+		}
+	}
+	return true, ""
 }
 
 func (c *Character) HasEffect(effectName string) bool {

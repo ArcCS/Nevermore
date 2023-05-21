@@ -91,12 +91,16 @@ func (sing) process(s *state) {
 			s.actor.SingSong(song, tickRate)
 		},
 		func() {
+			weapMsg := s.actor.Equipment.DamageWeapon("off", 1)
+			if weapMsg != "" {
+				s.msg.Actor.SendInfo(weapMsg)
+			}
 			s.actor.SongTickerUnload <- true
 		})
 
 	s.msg.Actor.SendGood("You begin singing " + song + "!")
 	s.msg.Observers.SendInfo(s.actor.Name + " begins a performance, singing: " + songInstance["verse"] + "!")
-	s.actor.SetTimer("combat_sing", 60*2)
+	s.actor.SetTimer("combat_sing", 60*5)
 	s.ok = true
 	return
 }
