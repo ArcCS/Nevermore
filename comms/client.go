@@ -308,9 +308,18 @@ func (c *client) Write(d []byte) (n int, err error) {
 // Error returns the first error raised or nil if there is no error. An error
 // can be set by calling SetError.
 func (c *client) Error() (err error) {
-	err = <-c.err
-	c.err <- err
-	return err
+	select {
+	case err = <-c.err:
+		c.err <- err
+		return err
+	default:
+		if c.frontend.GetCharacter() != (*objects.Character)(nil) {
+			// Immediately initiate a character cleanup
+			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
+			c.frontend.GetCharacter().Unload()
+		}
+		return err
+	}
 }
 
 // SetError is used to record the first error condition that occurs. Subsequent

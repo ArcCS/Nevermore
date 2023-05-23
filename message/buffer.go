@@ -236,7 +236,10 @@ func (b *Buffer) Deliver(w ...io.Writer) {
 		for _, w := range w {
 			c := make([]byte, len(b.buf))
 			copy(c, b.buf)
-			w.Write(c)
+			// Capture error and log it but don't stop writing to other writers
+			if _, err := w.Write(c); err != nil {
+				log.Println("Error writing to writer:", err)
+			}
 		}
 	}
 

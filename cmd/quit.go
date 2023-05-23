@@ -18,7 +18,7 @@ type quit cmd
 // done when a player quits the game.
 func (quit) process(s *state) {
 	s.actor.SetPromptStyle(objects.StyleNone)
-	s.where.Chars.Remove(s.actor)
+
 	s.msg.Actor.SendGood("You leave this world behind.")
 	s.actor.Save()
 	s.actor.Unfollow()

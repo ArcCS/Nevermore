@@ -220,7 +220,7 @@ func pray(caller interface{}, target interface{}, magnitude int) string {
 func healstam(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
-		damage := int(float64(caller.Pie.Current) * config.PieHealMod)
+		damage := int(float64(caller.Pie.Current)*config.PieHealMod) + utils.Roll(10, 1, 0)
 		if utils.IntIn(caller.Class, []int{5, 6}) {
 			damage *= 3
 		}
@@ -245,7 +245,7 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 func healvit(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
-		damage := int(float64(caller.Pie.Current) * config.PieHealMod)
+		damage := int(float64(caller.Pie.Current)*config.PieHealMod) + utils.Roll(10, 1, 0)
 		if utils.IntIn(caller.Class, []int{5, 6}) {
 			damage *= 3
 		}
@@ -270,20 +270,19 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 func heal(caller interface{}, target interface{}, magnitude int) string {
 	damage := 0
 	if magnitude == 1 {
-		damage = 10
+		damage = 20
 	} else {
-		damage = 25
+		damage = 40
 	}
 	switch caller := caller.(type) {
 	case *Character:
-		damage = damage + int(float64(caller.Pie.Current)*config.PieHealMod)
+		damage = damage + int(float64(caller.Pie.Current)*config.PieHealMod) + utils.Roll(10, 1, 0)
 		if utils.IntIn(caller.Class, []int{5, 6}) {
 			damage *= 3
 		}
 		switch target := target.(type) {
 		case *Character:
 			stam, vit := target.Heal(damage)
-			target.HealStam(damage)
 			for _, mob := range Rooms[target.ParentId].Mobs.Contents {
 				if mob.Flags["hostile"] {
 					mob.AddThreatDamage(stam+vit, caller)
