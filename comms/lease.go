@@ -46,8 +46,6 @@ func (noLeaseError) Temporary() bool {
 func (c *client) leaseAcquire() {
 	select {
 	case leases <- struct{}{}:
-	default:
-		c.SetError(noLeaseError{})
 	}
 }
 
@@ -56,7 +54,5 @@ func (c *client) leaseAcquire() {
 // client Error will be checked automatically. It is an error to call
 // leaseRelease without first having called leaseAcquire.
 func (c *client) leaseRelease() {
-	if _, ok := c.Error().(noLeaseError); !ok {
-		<-leases
-	}
+	<-leases
 }
