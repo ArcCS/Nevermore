@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -43,7 +44,7 @@ func (scriptDeath) process(s *state) {
 		jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", deathString)
 	}
 
-	if time.Now().Sub(s.actor.LastAction).Minutes() > 2 {
+	if time.Now().Sub(s.actor.LastAction).Minutes() < 5 {
 		if s.actor.Tier > config.FreeDeathTier {
 			equipment := s.actor.Equipment.UnequipAll()
 
@@ -122,10 +123,25 @@ func (scriptDeath) process(s *state) {
 			}
 		}
 
+		s.actor.DeathInProgress = false
+		s.scriptActor("LOOK")
+
 	} else {
-		go s.scriptActor("QUIT")
+		go func() {
+			s.actor.DeathInProgress = false
+			log.Println("Lag Death: Kill prompt")
+			s.actor.SetPromptStyle(objects.StyleNone)
+			log.Println("Lag Death: Clear Follows")
+			s.actor.Unfollow()
+			log.Println("Lag Death: Lose Party")
+			s.actor.LoseParty()
+			log.Println("Lag Death: Purge Effects")
+			s.actor.PurgeEffects()
+			log.Println("Lag Death: Clean Room")
+			s.where.Chars.Remove(s.actor)
+			log.Println("Lag Death: Active Character Removal")
+			objects.ActiveCharacters.Remove(s.actor)
+		}()
 	}
 
-	s.actor.DeathInProgress = false
-	s.scriptActor("LOOK")
 }
