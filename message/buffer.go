@@ -228,7 +228,9 @@ func (b *Buffer) Deliver(w ...io.Writer) {
 
 	// If sending messages to a single writer don't make a copy
 	if len(w) == 1 {
-		w[0].Write(b.buf)
+		if _, err := w[0].Write(b.buf); err != nil {
+			log.Println("Error writing to writer: (Are they DC'd?) ", err.Error())
+		}
 	}
 
 	// If we have multiple writers write a copy of the Buffer to each
