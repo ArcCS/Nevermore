@@ -45,37 +45,47 @@ Earth Affinity          {{.Earth}} ({{.EarthTotal}}/{{.EarthNext}})
 Water Affinity          {{.Water}} ({{.WaterTotal}}/{{.WaterNext}})
 `
 
+	healer_skills :=
+		`
+Divinity        |    Level of Devotion (Experience/NextLevel)
+-----------------------------------------------------------------
+Curative Arts        {{.Divinity}} ({{.DivinityTotal}}/{{.DivinityNext}})
+
+`
 	data := struct {
-		Sharp        string
-		Thrust       string
-		Blunt        string
-		Pole         string
-		Missile      string
-		Unarmed      string
-		Fire         string
-		Air          string
-		Earth        string
-		Water        string
-		SharpTotal   string
-		SharpNext    string
-		ThrustTotal  string
-		ThrustNext   string
-		BluntTotal   string
-		BluntNext    string
-		PoleTotal    string
-		PoleNext     string
-		MissileTotal string
-		MissileNext  string
-		UnarmedTotal string
-		UnarmedNext  string
-		FireTotal    string
-		FireNext     string
-		AirTotal     string
-		AirNext      string
-		EarthTotal   string
-		EarthNext    string
-		WaterTotal   string
-		WaterNext    string
+		Sharp         string
+		Thrust        string
+		Blunt         string
+		Pole          string
+		Missile       string
+		Unarmed       string
+		Fire          string
+		Air           string
+		Earth         string
+		Water         string
+		Divinity      string
+		SharpTotal    string
+		SharpNext     string
+		ThrustTotal   string
+		ThrustNext    string
+		BluntTotal    string
+		BluntNext     string
+		PoleTotal     string
+		PoleNext      string
+		MissileTotal  string
+		MissileNext   string
+		UnarmedTotal  string
+		UnarmedNext   string
+		FireTotal     string
+		FireNext      string
+		AirTotal      string
+		AirNext       string
+		EarthTotal    string
+		EarthNext     string
+		WaterTotal    string
+		WaterNext     string
+		DivinityTotal string
+		DivinityNext  string
 	}{
 		config.WeaponExpTitle(s.actor.Skills[0].Value, s.actor.Class),
 		config.WeaponExpTitle(s.actor.Skills[1].Value, s.actor.Class),
@@ -87,6 +97,7 @@ Water Affinity          {{.Water}} ({{.WaterTotal}}/{{.WaterNext}})
 		config.AffinityExpTitle(s.actor.Skills[7].Value),
 		config.AffinityExpTitle(s.actor.Skills[8].Value),
 		config.AffinityExpTitle(s.actor.Skills[9].Value),
+		config.DivinityExpTitle(s.actor.Skills[10].Value),
 		strconv.Itoa(s.actor.Skills[0].Value),
 		strconv.Itoa(config.WeaponExpNext(s.actor.Skills[0].Value, s.actor.Class)),
 		strconv.Itoa(s.actor.Skills[1].Value),
@@ -107,6 +118,8 @@ Water Affinity          {{.Water}} ({{.WaterTotal}}/{{.WaterNext}})
 		strconv.Itoa(config.WeaponExpNext(s.actor.Skills[8].Value, s.actor.Class)),
 		strconv.Itoa(s.actor.Skills[9].Value),
 		strconv.Itoa(config.WeaponExpNext(s.actor.Skills[9].Value, s.actor.Class)),
+		strconv.Itoa(s.actor.Skills[10].Value),
+		strconv.Itoa(config.WeaponExpNext(s.actor.Skills[10].Value, s.actor.Class)),
 	}
 
 	if s.actor.Class == 8 {
@@ -116,6 +129,9 @@ Water Affinity          {{.Water}} ({{.WaterTotal}}/{{.WaterNext}})
 	}
 	if s.actor.Class == 4 {
 		skill_header += mage_skills
+	}
+	if s.actor.Class == 5 || s.actor.Class == 6 {
+		skill_header += healer_skills
 	}
 	tmpl, _ := template.New("stat_info").Parse(skill_header)
 	var output bytes.Buffer

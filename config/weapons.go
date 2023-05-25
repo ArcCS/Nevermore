@@ -99,6 +99,34 @@ var AffinityTitles = []string{
 	"Ascended",
 }
 
+var DivinityTitles = []string{
+	"Agnostic",
+	"Novice",
+	"Graceful",
+	"Blessed",
+	"Radiant",
+	"Sanctified",
+	"Sacred",
+	"Exhalted",
+	"Supernal",
+	"Angelic",
+	"Transcendent",
+}
+
+var HealingSkill = map[int]int{
+	0:  0,
+	1:  20,
+	2:  40,
+	3:  60,
+	4:  80,
+	5:  100,
+	6:  120,
+	7:  140,
+	8:  160,
+	9:  180,
+	10: 200,
+}
+
 var SpellDmgSkill = map[int]int{
 	0:  0,
 	1:  5,
@@ -175,6 +203,35 @@ func AffinityExpTitle(exp int) string {
 	}
 }
 
+func DivinityExpTitle(exp int) string {
+	switch {
+	case exp >= WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
+		return DivinityTitles[0]
+	case exp >= WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
+		return DivinityTitles[1]
+	case exp >= WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+		return DivinityTitles[2]
+	case exp >= WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
+		return DivinityTitles[3]
+	case exp >= WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
+		return DivinityTitles[4]
+	case exp >= WeaponExpLevels[5] && exp < WeaponExpLevels[6]:
+		return DivinityTitles[5]
+	case exp >= WeaponExpLevels[6] && exp < WeaponExpLevels[7]:
+		return DivinityTitles[6]
+	case exp >= WeaponExpLevels[7] && exp < WeaponExpLevels[8]:
+		return DivinityTitles[7]
+	case exp >= WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
+		return DivinityTitles[8]
+	case exp >= WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
+		return DivinityTitles[9]
+	case exp >= WeaponExpLevels[10]:
+		return DivinityTitles[10]
+	default:
+		return DivinityTitles[0]
+	}
+}
+
 func WeaponLevel(exp int, class int) int {
 	switch {
 	case exp >= WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
@@ -200,7 +257,7 @@ func WeaponLevel(exp int, class int) int {
 	case exp >= WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
 		return 10
 	case exp >= WeaponExpLevels[11]:
-		if class == 0 || class == 4 {
+		if class == 0 || class == 4 || class == 5 || class == 6 {
 			return 11
 		} else {
 			return 10
@@ -231,7 +288,7 @@ func WeaponExpNext(exp int, class int) int {
 	case exp >= WeaponExpLevels[8] && exp < WeaponExpLevels[9]:
 		return WeaponExpLevels[9]
 	case exp >= WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
-		if class == 0 || class == 4 {
+		if class == 0 || class == 4 || class == 5 || class == 6 {
 			return WeaponExpLevels[10]
 		} else {
 			return 0

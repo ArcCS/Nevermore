@@ -220,18 +220,18 @@ func pray(caller interface{}, target interface{}, magnitude int) string {
 func healstam(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
-		damage := int(float64(caller.Pie.Current) * config.PieHealMod)
-		if utils.IntIn(caller.Class, []int{5, 6}) {
-			damage *= 3
-		}
+		divinityLevel := config.HealingSkill[config.WeaponLevel(caller.Skills[10].Value, caller.Class)]
+		damage := int((float64(caller.Pie.Current) * config.PieHealMod) + float64(utils.Roll(10, 1, 0))*(1+float64(divinityLevel)*.01))
 		switch target := target.(type) {
 		case *Character:
-			target.HealStam(damage)
+			healAmount := target.HealStam(damage)
+			caller.AdvanceDivinity(healAmount*2, caller.Class)
 			for _, mob := range Rooms[target.ParentId].Mobs.Contents {
 				if mob.Flags["hostile"] {
 					mob.AddThreatDamage(damage, caller)
 				}
 			}
+
 			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
 		case *Mob:
 			target.HealStam(damage)
@@ -245,13 +245,12 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 func healvit(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
-		damage := int(float64(caller.Pie.Current) * config.PieHealMod)
-		if utils.IntIn(caller.Class, []int{5, 6}) {
-			damage *= 3
-		}
+		divinityLevel := config.HealingSkill[config.WeaponLevel(caller.Skills[10].Value, caller.Class)]
+		damage := int((float64(caller.Pie.Current) * config.PieHealMod) + float64(utils.Roll(10, 1, 0))*(1+float64(divinityLevel)*.01))
 		switch target := target.(type) {
 		case *Character:
-			target.HealVital(damage)
+			healAmount := target.HealVital(damage)
+			caller.AdvanceDivinity(healAmount*5, caller.Class)
 			for _, mob := range Rooms[target.ParentId].Mobs.Contents {
 				if mob.Flags["hostile"] {
 					mob.AddThreatDamage(damage, caller)
@@ -270,20 +269,19 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 func heal(caller interface{}, target interface{}, magnitude int) string {
 	damage := 0
 	if magnitude == 1 {
-		damage = 10
+		damage = 20
 	} else {
-		damage = 25
+		damage = 40
 	}
 	switch caller := caller.(type) {
 	case *Character:
-		damage = damage + int(float64(caller.Pie.Current)*config.PieHealMod)
-		if utils.IntIn(caller.Class, []int{5, 6}) {
-			damage *= 3
-		}
+		divinityLevel := config.HealingSkill[config.WeaponLevel(caller.Skills[10].Value, caller.Class)]
+		damage = int((float64(damage) + (float64(caller.Pie.Current) * config.PieHealMod) + float64(utils.Roll(10, 1, 0))) * (1 + float64(divinityLevel)*.01))
 		switch target := target.(type) {
 		case *Character:
 			stam, vit := target.Heal(damage)
-			target.HealStam(damage)
+			caller.AdvanceDivinity(stam*2, caller.Class)
+			caller.AdvanceDivinity(vit*5, caller.Class)
 			for _, mob := range Rooms[target.ParentId].Mobs.Contents {
 				if mob.Flags["hostile"] {
 					mob.AddThreatDamage(stam+vit, caller)
