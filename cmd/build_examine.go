@@ -282,12 +282,13 @@ func (examine) process(s *state) {
 				{"V", "thrustexp", charData["thrustexp"].(int64), "Thrust Skill Experience"},
 				{"V", "bluntexp", charData["bluntexp"].(int64), "Blunt Skill Experience"},
 				{"V", "poleexp", charData["poleexp"].(int64), "Pole Skill Experience"},
+				{"V", "missileexp", charData["missileexp"].(int64), "Missile Skill Experience"},
 				{"V", "handexp", charData["handexp"].(int64), "Hand to Hand Experience"},
 				{"V", "fireexp", charData["fireexp"].(int64), "Fire Affinity"},
 				{"V", "airexp", charData["airexp"].(int64), "Air Affinity"},
 				{"V", "earthexp", charData["earthexp"].(int64), "Earth Affinity"},
 				{"V", "waterexp", charData["waterexp"].(int64), "Water Affinity"},
-				{"V", "missileexp", charData["missileexp"].(int64), "Missile Skill Experience"},
+				{"V", "divinity", charData["divinity"].(int64), "Divinity"},
 				{"T", "darkvision", strconv.FormatBool(charData["flags"].(map[string]interface{})["darkvision"].(int64) != 0), "Permanent Dark Vision"},
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
@@ -330,6 +331,7 @@ func (examine) process(s *state) {
 				{"V", "airexp", character.Skills[7].Value, "Air Affinity"},
 				{"V", "earthexp", character.Skills[8].Value, "Earth Affinity"},
 				{"V", "waterexp", character.Skills[9].Value, "Water Affinity"},
+				{"V", "divinity", character.Skills[10].Value, "Divinity"},
 				{"T", "invisible", strconv.FormatBool(character.Flags["invisible"]), "Character is currently invisible"},
 				{"T", "darkvision", strconv.FormatBool(character.Flags["darkvision"]), "Permanent Dark Vision"},
 			})

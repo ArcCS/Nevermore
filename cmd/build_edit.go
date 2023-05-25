@@ -514,6 +514,10 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					character.Skills[9].Value = value
 					s.msg.Actor.SendGood("Changed water affinity")
+				case "divinity":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[10].Value = value
+					s.msg.Actor.SendGood("Changed divinity")
 
 				default:
 					s.msg.Actor.SendBad("Property not found.")
@@ -651,6 +655,10 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					character.Skills[9].Value = value
 					s.msg.Actor.SendGood("Changed water affinity")
+				case "divinity":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[10].Value = value
+					s.msg.Actor.SendGood("Changed divinity")
 				case "parent_id":
 					value, _ := strconv.Atoi(s.words[3])
 					character.Skills[4].Value = value

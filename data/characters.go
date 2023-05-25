@@ -61,6 +61,7 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"airexp: a.airexp, "+
 		"earthexp: a.earthexp, "+
 		"waterexp: a.waterexp, "+
+		"divinity: a.divinity, "+
 		"spells: a.spells, "+
 		"equipment: a.equipment, "+
 		"inventory: a.inventory, "+
@@ -140,6 +141,7 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.airexp = 0,"+
 			"a.earthexp = 0,"+
 			"a.waterexp = 0,"+
+			"a.divinity = 0,"+
 			"a.spells = '',"+
 			"a.equipment = '[]',"+
 			"a.inventory = '[]',"+
@@ -240,6 +242,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.airexp = $airexp,"+
 			"a.earthexp = $earthexp,"+
 			"a.waterexp = $waterexp,"+
+			"a.divinity = $divinity,"+
 			"a.spells = $spells,"+
 			"a.equipment = $equipment,"+
 			"a.inventory = $inventory,"+
@@ -270,6 +273,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"airexp":      charData["airexp"],
 			"earthexp":    charData["earthexp"],
 			"waterexp":    charData["waterexp"],
+			"divinity":    charData["divinity"],
 			"bankgold":    charData["bankgold"],
 			"gold":        charData["gold"],
 			"evals":       charData["evals"],

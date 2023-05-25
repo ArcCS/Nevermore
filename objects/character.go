@@ -160,15 +160,16 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			make(map[string]int),
 			[]string{},
 			map[int]*Accumulator{0: {int(charData["sharpexp"].(int64))},
-				1: {int(charData["thrustexp"].(int64))},
-				2: {int(charData["bluntexp"].(int64))},
-				3: {int(charData["poleexp"].(int64))},
-				4: {int(charData["missileexp"].(int64))},
-				5: {int(charData["handexp"].(int64))},
-				6: {int(charData["fireexp"].(int64))},
-				7: {int(charData["airexp"].(int64))},
-				8: {int(charData["earthexp"].(int64))},
-				9: {int(charData["waterexp"].(int64))}},
+				1:  {int(charData["thrustexp"].(int64))},
+				2:  {int(charData["bluntexp"].(int64))},
+				3:  {int(charData["poleexp"].(int64))},
+				4:  {int(charData["missileexp"].(int64))},
+				5:  {int(charData["handexp"].(int64))},
+				6:  {int(charData["fireexp"].(int64))},
+				7:  {int(charData["airexp"].(int64))},
+				8:  {int(charData["earthexp"].(int64))},
+				9:  {int(charData["waterexp"].(int64))},
+				10: {int(charData["divinity"].(int64))}},
 			map[string]*Accumulator{
 				"fire":  {0},
 				"earth": {0},
@@ -553,6 +554,7 @@ func (c *Character) Save() {
 	charData["airexp"] = c.Skills[7].Value
 	charData["earthexp"] = c.Skills[8].Value
 	charData["waterexp"] = c.Skills[9].Value
+	charData["divinity"] = c.Skills[10].Value
 	charData["bankgold"] = c.BankGold.Value
 	charData["gold"] = c.Gold.Value
 	charData["evals"] = c.Evals
@@ -830,6 +832,13 @@ func (c *Character) AdvanceElementalExp(amount int, element string, class int) {
 	return
 }
 
+func (c *Character) AdvanceDivinity(amount int, class int) {
+	if class == 5 || class == 6 {
+		c.Skills[10].Add(amount)
+	}
+	return
+}
+
 // ReceiveDamage Return stam and vital damage
 func (c *Character) ReceiveDamage(damage int) (int, int) {
 	if c.CheckFlag("surge") {
@@ -974,14 +983,29 @@ func (c *Character) Heal(damage int) (int, int) {
 	return stamHeal, vitalHeal
 }
 
-func (c *Character) HealVital(damage int) {
+func (c *Character) HealVital(damage int) int {
 	damage = c.CalcHealPenalty(damage)
-	c.Vit.Add(damage)
+	if damage > c.Vit.Max-c.Vit.Current {
+		damage = c.Vit.Max - c.Vit.Current
+		c.Vit.Current = c.Vit.Max
+		return damage
+	} else {
+		c.Vit.Add(damage)
+		return damage
+	}
+
 }
 
-func (c *Character) HealStam(damage int) {
+func (c *Character) HealStam(damage int) int {
 	damage = c.CalcHealPenalty(damage)
-	c.Stam.Add(damage)
+	if damage > c.Stam.Max-c.Stam.Current {
+		damage = c.Stam.Max - c.Stam.Current
+		c.Stam.Current = c.Stam.Max
+		return damage
+	} else {
+		c.Stam.Add(damage)
+		return damage
+	}
 }
 
 func (c *Character) RestoreMana(damage int) {
