@@ -87,7 +87,11 @@ type frontend struct {
 }
 
 func (f *frontend) GetCharacter() *objects.Character {
-	return f.character
+	if f.character != (*objects.Character)(nil) {
+		return f.character
+	} else {
+		return (*objects.Character)(nil)
+	}
 }
 
 // New returns an instance of frontend initialised with the given io.Writer.

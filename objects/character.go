@@ -263,6 +263,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 		FilledCharacter.Equipment.FlagOn = FilledCharacter.FlagOn
 		FilledCharacter.Equipment.FlagOff = FilledCharacter.FlagOff
 		FilledCharacter.Equipment.CanEquip = FilledCharacter.CanEquip
+		FilledCharacter.Equipment.CheckEquipment()
 		FilledCharacter.Equipment.PostEquipmentLight()
 		return FilledCharacter, false
 	}

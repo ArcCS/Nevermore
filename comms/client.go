@@ -10,7 +10,6 @@ import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
-	"io"
 	"log"
 	"net"
 	"runtime/debug"
@@ -40,9 +39,8 @@ type temporary interface {
 // what type frontend is - even though we don't have access to the unexported
 // frontend struct from the frontend package.
 type client struct {
-	*net.TCPConn            // The client's network connection
-	remoteAddr   string     // Client's remote address
-	err          chan error // Error channel to sync between input & output
+	*net.TCPConn        // The client's network connection
+	remoteAddr   string // Client's remote address
 
 	frontend interface { // The current frontend in use
 		Parse([]byte) error
@@ -66,21 +64,14 @@ func newClient(conn *net.TCPConn) *client {
 	c := &client{
 		TCPConn:    conn,
 		remoteAddr: conn.RemoteAddr().String(),
-		err:        make(chan error, 1),
 	}
-
-	c.err <- nil
 
 	log.Printf("Acquired lease: %s", conn.RemoteAddr())
 	c.leaseAcquire()
 
 	// Setup frontend if no error acquiring a lease
-
-	if c.Error() == nil {
-
-		c.frontend = frontend.New(c, c.remoteAddr)
-		c.frontend.Parse([]byte(""))
-	}
+	c.frontend = frontend.New(c, c.remoteAddr)
+	c.frontend.Parse([]byte(""))
 
 	return c
 }
@@ -112,7 +103,7 @@ func (c *client) process() {
 		)
 
 		log.Print("Starting game loop: ", c.RemoteAddr())
-		for c.Error() == nil {
+		for err == nil {
 			if config.Server.Running == false {
 				_ = c.Close()
 			}
@@ -131,7 +122,7 @@ func (c *client) process() {
 				frontend.Zero(in)
 
 				if err != bufio.ErrBufferFull {
-					c.SetError(err)
+					log.Println("Client Error" + err.Error())
 					continue
 				}
 
@@ -146,7 +137,7 @@ func (c *client) process() {
 			//log.Println(&in)
 			fixDEL(&in)
 			if err = c.frontend.Parse(in); err != nil {
-				c.SetError(err)
+				log.Println("Text parse error " + err.Error())
 			}
 			frontend.Zero(in)
 		}
@@ -213,46 +204,28 @@ func fixDEL(in *[]byte) {
 // deallocates resources.
 func (c *client) close() {
 
-	idle, busy := false, false
-
-	// Idle timeout?
-	if oe, ok := c.Error().(*net.OpError); ok && oe.Timeout() {
-		idle = true
-	}
-
-	// Server busy?
-	if _, ok := c.Error().(noLeaseError); ok {
-		busy = true
-	}
-
 	// Deallocate current frontend if we have one
 	if c.frontend != nil {
 		// Sometimes these disconnects are a little messy,  need to add some extra cleanup
 		if c.frontend.GetCharacter() != nil {
+			log.Println("Force Close from Client: Save Character")
 			c.frontend.GetCharacter().Save()
+			log.Println("Force Close from Client: Remove Follow")
 			c.frontend.GetCharacter().Unfollow()
+			log.Println("Force Close from Client: Lose Party")
 			c.frontend.GetCharacter().LoseParty()
+			log.Println("Force Close from Client: Purge Effects")
 			c.frontend.GetCharacter().PurgeEffects()
+			log.Println("Force Close from Client: Clean Activate Char container")
 			objects.ActiveCharacters.Remove(c.frontend.GetCharacter())
+			log.Println("Force Close from Client: Clean Room")
 			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
+			log.Println("Force Close from Client: Unload Char Ticker")
 			c.frontend.GetCharacter().Unload()
 		}
 
-		if idle {
-			_, _ = c.Write([]byte("\n")) // Move off prompt line
-		}
 		c.frontend.Close()
 		c.frontend = nil
-	}
-
-	// If connection timed out notify the client
-	if idle {
-		_, _ = c.Write([]byte(text.Bad + "\nIdle connection terminated by server.\n"))
-	}
-
-	// Notify if server too busy to accept more players
-	if busy {
-		_, _ = c.Write([]byte(text.Bad + "\nServer too busy. Please come back in a short while.\n"))
 	}
 
 	// Say goodbye to client
@@ -263,11 +236,13 @@ func (c *client) close() {
 
 	// io.EOF does not give address info so handle specially, otherwise just
 	// report the error
-	if c.Error() == io.EOF {
-		log.Printf("Connection dropped by remote client: %s", c.remoteAddr)
-	} else {
-		log.Printf("Connection error: %s, %s", c.Error(), c.remoteAddr)
-	}
+	/*
+		if c.Error() == io.EOF {
+			log.Printf("Connection dropped by remote client: %s", c.remoteAddr)
+		} else {
+			log.Printf("Connection error: %s, %s", c.Error(), c.remoteAddr)
+		}
+	*/
 
 	// Make sure connection closed down and deallocated
 	if err := c.Close(); err != nil {
@@ -278,48 +253,13 @@ func (c *client) close() {
 	c.TCPConn = nil
 	c.leaseRelease()
 
-	// Close and drain error channel
-	close(c.err)
-	<-c.err
 }
 
 // Write handles output for the network connection.
 func (c *client) Write(d []byte) (n int, err error) {
 
-	// If we already have a non-temporary error do nothing
-	if e := c.Error(); e != nil {
-		if e, ok := e.(temporary); !ok || !e.Temporary() {
-			return
-		}
-	}
-
-	/*var t []byte
-
-	if len(d) != 0 {
-		t = text.Fold(d, termColumns)
-	}*/
-
 	if n, err = c.TCPConn.Write(d); err != nil {
-		c.SetError(err)
+		log.Println("TCP Error" + err.Error())
 	}
 	return
-}
-
-// Error returns the first error raised or nil if there is no error. An error
-// can be set by calling SetError.
-func (c *client) Error() (err error) {
-	err = <-c.err
-	c.err <- err
-	return err
-}
-
-// SetError is used to record the first error condition that occurs. Subsequent
-// calls will not over write the initial error raised. The current error can be
-// checked by calling Error.
-func (c *client) SetError(err error) {
-	e := <-c.err
-	if e == nil {
-		e = err
-	}
-	c.err <- e
 }

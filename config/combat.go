@@ -145,7 +145,7 @@ var FizzleSave = 50
 
 // Piety Mods
 var PieRegenMod = .1 // Regen Mana per tick
-var PieHealMod = .3  // Per point
+var PieHealMod = .7  // Per point
 
 // Armor Values
 var ArmorReduction = .01
