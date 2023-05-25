@@ -150,7 +150,7 @@ func disease(caller interface{}, target interface{}, magnitude int) string {
 			if target.GetStat("con") <= config.ConMajorPenalty {
 				magnitude *= 2
 			}
-			target.ApplyEffect("poison", strconv.Itoa(magnitude*14), 8, magnitude,
+			target.ApplyEffect("disease", strconv.Itoa(magnitude*14), 8, magnitude,
 				func(triggers int) {
 					damage := magnitude
 					switch {
