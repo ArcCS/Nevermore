@@ -146,6 +146,11 @@ func (e *Equipment) DamageRandomArmor() string {
 	if e.Ring2 != nil {
 		armorList = append(armorList, "ring2")
 	}
+	if e.Off != nil {
+		if e.Off.ItemType == 23 {
+			armorList = append(armorList, "shield")
+		}
+	}
 
 	if len(armorList) > 0 {
 		rand.Seed(time.Now().Unix())
@@ -211,6 +216,13 @@ func (e *Equipment) DamageRandomArmor() string {
 			if e.Ring2.MaxUses <= 0 {
 				e.UnequipSpecific("ring2")
 				return "Your second ring falls apart."
+			}
+			return ""
+		} else if damageItem == "shield" {
+			e.Off.MaxUses -= 1
+			if e.Off.MaxUses <= 0 {
+				e.UnequipSpecific("shield")
+				return "Your shield shatters."
 			}
 			return ""
 		}

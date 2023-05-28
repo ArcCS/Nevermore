@@ -97,6 +97,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 			newRoom.Flags[k] = int(v.(int64)) != 0
 		}
 	}
+	newRoom.Mobs.ContinueEmpty = newRoom.ContinueEmpty
 	return newRoom, true
 }
 
@@ -204,6 +205,13 @@ func (r *Room) Look(looker *Character) (buildText string) {
 	}
 }
 
+func (r *Room) ContinueEmpty() bool {
+	if len(r.Chars.Contents) == 0 {
+		return true
+	}
+	return false
+}
+
 func (r *Room) CleanExits() {
 	for _, exiti := range r.Exits {
 		// Clean up just in case a delete didn't get cleaned up...
@@ -235,12 +243,6 @@ func (r *Room) ToggleFlag(flagName string) bool {
 func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
 	//*
-	reloadMobs := true
-	if r.StagedClearing {
-		log.Println("Stop clearing, and do not restart mobs.")
-		r.StagedClearing = false
-		reloadMobs = false
-	}
 	if r.Flags["encounters_on"] {
 		r.roomTicker = time.NewTicker(10 * time.Second)
 		go func() {
@@ -305,9 +307,7 @@ func (r *Room) FirstPerson() {
 			}
 		}()
 	}
-	if reloadMobs {
-		r.Mobs.RestartPerms()
-	}
+	r.Mobs.RestartPerms()
 }
 
 func (r *Room) Encounter() {
@@ -349,16 +349,10 @@ func (r *Room) LastPerson() {
 		return
 	}
 
-	// Set the room to staged clearing and then wait 2 seconds to actually tear down
-	r.StagedClearing = true
-	time.Sleep(2 * time.Second)
-	if !r.StagedClearing {
-		log.Println("Room clearing was cancelled.")
-		return
-	}
+	// This was the last character, invoke the whole cleaning routine now.
 	log.Println("Clearing Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")")
-	r.Mobs.RemoveNonPerms()
 	r.Items.RemoveNonPerms()
+	go r.Mobs.RemoveNonPerms()
 
 	for _, exit := range r.Exits {
 		if exit.Flags["autoclose"] {
@@ -385,8 +379,6 @@ func (r *Room) LastPerson() {
 		}
 	}
 
-	// Completed clearing, reset to default
-	r.StagedClearing = false
 	go r.Save()
 
 }

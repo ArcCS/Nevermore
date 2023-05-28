@@ -71,6 +71,7 @@ type Mob struct {
 	// An int to hold a stun time.
 	MobStunned int
 	IsActive   bool
+	IsThinking bool
 }
 
 // Pop the mob data
@@ -133,6 +134,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		nil,
 		0,
 		false,
+		false,
 	}
 
 	for _, spellN := range strings.Split(mobData["spells"].(string), ",") {
@@ -165,7 +167,7 @@ func (m *Mob) StartTicking() {
 		log.Println("mob active, not restarting")
 		return
 	}
-	log.Println("not active starting ticking" + m.Name)
+	log.Println(m.Name + " not active starting ticking")
 	m.IsActive = true
 	m.CalculateInventory()
 	m.ThreatTable = make(map[string]int)
@@ -602,8 +604,9 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 
 func (m *Mob) Follow(params []string) {
 	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
+	m.IsThinking = true
 	if params[0] == m.CurrentTarget && m.MobStunned == 0 {
-		//log.Println("I'm gonna try to follow")
+		log.Println("I'm gonna try to follow")
 		// I am, lets process that -> First we need to step up in the world to find that character
 		targetChar := ActiveCharacters.Find(params[0])
 		if targetChar != nil {
@@ -611,7 +614,8 @@ func (m *Mob) Follow(params []string) {
 			if curChance > 85 {
 				curChance = 85
 			}
-			if utils.Roll(100, 1, 0) <= curChance {
+			if utils.Roll(100, 1, 0) >= 0 {
+				//if utils.Roll(100, 1, 0) <= curChance {
 				log.Println("I'm gonna follow")
 				// Halt processing
 				neededLocks := make([]int, 2)
@@ -647,7 +651,7 @@ func (m *Mob) Follow(params []string) {
 					}
 				}
 				//log.Println("Let everyone know there is a follow")
-				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name)
+				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name + "\n\n")
 				//log.Println("Processing Previous Room Lock")
 				Rooms[m.ParentId].Lock()
 				//log.Println("Processing New Room Lock")
@@ -687,6 +691,7 @@ func (m *Mob) Follow(params []string) {
 			}
 		}
 	}
+	m.IsThinking = false
 }
 
 func (m *Mob) Flee(params []string) {
@@ -760,6 +765,8 @@ func (m *Mob) Teleport(target string) {
 
 // On copy to a room calculate the inventory
 func (m *Mob) CalculateInventory() {
+	m.Inventory = nil
+	m.Inventory = NewItemInventory()
 	if len(m.ItemList) > 0 {
 		for k, v := range m.ItemList {
 			if utils.Roll(100, 1, 0) <= v {

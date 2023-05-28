@@ -90,7 +90,7 @@ func (bash) process(s *state) {
 		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
 			s.msg.Actor.SendBad("You missed!!")
 			s.msg.Observers.SendBad(s.actor.Name + " fails to bash " + whatMob.Name)
-			s.actor.SetTimer("bash_miss", 8)
+			s.actor.SetTimer("combat", config.CombatCooldown)
 			return
 		}
 

@@ -122,7 +122,7 @@ func (c *client) process() {
 				frontend.Zero(in)
 
 				if err != bufio.ErrBufferFull {
-					log.Println("Client Error" + err.Error())
+					log.Println("Client Error " + err.Error())
 					continue
 				}
 

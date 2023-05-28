@@ -12,9 +12,10 @@ import (
 )
 
 type MobInventory struct {
-	ParentId int
-	Contents []*Mob
-	Flags    map[string]bool
+	ParentId      int
+	Contents      []*Mob
+	Flags         map[string]bool
+	ContinueEmpty func() bool
 }
 
 // NewMobInventory returns a new basic MobInventory structure
@@ -86,16 +87,24 @@ func (i *MobInventory) RemoveNonPerms() {
 			mob.MobTickerUnload <- true
 		}
 	}
-	for _, mob := range contentRef {
-		i.Remove(mob)
-		mob = nil
+	// Check if we should continue to empty, this is only relevant if mobs have been thinking and we have to back out of this loop entirely
+	for i.ContinueEmpty() && len(contentRef) > 0 {
+		for index, mob := range contentRef {
+			if !mob.IsThinking {
+				i.Remove(mob)
+				mob = nil
+			} else {
+				contentRef = contentRef[index:]
+				break
+			}
+		}
+		contentRef = nil
 	}
-	contentRef = nil
 }
 
 func (i *MobInventory) RestartPerms() {
 	for _, mob := range i.Contents {
-		if mob.Flags["permanent"] {
+		if mob.Flags["permanent"] && !mob.IsActive {
 			mob.StartTicking()
 		}
 	}

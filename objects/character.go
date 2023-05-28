@@ -91,8 +91,8 @@ type Character struct {
 	LastAction       time.Time
 	LoginTime        time.Time
 	//Party Stuff
-	PartyFollow     *Character
-	PartyFollowers  []*Character
+	PartyFollow     string
+	PartyFollowers  []string
 	Victim          interface{}
 	Resist          bool
 	OOCSwap         int
@@ -193,8 +193,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			lastRefresh,
 			time.Now(),
 			time.Now(),
-			nil,
-			nil,
+			"",
+			[]string{},
 			nil,
 			true,
 			int(charData["oocswap"].(int64)),
@@ -440,11 +440,11 @@ func (c *Character) SerialSaveEffects() string {
 		}
 	}
 
-	data, err := json.Marshal(effectList)
+	dataJson, err := json.Marshal(effectList)
 	if err != nil {
 		return "[]"
 	} else {
-		return string(data)
+		return string(dataJson)
 	}
 }
 
@@ -627,6 +627,9 @@ func (c *Character) Write(b []byte) (n int, err error) {
 	b = append(b, c.buildPrompt()...)
 	if c != nil {
 		n, err = c.Writer.Write(b)
+	}
+	if err != nil {
+		log.Println("Character Direct -> Error writing to client:", err)
 	}
 	return
 }
@@ -1125,37 +1128,47 @@ func (c *Character) WriteMovement(previous int, new int, subject string) {
 func (c *Character) LoseParty() {
 	if len(c.PartyFollowers) > 0 {
 		for _, player := range c.PartyFollowers {
-			player.PartyFollow = (*Character)(nil)
-			player.Write([]byte(text.Info + c.Name + " loses you."))
+			char := ActiveCharacters.Find(player)
+			if char != nil {
+				char.PartyFollow = ""
+				char.Write([]byte(text.Info + c.Name + " loses you."))
+			}
+
 		}
-		c.PartyFollowers = []*Character{}
+		c.PartyFollowers = []string{}
 	}
 	return
 }
 
 func (c *Character) Unfollow() {
-	if c.PartyFollow != nil {
-		for i, char := range c.PartyFollow.PartyFollowers {
-			if char == c {
-				copy(c.PartyFollow.PartyFollowers[i:], c.PartyFollow.PartyFollowers[i+1:])
-				c.PartyFollow.PartyFollowers[len(c.PartyFollow.PartyFollowers)-1] = nil
-				c.PartyFollow.PartyFollowers = c.PartyFollow.PartyFollowers[:len(c.PartyFollow.PartyFollowers)-1]
+	if c.PartyFollow != "" {
+		leadChar := ActiveCharacters.Find(c.PartyFollow)
+		if leadChar != nil {
+			for i, char := range leadChar.PartyFollowers {
+				if char == c.Name {
+					leadChar.PartyFollowers = append(leadChar.PartyFollowers[:i], leadChar.PartyFollowers[i+1:]...)
+					if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+						if utils.StringIn(leadChar.Name, ActiveCharacters.List()) {
+							leadChar.Write([]byte(text.Info + c.Name + " stops following you."))
+						}
+					}
+					break
+				}
 			}
+
 		}
-		if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			if utils.StringIn(c.PartyFollow.Name, ActiveCharacters.List()) {
-				c.PartyFollow.Write([]byte(text.Info + c.Name + " stops following you."))
-			}
-		}
-		c.Write([]byte(text.Info + "You stop following " + c.PartyFollow.Name))
-		c.PartyFollow = nil
+		c.Write([]byte(text.Info + "You stop following " + c.PartyFollow))
+		c.PartyFollow = ""
 	}
 }
 
 func (c *Character) MessageParty(msg string) {
 	if len(c.PartyFollowers) > 0 {
-		for _, char := range c.PartyFollowers {
-			char.Write([]byte(text.Info + c.Name + " party flashes# \"" + msg + "\"\n"))
+		for _, findChar := range c.PartyFollowers {
+			char := ActiveCharacters.Find(findChar)
+			if char != nil {
+				char.Write([]byte(text.Info + c.Name + " party flashes# \"" + msg + "\"\n"))
+			}
 		}
 	}
 }
