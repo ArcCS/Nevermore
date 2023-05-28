@@ -99,7 +99,7 @@ func (bash) process(s *state) {
 		damageModifier, stunModifier, bashMsg := config.RollBash(config.WeaponLevel(s.actor.Skills[1].Value, s.actor.Class))
 		whatMob.Stun(config.BashStuns * stunModifier)
 		actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
-		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
+		whatMob.AddThreatDamage(actualDamage, s.actor)
 		s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 		s.msg.Actor.SendInfo(bashMsg)
 		whatMob.CurrentTarget = s.actor.Name

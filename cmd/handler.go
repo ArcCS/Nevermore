@@ -45,7 +45,7 @@ func dispatchHandler(s *state) {
 		log.Println(s.actor.Name + " sent " + s.cmd + " " + strings.Join(s.input, " "))
 		s.actor.LastAction = time.Now()
 
-		if s.where.RoomId == config.OocRoom && s.cmd != "SAY" && s.cmd != "QUIT" && s.cmd != "HELP" && s.cmd != "WHO" && s.cmd != "LOOK" && s.cmd != "IC" {
+		if s.where.RoomId == config.OocRoom && s.cmd != "SAY" && s.cmd != "QUIT" && s.cmd != "HELP" && s.cmd != "WHO" && s.cmd != "LOOK" && s.cmd != "IC" && s.cmd != "$POOF" {
 			s.msg.Actor.SendBad("You must be IC to do that.")
 			return
 		}

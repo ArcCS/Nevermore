@@ -188,14 +188,6 @@ func (kill) process(s *state) {
 						selfDamage, vitDamage := s.actor.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * config.StrRangePenaltyDamage)))
 						s.msg.Actor.SendBad("You aren't strong enough to handle the after-effects of the weapon and hit yourself for " + strconv.Itoa(selfDamage) + "stamina and " + strconv.Itoa(vitDamage) + " damage!")
 						s.actor.DeathCheck(" killed themselves from the kickback of their weapon.")
-					} else if s.actor.Equipment.Main.ItemType == 4 && s.actor.GetStat("str") < config.StrMinorPenalty {
-						if utils.Roll(100, 1, 0) <= config.StrMinorPenaltyChance {
-							selfDamage, vitDamage := s.actor.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * config.StrRangePenaltyDamage)))
-							s.msg.Actor.SendBad("You aren't strong enough to handle the after-effecs of the weapon and hit yourself for " + strconv.Itoa(selfDamage) + "stamina and " + strconv.Itoa(vitDamage) + " damage!")
-							s.actor.DeathCheck(" killed themselves from the kickback of their weapon.")
-						} else {
-							s.msg.Actor.SendGood("You narrowely avoid hitting yourself with your ranged weapon.")
-						}
 					}
 				}
 

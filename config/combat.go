@@ -24,7 +24,7 @@ var MobAugmentPerCharacter = 3
 
 var FreeDeathTier = 3
 
-var SpecialAbilityTier = 10
+var SpecialAbilityTier = 7
 var MinorAbilityTier = 5
 
 var MobVital = 2

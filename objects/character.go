@@ -241,7 +241,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			FilledCharacter.LastRefresh = time.Now()
 		}
 
-		FilledCharacter.CharTicker = time.NewTicker(14 * time.Second)
+		FilledCharacter.CharTicker = time.NewTicker(8 * time.Second)
 		go func() {
 			for {
 				select {
@@ -608,11 +608,11 @@ func (c *Character) buildPrompt() []byte {
 	case StyleNone:
 		return []byte(text.Prompt + "> ")
 	case StyleStat:
-		return []byte(text.Prompt +
+		return []byte((text.Prompt + "(" + text.Yellow +
 			strconv.Itoa(c.Stam.Current) + "|" +
-			strconv.Itoa(c.Vit.Current) + "|" +
-			strconv.Itoa(c.Mana.Current) +
-			" > ")
+			text.Red + strconv.Itoa(c.Vit.Current) + "|" +
+			text.Cyan + strconv.Itoa(c.Mana.Current) +
+			text.Prompt + "): " + text.Reset))
 	default:
 		return []byte{}
 	}

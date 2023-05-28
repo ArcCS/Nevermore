@@ -89,7 +89,8 @@ func (circle) process(s *state) {
 		}
 
 		whatMob.Stun(config.CircleStuns)
-		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
+		whatMob.AddThreatDamage(whatMob.Stam.Max/2, s.actor)
+		whatMob.CurrentTarget = s.actor.Name
 		s.actor.SetTimer("combat_circle", config.CircleTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		s.msg.Actor.SendInfo("You circled " + whatMob.Name)
