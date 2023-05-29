@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
@@ -38,6 +39,11 @@ func (sell) process(s *state) {
 	target := s.actor.Inventory.Search(targetStr, targetNum)
 
 	if target != nil {
+		if target.MaxUses != objects.Items[target.ItemId].MaxUses {
+			s.msg.Actor.SendInfo("The pawn broker hands back your ", target.Name, " and says, 'I don't buy used items.'")
+			return
+		}
+
 		finalValue := 0
 		// real dumb
 		if s.actor.GetStat("int") < 5 {
