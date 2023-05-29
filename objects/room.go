@@ -490,7 +490,7 @@ func (r *Room) Save() {
 	roomData["wind"] = utils.Btoi(r.Flags["wind"])
 	roomData["active"] = utils.Btoi(r.Flags["active"])
 	roomData["train"] = utils.Btoi(r.Flags["train"])
-	roomData["mobs"] = r.Mobs.Jsonify()
+	roomData["mobs"] = r.Mobs.JsonRepr
 	roomData["inventory"] = r.Items.Jsonify()
 	roomData["commands"] = r.SerializeCommands()
 	roomData["store_owner"] = r.StoreOwner

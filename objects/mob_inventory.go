@@ -16,6 +16,7 @@ type MobInventory struct {
 	Contents      []*Mob
 	Flags         map[string]bool
 	ContinueEmpty func() bool
+	JsonRepr      string
 }
 
 // NewMobInventory returns a new basic MobInventory structure
@@ -100,6 +101,7 @@ func (i *MobInventory) RemoveNonPerms() {
 		}
 		contentRef = nil
 	}
+	i.Jsonify()
 }
 
 func (i *MobInventory) RestartPerms() {
@@ -287,7 +289,7 @@ func (i *MobInventory) Free() {
 	}
 }
 
-func (i *MobInventory) Jsonify() string {
+func (i *MobInventory) Jsonify() {
 	mobList := make([]map[string]interface{}, 0)
 
 	if len(i.Contents) == 0 {
@@ -302,10 +304,12 @@ func (i *MobInventory) Jsonify() string {
 
 	data, err := json.Marshal(mobList)
 	if err != nil {
-		return "[]"
+		i.JsonRepr = "[]"
 	} else {
-		return string(data)
+		i.JsonRepr = string(data)
 	}
+	return
+
 }
 
 func RestoreMobs(ParentID int, jsonString string) *MobInventory {
