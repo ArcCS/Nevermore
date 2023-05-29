@@ -606,13 +606,13 @@ func (c *Character) SetPromptStyle(new PromptStyle) (old PromptStyle) {
 func (c *Character) buildPrompt() []byte {
 	switch c.PromptStyle {
 	case StyleNone:
-		return []byte(text.Prompt + "> ")
+		return []byte(text.Prompt + ">" + text.Reset + "\n")
 	case StyleStat:
 		return []byte((text.Prompt + "(" + text.Yellow +
 			strconv.Itoa(c.Stam.Current) + "|" +
 			text.Red + strconv.Itoa(c.Vit.Current) + "|" +
 			text.Cyan + strconv.Itoa(c.Mana.Current) +
-			text.Prompt + "): " + text.Reset))
+			text.Prompt + "): " + text.Reset + "\n"))
 	default:
 		return []byte{}
 	}
@@ -1131,7 +1131,7 @@ func (c *Character) LoseParty() {
 			char := ActiveCharacters.Find(player)
 			if char != nil {
 				char.PartyFollow = ""
-				char.Write([]byte(text.Info + c.Name + " loses you."))
+				char.Write([]byte(text.Info + c.Name + " loses you." + text.Reset + "\n"))
 			}
 
 		}
@@ -1149,7 +1149,7 @@ func (c *Character) Unfollow() {
 					leadChar.PartyFollowers = append(leadChar.PartyFollowers[:i], leadChar.PartyFollowers[i+1:]...)
 					if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 						if utils.StringIn(leadChar.Name, ActiveCharacters.List()) {
-							leadChar.Write([]byte(text.Info + c.Name + " stops following you."))
+							leadChar.Write([]byte(text.Info + c.Name + " stops following you." + text.Reset + "\n"))
 						}
 					}
 					break
@@ -1157,7 +1157,7 @@ func (c *Character) Unfollow() {
 			}
 
 		}
-		c.Write([]byte(text.Info + "You stop following " + c.PartyFollow))
+		c.Write([]byte(text.Info + "You stop following " + c.PartyFollow + text.Reset + "\n"))
 		c.PartyFollow = ""
 	}
 }

@@ -295,7 +295,7 @@ func (i *MobInventory) Jsonify() string {
 	}
 
 	for _, o := range i.Contents {
-		if o.Flags["permanent"] {
+		if o.CheckFlag("permanent") {
 			mobList = append(mobList, ReturnMobInstanceProps(o))
 		}
 	}

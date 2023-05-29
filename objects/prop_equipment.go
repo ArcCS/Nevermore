@@ -727,6 +727,12 @@ func RestoreEquipment(jsonString string) *Equipment {
 		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
 		newItem.Spell = item["spell"].(string)
 		newItem.Armor = int(item["armor"].(float64))
+		if _, ok := item["light"]; ok {
+			newItem.Flags["light"] = int(item["light"].(float64)) != 0
+		}
+		if _, ok := item["adjustment"]; ok {
+			newItem.Adjustment = int(item["adjustment"].(float64))
+		}
 		NewEquipment.Equip(&newItem)
 	}
 	return NewEquipment

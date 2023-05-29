@@ -145,7 +145,7 @@ func (use) process(s *state) {
 					if strings.Contains(msg, "$CRIPT") {
 						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
 					} else if msg != "" {
-						s.msg.Actor.SendGood(msg)
+						s.msg.Participant.SendGood(msg)
 					}
 					what.MaxUses -= 1
 					if what.MaxUses <= 0 {
@@ -158,6 +158,7 @@ func (use) process(s *state) {
 				s.actor.RunHook("use")
 				s.actor.SetTimer("use", 8)
 				msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
+				s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on themselves.")
 				if strings.Contains(msg, "$CRIPT") {
 					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
 				} else {
