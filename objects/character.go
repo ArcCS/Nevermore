@@ -972,7 +972,6 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 
 func (c *Character) Heal(damage int) (int, int) {
 	stamHeal, vitalHeal := 0, 0
-	damage = c.CalcHealPenalty(damage)
 	if damage > (c.Vit.Max - c.Vit.Current) {
 		vitalHeal = c.Vit.Max - c.Vit.Current
 		c.Vit.Current = c.Vit.Max
@@ -990,7 +989,6 @@ func (c *Character) Heal(damage int) (int, int) {
 }
 
 func (c *Character) HealVital(damage int) int {
-	damage = c.CalcHealPenalty(damage)
 	if damage > c.Vit.Max-c.Vit.Current {
 		damage = c.Vit.Max - c.Vit.Current
 		c.Vit.Current = c.Vit.Max
@@ -1003,7 +1001,6 @@ func (c *Character) HealVital(damage int) int {
 }
 
 func (c *Character) HealStam(damage int) int {
-	damage = c.CalcHealPenalty(damage)
 	if damage > c.Stam.Max-c.Stam.Current {
 		damage = c.Stam.Max - c.Stam.Current
 		c.Stam.Current = c.Stam.Max
@@ -1015,7 +1012,6 @@ func (c *Character) HealStam(damage int) int {
 }
 
 func (c *Character) RestoreMana(damage int) {
-	damage = c.CalcHealPenalty(damage)
 	c.Mana.Add(damage)
 }
 
