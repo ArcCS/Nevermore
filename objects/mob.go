@@ -302,7 +302,7 @@ func (m *Mob) Tick() {
 				// Roll to see if we're going to breathe
 				if utils.Roll(100, 1, 0) <= 30 {
 					target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
-					targets := []*Character{target}
+					var targets []*Character
 					for _, character := range Rooms[m.ParentId].Chars.Contents {
 						if character.Placement == target.Placement {
 							targets = append(targets, character)
@@ -397,10 +397,11 @@ func (m *Mob) Tick() {
 				vitDamage := 0
 				reflectDamage := 0
 				actualDamage := m.InflictDamage()
-				if target.GetStat("dex") < config.DexMinorPenalty {
+				if target.GetStat("dex") < config.DexMajorPenalty {
 					penalty = 2
 				}
 				if utils.Roll(100, 1, 0) <= config.MobVital*penalty {
+					multiplier = 3
 					vitalStrike = true
 				} else if utils.Roll(100, 1, 0) <= config.MobCritical*penalty {
 					multiplier = 4
@@ -493,7 +494,7 @@ func (m *Mob) Tick() {
 					vitDamage := 0
 					actualDamage := m.InflictDamage()
 					reflectDamage := 0
-					if target.GetStat("dex") < config.DexMinorPenalty {
+					if target.GetStat("dex") < config.DexMajorPenalty {
 						penalty = 2
 					}
 					if utils.Roll(100, 1, 0) <= config.MobVital*penalty {
@@ -696,11 +697,10 @@ func (m *Mob) Follow(params []string) {
 
 func (m *Mob) Flee(params []string) {
 	// Roll a dice and see if I'm going to flee...
-	if m.CheckFlag("sweet_comfort") {
-		return
-	}
-	if utils.Roll(100, 1, 0) <= 50 {
-		go Rooms[m.ParentId].FleeMob(m)
+	if m.Stam.Current > 0 && !m.CheckFlag("sweet_comfort") {
+		if utils.Roll(100, 1, 0) <= 50 {
+			go Rooms[m.ParentId].FleeMob(m)
+		}
 	}
 	return
 }

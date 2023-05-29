@@ -64,11 +64,6 @@ func (cast) process(s *state) {
 	}
 
 	if s.actor.GetStat("int") < config.IntMajorPenalty {
-		s.msg.Actor.SendBad("You simply do not have the mental capacity to cast spells.")
-		return
-	}
-
-	if s.actor.GetStat("int") < config.IntMinorPenalty {
 		if utils.Roll(100, 1, 0) <= config.FizzleSave {
 			s.msg.Actor.SendBad("You attempt to cast the spell, but it fizzles out.")
 			s.actor.Mana.Current -= cost

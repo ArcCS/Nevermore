@@ -83,6 +83,11 @@ func (backstab) process(s *state) {
 			return
 		}
 
+		if whatMob.Flags["undead"] == true {
+			s.msg.Actor.SendBad("Your target is undead and you cannot find their vitals!")
+			return
+		}
+
 		_, ok := whatMob.ThreatTable[s.actor.Name]
 		if ok {
 			s.msg.Actor.SendBad("You have already engaged ", whatMob.Name, " in combat!")

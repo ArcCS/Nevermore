@@ -84,6 +84,7 @@ func (circle) process(s *state) {
 			s.msg.Actor.SendBad("You missed!!")
 			s.actor.SetTimer("combat_circle", config.CircleTimer)
 			s.actor.SetTimer("combat", config.CombatCooldown)
+			whatMob.CurrentTarget = s.actor.Name
 			s.msg.Observers.SendBad(s.actor.Name + " fails to circle " + whatMob.Name)
 			return
 		}

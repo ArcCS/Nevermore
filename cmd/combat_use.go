@@ -83,13 +83,6 @@ func (use) process(s *state) {
 				return
 			}
 			if utils.StringIn(spellInstance.Name, objects.OffensiveSpells) && s.actor.Victim != nil {
-				if s.actor.GetStat("int") < config.IntMinorPenalty {
-					if utils.Roll(100, 1, 0) <= config.FizzleSave {
-						s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")
-						s.actor.SetTimer("use", 8)
-						return
-					}
-				}
 				switch s.actor.Victim.(type) {
 				case *objects.Character:
 					name = s.actor.Victim.(*objects.Character).Name

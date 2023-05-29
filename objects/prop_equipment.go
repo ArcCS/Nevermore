@@ -28,9 +28,10 @@ type Equipment struct {
 	Main *Item
 	Off  *Item
 
-	FlagOn   func(flagName string, provider string)
-	FlagOff  func(flagName string, provider string)
-	CanEquip func(item *Item) (bool, string)
+	FlagOn            func(flagName string, provider string)
+	FlagOff           func(flagName string, provider string)
+	CanEquip          func(item *Item) (bool, string)
+	ReturnToInventory func(item *Item)
 }
 
 func (e *Equipment) GetWeight() (total int) {
@@ -235,14 +236,16 @@ func (e *Equipment) DamageWeapon(whichHand string, damage int) string {
 	if whichHand == "main" {
 		e.Main.MaxUses -= damage
 		if e.Main.MaxUses <= 0 {
+			e.ReturnToInventory(e.Main)
 			e.Main = (*Item)(nil)
-			return "Your weapon shatters!"
+			return "Your weapon breaks!"
 		}
 	} else if whichHand == "off" {
 		e.Off.MaxUses -= damage
 		if e.Off.MaxUses <= 0 {
+			e.ReturnToInventory(e.Off)
 			e.Off = (*Item)(nil)
-			return "Your instrument shatters!"
+			return "Your instrument breaks!"
 		}
 	}
 	return ""

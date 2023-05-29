@@ -263,6 +263,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 		FilledCharacter.Equipment.FlagOn = FilledCharacter.FlagOn
 		FilledCharacter.Equipment.FlagOff = FilledCharacter.FlagOff
 		FilledCharacter.Equipment.CanEquip = FilledCharacter.CanEquip
+		FilledCharacter.Equipment.ReturnToInventory = FilledCharacter.ReturnToInventory
 		FilledCharacter.Equipment.CheckEquipment()
 		FilledCharacter.Equipment.PostEquipmentLight()
 		return FilledCharacter, false
@@ -293,6 +294,10 @@ func (c *Character) SetTimer(timer string, seconds int) {
 	c.Timers[timer] = time.Now().Add(time.Duration(seconds) * time.Second)
 }
 
+func (c *Character) ReturnToInventory(item *Item) {
+	c.Inventory.Add(item)
+}
+
 func (c *Character) TimerReady(timer string) (bool, string) {
 	// Always check Global:
 	remaining := int(c.Timers["global"].Sub(time.Now()) / time.Second)
@@ -307,7 +312,7 @@ func (c *Character) TimerReady(timer string) (bool, string) {
 		}
 
 	}
-	return false, "You have " + strconv.Itoa(remaining) + " seconds before you can perform this action."
+	return false, text.Gray + "You have " + strconv.Itoa(remaining) + " seconds before you can perform this action."
 
 }
 
@@ -853,9 +858,7 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
 	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
 	// Resist a little more based on con
-	if c.GetStat("con") > config.ConMinorPenalty {
-		resist += int(math.Ceil(float64(damage) * (float64(c.Con.Current) * config.ConArmorMod)))
-	}
+	resist += int(math.Ceil(float64(damage) * (float64(c.Con.Current) * config.ConArmorMod)))
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))

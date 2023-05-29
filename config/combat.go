@@ -20,6 +20,12 @@ var CombatModifiers = map[string]int{
 	"snipe":    4,
 }
 
+var IntMajorPenalty = 7
+var StrMajorPenalty = 5
+var ConMajorPenalty = 5
+var DexMajorPenalty = 7
+var PieMajorPenalty = 5
+
 var MobAugmentPerCharacter = 3
 
 var FreeDeathTier = 3
@@ -27,10 +33,10 @@ var FreeDeathTier = 3
 var SpecialAbilityTier = 7
 var MinorAbilityTier = 5
 
-var MobVital = 2
-var MobCritical = 8
-var MobDouble = 18
-var MobFollowVital = 25
+var MobVital = 3
+var MobCritical = 10
+var MobDouble = 20
+var MobFollowVital = 35
 
 var BindCost = 75000
 var RenameCost = 150000
@@ -113,15 +119,13 @@ var MobTakeChance = 10 // Percent
 
 // Str Mods
 var StrCarryMod = 10 // Per Point
-var StrCarryPenalty = 5
+var StrCarryPenalty = 1
 var BaseCarryWeight = 40
 var StatDamageMod = .01 // Per Point
 var StrRangePenaltyDamage = .15
-var StrMinorPenaltyChance = 25
 
 // Con Mods
-var ConArmorMod = .01
-var ConBonusHealth = 1
+var ConArmorMod = .005
 var ConBonusHealthDiv = 5
 var ConHealRegenMod = .05
 var ConMonkArmor = 2 // 2 Armor Extra Per Con
@@ -156,8 +160,8 @@ var MobArmorReductionPoints = 10
 
 func MaxWeight(str int) int {
 	// Strength Penalty
-	if str < 6 {
-		return BaseCarryWeight - ((6 - str) * StrCarryPenalty)
+	if str < 5 {
+		return BaseCarryWeight - ((5 - str) * StrCarryPenalty)
 	}
 	if str < 10 {
 		return BaseCarryWeight
