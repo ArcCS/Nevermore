@@ -293,7 +293,8 @@ func (i *MobInventory) Jsonify() {
 	mobList := make([]map[string]interface{}, 0)
 
 	if len(i.Contents) == 0 {
-		return "[]"
+		i.JsonRepr = "[]"
+		return
 	}
 
 	for _, o := range i.Contents {
