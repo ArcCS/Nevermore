@@ -34,8 +34,8 @@ var SpecialAbilityTier = 7
 var MinorAbilityTier = 5
 
 var MobVital = 3
-var MobCritical = 10
-var MobDouble = 20
+var MobCritical = 6
+var MobDouble = 10
 var MobFollowVital = 35
 
 var BindCost = 75000
@@ -160,11 +160,8 @@ var MobArmorReductionPoints = 10
 
 func MaxWeight(str int) int {
 	// Strength Penalty
-	if str < 5 {
-		return BaseCarryWeight - ((5 - str) * StrCarryPenalty)
-	}
-	if str < 10 {
-		return BaseCarryWeight
+	if str < StrMajorPenalty {
+		return BaseCarryWeight - ((StrMajorPenalty - str) * StrCarryPenalty)
 	}
 	return BaseCarryWeight + (str * StrCarryMod)
 }

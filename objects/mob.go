@@ -400,15 +400,18 @@ func (m *Mob) Tick() {
 				if target.GetStat("dex") < config.DexMajorPenalty {
 					penalty = 2
 				}
-				if utils.Roll(100, 1, 0) <= config.MobVital*penalty {
-					multiplier = 3
-					vitalStrike = true
-				} else if utils.Roll(100, 1, 0) <= config.MobCritical*penalty {
-					multiplier = 4
-					criticalStrike = true
-				} else if utils.Roll(100, 1, 0) <= config.MobDouble*penalty {
-					multiplier = 2
-					doubleDamage = true
+				if utils.Roll(10, 1, 0) <= penalty {
+					attackStyleRoll := utils.Roll(10, 1, 0)
+					if attackStyleRoll <= config.MobVital {
+						multiplier = 2
+						vitalStrike = true
+					} else if attackStyleRoll <= config.MobCritical {
+						multiplier = 4
+						criticalStrike = true
+					} else if attackStyleRoll <= config.MobDouble {
+						multiplier = 2
+						doubleDamage = true
+					}
 				}
 				if vitalStrike {
 					vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
@@ -497,14 +500,18 @@ func (m *Mob) Tick() {
 					if target.GetStat("dex") < config.DexMajorPenalty {
 						penalty = 2
 					}
-					if utils.Roll(100, 1, 0) <= config.MobVital*penalty {
-						vitalStrike = true
-					} else if utils.Roll(100, 1, 0) <= config.MobCritical*penalty {
-						multiplier = 4
-						criticalStrike = true
-					} else if utils.Roll(100, 1, 0) <= config.MobDouble*penalty {
-						multiplier = 2
-						doubleDamage = true
+					if utils.Roll(10, 1, 0) <= penalty {
+						attackStyleRoll := utils.Roll(10, 1, 0)
+						if attackStyleRoll <= config.MobVital {
+							multiplier = 2
+							vitalStrike = true
+						} else if attackStyleRoll <= config.MobCritical {
+							multiplier = 4
+							criticalStrike = true
+						} else if attackStyleRoll <= config.MobDouble {
+							multiplier = 2
+							doubleDamage = true
+						}
 					}
 					if vitalStrike {
 						vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
