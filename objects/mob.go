@@ -615,8 +615,7 @@ func (m *Mob) Follow(params []string) {
 			if curChance > 85 {
 				curChance = 85
 			}
-			if utils.Roll(100, 1, 0) >= 0 {
-				//if utils.Roll(100, 1, 0) <= curChance {
+			if utils.Roll(100, 1, 0) <= curChance {
 				log.Println("I'm gonna follow")
 				// Halt processing
 				neededLocks := make([]int, 2)
@@ -624,7 +623,6 @@ func (m *Mob) Follow(params []string) {
 				neededLocks[1] = targetChar.ParentId
 				ready := false
 				previousRoom := m.ParentId
-				Rooms[m.ParentId].StagedClearing = false
 				// Lets not compete with other mobs for the same locks by using names
 				//log.Println("Mob is trying to gain lock priority")
 				tempName := utils.RandString(10)
@@ -681,8 +679,7 @@ func (m *Mob) Follow(params []string) {
 				for _, l := range neededLocks {
 					Rooms[l].LockPriority = ""
 				}
-				// Clean the previous room
-				go Rooms[previousRoom].LastPerson()
+
 				go func() {
 					time.Sleep(1 * time.Second)
 					m.StartTicking()

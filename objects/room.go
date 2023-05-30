@@ -39,7 +39,6 @@ type Room struct {
 	StoreInventory     *ItemInventory
 	Songs              map[string]string
 	LockPriority       string
-	StagedClearing     bool
 }
 
 // Pop the room data
@@ -69,7 +68,6 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		RestoreInventory(roomData["store_inventory"].(string)),
 		make(map[string]string),
 		"",
-		false,
 	}
 
 	for _, encounter := range roomData["encounters"].([]interface{}) {
@@ -251,7 +249,6 @@ func (r *Room) FirstPerson() {
 				case <-r.roomTickerUnload:
 					return
 				case <-r.roomTicker.C:
-					// Is the room crowded?
 					r.Encounter()
 				}
 			}
@@ -313,6 +310,7 @@ func (r *Room) FirstPerson() {
 func (r *Room) Encounter() {
 	// Check if encounters are off, a GM can change this live.
 	if r.Flags["encounters_on"] {
+		log.Println("Run the encounter function!")
 		if len(r.Mobs.Contents) < 10 {
 			// Augment the encounter based on the number of players in the room
 			aug := len(r.Chars.Contents)
