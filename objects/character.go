@@ -91,8 +91,8 @@ type Character struct {
 	LastAction       time.Time
 	LoginTime        time.Time
 	//Party Stuff
-	PartyFollow     *Character
-	PartyFollowers  []*Character
+	PartyFollow     string
+	PartyFollowers  []string
 	Victim          interface{}
 	Resist          bool
 	OOCSwap         int
@@ -193,8 +193,8 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			lastRefresh,
 			time.Now(),
 			time.Now(),
-			nil,
-			nil,
+			"",
+			[]string{},
 			nil,
 			true,
 			int(charData["oocswap"].(int64)),
@@ -241,7 +241,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			FilledCharacter.LastRefresh = time.Now()
 		}
 
-		FilledCharacter.CharTicker = time.NewTicker(14 * time.Second)
+		FilledCharacter.CharTicker = time.NewTicker(8 * time.Second)
 		go func() {
 			for {
 				select {
@@ -263,6 +263,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 		FilledCharacter.Equipment.FlagOn = FilledCharacter.FlagOn
 		FilledCharacter.Equipment.FlagOff = FilledCharacter.FlagOff
 		FilledCharacter.Equipment.CanEquip = FilledCharacter.CanEquip
+		FilledCharacter.Equipment.ReturnToInventory = FilledCharacter.ReturnToInventory
 		FilledCharacter.Equipment.CheckEquipment()
 		FilledCharacter.Equipment.PostEquipmentLight()
 		return FilledCharacter, false
@@ -293,6 +294,10 @@ func (c *Character) SetTimer(timer string, seconds int) {
 	c.Timers[timer] = time.Now().Add(time.Duration(seconds) * time.Second)
 }
 
+func (c *Character) ReturnToInventory(item *Item) {
+	c.Inventory.Add(item)
+}
+
 func (c *Character) TimerReady(timer string) (bool, string) {
 	// Always check Global:
 	remaining := int(c.Timers["global"].Sub(time.Now()) / time.Second)
@@ -307,7 +312,7 @@ func (c *Character) TimerReady(timer string) (bool, string) {
 		}
 
 	}
-	return false, "You have " + strconv.Itoa(remaining) + " seconds before you can perform this action."
+	return false, text.Gray + "You have " + strconv.Itoa(remaining) + " seconds before you can perform this action."
 
 }
 
@@ -440,11 +445,11 @@ func (c *Character) SerialSaveEffects() string {
 		}
 	}
 
-	data, err := json.Marshal(effectList)
+	dataJson, err := json.Marshal(effectList)
 	if err != nil {
 		return "[]"
 	} else {
-		return string(data)
+		return string(dataJson)
 	}
 }
 
@@ -606,13 +611,13 @@ func (c *Character) SetPromptStyle(new PromptStyle) (old PromptStyle) {
 func (c *Character) buildPrompt() []byte {
 	switch c.PromptStyle {
 	case StyleNone:
-		return []byte(text.Prompt + "> ")
+		return []byte(text.Prompt + ">" + text.Reset + "\n")
 	case StyleStat:
-		return []byte(text.Prompt +
+		return []byte((text.Prompt + "(" + text.Yellow +
 			strconv.Itoa(c.Stam.Current) + "|" +
-			strconv.Itoa(c.Vit.Current) + "|" +
-			strconv.Itoa(c.Mana.Current) +
-			" > ")
+			text.Red + strconv.Itoa(c.Vit.Current) + "|" +
+			text.Cyan + strconv.Itoa(c.Mana.Current) +
+			text.Prompt + "): " + text.Reset + "\n"))
 	default:
 		return []byte{}
 	}
@@ -627,6 +632,9 @@ func (c *Character) Write(b []byte) (n int, err error) {
 	b = append(b, c.buildPrompt()...)
 	if c != nil {
 		n, err = c.Writer.Write(b)
+	}
+	if err != nil {
+		log.Println("Character Direct -> Error writing to client:", err)
 	}
 	return
 }
@@ -850,9 +858,7 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 	stamDamage, vitalDamage := 0, 0
 	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
 	// Resist a little more based on con
-	if c.GetStat("con") > config.ConMinorPenalty {
-		resist += int(math.Ceil(float64(damage) * (float64(c.Con.Current) * config.ConArmorMod)))
-	}
+	resist += int(math.Ceil(float64(damage) * (float64(c.Con.Current) * config.ConArmorMod)))
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
@@ -966,7 +972,6 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 
 func (c *Character) Heal(damage int) (int, int) {
 	stamHeal, vitalHeal := 0, 0
-	damage = c.CalcHealPenalty(damage)
 	if damage > (c.Vit.Max - c.Vit.Current) {
 		vitalHeal = c.Vit.Max - c.Vit.Current
 		c.Vit.Current = c.Vit.Max
@@ -984,7 +989,6 @@ func (c *Character) Heal(damage int) (int, int) {
 }
 
 func (c *Character) HealVital(damage int) int {
-	damage = c.CalcHealPenalty(damage)
 	if damage > c.Vit.Max-c.Vit.Current {
 		damage = c.Vit.Max - c.Vit.Current
 		c.Vit.Current = c.Vit.Max
@@ -997,7 +1001,6 @@ func (c *Character) HealVital(damage int) int {
 }
 
 func (c *Character) HealStam(damage int) int {
-	damage = c.CalcHealPenalty(damage)
 	if damage > c.Stam.Max-c.Stam.Current {
 		damage = c.Stam.Max - c.Stam.Current
 		c.Stam.Current = c.Stam.Max
@@ -1009,7 +1012,6 @@ func (c *Character) HealStam(damage int) int {
 }
 
 func (c *Character) RestoreMana(damage int) {
-	damage = c.CalcHealPenalty(damage)
 	c.Mana.Add(damage)
 }
 
@@ -1125,37 +1127,47 @@ func (c *Character) WriteMovement(previous int, new int, subject string) {
 func (c *Character) LoseParty() {
 	if len(c.PartyFollowers) > 0 {
 		for _, player := range c.PartyFollowers {
-			player.PartyFollow = (*Character)(nil)
-			player.Write([]byte(text.Info + c.Name + " loses you."))
+			char := ActiveCharacters.Find(player)
+			if char != nil {
+				char.PartyFollow = ""
+				char.Write([]byte(text.Info + c.Name + " loses you." + text.Reset + "\n"))
+			}
+
 		}
-		c.PartyFollowers = []*Character{}
+		c.PartyFollowers = []string{}
 	}
 	return
 }
 
 func (c *Character) Unfollow() {
-	if c.PartyFollow != nil {
-		for i, char := range c.PartyFollow.PartyFollowers {
-			if char == c {
-				copy(c.PartyFollow.PartyFollowers[i:], c.PartyFollow.PartyFollowers[i+1:])
-				c.PartyFollow.PartyFollowers[len(c.PartyFollow.PartyFollowers)-1] = nil
-				c.PartyFollow.PartyFollowers = c.PartyFollow.PartyFollowers[:len(c.PartyFollow.PartyFollowers)-1]
+	if c.PartyFollow != "" {
+		leadChar := ActiveCharacters.Find(c.PartyFollow)
+		if leadChar != nil {
+			for i, char := range leadChar.PartyFollowers {
+				if char == c.Name {
+					leadChar.PartyFollowers = append(leadChar.PartyFollowers[:i], leadChar.PartyFollowers[i+1:]...)
+					if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+						if utils.StringIn(leadChar.Name, ActiveCharacters.List()) {
+							leadChar.Write([]byte(text.Info + c.Name + " stops following you." + text.Reset + "\n"))
+						}
+					}
+					break
+				}
 			}
+
 		}
-		if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			if utils.StringIn(c.PartyFollow.Name, ActiveCharacters.List()) {
-				c.PartyFollow.Write([]byte(text.Info + c.Name + " stops following you."))
-			}
-		}
-		c.Write([]byte(text.Info + "You stop following " + c.PartyFollow.Name))
-		c.PartyFollow = nil
+		c.Write([]byte(text.Info + "You stop following " + c.PartyFollow + text.Reset + "\n"))
+		c.PartyFollow = ""
 	}
 }
 
 func (c *Character) MessageParty(msg string) {
 	if len(c.PartyFollowers) > 0 {
-		for _, char := range c.PartyFollowers {
-			char.Write([]byte(text.Info + c.Name + " party flashes# \"" + msg + "\"\n"))
+		for _, findChar := range c.PartyFollowers {
+			char := ActiveCharacters.Find(findChar)
+			if char != nil {
+				char.Write([]byte(text.Info + c.Name + " party flashes# \"" + msg + "\"\n"))
+			}
 		}
 	}
 }

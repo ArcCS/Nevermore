@@ -28,9 +28,10 @@ type Equipment struct {
 	Main *Item
 	Off  *Item
 
-	FlagOn   func(flagName string, provider string)
-	FlagOff  func(flagName string, provider string)
-	CanEquip func(item *Item) (bool, string)
+	FlagOn            func(flagName string, provider string)
+	FlagOff           func(flagName string, provider string)
+	CanEquip          func(item *Item) (bool, string)
+	ReturnToInventory func(item *Item)
 }
 
 func (e *Equipment) GetWeight() (total int) {
@@ -146,6 +147,11 @@ func (e *Equipment) DamageRandomArmor() string {
 	if e.Ring2 != nil {
 		armorList = append(armorList, "ring2")
 	}
+	if e.Off != nil {
+		if e.Off.ItemType == 23 {
+			armorList = append(armorList, "shield")
+		}
+	}
 
 	if len(armorList) > 0 {
 		rand.Seed(time.Now().Unix())
@@ -213,6 +219,13 @@ func (e *Equipment) DamageRandomArmor() string {
 				return "Your second ring falls apart."
 			}
 			return ""
+		} else if damageItem == "shield" {
+			e.Off.MaxUses -= 1
+			if e.Off.MaxUses <= 0 {
+				e.UnequipSpecific("shield")
+				return "Your shield shatters."
+			}
+			return ""
 		}
 	}
 
@@ -223,14 +236,16 @@ func (e *Equipment) DamageWeapon(whichHand string, damage int) string {
 	if whichHand == "main" {
 		e.Main.MaxUses -= damage
 		if e.Main.MaxUses <= 0 {
+			e.ReturnToInventory(e.Main)
 			e.Main = (*Item)(nil)
-			return "Your weapon shatters!"
+			return "Your weapon breaks!"
 		}
 	} else if whichHand == "off" {
 		e.Off.MaxUses -= damage
 		if e.Off.MaxUses <= 0 {
+			e.ReturnToInventory(e.Off)
 			e.Off = (*Item)(nil)
-			return "Your instrument shatters!"
+			return "Your instrument breaks!"
 		}
 	}
 	return ""
@@ -715,6 +730,12 @@ func RestoreEquipment(jsonString string) *Equipment {
 		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0
 		newItem.Spell = item["spell"].(string)
 		newItem.Armor = int(item["armor"].(float64))
+		if _, ok := item["light"]; ok {
+			newItem.Flags["light"] = int(item["light"].(float64)) != 0
+		}
+		if _, ok := item["adjustment"]; ok {
+			newItem.Adjustment = int(item["adjustment"].(float64))
+		}
 		NewEquipment.Equip(&newItem)
 	}
 	return NewEquipment

@@ -12,9 +12,11 @@ import (
 )
 
 type MobInventory struct {
-	ParentId int
-	Contents []*Mob
-	Flags    map[string]bool
+	ParentId      int
+	Contents      []*Mob
+	Flags         map[string]bool
+	ContinueEmpty func() bool
+	JsonRepr      string
 }
 
 // NewMobInventory returns a new basic MobInventory structure
@@ -86,16 +88,25 @@ func (i *MobInventory) RemoveNonPerms() {
 			mob.MobTickerUnload <- true
 		}
 	}
-	for _, mob := range contentRef {
-		i.Remove(mob)
-		mob = nil
+	// Check if we should continue to empty, this is only relevant if mobs have been thinking and we have to back out of this loop entirely
+	for i.ContinueEmpty() && len(contentRef) > 0 {
+		for index, mob := range contentRef {
+			if !mob.IsThinking {
+				i.Remove(mob)
+				mob = nil
+			} else {
+				contentRef = contentRef[index:]
+				break
+			}
+		}
+		contentRef = nil
 	}
-	contentRef = nil
+	i.Jsonify()
 }
 
 func (i *MobInventory) RestartPerms() {
 	for _, mob := range i.Contents {
-		if mob.Flags["permanent"] {
+		if mob.Flags["permanent"] && !mob.IsActive {
 			mob.StartTicking()
 		}
 	}
@@ -278,25 +289,28 @@ func (i *MobInventory) Free() {
 	}
 }
 
-func (i *MobInventory) Jsonify() string {
+func (i *MobInventory) Jsonify() {
 	mobList := make([]map[string]interface{}, 0)
 
 	if len(i.Contents) == 0 {
-		return "[]"
+		i.JsonRepr = "[]"
+		return
 	}
 
 	for _, o := range i.Contents {
-		if o.Flags["permanent"] {
+		if isPerm, ok := o.Flags["permanent"]; ok && isPerm {
 			mobList = append(mobList, ReturnMobInstanceProps(o))
 		}
 	}
 
 	data, err := json.Marshal(mobList)
 	if err != nil {
-		return "[]"
+		i.JsonRepr = "[]"
 	} else {
-		return string(data)
+		i.JsonRepr = string(data)
 	}
+	return
+
 }
 
 func RestoreMobs(ParentID int, jsonString string) *MobInventory {

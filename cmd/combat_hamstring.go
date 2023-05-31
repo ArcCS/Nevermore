@@ -34,7 +34,7 @@ func (hamstring) process(s *state) {
 	}
 
 	// Check some timers
-	ready, msg := s.actor.TimerReady("combat")
+	ready, msg := s.actor.TimerReady("hamstring")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
 		return
@@ -76,8 +76,9 @@ func (hamstring) process(s *state) {
 			return
 		}
 
-		whatMob.AddThreatDamage(whatMob.Stam.Max/2, s.actor)
-		s.actor.SetTimer("combat", config.CombatCooldown)
+		whatMob.AddThreatDamage(whatMob.Stam.Max, s.actor)
+		whatMob.CurrentTarget = s.actor.Name
+		s.actor.SetTimer("hamstring", 45)
 		s.msg.Actor.SendInfo("You hamstring " + whatMob.Name)
 		s.msg.Observers.SendInfo(s.actor.Name + " hamstrings " + whatMob.Name)
 		return

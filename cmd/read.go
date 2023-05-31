@@ -22,7 +22,7 @@ func (read) process(s *state) {
 		s.msg.Actor.SendInfo("You need to specify a scroll to read from")
 		return
 	}
-	s.ok=true
+	s.ok = true
 
 	name := s.words[0]
 	nameNum := 1
@@ -34,7 +34,7 @@ func (read) process(s *state) {
 	if what == nil {
 		s.msg.Actor.SendBad("You couldn't find anything like that to study.")
 		return
-	}else{
+	} else {
 		if what.ItemType == 7 {
 			if what.Spell == "" {
 				s.msg.Actor.SendBad("You study the scroll but find that it contains no spell.")
@@ -54,17 +54,17 @@ func (read) process(s *state) {
 					return
 				}
 			}
-			if utils.StringIn(what.Spell, s.actor.Spells){
+			if utils.StringIn(what.Spell, s.actor.Spells) {
 				s.msg.Actor.SendBad("You already know this spell.")
 				return
 			}
-			s.msg.Actor.SendGood("You study ", what.Name, " and learn the spell " + what.Spell)
+			s.msg.Actor.SendGood("You study ", what.Name, " and learn the spell "+what.Spell)
 			s.actor.Spells = append(s.actor.Spells, what.Spell)
-			s.msg.Observers.SendInfo("You see ", s.actor.Name, " study a ", name, ".")
+			s.msg.Observers.SendInfo("You see ", s.actor.Name, " study a ", what.Name, ".")
 			s.actor.Inventory.Remove(what)
 			s.msg.Actor.SendInfo("The " + what.Name + " disintegrates.")
 			return
-		}else{
+		} else {
 			s.msg.Actor.SendBad("That's not a scroll.")
 		}
 	}

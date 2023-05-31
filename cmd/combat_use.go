@@ -83,13 +83,6 @@ func (use) process(s *state) {
 				return
 			}
 			if utils.StringIn(spellInstance.Name, objects.OffensiveSpells) && s.actor.Victim != nil {
-				if s.actor.GetStat("int") < config.IntMinorPenalty {
-					if utils.Roll(100, 1, 0) <= config.FizzleSave {
-						s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")
-						s.actor.SetTimer("use", 8)
-						return
-					}
-				}
 				switch s.actor.Victim.(type) {
 				case *objects.Character:
 					name = s.actor.Victim.(*objects.Character).Name
@@ -145,7 +138,7 @@ func (use) process(s *state) {
 					if strings.Contains(msg, "$CRIPT") {
 						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
 					} else if msg != "" {
-						s.msg.Actor.SendGood(msg)
+						s.msg.Participant.SendGood(msg)
 					}
 					what.MaxUses -= 1
 					if what.MaxUses <= 0 {
@@ -158,6 +151,7 @@ func (use) process(s *state) {
 				s.actor.RunHook("use")
 				s.actor.SetTimer("use", 8)
 				msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
+				s.msg.Observers.SendGood(s.actor.Name + " used a " + what.Name + " on themselves.")
 				if strings.Contains(msg, "$CRIPT") {
 					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
 				} else {

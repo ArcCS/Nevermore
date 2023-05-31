@@ -88,6 +88,7 @@ func (turn) process(s *state) {
 		if turnRoll <= config.DisintegrateChance {
 			s.msg.Actor.SendInfo("Your faith overwhelms the " + whatMob.Name + " and utterly demolishes them.")
 			s.msg.Observers.SendInfo(s.actor.Name + " disintegrates " + whatMob.Name)
+			whatMob.AddThreatDamage(whatMob.Stam.Current, s.actor)
 			whatMob.Stam.Current = 0
 			DeathCheck(s, whatMob)
 			whatMob = nil

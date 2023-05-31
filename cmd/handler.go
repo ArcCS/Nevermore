@@ -6,6 +6,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strings"
@@ -43,6 +44,12 @@ func dispatchHandler(s *state) {
 	if len(s.cmd) > 0 {
 		log.Println(s.actor.Name + " sent " + s.cmd + " " + strings.Join(s.input, " "))
 		s.actor.LastAction = time.Now()
+
+		if s.where.RoomId == config.OocRoom && s.cmd != "SAY" && s.cmd != "QUIT" && s.cmd != "HELP" && s.cmd != "WHO" && s.cmd != "LOOK" && s.cmd != "IC" && s.cmd != "$POOF" && s.cmd != "AFK" {
+			s.msg.Actor.SendBad("You must be IC to do that.")
+			return
+		}
+
 		if s.cmd[0] == '$' && !s.scripting {
 			s.msg.Actor.SendBad("Unknown command, type HELP to get a list of commands (2)")
 			return
@@ -53,7 +60,7 @@ func dispatchHandler(s *state) {
 		if val, ok := s.actor.Commands[completeCommand]; ok {
 			s.scriptActor(val.Command)
 			return
-		}else if val, ok := s.actor.Commands[s.cmd]; ok {
+		} else if val, ok := s.actor.Commands[s.cmd]; ok {
 			s.scriptActor(val.Command, strings.Join(s.input, " "))
 			return
 		}
@@ -64,7 +71,7 @@ func dispatchHandler(s *state) {
 			if val, ok := i.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := i.Commands[s.cmd]; ok {
+			} else if val, ok := i.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -74,7 +81,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Head.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Head.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Head.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -84,7 +91,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Chest.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Chest.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Chest.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -94,7 +101,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Neck.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Neck.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Neck.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -104,7 +111,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Legs.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Legs.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Legs.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -114,7 +121,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Feet.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Feet.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Feet.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -124,7 +131,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Arms.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Arms.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Arms.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -134,7 +141,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Hands.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Hands.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Hands.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -144,7 +151,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Ring1.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Ring1.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Ring1.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -154,7 +161,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Ring2.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Ring2.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Ring2.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -164,7 +171,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Main.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Main.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Main.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -174,7 +181,7 @@ func dispatchHandler(s *state) {
 			if val, ok := s.actor.Equipment.Off.Commands[completeCommand]; ok {
 				s.scriptAll(val.Command)
 				return
-			}else if val, ok := s.actor.Equipment.Off.Commands[s.cmd]; ok {
+			} else if val, ok := s.actor.Equipment.Off.Commands[s.cmd]; ok {
 				s.scriptAll(val.Command, strings.Join(s.input, " "))
 				return
 			}
@@ -184,7 +191,7 @@ func dispatchHandler(s *state) {
 		if val, ok := s.where.Commands[completeCommand]; ok {
 			s.scriptAll(val.Command)
 			return
-		}else if val, ok := s.where.Commands[s.cmd]; ok {
+		} else if val, ok := s.where.Commands[s.cmd]; ok {
 			s.scriptAll(val.Command, strings.Join(s.input, " "))
 			return
 		}
@@ -196,7 +203,7 @@ func dispatchHandler(s *state) {
 					if val, ok := i.Commands[completeCommand]; ok {
 						s.scriptAll(val.Command)
 						return
-					}else if val, ok := i.Commands[s.cmd]; ok {
+					} else if val, ok := i.Commands[s.cmd]; ok {
 						s.scriptAll(val.Command, strings.Join(s.input, " "))
 						return
 					}
@@ -211,7 +218,7 @@ func dispatchHandler(s *state) {
 					if val, ok := i.Commands[completeCommand]; ok {
 						s.scriptAll(val.Command)
 						return
-					}else if val, ok := i.Commands[s.cmd]; ok {
+					} else if val, ok := i.Commands[s.cmd]; ok {
 						s.scriptAll(val.Command, strings.Join(s.input, " "))
 						return
 					}

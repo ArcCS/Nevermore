@@ -196,8 +196,8 @@ func (godir) process(s *state) {
 
 					if len(s.actor.PartyFollowers) > 0 {
 						for _, peo := range s.actor.PartyFollowers {
-							instanceChar := peo
-							if instanceChar.ParentId == s.where.RoomId {
+							instanceChar := s.where.Chars.SearchAll(peo)
+							if instanceChar != nil && instanceChar.ParentId == s.where.RoomId {
 								go func() { instanceChar.CharCommands <- "go " + exitTxt }()
 							}
 						}

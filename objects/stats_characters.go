@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"io"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -90,6 +91,7 @@ func (c *characterStats) List() []string {
 			continue
 		}
 
+		log.Println("Character Last Action: ", character.LastAction)
 		calc := time.Now().Sub(character.LastAction)
 		charState := ""
 		if calc.Minutes() > 2 {
@@ -123,10 +125,25 @@ func (c *characterStats) GMList() []string {
 	list := make([]string, 0, len(c.list))
 
 	for _, character := range c.list {
-		if character.Title != "" {
-			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s(%s), %s, %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, strconv.Itoa(character.Tier), character.ClassTitle, character.Title))
+		log.Println("Character Last Action: ", character.LastAction)
+		calc := time.Now().Sub(character.LastAction)
+		charState := ""
+		if character.Flags["ooc"] {
+			charState += " [OOC] "
+		}
+		if character.Flags["afk"] {
+			charState += " [AFK]"
+		}
+		if charState != "" {
+			charState = "/" + charState + fmt.Sprintf("[Activity: %ss]", strconv.Itoa(int(calc.Seconds())))
 		} else {
-			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s(%s), %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, strconv.Itoa(character.Tier), character.ClassTitle))
+			charState = fmt.Sprintf("[Activity: %ss]", strconv.Itoa(int(calc.Seconds())))
+		}
+
+		if character.Title != "" {
+			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s(%s), %s, %s %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, strconv.Itoa(character.Tier), character.ClassTitle, character.Title, charState))
+		} else {
+			list = append(list, fmt.Sprintf("(Room: %s) (%s) %s(%s), %s %s", strconv.Itoa(character.ParentId), IpMap[character.Name], character.Name, strconv.Itoa(character.Tier), character.ClassTitle, charState))
 		}
 	}
 

@@ -14,9 +14,9 @@ func init() {
 type unfollow cmd
 
 func (unfollow) process(s *state) {
-	if s.actor.PartyFollow == nil {
+	if s.actor.PartyFollow == "" {
 		s.msg.Actor.SendBad("You aren't following anyone.")
-	}else {
+	} else {
 		s.actor.Unfollow()
 	}
 	s.ok = true

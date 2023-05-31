@@ -46,16 +46,16 @@ func (memorize) process(s *state) {
 			}
 			_, ok := objects.Songs[what.Spell]
 			if !ok {
-				s.msg.Actor.SendBad("The spell contained does not exist in this world.")
+				s.msg.Actor.SendBad("The song contained does not exist in this world.")
 				return
 			}
 			if utils.StringIn(what.Spell, s.actor.Spells) {
-				s.msg.Actor.SendBad("You already know this spell.")
+				s.msg.Actor.SendBad("You already know this song.")
 				return
 			}
 			s.msg.Actor.SendGood("You study ", what.Name, " and learn the song "+what.Spell)
 			s.actor.Spells = append(s.actor.Spells, what.Spell)
-			s.msg.Observers.SendInfo("You see ", s.actor.Name, " memorize a ", name, ".")
+			s.msg.Observers.SendInfo("You see ", s.actor.Name, " memorize a ", what.Name, ".")
 			s.actor.Inventory.Remove(what)
 			s.msg.Actor.SendInfo("The " + what.Name + " disintegrates.")
 			return

@@ -39,7 +39,6 @@ type Room struct {
 	StoreInventory     *ItemInventory
 	Songs              map[string]string
 	LockPriority       string
-	StagedClearing     bool
 }
 
 // Pop the room data
@@ -69,7 +68,6 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		RestoreInventory(roomData["store_inventory"].(string)),
 		make(map[string]string),
 		"",
-		false,
 	}
 
 	for _, encounter := range roomData["encounters"].([]interface{}) {
@@ -97,6 +95,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 			newRoom.Flags[k] = int(v.(int64)) != 0
 		}
 	}
+	newRoom.Mobs.ContinueEmpty = newRoom.ContinueEmpty
 	return newRoom, true
 }
 
@@ -204,6 +203,13 @@ func (r *Room) Look(looker *Character) (buildText string) {
 	}
 }
 
+func (r *Room) ContinueEmpty() bool {
+	if len(r.Chars.Contents) == 0 {
+		return true
+	}
+	return false
+}
+
 func (r *Room) CleanExits() {
 	for _, exiti := range r.Exits {
 		// Clean up just in case a delete didn't get cleaned up...
@@ -235,12 +241,6 @@ func (r *Room) ToggleFlag(flagName string) bool {
 func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
 	//*
-	reloadMobs := true
-	if r.StagedClearing {
-		log.Println("Stop clearing, and do not restart mobs.")
-		r.StagedClearing = false
-		reloadMobs = false
-	}
 	if r.Flags["encounters_on"] {
 		r.roomTicker = time.NewTicker(10 * time.Second)
 		go func() {
@@ -249,7 +249,6 @@ func (r *Room) FirstPerson() {
 				case <-r.roomTickerUnload:
 					return
 				case <-r.roomTicker.C:
-					// Is the room crowded?
 					r.Encounter()
 				}
 			}
@@ -305,14 +304,13 @@ func (r *Room) FirstPerson() {
 			}
 		}()
 	}
-	if reloadMobs {
-		r.Mobs.RestartPerms()
-	}
+	r.Mobs.RestartPerms()
 }
 
 func (r *Room) Encounter() {
 	// Check if encounters are off, a GM can change this live.
 	if r.Flags["encounters_on"] {
+		log.Println("Run the encounter function!")
 		if len(r.Mobs.Contents) < 10 {
 			// Augment the encounter based on the number of players in the room
 			aug := len(r.Chars.Contents)
@@ -349,16 +347,10 @@ func (r *Room) LastPerson() {
 		return
 	}
 
-	// Set the room to staged clearing and then wait 2 seconds to actually tear down
-	r.StagedClearing = true
-	time.Sleep(2 * time.Second)
-	if !r.StagedClearing {
-		log.Println("Room clearing was cancelled.")
-		return
-	}
+	// This was the last character, invoke the whole cleaning routine now.
 	log.Println("Clearing Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")")
-	r.Mobs.RemoveNonPerms()
 	r.Items.RemoveNonPerms()
+	go r.Mobs.RemoveNonPerms()
 
 	for _, exit := range r.Exits {
 		if exit.Flags["autoclose"] {
@@ -385,8 +377,6 @@ func (r *Room) LastPerson() {
 		}
 	}
 
-	// Completed clearing, reset to default
-	r.StagedClearing = false
 	go r.Save()
 
 }
@@ -498,7 +488,7 @@ func (r *Room) Save() {
 	roomData["wind"] = utils.Btoi(r.Flags["wind"])
 	roomData["active"] = utils.Btoi(r.Flags["active"])
 	roomData["train"] = utils.Btoi(r.Flags["train"])
-	roomData["mobs"] = r.Mobs.Jsonify()
+	roomData["mobs"] = r.Mobs.JsonRepr
 	roomData["inventory"] = r.Items.Jsonify()
 	roomData["commands"] = r.SerializeCommands()
 	roomData["store_owner"] = r.StoreOwner

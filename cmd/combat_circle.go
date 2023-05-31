@@ -84,12 +84,14 @@ func (circle) process(s *state) {
 			s.msg.Actor.SendBad("You missed!!")
 			s.actor.SetTimer("combat_circle", config.CircleTimer)
 			s.actor.SetTimer("combat", config.CombatCooldown)
+			whatMob.CurrentTarget = s.actor.Name
 			s.msg.Observers.SendBad(s.actor.Name + " fails to circle " + whatMob.Name)
 			return
 		}
 
 		whatMob.Stun(config.CircleStuns)
-		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
+		whatMob.AddThreatDamage(whatMob.Stam.Max/2, s.actor)
+		whatMob.CurrentTarget = s.actor.Name
 		s.actor.SetTimer("combat_circle", config.CircleTimer)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		s.msg.Actor.SendInfo("You circled " + whatMob.Name)

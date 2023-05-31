@@ -28,21 +28,21 @@ func (follow) process(s *state) {
 			s.msg.Actor.SendBad("You cannot follow yourself.")
 			return
 		}
-		if whatChar == s.actor.PartyFollow {
+		if whatChar.Name == s.actor.PartyFollow {
 			s.msg.Actor.SendBad("You're already following them. ")
 			return
 		}
-		if s.actor.PartyFollow != nil {
+		if s.actor.PartyFollow != "" {
 			s.actor.Unfollow()
 		}
 		s.participant = whatChar
-		s.actor.PartyFollow = whatChar
+		s.actor.PartyFollow = whatChar.Name
 		s.msg.Actor.SendGood("You follow " + whatChar.Name)
-		whatChar.PartyFollowers = append(whatChar.PartyFollowers, s.actor)
+		whatChar.PartyFollowers = append(whatChar.PartyFollowers, s.actor.Name)
 		if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Participant.SendInfo(s.actor.Name, " follows you.")
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("Who ya followin'??")
 	}
 
