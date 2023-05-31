@@ -18,7 +18,7 @@ var Songs = map[string]map[string]string{
 		"verse":  " now curious, get it in your head, if you follow me, then you'll be dead.",
 		"effect": "curious-canticle",
 	},
-	"sweet-comfort:": {
+	"sweet-comfort": {
 		"desc":   "comforts creatures, lulling them so they will not flee.",
 		"verse":  " relax, my child, sleep and dream, for things aren't as bad as they seem.",
 		"effect": "sweet-comfort",
