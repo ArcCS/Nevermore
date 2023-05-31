@@ -472,6 +472,14 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		} else {
 			return false
 		}
+	} else if alias == "shield" {
+		if e.Off != (*Item)(nil) {
+			iArmor = e.Off.Armor
+			lightBearing = e.Off.Flags["light"]
+			e.Off = (*Item)(nil)
+		} else {
+			return false
+		}
 	}
 
 	if lightBearing {
