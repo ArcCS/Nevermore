@@ -269,7 +269,7 @@ func (m *Mob) Tick() {
 			if len(m.ThreatTable) > 1 {
 				rankedThreats := utils.RankMapStringInt(m.ThreatTable)
 				if m.CurrentTarget != rankedThreats[0] {
-					if utils.Roll(100, 1, 0) <= 15 {
+					if utils.Roll(100, 1, 0) <= 5 {
 						if utils.StringIn(rankedThreats[0], Rooms[m.ParentId].Chars.MobList(m)) {
 							m.CurrentTarget = rankedThreats[0]
 							Rooms[m.ParentId].MessageAll(m.Name + " turns to " + m.CurrentTarget + "\n" + text.Reset)
