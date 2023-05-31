@@ -171,6 +171,7 @@ func (kill) process(s *state) {
 			// Check for a miss
 			if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
 				s.msg.Actor.SendBad("You missed!!")
+				whatMob.AddThreatDamage(1, s.actor)
 				s.actor.SetTimer("combat", config.CombatCooldown)
 				return
 			} else {

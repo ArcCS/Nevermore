@@ -944,24 +944,24 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 
 	switch element {
 	case "fire":
-		if c.CheckFlag("resist_fire") {
+		if c.CheckFlag("resist-fire") {
 			resisting += .25
 		}
 	case "air":
-		if c.CheckFlag("resist_air") {
+		if c.CheckFlag("resist-air") {
 			resisting += .25
 		}
 	case "earth":
-		if c.CheckFlag("resist_air") {
+		if c.CheckFlag("resist-air") {
 			resisting += .25
 		}
 	case "water":
-		if c.CheckFlag("resist_air") {
+		if c.CheckFlag("resist-air") {
 			resisting += .25
 		}
 	}
 
-	if c.CheckFlag("resist_magic") {
+	if c.CheckFlag("resist-magic") {
 		resisting += .10
 	}
 
@@ -1052,10 +1052,10 @@ func (c *Character) InflictDamage() (damage int) {
 		// Monks do 1/3 of max damage no matter what
 		baseMonkDamage := config.MaxWeaponDamage[c.Tier] / 3
 		// Max dex is 45, divide current dex by 45 to get percentage and multiply that by the remaining 1/3rd of damage
-		dexDamage := int(math.Ceil(float64(c.GetStat("str")) / float64(45) * float64(baseMonkDamage)))
+		strDamage := int(math.Ceil(float64(c.GetStat("str")) / float64(45) * float64(baseMonkDamage)))
 		// rng on the remaining 1/3rd
 		rngDamage := utils.Roll(baseMonkDamage, 1, 0)
-		damage = baseMonkDamage + dexDamage + rngDamage
+		damage = baseMonkDamage + strDamage + rngDamage
 	}
 
 	if c.CheckFlag("surge") {

@@ -310,7 +310,7 @@ func (r *Room) FirstPerson() {
 func (r *Room) Encounter() {
 	// Check if encounters are off, a GM can change this live.
 	if r.Flags["encounters_on"] {
-		log.Println("Run the encounter function!")
+		log.Println("Room# " + strconv.Itoa(r.RoomId) + " Run the encounter function!")
 		if len(r.Mobs.Contents) < 10 {
 			// Augment the encounter based on the number of players in the room
 			aug := len(r.Chars.Contents)

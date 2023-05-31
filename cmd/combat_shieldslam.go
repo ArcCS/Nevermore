@@ -5,7 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
-	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 )
 
@@ -88,17 +87,9 @@ func (slam) process(s *state) {
 			return
 		}
 
-		// Check for a miss
-		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
-			s.msg.Actor.SendBad("You missed!!")
-			s.msg.Observers.SendBad(s.actor.Name + " fails to shield slam " + whatMob.Name)
-			return
-		}
-
 		actualDamage, _ := whatMob.ReceiveDamage(s.actor.GetStat("str") * config.ShieldDamage)
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		whatMob.Stun(int(config.ShieldStun * float64(s.actor.GetStat("pie"))))
-		s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 		s.msg.Actor.SendInfo("You slammed the " + whatMob.Name + " with your shield for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.TextPosPronoun[s.actor.Gender] + " shield into " + whatMob.Name)
 		DeathCheck(s, whatMob)

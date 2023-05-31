@@ -35,14 +35,6 @@ func (use) process(s *state) {
 	name := ""
 	nameNum := 1
 
-	if s.actor.GetStat("int") < config.IntMajorPenalty {
-		if utils.Roll(100, 1, 0) <= config.FizzleSave {
-			s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")
-			s.actor.SetTimer("use", 8)
-			return
-		}
-	}
-
 	if len(s.words) == 4 {
 		name = s.words[2]
 		// Try to snag a number off the list
@@ -81,6 +73,15 @@ func (use) process(s *state) {
 			if !ok {
 				s.msg.Actor.SendBad("Spell doesn't exist in this world. ")
 				return
+			}
+			if !utils.StringIn(spellInstance.Name, []string{"vigor", "mend"}) {
+				if s.actor.GetStat("int") < config.IntMajorPenalty {
+					if utils.Roll(100, 1, 0) <= config.FizzleSave {
+						s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")
+						s.actor.SetTimer("use", 8)
+						return
+					}
+				}
 			}
 			if utils.StringIn(spellInstance.Name, objects.OffensiveSpells) && s.actor.Victim != nil {
 				switch s.actor.Victim.(type) {
