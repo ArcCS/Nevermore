@@ -117,7 +117,7 @@ func (snipe) process(s *state) {
 			if utils.Roll(100, 1, 0) < config.SnipeFumbleChance {
 				s.msg.Actor.SendBad("You fumbled your weapon!")
 				s.msg.Observer.SendInfo(s.actor.Name + " fails to snipe and fumbles their weapon. ")
-				s.actor.SetTimer("global", 25)
+				s.actor.SetTimer("combat", 24)
 				_, what := s.actor.Equipment.Unequip(s.actor.Equipment.Main.Name)
 				if what != nil {
 					s.actor.Inventory.Add(what)
