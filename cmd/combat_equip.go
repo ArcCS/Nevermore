@@ -44,6 +44,11 @@ func (equip) process(s *state) {
 			return
 		}
 
+		if what.MaxUses <= 0 {
+			s.msg.Actor.SendInfo("The " + what.DisplayName() + " is broken")
+			return
+		}
+
 		if s.actor.Equipment.Equip(what) {
 			s.msg.Actor.SendGood("You equip " + what.DisplayName())
 			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.DisplayName())
