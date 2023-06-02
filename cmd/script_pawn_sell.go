@@ -44,6 +44,11 @@ func (sell) process(s *state) {
 			return
 		}
 
+		if target.ItemType == 9 {
+			s.msg.Actor.SendInfo("Sorry, I have enough bags already")
+			return
+		}
+
 		finalValue := 0
 		// real dumb
 		if s.actor.GetStat("int") < 5 {
