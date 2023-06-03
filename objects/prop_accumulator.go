@@ -23,6 +23,13 @@ func (a *Accumulator) Subtract(val int) {
 	}
 }
 
+func (a *Accumulator) SubMax(val int, finalVal int) {
+	a.Value -= val
+	if a.Value < finalVal {
+		a.Value = finalVal
+	}
+}
+
 func (a *Accumulator) SubIfCan(val int) (ok bool) {
 	ok = false
 	if a.CanSubtract(val) {

@@ -100,25 +100,26 @@ func (scriptDeath) process(s *state) {
 		s.actor.Vit.Current = s.actor.Vit.Max
 		s.actor.Mana.Current = s.actor.Mana.Max
 
-		totalExpNeeded := config.TierExpLevels[s.actor.Tier+1] - config.TierExpLevels[s.actor.Tier]
+		totalExpNeeded := config.MaxLoss(s.actor.Tier)
+		finalMin := config.TierExpLevels[s.actor.Tier+1] - (totalExpNeeded * 2)
 		// Determine the death penalty
 		if s.actor.Tier > config.FreeDeathTier {
-			deathRoll := utils.Roll(200, 1, 0)
+			deathRoll := utils.Roll(100, 1, 0)
 			switch {
-			case deathRoll <= 20: // Free Passage
+			case deathRoll <= 5: // Free Passage
 				s.actor.Write([]byte(text.Green + "You've passed through this death unscathed... \n\n" + text.Reset))
 				break
-			case deathRoll <= 60: // 1/4x death penalty
+			case deathRoll <= 30: // 1/4x death penalty
 				s.actor.Write([]byte(text.Green + "The death did not come easy but the setback feels minor (25% xp loss)\n\n" + text.Reset))
-				s.actor.Experience.Subtract(int(float64(totalExpNeeded) * .25))
+				s.actor.Experience.SubMax(int(float64(totalExpNeeded)*.25), finalMin)
 				break
-			case deathRoll <= 100: // 1/2x death penalty
+			case deathRoll <= 80: // 1/2x death penalty
 				s.actor.Write([]byte(text.Green + "The death was a setback but you feel you can recover (50% xp loss)\n\n" + text.Reset))
-				s.actor.Experience.Subtract(int(float64(totalExpNeeded) * .5))
+				s.actor.Experience.SubMax(int(float64(totalExpNeeded)*.5), finalMin)
 				break
-			case deathRoll <= 195: // 1x whole death penalty
+			case deathRoll <= 100: // 1x whole death penalty
 				s.actor.Write([]byte(text.Green + "The passage through the realm of death was traumatic and you feel like you might have lost something along the way.. (100% xp loss)\n\n" + text.Reset))
-				s.actor.Experience.Subtract(totalExpNeeded)
+				s.actor.Experience.SubMax(totalExpNeeded, finalMin)
 				break
 			}
 		}
