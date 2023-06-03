@@ -35,7 +35,6 @@ func (edit) process(s *state) {
 	// Handle Rooms
 	case "room":
 		// Toggle Flags
-		s.where.LastPerson()
 		if strings.ToLower(s.words[1]) == "toggle" {
 			for _, flag := range s.input[2:] {
 				if (s.actor.Permission.HasFlags(permissions.Builder, permissions.Dungeonmaster)) || flag != "active" {
@@ -64,7 +63,6 @@ func (edit) process(s *state) {
 			}
 		}
 		s.where.Save()
-		s.where.FirstPerson()
 		return
 
 	// Handle Exits
@@ -232,12 +230,8 @@ func (edit) process(s *state) {
 					if mob.ToggleFlag(strings.ToLower(flag)) {
 						s.msg.Actor.SendGood("Toggled " + flag)
 						if flag == "permanent" {
-							log.Println("Executing Last Person")
-							s.where.LastPerson()
 							log.Println("Executing Save")
 							s.where.Save()
-							log.Println("Executing first person..")
-							s.where.FirstPerson()
 						}
 					} else {
 						s.msg.Actor.SendBad("Failed to toggle " + flag + ".  Is it an actual flag?")

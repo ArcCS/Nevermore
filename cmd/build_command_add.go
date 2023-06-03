@@ -29,11 +29,9 @@ func (add_command) process(s *state) {
 	// Handle Rooms
 	case "room":
 		if _, ok := ScriptList[s.words[2]]; ok {
-			s.where.LastPerson()
 			s.where.AddCommands(s.words[1], strings.Join(s.words[2:], " "))
 			s.msg.Actor.SendGood("Script set on room")
 			s.where.Save()
-			s.where.FirstPerson()
 			return
 		} else {
 			s.msg.Actor.SendBad("The inputted script was not recognized: " + s.words[1])
