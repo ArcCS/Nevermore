@@ -7,7 +7,7 @@ import (
 
 func init() {
 	addHandler(remove_command{},
-		"Usage: remove_command room|mob|item (name) command_name \n  Deletes a command from the list of commands available \n" ,
+		"Usage: remove_command room|mob|item (name) command_name \n  Deletes a command from the list of commands available \n",
 		permissions.Builder,
 		"remove_command")
 }
@@ -25,13 +25,11 @@ func (remove_command) process(s *state) {
 	// Handle Rooms
 	case "room":
 		if _, ok := s.where.Commands[s.words[1]]; ok {
-			s.where.LastPerson()
 			s.where.RemoveCommand(s.words[1])
 			s.msg.Actor.SendGood("Script removed from room")
 			s.where.Save()
-			s.where.FirstPerson()
 			return
-		}else{
+		} else {
 			s.msg.Actor.SendBad("The command wasn't found in the rooms commands.")
 			return
 		}
@@ -50,7 +48,7 @@ func (remove_command) process(s *state) {
 				s.msg.Actor.SendGood("Script removed from item")
 				item.Save()
 				return
-			}else{
+			} else {
 				s.msg.Actor.SendBad("The command wasn't found in the items command list.")
 			}
 		} else {
@@ -74,7 +72,7 @@ func (remove_command) process(s *state) {
 				s.msg.Actor.SendGood("Script removed from mob")
 				mob.Save()
 				return
-			}else{
+			} else {
 				s.msg.Actor.SendBad("The command wasn't found on this mob.")
 			}
 		} else {
