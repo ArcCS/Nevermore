@@ -1,18 +1,19 @@
 package objects
 
 import (
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/data"
-	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/text"
-	"github.com/ArcCS/Nevermore/utils"
-	"github.com/jinzhu/copier"
 	"log"
 	"math"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
+	"github.com/jinzhu/copier"
 )
 
 // Mob implements a control object for mobs interacting with players and each other
@@ -1097,8 +1098,80 @@ func (m *Mob) Save() {
 }
 
 func (m *Mob) Eval() string {
-	return "You study the " + m.Name + " in your minds eye....\n\n" +
-		"It is level " + strconv.Itoa(m.Level) + ". \n" +
-		"It currently has " + strconv.Itoa(m.Stam.Current) + " hits points remaining. \n" +
-		"It is worth " + strconv.Itoa(m.Experience) + " experience points. \n"
+	var descriptions []string
+
+	descriptions = append(descriptions, "You study the "+m.Name+" in your mind's eye....")
+
+	if m.Level > 0 {
+		descriptions = append(descriptions, "It is level "+strconv.Itoa(m.Level)+".")
+	}
+
+	if m.Stam.Current > 0 {
+		descriptions = append(descriptions, "It currently has "+strconv.Itoa(m.Stam.Current)+" hit points remaining.")
+	}
+
+	if m.Experience > 0 {
+		descriptions = append(descriptions, "It is worth "+strconv.Itoa(m.Experience)+" experience points.")
+	}
+
+	if m.Flags["poisons"] {
+		descriptions = append(descriptions, "It can poison you.")
+	}
+
+	if m.Flags["undead"] {
+		descriptions = append(descriptions, "It is an undead creature.")
+	}
+
+	if m.BreathWeapon != "" {
+		descriptions = append(descriptions, "It can breathe "+m.BreathWeapon+".")
+	}
+
+	if m.Flags["fast_moving"] {
+		descriptions = append(descriptions, "It is a fast-moving creature.")
+	}
+
+	if m.Flags["block_exit"] {
+		descriptions = append(descriptions, "It can block your way.")
+	}
+
+	if m.Flags["follows"] {
+		descriptions = append(descriptions, "It will follow you.")
+	}
+
+	if m.Flags["no_stun"] {
+		descriptions = append(descriptions, "It is immune to stun.")
+	}
+
+	if m.Flags["diseases"] {
+		descriptions = append(descriptions, "It can spread diseases.")
+	}
+
+	if m.Flags["spits_acid"] {
+		descriptions = append(descriptions, "It can spit acid.")
+	}
+
+	if m.Flags["blinds"] {
+		descriptions = append(descriptions, "It has the ability to blind your vision.")
+	}
+
+	if len(m.Spells) > 0 {
+		descriptions = append(descriptions, "It can cast spells.")
+	}
+
+	if m.Flags["no_steal"] {
+		descriptions = append(descriptions, "It cannot be stolen from.")
+	}
+
+	if m.Flags["flees"] {
+		descriptions = append(descriptions, "It will flee from combat.")
+	}
+
+	if !m.Flags["hostile"] {
+		descriptions = append(descriptions, "It is not hostile towards you.")
+	}
+
+	if m.Flags["ranged_attack"] {
+		descriptions = append(descriptions, "It has a ranged attack.")
+	}
+	return strings.Join(descriptions, "\n") + "\n"
 }
