@@ -6,6 +6,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"strings"
+	"time"
 )
 
 func init() {
@@ -195,7 +196,8 @@ func (godir) process(s *state) {
 					}
 
 					if len(s.actor.PartyFollowers) > 0 {
-						for _, peo := range s.actor.PartyFollowers {
+						for ind, peo := range s.actor.PartyFollowers {
+							time.Sleep(time.Duration(ind*250) * time.Millisecond)
 							instanceChar := s.where.Chars.SearchAll(peo)
 							if instanceChar != nil && instanceChar.ParentId == s.where.RoomId {
 								go func() { instanceChar.CharCommands <- "go " + exitTxt }()

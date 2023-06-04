@@ -89,7 +89,6 @@ func (c *characterStats) List() []string {
 			continue
 		}
 
-		log.Println("Character Last Action: ", character.LastAction)
 		calc := time.Now().Sub(character.LastAction)
 		charState := ""
 		if calc.Minutes() > 2 {
