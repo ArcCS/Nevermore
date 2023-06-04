@@ -1,13 +1,14 @@
 package objects
 
 import (
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/text"
-	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
 )
 
 var (
@@ -1096,7 +1097,7 @@ func clairvoyance(caller interface{}, target interface{}, magnitude int) string 
 					return "You failed to cast clairvoyance on " + target.Name
 				} else {
 					target.Write([]byte(text.Info + caller.Name + " sees through your eyes. \n" + text.Reset))
-					return Rooms[target.ParentId].Look(caller)
+					caller.Write([]byte(Rooms[caller.ParentId].Look(target) + text.Reset))
 				}
 			}
 		case *Mob:
