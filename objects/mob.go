@@ -1114,63 +1114,53 @@ func (m *Mob) Eval() string {
 		descriptions = append(descriptions, "It is worth "+strconv.Itoa(m.Experience)+" experience points.")
 	}
 
-	if m.Flags["poisons"] {
+	if m.CheckFlag("poisons") {
 		descriptions = append(descriptions, "It can poison you.")
 	}
 
-	if m.Flags["undead"] {
+	if m.CheckFlag("undead") {
 		descriptions = append(descriptions, "It is an undead creature.")
 	}
-
 	if m.BreathWeapon != "" {
-		descriptions = append(descriptions, "It can breathe "+m.BreathWeapon+".")
+		descriptions = append(descriptions, "It can breathe "+m.BreathWeapon+" on you.")
 	}
-
-	if m.Flags["fast_moving"] {
+	if m.CheckFlag("fast_moving") {
 		descriptions = append(descriptions, "It is a fast-moving creature.")
 	}
-
-	if m.Flags["block_exit"] {
+	if m.CheckFlag("block_exit") {
 		descriptions = append(descriptions, "It can block your way.")
 	}
-
-	if m.Flags["follows"] {
-		descriptions = append(descriptions, "It will follow you.")
+	if m.CheckFlag("follows") {
+		descriptions = append(descriptions, "It will try to follow you.")
 	}
-
-	if m.Flags["no_stun"] {
+	if m.CheckFlag("no_stun") {
 		descriptions = append(descriptions, "It is immune to stun.")
 	}
-
-	if m.Flags["diseases"] {
+	if m.CheckFlag("diseases") {
 		descriptions = append(descriptions, "It can spread diseases.")
 	}
-
-	if m.Flags["spits_acid"] {
+	if m.CheckFlag("spits_acid") {
 		descriptions = append(descriptions, "It can spit acid.")
 	}
-
-	if m.Flags["blinds"] {
+	if m.CheckFlag("blinds") {
 		descriptions = append(descriptions, "It has the ability to blind your vision.")
 	}
-
 	if len(m.Spells) > 0 {
 		descriptions = append(descriptions, "It can cast spells.")
 	}
-
-	if m.Flags["no_steal"] {
+	if m.CheckFlag("no_steal") {
 		descriptions = append(descriptions, "It cannot be stolen from.")
 	}
-
-	if m.Flags["flees"] {
-		descriptions = append(descriptions, "It will flee from combat.")
+	if m.CheckFlag("steals") {
+		descriptions = append(descriptions, "It will try to steal your things!")
 	}
-
-	if !m.Flags["hostile"] {
-		descriptions = append(descriptions, "It is not hostile towards you.")
+	if m.CheckFlag("flees") {
+		descriptions = append(descriptions, "It could try to flee from combat.")
 	}
-
-	if m.Flags["ranged_attack"] {
+	if m.CheckFlag("hostile") {
+		descriptions = append(descriptions, "It is  hostile towards you.")
+	}
+	if m.CheckFlag("ranged_attack") {
 		descriptions = append(descriptions, "It has a ranged attack.")
 	}
 	return strings.Join(descriptions, "\n") + "\n"
