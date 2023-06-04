@@ -245,8 +245,14 @@ func (r *Room) FirstPerson() {
 		r.roomTicker = time.NewTicker(10 * time.Second)
 		go func() {
 			for {
+				if len(r.Chars.Contents) <= 0 {
+					log.Println("Tried to run while no one was in the room.. last person destructor not working?")
+					r.roomTicker.Stop()
+					return
+				}
 				select {
 				case <-r.roomTickerUnload:
+					r.roomTicker.Stop()
 					return
 				case <-r.roomTicker.C:
 					r.Encounter()
@@ -260,6 +266,7 @@ func (r *Room) FirstPerson() {
 			for {
 				select {
 				case <-r.effectTickerUnload:
+					r.effectTicker.Stop()
 					return
 				case <-r.effectTicker.C:
 
@@ -361,13 +368,11 @@ func (r *Room) LastPerson() {
 	// Destruct the ticker
 	if r.Flags["encounters_on"] {
 		r.roomTickerUnload <- true
-		r.roomTicker.Stop()
 	}
 
 	// Destruct the ticker
 	if r.Flags["fire"] || r.Flags["earth"] || r.Flags["wind"] || r.Flags["water"] {
 		r.effectTickerUnload <- true
-		r.effectTicker.Stop()
 	}
 
 	// Relock all the exits.

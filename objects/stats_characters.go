@@ -39,15 +39,13 @@ func (c *characterStats) Add(character *Character, address string) {
 
 // Pass character as a pointer, compare and remove
 func (c *characterStats) Remove(character *Character) {
-	//log.Println("trying to let everyone know...")
-	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
-		c.MessageGM("###:" + character.Name + " departs the realm.")
-	} else {
-		c.MessageAll("###: " + character.Name + " departs the realm.")
-	}
-
+	log.Println("Starting character removal from active stats")
 	c.Lock()
-	//log.Println("Acquired locks.. now running through everything")
+	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
+		c.MessageGMExcept("###:"+character.Name+" departs the realm.", character)
+	} else {
+		c.MessageExcept("###: "+character.Name+" departs the realm.", character)
+	}
 
 	for i, p := range c.list {
 		if p == character {
@@ -64,7 +62,7 @@ func (c *characterStats) Remove(character *Character) {
 	}
 
 	c.Unlock()
-	//log.Println("Unlocking...")
+	log.Println("Ending character removal from active stats")
 }
 
 func (c *characterStats) Find(name string) *Character {
@@ -125,7 +123,6 @@ func (c *characterStats) GMList() []string {
 	list := make([]string, 0, len(c.list))
 
 	for _, character := range c.list {
-		log.Println("Character Last Action: ", character.LastAction)
 		calc := time.Now().Sub(character.LastAction)
 		charState := ""
 		if character.Flags["ooc"] {
@@ -151,6 +148,21 @@ func (c *characterStats) GMList() []string {
 	return list
 }
 
+func (c *characterStats) MessageExcept(msg string, except *Character) {
+	// Setup buffer
+	msgbuf := message.AcquireBuffer()
+	msgbuf.Send(text.White, msg)
+	players := []io.Writer{}
+	for _, p := range c.list {
+		if p != except {
+			players = append(players, p)
+		}
+	}
+	msgbuf.Deliver(players...)
+
+	return
+}
+
 func (c *characterStats) MessageAll(msg string) {
 	c.Lock()
 
@@ -164,6 +176,21 @@ func (c *characterStats) MessageAll(msg string) {
 	msgbuf.Deliver(players...)
 
 	c.Unlock()
+	return
+}
+
+func (c *characterStats) MessageGMExcept(msg string, except *Character) {
+	// Setup buffer
+	msgbuf := message.AcquireBuffer()
+	msgbuf.Send(text.White, "[GM] ", msg)
+	players := []io.Writer{}
+	for _, p := range c.list {
+		if p != except {
+			players = append(players, p)
+		}
+	}
+	msgbuf.Deliver(players...)
+
 	return
 }
 
