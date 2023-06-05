@@ -184,7 +184,7 @@ func (c *characterStats) MessageGMExcept(msg string, except *Character) {
 	msgbuf.Send(text.White, "[GM] ", msg)
 	players := []io.Writer{}
 	for _, p := range c.list {
-		if p != except {
+		if p.Permission.HasAnyFlags(permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster, permissions.Builder) {
 			players = append(players, p)
 		}
 	}
