@@ -633,9 +633,6 @@ func (c *Character) Write(b []byte) (n int, err error) {
 	if c != nil {
 		n, err = c.Writer.Write(b)
 	}
-	if err != nil {
-		log.Println("Character Direct -> Error writing to client:", err)
-	}
 	return
 }
 
@@ -857,8 +854,6 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 	}
 	stamDamage, vitalDamage := 0, 0
 	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
-	// Resist a little more based on con
-	resist += int(math.Ceil(float64(damage) * (float64(c.Con.Current) * config.ConArmorMod)))
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))

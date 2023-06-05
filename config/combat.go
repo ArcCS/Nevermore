@@ -21,9 +21,6 @@ var CombatModifiers = map[string]int{
 }
 
 var IntMajorPenalty = 7
-var StrMajorPenalty = 5
-var ConMajorPenalty = 5
-var DexMajorPenalty = 7
 var PieMajorPenalty = 5
 
 var MobAugmentPerCharacter = 3
@@ -152,17 +149,13 @@ var PieRegenMod = .1 // Regen Mana per tick
 var PieHealMod = .7  // Per point
 
 // Armor Values
-var ArmorReduction = .01
+var ArmorReduction = .007
 var ArmorReductionPoints = 10
 
-var MobArmorReduction = .03
-var MobArmorReductionPoints = 10
+var MobArmorReduction = .04
+var MobArmorReductionPoints = 2
 
 func MaxWeight(str int) int {
-	// Strength Penalty
-	if str < StrMajorPenalty {
-		return BaseCarryWeight - ((StrMajorPenalty - str) * StrCarryPenalty)
-	}
 	return BaseCarryWeight + (str * StrCarryMod)
 }
 

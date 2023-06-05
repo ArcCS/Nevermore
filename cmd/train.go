@@ -54,9 +54,17 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
+			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Str.Current+1); !status {
+				s.msg.Actor.SendBad(msg)
+				return
+			}
 		} else if proc == "dex" {
 			if s.actor.Dex.Current == s.actor.Dex.Max {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
+				return
+			}
+			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Dex.Current+1); !status {
+				s.msg.Actor.SendBad(msg)
 				return
 			}
 		} else if proc == "con" {
@@ -64,14 +72,26 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
+			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Con.Current+1); !status {
+				s.msg.Actor.SendBad(msg)
+				return
+			}
 		} else if proc == "int" {
 			if s.actor.Int.Current == s.actor.Int.Max {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
+			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Int.Current+1); !status {
+				s.msg.Actor.SendBad(msg)
+				return
+			}
 		} else if proc == "pie" {
 			if s.actor.Pie.Current == s.actor.Pie.Max {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
+				return
+			}
+			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Pie.Current+1); !status {
+				s.msg.Actor.SendBad(msg)
 				return
 			}
 		}

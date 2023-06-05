@@ -398,9 +398,6 @@ func (m *Mob) Tick() {
 				vitDamage := 0
 				reflectDamage := 0
 				actualDamage := m.InflictDamage()
-				if target.GetStat("dex") < config.DexMajorPenalty {
-					penalty = 2
-				}
 				if utils.Roll(10, 1, 0) <= penalty {
 					attackStyleRoll := utils.Roll(10, 1, 0)
 					if attackStyleRoll <= config.MobVital {
@@ -498,9 +495,6 @@ func (m *Mob) Tick() {
 					vitDamage := 0
 					actualDamage := m.InflictDamage()
 					reflectDamage := 0
-					if target.GetStat("dex") < config.DexMajorPenalty {
-						penalty = 2
-					}
 					if utils.Roll(10, 1, 0) <= penalty {
 						attackStyleRoll := utils.Roll(10, 1, 0)
 						if attackStyleRoll <= config.MobVital {
