@@ -41,12 +41,18 @@ type temporary interface {
 type client struct {
 	*net.TCPConn        // The client's network connection
 	remoteAddr   string // Client's remote address
+	err          error  // Last error encountered
 
 	frontend interface { // The current frontend in use
 		Parse([]byte) error
 		Close()
 		GetCharacter() *objects.Character
 	}
+}
+
+// Create a way to direct a network error from lower in the stack directly to the client to kill it
+func (c *client) WriteError(err error) {
+	c.err = err
 }
 
 // newClient returns an initialised client for the passed connection.
@@ -70,7 +76,7 @@ func newClient(conn *net.TCPConn) *client {
 	c.leaseAcquire()
 
 	// Setup frontend if no error acquiring a lease
-	c.frontend = frontend.New(c, c.remoteAddr)
+	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError)
 	c.frontend.Parse([]byte(""))
 
 	return c
@@ -98,12 +104,12 @@ func (c *client) process() {
 		// Variables for use in the loop only hence the scoping outer braces
 		var (
 			s   = bufio.NewReaderSize(c, inputBuffer) // Sized network read buffer
-			err error                                 // function local errors
+			err error                                 // Local Error
 			in  []byte                                // Input string from buffer
 		)
 
 		log.Print("Starting game loop: ", c.RemoteAddr())
-		for err == nil {
+		for c.err == nil {
 			if config.Server.Running == false {
 				_ = c.Close()
 			}
@@ -117,12 +123,13 @@ func (c *client) process() {
 					useTime = config.Server.OOCTimeout
 				}
 			}
-			err = c.SetReadDeadline(time.Now().Add(useTime))
+			c.err = c.SetReadDeadline(time.Now().Add(useTime))
 			if in, err = s.ReadSlice('\n'); err != nil {
 				frontend.Zero(in)
 
 				if err != bufio.ErrBufferFull {
 					log.Println("Client Error " + err.Error())
+					c.WriteError(err)
 					continue
 				}
 
@@ -138,6 +145,7 @@ func (c *client) process() {
 			fixDEL(&in)
 			if err = c.frontend.Parse(in); err != nil {
 				log.Println("Text parse error " + err.Error())
+				c.WriteError(err)
 			}
 			frontend.Zero(in)
 		}

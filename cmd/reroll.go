@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
-	"log"
 	"strconv"
 )
 
@@ -67,31 +66,65 @@ func (reroll) process(s *state) {
 }
 
 func validateStats(s *state, str int, con int, dex int, intel int, pie int) bool {
-
+	if status, msg := validateStatLevel(s.actor.Tier, str); !status {
+		s.msg.Actor.SendBad(msg)
+		return false
+	}
+	if status, msg := validateStatLevel(s.actor.Tier, con); !status {
+		s.msg.Actor.SendBad(msg)
+		return false
+	}
+	if status, msg := validateStatLevel(s.actor.Tier, dex); !status {
+		s.msg.Actor.SendBad(msg)
+		return false
+	}
+	if status, msg := validateStatLevel(s.actor.Tier, intel); !status {
+		s.msg.Actor.SendBad(msg)
+		return false
+	}
+	if status, msg := validateStatLevel(s.actor.Tier, pie); !status {
+		s.msg.Actor.SendBad(msg)
+		return false
+	}
 	if str+con+dex+intel+pie != 50+((s.actor.Tier-1)*2) {
-		log.Println("Stats do not add up to 50 + 2 per level")
 		return false
 	}
 	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMin > str || str > config.RaceDefs[config.AvailableRaces[s.actor.Race]].StrMax {
-		log.Println("fail str check")
 		return false
 	}
 	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMin > dex || dex > config.RaceDefs[config.AvailableRaces[s.actor.Race]].DexMax {
-		log.Println("fail dex check")
 		return false
 	}
 	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMin > con || con > config.RaceDefs[config.AvailableRaces[s.actor.Race]].ConMax {
-		log.Println("fail con check")
 		return false
 	}
 	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMin > intel || intel > config.RaceDefs[config.AvailableRaces[s.actor.Race]].IntMax {
-		log.Println("fail int check")
 		return false
 	}
 	if config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMin > pie || pie > config.RaceDefs[config.AvailableRaces[s.actor.Race]].PieMax {
-		log.Println("fail pie check")
 		return false
 	}
 	return true
 
+}
+
+func validateStatLevel(tier int, stat int) (status bool, msg string) {
+	switch {
+	case tier < 10:
+		if stat > 20 {
+			return false, "Tier 1-9 stats must be 20 or less"
+		}
+		break
+	case tier < 15:
+		if stat > 25 {
+			return false, "Tier 10-14 stats must be 25 or less"
+		}
+		break
+	case tier < 20:
+		if stat > 35 {
+			return false, "Tier 15-19 stats must be 35 or less"
+		}
+		break
+	}
+	return true, ""
 }

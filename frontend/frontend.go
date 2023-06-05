@@ -83,7 +83,8 @@ type frontend struct {
 	character   *objects.Character // The current player instance (ingame or not)
 	account     string
 	permissions permissions.Permissions
-	err         error // First error to occur else nil
+	err         error       // First error to occur else nil
+	writeError  func(error) // Network error to return to player
 }
 
 func (f *frontend) GetCharacter() *objects.Character {
@@ -98,11 +99,12 @@ func (f *frontend) GetCharacter() *objects.Character {
 // The io.Writer is used to send responses back from calling Parse. The new
 // frontend is initialised with a message buffer and nextFunc setup to call
 // greetingDisplay.
-func New(output io.Writer, address string) *frontend {
+func New(output io.Writer, address string, errorWriter func(error)) *frontend {
 	f := &frontend{
 		buf:        message.AcquireBuffer(),
 		output:     output,
 		remoteAddr: address,
+		writeError: errorWriter,
 	}
 	f.buf.OmitLF(true)
 	f.nextFunc = f.greetingDisplay
@@ -185,6 +187,10 @@ func (f *frontend) Write(b []byte) (n int, err error) {
 	b = append(b, text.Prompt...)
 	b = append(b, '>')
 	n, err = f.output.Write(b)
+	if err != nil {
+		// This might be a broken pipe..  if so, we need to close the connection
+		f.writeError(err)
+	}
 	return
 }
 
