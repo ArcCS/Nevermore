@@ -152,7 +152,7 @@ var PieHealMod = .7  // Per point
 var ArmorReduction = .007
 var ArmorReductionPoints = 10
 
-var MobArmorReduction = .04
+var MobArmorReduction = .7
 var MobArmorReductionPoints = 2
 
 func MaxWeight(str int) int {
