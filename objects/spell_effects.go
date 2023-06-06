@@ -1091,7 +1091,7 @@ func clairvoyance(caller interface{}, target interface{}, magnitude int) string 
 					return "You failed to cast clairvoyance on " + target.Name
 				} else {
 					target.Write([]byte(text.Info + caller.Name + " sees through your eyes. \n" + text.Reset))
-					caller.Write([]byte(Rooms[caller.ParentId].Look(target) + text.Reset))
+					caller.Write([]byte(Rooms[target.ParentId].Look(target) + text.Reset))
 				}
 			}
 		case *Mob:

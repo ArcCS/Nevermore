@@ -287,10 +287,6 @@ func (c *Character) SetTimer(timer string, seconds int) {
 			}
 		}
 	}
-	// Dex Penalty
-	if c.GetStat("dex") < 6 {
-		seconds += 6 - c.GetStat("dex")
-	}
 	c.Timers[timer] = time.Now().Add(time.Duration(seconds) * time.Second)
 }
 
