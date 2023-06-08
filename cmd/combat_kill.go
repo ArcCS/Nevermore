@@ -257,11 +257,15 @@ func DetermineMissChance(s *state, lvlDiff int) int {
 	} else {
 		missChance = config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
 	}
-	if lvlDiff >= 1 {
+	if lvlDiff >= 2 {
 		missChance += lvlDiff * config.MissPerLevel
 	}
+	missChance -= s.actor.GetStat("dex") * config.HitPerDex
 	if missChance >= 100 {
 		missChance = 95
+	}
+	if missChance <= 0 {
+		missChance = 1
 	}
 	return missChance
 }

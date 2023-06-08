@@ -919,6 +919,23 @@ func (c *Character) ReceiveVitalDamage(damage int) int {
 	return finalDamage
 }
 
+func (c *Character) ReceiveVitalDamageNoArmor(damage int) int {
+	msg := c.Equipment.DamageRandomArmor()
+	if msg != "" {
+		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
+	}
+	if damage < 0 {
+		damage = 0
+	}
+	if damage > c.Vit.Current {
+		damage = c.Vit.Current
+		c.Vit.Current = 0
+	} else {
+		c.Vit.Subtract(damage)
+	}
+	return damage
+}
+
 func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, int) {
 	resisting := 0.0
 	// dodge spell
@@ -943,11 +960,11 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 			resisting += .25
 		}
 	case "earth":
-		if c.CheckFlag("resist-air") {
+		if c.CheckFlag("resist-earth") {
 			resisting += .25
 		}
 	case "water":
-		if c.CheckFlag("resist-air") {
+		if c.CheckFlag("resist-water") {
 			resisting += .25
 		}
 	}
@@ -957,6 +974,9 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 	}
 
 	resisted := int(math.Ceil(float64(damage) * resisting))
+	if c.GetStat("int") > config.IntResistMagicBase {
+		damage -= c.GetStat("int") - config.IntResistMagicPerPoint
+	}
 	stamDam, vitDam := c.ReceiveDamageNoArmor(damage - resisted)
 	return stamDam, vitDam, resisted
 }

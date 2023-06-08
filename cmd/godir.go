@@ -5,8 +5,8 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"strconv"
 	"strings"
-	"time"
 )
 
 func init() {
@@ -140,9 +140,43 @@ func (godir) process(s *state) {
 						return
 					}
 
-					if toE.Flags["levitate"] && !s.actor.CheckFlag("levitate") {
-						s.msg.Actor.Send("You fall while trying to go that way!  You take 20 points of damage!")
-						s.actor.ReceiveDamage(20)
+					hasRope := false
+					if s.actor.Equipment.Off != (*objects.Item)(nil) {
+						if s.actor.Equipment.Off.ItemId == 1463 {
+							hasRope = true
+						}
+					}
+					if toE.Flags["levitate"] && !s.actor.CheckFlag("levitate") && !hasRope {
+						fallDamageStam := (config.FallDamage * s.actor.Stam.Max) -
+							(config.ConFallDamageMod * s.actor.GetStat("con")) -
+							(config.DexFallDamageMod * s.actor.GetStat("dex"))
+						fallDamageVit := (config.FallDamage * s.actor.Vit.Max) -
+							(config.ConFallDamageMod * s.actor.GetStat("con")) -
+							(config.DexFallDamageMod * s.actor.GetStat("dex"))
+						totStam, totVit := 0, 0
+						if fallDamageStam > 0 {
+							totStam, totVit = s.actor.ReceiveDamageNoArmor(fallDamageStam)
+						}
+						if fallDamageVit > 0 {
+							totVit += s.actor.ReceiveVitalDamageNoArmor(fallDamageVit)
+						}
+						buildStr := ""
+						if totStam <= 0 && totVit <= 0 {
+							buildStr = "You take no damage in the fall."
+						} else {
+							if totStam >= 1 {
+								buildStr += "You take " + strconv.Itoa(totStam) + " points of stamina"
+							}
+							if totVit >= 1 {
+								if totStam >= 1 {
+									buildStr += " and "
+								}
+								buildStr += strconv.Itoa(totVit) + " points of vitality"
+							}
+							buildStr += " damage in the fall."
+						}
+						s.msg.Actor.Send("You fall while trying to go that way! " + buildStr)
+						go s.actor.DeathCheck("fell to their death.")
 						return
 					}
 
@@ -195,20 +229,74 @@ func (godir) process(s *state) {
 						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
 					}
 
-					if len(s.actor.PartyFollowers) > 0 {
-						for ind, peo := range s.actor.PartyFollowers {
-							time.Sleep(time.Duration(ind*250) * time.Millisecond)
-							instanceChar := s.where.Chars.SearchAll(peo)
-							if instanceChar != nil && instanceChar.ParentId == s.where.RoomId {
-								go func() { instanceChar.CharCommands <- "go " + exitTxt }()
-							}
-						}
-					}
-
-					// Character has been removed, invoke any follows
+					// Character has been removed, invoke any follows for them..  this should be fine as the mob should take over locks
 					for _, mob := range followList {
 						mobProc := mob
 						go func() { mobProc.MobCommands <- "follow " + s.actor.Name }()
+					}
+
+					// Do not invoke player state, just move them within this state lock
+					if len(s.actor.PartyFollowers) > 0 {
+						for _, peo := range s.actor.PartyFollowers {
+							follChar := s.where.Chars.SearchAll(peo)
+							endFollProc := false
+							if follChar != nil {
+								evasiveMan = 0
+								followList = make([]*objects.Mob, 0)
+
+								// Check if anyone blocks.
+								for _, mob := range s.where.Mobs.Contents {
+									// Check if a mob blocks.
+									if _, inList := mob.ThreatTable[follChar.Name]; inList {
+										if mob.CheckFlag("block_exit") && mob.Placement == follChar.Placement && mob.MobStunned == 0 && !mob.CheckFlag("run_away") {
+											curChance := config.MobBlock - ((follChar.Tier - mob.Level) * config.MobBlockPerLevel)
+											if curChance > 85 {
+												curChance = 85
+											}
+											if utils.Roll(100, 1, 0) <= curChance {
+												follChar.Write([]byte(mob.Name + " blocks you from following." + "\n"))
+												follChar.SetTimer("global", 8)
+												endFollProc = true
+												break
+											}
+										}
+										if mob.CurrentTarget == follChar.Name {
+											// Now check if they follow.
+											if mob.CheckFlag("follows") && !mob.CheckFlag("curious_canticle") {
+												followList = append(followList, mob)
+											}
+											evasiveMan = 2
+											if mob.Placement == follChar.Placement {
+												evasiveMan = 4
+											}
+										}
+									}
+								}
+								if endFollProc {
+									continue
+								}
+								from.Chars.Remove(follChar)
+								// If they were evasive, add a global timer
+								follChar.SetTimer("evade", evasiveMan)
+								to.Chars.Add(follChar)
+								follChar.Victim = nil
+								follChar.Placement = 3
+								follChar.ParentId = toE.ToId
+								go Script(follChar, "LOOK")
+
+								// Broadcast leaving and arrival notifications
+								if s.actor.Flags["invisible"] == false {
+									s.msg.Observers[from.RoomId].SendInfo("You see ", follChar.Name, " follow "+s.actor.Name+" to the ", strings.ToLower(toE.Name), ".")
+									s.msg.Observers[to.RoomId].SendInfo(follChar.Name, " just arrived.")
+								}
+
+								// Character has been removed, invoke any follows
+								for _, mob := range followList {
+									mobProc := mob
+									go func() { mobProc.MobCommands <- "follow " + follChar.Name }()
+								}
+							}
+						}
 					}
 
 					s.scriptActor("LOOK")

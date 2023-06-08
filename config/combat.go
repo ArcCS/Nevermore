@@ -52,16 +52,15 @@ var FullDodgeChancePerDex = .01
 
 // Thief & Ranger
 var PeekCD = 8
-var PeekFailCD = 32
 var StealCD = 8
-var HideChance = 15
-var SneakChance = 15
+var HideChance = 20
+var SneakChance = 20
 var SneakBonus = 10
-var StealChance = 15
+var StealChance = 20
 var StealChancePerLevel = 5
-var BackStabChance = 15
+var BackStabChance = 25
 var BackStabChancePerLevel = 5
-var SnipeChance = 5
+var SnipeChance = 15
 var HideChancePerPoint = 3
 var SneakChancePerPoint = 1
 var SneakChancePerTier = 1
@@ -76,18 +75,15 @@ var VitalStrikeScale = 2
 
 // Monk
 var TodMax = 5
-var TodFailDamage = 50
 var TodScaleDown = 10
 var MonkArmorPerLevel = 15
 var TodTimer = 600
 var TodCost = 10
 var VitalChance = 15
-var MonkDexPerDice = .25
 var MeditateTime = 600
 
 // Paladin/Cleri
 var TurnMax = 50
-var TurnFailDamage = 50
 var TurnScaleDown = 10
 var DisintegrateChance = 5
 var TurnTimer = 60
@@ -116,23 +112,28 @@ var MobTakeChance = 10 // Percent
 
 // Str Mods
 var StrCarryMod = 10 // Per Point
-var StrCarryPenalty = 1
 var BaseCarryWeight = 40
 var StatDamageMod = .01 // Per Point
-var StrRangePenaltyDamage = .15
 
 // Con Mods
-var ConArmorMod = .005
+var ReduceSickCon = 1
+var SickConBonus = 2
 var ConBonusHealthDiv = 5
 var ConHealRegenMod = .05
 var ConMonkArmor = 2 // 2 Armor Extra Per Con
+var ConFallDamageMod = 1
 
 // Dex Mods
+var HitPerDex = 1
+var MissPerDex = 1
 var DexDodgeMod = .0025 //Chance to dodge
-var DexGlobalMod = .05  // Seconds to subtract from global ticker
+var DexFallDamageMod = 1
+
+var FallDamage = 20
 
 // Int Mods
-var IntOffensiveMod = .01
+var IntResistMagicBase = 10
+var IntResistMagicPerPoint = 1
 var IntManaPool = 2             // Number of points of mana to add
 var IntManaPoolDiv = 5          // Number to divide by
 var IntSpellEffectDuration = 30 // Seconds to add
@@ -140,8 +141,6 @@ var IntBroad = 1                // Number of broadcasts per int point
 var IntEvalDivInt = 3           //Divide int by this number to get eval
 var BaseEvals = 1
 var BaseBroads = 5
-var IntMinCast = 5
-var IntNoFizzle = 10
 var FizzleSave = 50
 
 // Piety Mods
@@ -153,7 +152,6 @@ var ArmorReduction = .007
 var ArmorReductionPoints = 10
 
 var MobArmorReduction = .7
-var MobArmorReductionPoints = 2
 
 func MaxWeight(str int) int {
 	return BaseCarryWeight + (str * StrCarryMod)

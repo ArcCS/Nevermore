@@ -112,10 +112,13 @@ func poison(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		if !target.CheckFlag("resist-poison") {
+			target.FlagOn("poisoned", "mob_poisoned")
 			target.ApplyEffect("poison", strconv.Itoa(magnitude*10), 8, magnitude, // magnitude maps to level of mob
 				func(triggers int) {
 					damage := magnitude
 					switch {
+					case triggers <= 1:
+						return
 					case triggers <= 3:
 						damage *= 2
 					case triggers <= 10:
@@ -123,9 +126,14 @@ func poison(caller interface{}, target interface{}, magnitude int) string {
 					default:
 						damage *= 4
 					}
-					target.ReceiveDamageNoArmor(damage)
-					target.FlagOn("poisoned", "mob_poisoned")
-					target.Write([]byte(text.Red + "The poison courses through your veins for " + strconv.Itoa(damage) + " damage!\n"))
+					// Reduce Damage by Con
+					damage -= (target.GetStat("con") / config.SickConBonus) * config.ReduceSickCon
+					if damage >= 1 {
+						target.ReceiveDamageNoArmor(damage)
+						target.Write([]byte(text.Red + "The poison courses through your veins for " + strconv.Itoa(damage) + " damage!\n"))
+					} else {
+						target.Write([]byte(text.Cyan + "You persevere through the poison and it has no effect!\n"))
+					}
 				},
 				func() {
 					target.FlagOff("poisoned", "mob_poisoned")
@@ -149,6 +157,8 @@ func disease(caller interface{}, target interface{}, magnitude int) string {
 				func(triggers int) {
 					damage := magnitude
 					switch {
+					case triggers <= 1:
+						return
 					case triggers <= 3:
 						damage *= 3
 					case triggers <= 10:
@@ -156,9 +166,15 @@ func disease(caller interface{}, target interface{}, magnitude int) string {
 					default:
 						damage *= 5
 					}
-					target.ReceiveDamageNoArmor(damage)
-					target.FlagOn("disease", "mob_disease")
-					target.Write([]byte(text.Red + "The disease progresses, racking your body for " + strconv.Itoa(damage) + " damage!\n"))
+					// Reduce Damage by Con
+					damage -= (target.GetStat("con") / config.SickConBonus) * config.ReduceSickCon
+					if damage >= 1 {
+						target.ReceiveDamageNoArmor(damage)
+						target.FlagOn("disease", "mob_disease")
+						target.Write([]byte(text.Red + "The disease progresses, racking your body for " + strconv.Itoa(damage) + " damage!\n"))
+					} else {
+						target.Write([]byte(text.Cyan + "You persevere through the disease and it has no effect!\n"))
+					}
 				},
 				func() {
 					target.FlagOff("disease", "mob_disease")

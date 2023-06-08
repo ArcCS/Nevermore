@@ -337,8 +337,7 @@ func (m *Mob) Tick() {
 				}
 			}
 
-			if m.CurrentTarget != "" && m.ChanceCast > 0 &&
-				(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) >= 1) {
+			if m.CurrentTarget != "" && m.ChanceCast > 0 {
 				// Try to cast a spell first
 				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
 				spellSelected := false
@@ -389,6 +388,7 @@ func (m *Mob) Tick() {
 				if lvlDiff >= 1 {
 					missChance += lvlDiff * config.MissPerLevel
 				}
+				missChance += target.GetStat("dex") * config.MissPerDex
 				if utils.Roll(100, 1, 0) <= missChance {
 					target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset))
 					return
@@ -471,6 +471,7 @@ func (m *Mob) Tick() {
 				if lvlDiff >= 1 {
 					missChance += lvlDiff * config.MissPerLevel
 				}
+				missChance += target.GetStat("dex") * config.HitPerDex
 				if utils.Roll(100, 1, 0) <= missChance {
 					target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset))
 					return
@@ -686,7 +687,7 @@ func (m *Mob) Follow(params []string) {
 					time.Sleep(1 * time.Second)
 					m.StartTicking()
 				}()
-
+				m.Placement = 3
 				m.CurrentTarget = targetChar.Name
 			}
 		}

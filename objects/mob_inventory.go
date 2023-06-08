@@ -89,17 +89,21 @@ func (i *MobInventory) RemoveNonPerms() {
 		}
 	}
 	// Check if we should continue to empty, this is only relevant if mobs have been thinking and we have to back out of this loop entirely
+	//Check if we should empty the room
+	log.Println("For Loop to Empty")
 	for i.ContinueEmpty() && len(contentRef) > 0 {
 		for index, mob := range contentRef {
 			if !mob.IsThinking {
 				i.Remove(mob)
 				mob = nil
+				if len(contentRef) == index+1 {
+					contentRef = nil
+				}
 			} else {
 				contentRef = contentRef[index:]
 				break
 			}
 		}
-		contentRef = nil
 	}
 	i.Jsonify()
 }
@@ -220,7 +224,7 @@ func (i *MobInventory) ListAttackers(observer *Character) string {
 		if o.CurrentTarget != "" {
 			victim = o.CurrentTarget
 			if o.CurrentTarget == observer.Name {
-				victim = text.Bold + "you" + text.Reset
+				victim = text.Bold + "you" + text.Reset + text.Info
 			}
 			// List all
 			if observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {

@@ -41,7 +41,7 @@ var Server = struct {
 	OOCTimeout:        15 * time.Minute,
 	MaxPlayers:        1024,
 	DataDir:           ".",
-	MaxCharacters:     40,
+	MaxCharacters:     100,
 	SearchResults:     15,
 	Running:           true,
 	CreateChars:       true,

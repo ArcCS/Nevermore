@@ -303,15 +303,15 @@ func WeaponExpNext(exp int, class int) int {
 func WeaponMissChance(exp int, class int) int {
 	switch {
 	case exp >= WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
-		return 45
+		return 30
 	case exp >= WeaponExpLevels[1] && exp < WeaponExpLevels[2]:
-		return 35
-	case exp >= WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
 		return 25
+	case exp >= WeaponExpLevels[2] && exp < WeaponExpLevels[3]:
+		return 20
 	case exp >= WeaponExpLevels[3] && exp < WeaponExpLevels[4]:
 		return 15
 	case exp >= WeaponExpLevels[4] && exp < WeaponExpLevels[5]:
-		return 5
+		return 10
 	case exp >= WeaponExpLevels[5]:
 		return 0
 	default:
