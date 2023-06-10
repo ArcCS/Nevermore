@@ -137,6 +137,7 @@ func (examine) process(s *state) {
 				{"T", "hide_encounter", strconv.FormatBool(mobRef.Flags["hide_encounter"]), "Hide when encounter"},
 				{"T", "invisible", strconv.FormatBool(mobRef.Flags["invisible"]), "Invisible Mob"},
 				{"T", "permanent", strconv.FormatBool(mobRef.Flags["permanent"]), "Does not despawn from room"},
+				{"T", "immobile", strconv.FormatBool(mobRef.Flags["immobile"]), "Mob cannot move"},
 				{"T", "hostile", strconv.FormatBool(mobRef.Flags["hostile"]), "Mob is hostile"},
 				{"T", "undead", strconv.FormatBool(mobRef.Flags["undead"]), "Mob is undead"},
 				{"T", "day_only", strconv.FormatBool(mobRef.Flags["day_only"]), "Day Spawn Only."},
