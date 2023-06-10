@@ -51,6 +51,7 @@ func (equipment) process(s *state) {
 		Finger1     string
 		Finger2     string
 		Legs        string
+		Hands       string
 		Feet        string
 		Head        string
 	}{
@@ -66,6 +67,7 @@ func (equipment) process(s *state) {
 		s.actor.Equipment.GetText("ring1"),
 		s.actor.Equipment.GetText("ring2"),
 		s.actor.Equipment.GetText("legs"),
+		s.actor.Equipment.GetText("hands"),
 		s.actor.Equipment.GetText("feet"),
 		s.actor.Equipment.GetText("head"),
 	}
