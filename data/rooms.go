@@ -66,7 +66,7 @@ func LoadRoom(room_id int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	data, err := execRead("MATCH (r:room {room_id: $room_id}) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
 		`{room_id: r.room_id, creator: r.creator, name: r.name, description: r.description, encounter_rate: r.encounter_rate, 
-	encounters: collect({chance: s.change, mob_id: m.mob_id}),
+	encounters: collect({chance: s.chance, mob_id: m.mob_id}),
 	mobs: r.mobs,
 	inventory: r.inventory,
 	store_owner: r.store_owner,
@@ -155,9 +155,9 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 			"r.room_id = $room_id, "+
 			"r.name = $name, "+
 			"r.description = 'This is a nice room you made here... needs a description though.', "+
-			"r.commands = '[]', " +
-			"r.store_owner = '', " +
-			"r.store_inventory = '[]', " +
+			"r.commands = '[]', "+
+			"r.store_owner = '', "+
+			"r.store_inventory = '[]', "+
 			"r.encounter_rate = 0,"+
 			"r.creator = $creator, "+
 			"r.repair = 0, "+
@@ -187,7 +187,7 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 			"r.inventory = '[]', "+
 			"r.wind = 0",
 		map[string]interface{}{
-			"room_id":  room_id,
+			"room_id": room_id,
 			"name":    roomName,
 			"creator": creator,
 		},
@@ -195,7 +195,7 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 	if err != nil {
 		log.Println(err)
 	}
-	if 	results.Counters().NodesCreated() > 0 {
+	if results.Counters().NodesCreated() > 0 {
 		return room_id, false
 	} else {
 		return -1, true
@@ -338,11 +338,11 @@ func UpdateRoom(roomData map[string]interface{}) bool {
 			"wind":              roomData["wind"],
 			"active":            roomData["active"],
 			"train":             roomData["train"],
-			"mobs":             roomData["mobs"],
-			"inventory":       	roomData["inventory"],
-			"commands": 		roomData["commands"],
-			"store_owner":		roomData["store_owner"],
-			"store_inventory":  roomData["store_inventory"],
+			"mobs":              roomData["mobs"],
+			"inventory":         roomData["inventory"],
+			"commands":          roomData["commands"],
+			"store_owner":       roomData["store_owner"],
+			"store_inventory":   roomData["store_inventory"],
 		},
 	)
 
@@ -493,7 +493,7 @@ func CreateNarrative(narrData map[string]interface{}) (bool, error) {
 			`CREATE (r)-[nar:narr]->(n:narrative) SET 
 	n.text=$narrText, n.title=$narrTitle`,
 		map[string]interface{}{
-			"room_id":    narrData["room_id"],
+			"room_id":   narrData["room_id"],
 			"narrTitle": narrData["narrTitle"],
 			"narrText":  narrData["narrText"],
 		},
@@ -501,7 +501,7 @@ func CreateNarrative(narrData map[string]interface{}) (bool, error) {
 	if err != nil {
 		log.Println(err)
 	}
-	if 	results.Counters().NodesCreated() > 0 {
+	if results.Counters().NodesCreated() > 0 {
 		return true, nil
 	} else {
 		return false, nil
@@ -515,7 +515,7 @@ func UpdateNarrative(narrData map[string]interface{}) bool {
 			`CREATE (r)-[nar:narr]->(n:narrative) SET 
 	n.text=$narrText, n.title=$narrTitle`,
 		map[string]interface{}{
-			"room_id":    narrData["room_id"],
+			"room_id":   narrData["room_id"],
 			"narrTitle": narrData["narrTitle"],
 			"narrText":  narrData["narrText"],
 		},

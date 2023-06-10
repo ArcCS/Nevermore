@@ -86,7 +86,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		Object{
 			Name:        mobData["name"].(string),
 			Description: description,
-			Placement:   5,
+			Placement:   int(mobData["placement"].(int64)),
 		},
 		int(mobData["mob_id"].(int64)),
 		NewItemInventory(),
@@ -279,7 +279,7 @@ func (m *Mob) Tick() {
 				}
 			}
 
-			if m.CurrentTarget == "" && m.Placement != 3 {
+			if m.CurrentTarget == "" && m.Placement != 3 && !m.CheckFlag("immobile") {
 				oldPlacement := m.Placement
 				if m.Placement > 3 {
 					m.Placement--
@@ -316,8 +316,8 @@ func (m *Mob) Tick() {
 					for _, t := range targets {
 						if utils.StringIn(m.BreathWeapon, []string{"fire", "air", "earth", "water"}) {
 							t.RunHook("attacked")
-							t.ReceiveMagicDamage(damageTotal, m.BreathWeapon)
-							t.Write([]byte("You take " + strconv.Itoa(damageTotal) + " damage from the " + m.BreathWeapon + " breath.\n"))
+							stamDam, vitDam, resisted := t.ReceiveMagicDamage(damageTotal, m.BreathWeapon)
+							t.Write([]byte(text.Bad + m.Name + "'s breath  struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
 							if target.CheckFlag("reflection") {
 								reflectDamage = int(float64(damageTotal) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 								m.ReceiveDamage(reflectDamage)
@@ -446,7 +446,7 @@ func (m *Mob) Tick() {
 				return
 			}
 
-			if (m.CurrentTarget != "" &&
+			if (m.CurrentTarget != "" && !m.CheckFlag("immobile") &&
 				m.Placement != Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement) ||
 				(m.CurrentTarget != "" &&
 					(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) > 1)) {
@@ -1089,6 +1089,8 @@ func (m *Mob) Save() {
 	mobData["ranged_attack"] = utils.Btoi(m.Flags["ranged_attack"])
 	mobData["flees"] = utils.Btoi(m.Flags["flees"])
 	mobData["blinds"] = utils.Btoi(m.Flags["blinds"])
+	mobData["placement"] = m.Placement
+	mobData["immobile"] = utils.Btoi(m.Flags["immobile"])
 	data.UpdateMob(mobData)
 }
 

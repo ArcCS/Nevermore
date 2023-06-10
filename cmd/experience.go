@@ -18,6 +18,6 @@ type experience cmd
 
 func (experience) process(s *state) {
 	s.msg.Actor.SendGood("You require " + strconv.Itoa(config.TierExpLevels[s.actor.Tier+1]-s.actor.Experience.Value) + " additional experience pts for your next tier.")
-	s.msg.Actor.SendGood("You are carying " + strconv.Itoa(s.actor.Gold.Value) + " gold marks")
+	s.msg.Actor.SendGood("You are carrying " + strconv.Itoa(s.actor.Gold.Value) + " gold marks")
 	s.ok = true
 }

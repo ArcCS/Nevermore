@@ -204,7 +204,7 @@ func (look) process(s *state) {
 		return
 	}
 
-	what = s.actor.Equipment.Search(name)
+	what = s.actor.Equipment.Search(name, nameNum)
 
 	// Check your equipment
 	if what != nil {

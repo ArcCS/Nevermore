@@ -252,10 +252,15 @@ func (e *Equipment) DamageWeapon(whichHand string, damage int) string {
 }
 
 // Search the ItemInventory to return a specific instance of something
-func (e *Equipment) Search(alias string) *Item {
+func (e *Equipment) Search(alias string, nameNum int) *Item {
+	passes := 1
 	for _, c := range e.List() {
 		if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
-			return c
+			if passes == nameNum {
+				return c
+			} else {
+				passes++
+			}
 		}
 	}
 

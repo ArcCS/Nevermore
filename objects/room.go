@@ -327,19 +327,41 @@ func (r *Room) Encounter() {
 			// Roll the dice and see if we get a mob here
 			if utils.Roll(100, 1, 0) <= r.EncounterRate+(aug*config.MobAugmentPerCharacter) {
 				// Successful roll:  Roll again to pick the mob
-				mobCalc := 0
-				mobPick := utils.Roll(100, 1, 0)
-				for mob, chance := range r.EncounterTable {
-					if (DayTime && !Mobs[mob].Flags["night_only"]) || (!DayTime && !Mobs[mob].Flags["day_only"]) {
-						mobCalc += chance
-						if mobPick <= mobCalc {
-							// This is the mob!  Put it in the room!
-							newMob := Mob{}
-							copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true})
-							newMob.Placement = 5
-							r.Mobs.Add(&newMob, false)
-							newMob.StartTicking()
-							break
+				multMob := 1
+				doubleChance := 0
+				tripleChance := 0
+				if len(r.Chars.Contents) >= 5 {
+					tripleChance = 30
+					doubleChance = 50
+				} else if len(r.Chars.Contents) == 4 {
+					doubleChance = 50
+				} else if len(r.Chars.Contents) == 3 {
+					doubleChance = 30
+				}
+				if utils.Roll(100, 1, 0) <= tripleChance {
+					multMob = 3
+				} else if utils.Roll(100, 1, 0) <= doubleChance {
+					multMob = 2
+				}
+				for i := 0; i < multMob; i++ {
+					mobCalc := 0
+					mobPick := utils.Roll(100, 1, 0)
+					for mob, chance := range r.EncounterTable {
+						if (DayTime && !Mobs[mob].Flags["night_only"]) || (!DayTime && !Mobs[mob].Flags["day_only"]) {
+							mobCalc += chance
+							if mobPick <= mobCalc {
+								// This is the mob!  Put it in the room!
+								newMob := Mob{}
+								copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true})
+								if newMob.Placement == 0 {
+									newMob.Placement = 5
+								} else if newMob.Placement >= 6 {
+									newMob.Placement = utils.Roll(5, 1, 0)
+								}
+								r.Mobs.Add(&newMob, false)
+								newMob.StartTicking()
+								break
+							}
 						}
 					}
 				}

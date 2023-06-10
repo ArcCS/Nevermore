@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	TeleportTable = []int{117}
+	TeleportTable = []int{117, 2567}
 	RecallRoom    = "77"
 )
 
@@ -298,7 +298,7 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			stam, vit := target.Heal(damage)
-			caller.AdvanceDivinity(vit*5, caller.Class)
+			caller.AdvanceDivinity((stam*5)+(vit*5), caller.Class)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
 				for _, mob := range Rooms[target.ParentId].Mobs.Contents {
 					if mob.Flags["hostile"] {
@@ -330,13 +330,18 @@ func restore(caller interface{}, target interface{}, magnitude int) string {
 }
 
 func healall(caller interface{}, target interface{}, magnitude int) string {
-	switch target := target.(type) {
+	switch caller := caller.(type) {
 	case *Character:
-		target.Heal(2000)
-		return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
-	case *Mob:
-		stamDam, vitDam := target.Heal(2000)
-		return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
+		switch target := target.(type) {
+		case *Character:
+			stam, vit := target.Heal(2000)
+			caller.AdvanceDivinity((stam*5)+(vit*5), caller.Class)
+			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
+		case *Mob:
+			stamDam, vitDam := target.Heal(2000)
+			return "You heal " + target.Name + " for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality."
+		}
+		return ""
 	}
 	return ""
 }

@@ -33,6 +33,7 @@ func (equipment) process(s *state) {
 		" {{if .Finger1}}\n{{.Sub_pronoun}} {{.HasHave}} a {{.Finger1}} on {{.Pos_pronoun}} finger.{{end}}" +
 		" {{if .Finger2}}\n{{.Sub_pronoun}} {{.HasHave}} a {{.Finger2}} on {{.Pos_pronoun}} finger.{{end}}" +
 		" {{if .Legs}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Legs}} on {{.Pos_pronoun}} legs.{{end}}" +
+		" {{if .Hands}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Hands}} on {{.Pos_pronoun}} hands.{{end}}" +
 		" {{if .Feet}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Feet}} on {{.Pos_pronoun}} feet.{{end}}" +
 		" {{if .Head}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Head}}.{{end}}" +
 		text.Reset

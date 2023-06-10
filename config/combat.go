@@ -25,13 +25,13 @@ var PieMajorPenalty = 5
 
 var MobAugmentPerCharacter = 3
 
-var FreeDeathTier = 3
+var FreeDeathTier = 4
 
 var SpecialAbilityTier = 7
 var MinorAbilityTier = 5
 
 var MobVital = 3
-var MobCritical = 6
+var MobCritical = 4
 var MobDouble = 10
 var MobFollowVital = 35
 
@@ -119,7 +119,7 @@ var StatDamageMod = .01 // Per Point
 var ReduceSickCon = 1
 var SickConBonus = 2
 var ConBonusHealthDiv = 5
-var ConHealRegenMod = .05
+var ConHealRegenMod = .15
 var ConMonkArmor = 2 // 2 Armor Extra Per Con
 var ConFallDamageMod = 1
 
@@ -144,7 +144,7 @@ var BaseBroads = 5
 var FizzleSave = 50
 
 // Piety Mods
-var PieRegenMod = .1 // Regen Mana per tick
+var PieRegenMod = .4 // Regen Mana per tick
 var PieHealMod = .7  // Per point
 
 // Armor Values

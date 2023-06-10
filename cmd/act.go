@@ -52,7 +52,7 @@ var actDict = map[string]string{
 	"snap":         "snaps their fingers.",
 	"smile":        "smiles.",
 	"smirk":        "smirks.",
-	"snickers":     "snickers.",
+	"snicker":      "snickers.",
 	"spit":         "spits.",
 	"stare":        "stares off into space.",
 	"stretch":      "stretches.",

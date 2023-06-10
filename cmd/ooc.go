@@ -36,6 +36,9 @@ func (ooc) process(s *state) {
 			s.actor.OOCSwap = s.actor.ParentId
 			s.actor.Flags["ooc"] = true
 			s.where.Chars.Remove(s.actor)
+			if s.actor.Flags["invisible"] == false && s.actor.Flags["hidden"] == false {
+				s.msg.Observers.SendGood("", s.actor.Name, " vanishes in a puff of smoke.")
+			}
 			to.Chars.Add(s.actor)
 			s.actor.ParentId = to.RoomId
 			s.scriptActor("LOOK")

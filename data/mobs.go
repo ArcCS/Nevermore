@@ -36,6 +36,7 @@ func LoadMobs() []interface{} {
 	earth_resistance:m.earth_resistance, 
 	water_resistance:m.water_resistance, 
 	breathes: m.breathes,
+	placement:m.placement,
 	commands: m.commands,
 	drops: collect({chance: d.chance, item_id: i.item_id}),
 	flags:{
@@ -60,6 +61,7 @@ func LoadMobs() []interface{} {
 	hide_encounter: m.hide_encounter, 
 	invisible:m.invisible, 
 	permanent:m.permanent,
+    immobile:m.immobile,
 	hostile:m.hostile}}`, nil)
 	if err != nil {
 		log.Println(err)
@@ -104,6 +106,7 @@ func LoadMob(mobId int) map[string]interface{} {
 	water_resistance:m.water_resistance, 
 	breathes: m.breathes,
 	commands: m.commands,
+	placement:m.placement,
 	drops: collect({chance: d.chance, item_id: i.item_id}),
 	flags:{
 	day_only: m.day_only,
@@ -127,6 +130,7 @@ func LoadMob(mobId int) map[string]interface{} {
 	hide_encounter: m.hide_encounter, 
 	invisible:m.invisible, 
 	permanent:m.permanent,
+    immobile:m.immobile,
 	hostile:m.hostile }}`,
 		map[string]interface{}{
 			"mobId": mobId,
@@ -193,6 +197,8 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		m.day_only = 0,
 		m.night_only =0,
 		m.blinds = 0,
+		m.placement = 5,
+		m.immobile = 0,
 		m.hostile=0`,
 		map[string]interface{}{
 			"mobId":   mob_id,
@@ -263,6 +269,8 @@ func UpdateMob(mobData map[string]interface{}) bool {
 		m.day_only=$day_only,
 		m.night_only=$night_only,
 		m.blinds=$blinds,
+		m.placement=$placement,
+		m.immobile=$immobile,
 		m.hostile=$hostile`,
 		map[string]interface{}{
 			"mob_id":              mobData["mob_id"],
@@ -296,26 +304,28 @@ func UpdateMob(mobData map[string]interface{}) bool {
 			"invisible":           mobData["invisible"],
 			"permanent":           mobData["permanent"],
 			"hostile":             mobData["hostile"],
-			"breathes": 		   mobData["breathes"],
-			"fast_moving": 	   	   mobData["fast_moving"],
-			"guard_treasure": 	   mobData["guard_treasure"],
-			"take_treasure": 	   mobData["take_treasure"],
-			"steals": 	   		   mobData["steals"],
-			"block_exit": 		   mobData["block_exit"],
-			"follows": 			   mobData["follows"],
-			"no_steal": 		   mobData["no_steal"],
+			"breathes":            mobData["breathes"],
+			"fast_moving":         mobData["fast_moving"],
+			"guard_treasure":      mobData["guard_treasure"],
+			"take_treasure":       mobData["take_treasure"],
+			"steals":              mobData["steals"],
+			"block_exit":          mobData["block_exit"],
+			"follows":             mobData["follows"],
+			"no_steal":            mobData["no_steal"],
 			"detect_invisible":    mobData["detect_invisible"],
-			"no_stun": 			   mobData["no_stun"],
-			"diseases": 		   mobData["diseases"],
-			"poisons": 			   mobData["poisons"],
-			"spits_acid": 		   mobData["spits_acid"],
-			"ranged_attack": 	   mobData["ranged_attack"],
-			"flees": 			   mobData["flees"],
-			"blinds": 			   mobData["blinds"],
-			"night_only":		   mobData["night_only"],
-			"day_only":		   	   mobData["day_only"],
-			"undead":			   mobData["undead"],
-			"commands":			   mobData["commands"],
+			"no_stun":             mobData["no_stun"],
+			"diseases":            mobData["diseases"],
+			"poisons":             mobData["poisons"],
+			"spits_acid":          mobData["spits_acid"],
+			"ranged_attack":       mobData["ranged_attack"],
+			"flees":               mobData["flees"],
+			"blinds":              mobData["blinds"],
+			"night_only":          mobData["night_only"],
+			"day_only":            mobData["day_only"],
+			"undead":              mobData["undead"],
+			"placement":           mobData["placement"],
+			"immobile":            mobData["immobile"],
+			"commands":            mobData["commands"],
 		},
 	)
 	if err != nil {
@@ -482,10 +492,10 @@ func SearchMobDesc(searchStr string, skip int) []interface{} {
 func SearchMobRange(loId int, hiId int, skip int) []interface{} {
 	results, err := execRead("MATCH (m:mob) WHERE m.mob_id >= $loid AND m.mob_id <= $hiid RETURN {name: m.name, mob_id: m.mob_id, level: m.level} ORDER BY m.mob_id SKIP $skip LIMIT $limit",
 		map[string]interface{}{
-			"loid": loId,
-			"hiid": hiId,
-			"skip":   skip,
-			"limit":  config.Server.SearchResults,
+			"loid":  loId,
+			"hiid":  hiId,
+			"skip":  skip,
+			"limit": config.Server.SearchResults,
 		},
 	)
 	if err != nil {

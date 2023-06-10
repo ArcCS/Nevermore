@@ -31,6 +31,9 @@ func (ic) process(s *state) {
 			s.actor.Flags["afk"] = false
 			s.where.Chars.Remove(s.actor)
 			to.Chars.Add(s.actor)
+			if s.actor.Flags["invisible"] == false && s.actor.Flags["hidden"] == false {
+				s.msg.Observers.SendGood("", s.actor.Name, " appears in a puff of smoke.")
+			}
 			s.actor.ParentId = to.RoomId
 			s.scriptActor("LOOK")
 			s.ok = true

@@ -282,7 +282,7 @@ func (godir) process(s *state) {
 								follChar.Victim = nil
 								follChar.Placement = 3
 								follChar.ParentId = toE.ToId
-								go Script(follChar, "LOOK")
+								Script(follChar, "LOOK")
 
 								// Broadcast leaving and arrival notifications
 								if s.actor.Flags["invisible"] == false {

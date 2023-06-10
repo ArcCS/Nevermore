@@ -237,7 +237,7 @@ func DeathCheck(s *state, m *objects.Mob) {
 					buildActorString += text.Green + m.DropInventory() + "\n"
 					s.msg.Actor.Send(buildActorString)
 				} else {
-					charClean.Write([]byte(buildActorString + "\n" + text.Reset))
+					go charClean.Write([]byte(buildActorString + "\n" + text.Reset))
 				}
 				if charClean.Victim == m {
 					charClean.Victim = nil

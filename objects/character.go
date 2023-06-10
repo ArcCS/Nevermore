@@ -692,11 +692,11 @@ func (c *Character) Tick() {
 		c.Save()
 	}
 	if Rooms[c.ParentId].Flags["heal_fast"] {
-		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod * 2)))
-		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod * 2)))
+		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod * 2)))
+		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod * 2)))
 	} else {
-		c.Heal(int(math.Ceil(float64(c.Con.Current) * config.ConHealRegenMod)))
-		c.RestoreMana(int(math.Ceil(float64(c.Pie.Current) * config.PieRegenMod)))
+		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod)))
+		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod)))
 	}
 
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
