@@ -137,7 +137,7 @@ func (use) process(s *state) {
 					s.participant = whatChar
 					s.msg.Participant.SendInfo(s.actor.Name + " used a " + what.Name + " on you")
 					if strings.Contains(msg, "$CRIPT") {
-						go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+						go Script(whatChar, strings.Replace(msg, "$CRIPT ", "", 1))
 					} else if msg != "" {
 						s.msg.Participant.SendGood(msg)
 					}

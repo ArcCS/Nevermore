@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 	"strings"
@@ -147,37 +148,40 @@ func (godir) process(s *state) {
 						}
 					}
 					if toE.Flags["levitate"] && !s.actor.CheckFlag("levitate") && !hasRope {
-						fallDamageStam := (config.FallDamage * s.actor.Stam.Max) -
-							(config.ConFallDamageMod * s.actor.GetStat("con")) -
-							(config.DexFallDamageMod * s.actor.GetStat("dex"))
-						fallDamageVit := (config.FallDamage * s.actor.Vit.Max) -
-							(config.ConFallDamageMod * s.actor.GetStat("con")) -
-							(config.DexFallDamageMod * s.actor.GetStat("dex"))
-						totStam, totVit := 0, 0
-						if fallDamageStam > 0 {
-							totStam, totVit = s.actor.ReceiveDamageNoArmor(fallDamageStam)
-						}
-						if fallDamageVit > 0 {
-							totVit += s.actor.ReceiveVitalDamageNoArmor(fallDamageVit)
-						}
-						buildStr := ""
-						if totStam <= 0 && totVit <= 0 {
-							buildStr = "You take no damage in the fall."
-						} else {
-							if totStam >= 1 {
-								buildStr += "You take " + strconv.Itoa(totStam) + " points of stamina"
+						chanceToPass := s.actor.GetStat("dex")/45 + 10
+						if utils.Roll(100, 1, 0) >= chanceToPass {
+							fallDamageStam := (config.FallDamage * s.actor.Stam.Max) -
+								(config.ConFallDamageMod * s.actor.GetStat("con")) -
+								(config.DexFallDamageMod * s.actor.GetStat("dex"))
+							fallDamageVit := (config.FallDamage * s.actor.Vit.Max) -
+								(config.ConFallDamageMod * s.actor.GetStat("con")) -
+								(config.DexFallDamageMod * s.actor.GetStat("dex"))
+							totStam, totVit := 0, 0
+							if fallDamageStam > 0 {
+								totStam, totVit = s.actor.ReceiveDamageNoArmor(fallDamageStam)
 							}
-							if totVit >= 1 {
+							if fallDamageVit > 0 {
+								totVit += s.actor.ReceiveVitalDamageNoArmor(fallDamageVit)
+							}
+							buildStr := ""
+							if totStam <= 0 && totVit <= 0 {
+								buildStr = "You take no damage in the fall."
+							} else {
 								if totStam >= 1 {
-									buildStr += " and "
+									buildStr += "You take " + strconv.Itoa(totStam) + " points of stamina"
 								}
-								buildStr += strconv.Itoa(totVit) + " points of vitality"
+								if totVit >= 1 {
+									if totStam >= 1 {
+										buildStr += " and "
+									}
+									buildStr += strconv.Itoa(totVit) + " points of vitality"
+								}
+								buildStr += " damage in the fall."
 							}
-							buildStr += " damage in the fall."
+							s.msg.Actor.Send("You fall while trying to go that way! " + buildStr)
+							go s.actor.DeathCheck("fell to their death.")
+							return
 						}
-						s.msg.Actor.Send("You fall while trying to go that way! " + buildStr)
-						go s.actor.DeathCheck("fell to their death.")
-						return
 					}
 
 					if objects.Rooms[toE.ToId].Crowded() {
@@ -241,8 +245,80 @@ func (godir) process(s *state) {
 							follChar := s.where.Chars.SearchAll(peo)
 							endFollProc := false
 							if follChar != nil {
+								// Check some timers
+								ready, msg := follChar.TimerReady("evade")
+								if !ready {
+									follChar.Write([]byte(text.Bad + msg))
+									return
+								}
+
+								s.actor.RunHook("move")
+
 								evasiveMan = 0
 								followList = make([]*objects.Mob, 0)
+
+								if !objects.Rooms[toE.ToId].Flags["active"] {
+									s.msg.Actor.SendBad("Go where?")
+									return
+								}
+
+								if toE.Flags["invisible"] && !s.actor.CheckFlag("detect_invisible") {
+									s.msg.Actor.SendBad("Go where?")
+									return
+								}
+
+								if toE.Flags["placement_dependent"] && s.actor.Placement != toE.Placement {
+									s.msg.Actor.SendBad("You must be next to the exit to use it.")
+									return
+								}
+
+								if s.actor.Equipment.GetWeight() > s.actor.MaxWeight() {
+									s.msg.Actor.SendBad("You are carrying too much to move.")
+									return
+								}
+
+								hasRope := false
+								if s.actor.Equipment.Off != (*objects.Item)(nil) {
+									if s.actor.Equipment.Off.ItemId == 1463 {
+										hasRope = true
+									}
+								}
+								if toE.Flags["levitate"] && !s.actor.CheckFlag("levitate") && !hasRope {
+									chanceToPass := s.actor.GetStat("dex")/45 + 10
+									if utils.Roll(100, 1, 0) >= chanceToPass {
+										fallDamageStam := (config.FallDamage * s.actor.Stam.Max) -
+											(config.ConFallDamageMod * s.actor.GetStat("con")) -
+											(config.DexFallDamageMod * s.actor.GetStat("dex"))
+										fallDamageVit := (config.FallDamage * s.actor.Vit.Max) -
+											(config.ConFallDamageMod * s.actor.GetStat("con")) -
+											(config.DexFallDamageMod * s.actor.GetStat("dex"))
+										totStam, totVit := 0, 0
+										if fallDamageStam > 0 {
+											totStam, totVit = s.actor.ReceiveDamageNoArmor(fallDamageStam)
+										}
+										if fallDamageVit > 0 {
+											totVit += s.actor.ReceiveVitalDamageNoArmor(fallDamageVit)
+										}
+										buildStr := ""
+										if totStam <= 0 && totVit <= 0 {
+											buildStr = "You take no damage in the fall."
+										} else {
+											if totStam >= 1 {
+												buildStr += "You take " + strconv.Itoa(totStam) + " points of stamina"
+											}
+											if totVit >= 1 {
+												if totStam >= 1 {
+													buildStr += " and "
+												}
+												buildStr += strconv.Itoa(totVit) + " points of vitality"
+											}
+											buildStr += " damage in the fall."
+										}
+										s.msg.Actor.Send("You fall while trying to go that way! " + buildStr)
+										go s.actor.DeathCheck("fell to their death.")
+										return
+									}
+								}
 
 								// Check if anyone blocks.
 								for _, mob := range s.where.Mobs.Contents {

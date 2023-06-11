@@ -348,6 +348,7 @@ func (c *Character) Unload() {
 }
 
 func (c *Character) ToggleFlag(flagName string, provider string) {
+
 	if _, exists := c.Flags[flagName]; exists {
 		if c.Flags[flagName] == true && utils.StringIn(provider, c.FlagProviders[flagName]) && len(c.FlagProviders[flagName]) > 1 {
 			c.FlagProviders[flagName][utils.IndexOf(provider, c.FlagProviders[flagName])] = c.FlagProviders[flagName][len(c.FlagProviders[flagName])-1] // Copy last element to index i.

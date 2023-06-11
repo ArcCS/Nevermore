@@ -72,6 +72,7 @@ func (hamstring) process(s *state) {
 		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
 			s.msg.Actor.SendBad("You missed!!")
 			s.msg.Observers.SendBad(s.actor.Name + " fails to hamstring " + whatMob.Name)
+			whatMob.AddThreatDamage(1, s.actor)
 			whatMob.CurrentTarget = s.actor.Name
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			return
@@ -79,7 +80,7 @@ func (hamstring) process(s *state) {
 
 		whatMob.AddThreatDamage(whatMob.Stam.Max, s.actor)
 		whatMob.CurrentTarget = s.actor.Name
-		s.actor.SetTimer("hamstring", 45)
+		s.actor.SetTimer("hamstring", config.HamTimer)
 		s.msg.Actor.SendInfo("You hamstring " + whatMob.Name)
 		s.msg.Observers.SendInfo(s.actor.Name + " hamstrings " + whatMob.Name)
 		return

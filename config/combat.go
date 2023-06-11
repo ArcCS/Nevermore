@@ -99,7 +99,8 @@ var DurationPerCon = 10
 // Mob Stuns:
 var ParryStuns = 2
 var CircleStuns = 1
-var CircleTimer = 30
+var CircleTimer = 16
+var HamTimer = 24
 var BashStuns = 16
 var BashTimer = 45
 
@@ -119,7 +120,7 @@ var StatDamageMod = .01 // Per Point
 var ReduceSickCon = 1
 var SickConBonus = 2
 var ConBonusHealthDiv = 5
-var ConHealRegenMod = .15
+var ConHealRegenMod = .10
 var ConMonkArmor = 2 // 2 Armor Extra Per Con
 var ConFallDamageMod = 1
 

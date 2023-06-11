@@ -331,12 +331,12 @@ func (r *Room) Encounter() {
 				doubleChance := 0
 				tripleChance := 0
 				if len(r.Chars.Contents) >= 5 {
-					tripleChance = 30
-					doubleChance = 50
+					tripleChance = 15
+					doubleChance = 35
 				} else if len(r.Chars.Contents) == 4 {
-					doubleChance = 50
+					doubleChance = 35
 				} else if len(r.Chars.Contents) == 3 {
-					doubleChance = 30
+					doubleChance = 15
 				}
 				if utils.Roll(100, 1, 0) <= tripleChance {
 					multMob = 3

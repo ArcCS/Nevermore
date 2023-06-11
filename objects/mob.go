@@ -255,7 +255,7 @@ func (m *Mob) Tick() {
 				if len(potentials) > 0 {
 					rand.Seed(time.Now().Unix())
 					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-					m.AddThreatDamage(0, Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m))
+					m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m))
 					Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
 				}
 			}
@@ -479,7 +479,7 @@ func (m *Mob) Tick() {
 				target.RunHook("attacked")
 				m.CheckForExtraAttack(target)
 				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(config.WeaponLevel(target.Skills[target.Equipment.Main.ItemType].Value, target.Class)) {
-					if target.Tier >= 10 {
+					if target.Tier >= config.SpecialAbilityTier {
 						// It's a riposte
 						actualDamage, _ := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
 						target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))

@@ -23,9 +23,21 @@ func (give) process(s *state) {
 		return
 	}
 
-	whoStr := s.words[0]
-	targetStr := s.words[1]
+	targetStr := s.words[0]
 	targetNum := 1
+	whoStr := s.words[1]
+
+	if val, err := strconv.Atoi(s.words[1]); err == nil {
+		targetNum = val
+		if len(s.words) < 3 {
+			s.msg.Actor.SendInfo("Who do you want to give it to?")
+			return
+		} else {
+			whoStr = s.words[2]
+		}
+	} else {
+		whoStr = s.words[1]
+	}
 
 	var who *objects.Character
 	who = s.where.Chars.Search(whoStr, s.actor)
@@ -60,10 +72,6 @@ func (give) process(s *state) {
 				return
 			}
 		}
-	}
-
-	if val, err := strconv.Atoi(s.words[1]); err == nil {
-		targetNum = val
 	}
 
 	target := s.actor.Inventory.Search(targetStr, targetNum)
