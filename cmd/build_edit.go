@@ -347,13 +347,12 @@ func (edit) process(s *state) {
 						s.msg.Actor.SendGood("Mob BreathWeapon unset")
 					}
 				case "placement":
-					intPlacement, _ := strconv.Atoi(s.words[3])
-					if intPlacement >= 1 && intPlacement <= 5 {
+					if intPlacement, err := strconv.Atoi(s.words[3]); err == nil {
 						mob.Placement = intPlacement
 						s.msg.Actor.SendGood("Changed placement")
-						return
 					} else {
-						s.msg.Actor.SendBad("Placement Id not valid. ")
+						s.msg.Actor.SendBad("Placement value not valid")
+						return
 					}
 				default:
 					s.msg.Actor.SendBad("Property not found.")
