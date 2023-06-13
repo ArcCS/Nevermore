@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
 	"strconv"
 	"strings"
@@ -39,6 +40,11 @@ func (spawn) process(s *state) {
 		//log.Println("Copying mob")
 		newMob := objects.Mob{}
 		copier.CopyWithOption(&newMob, objects.Mobs[mobId], copier.Option{DeepCopy: true})
+		if newMob.Placement <= 0 {
+			newMob.Placement = 5
+		} else if newMob.Placement >= 6 {
+			newMob.Placement = utils.Roll(5, 1, 0)
+		}
 		s.where.Mobs.Add(&newMob, false)
 		newMob.StartTicking()
 	case "item":
