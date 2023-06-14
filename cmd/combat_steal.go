@@ -71,20 +71,16 @@ func (steal) process(s *state) {
 		}
 	}
 	if len(s.words) > 2 {
-		if nameStr != "" {
-			if val2, err2 := strconv.Atoi(s.words[2]); err2 == nil {
-				nameNum = val2
-			} else {
-				nameStr = s.words[2]
-			}
+		if val2, err2 := strconv.Atoi(s.words[2]); err2 == nil {
+			nameNum = val2
+		} else {
+			nameStr = s.words[2]
 		}
 	}
 
 	if len(s.words) > 3 {
 		if val3, err3 := strconv.Atoi(s.words[3]); err3 == nil {
 			nameNum = val3
-		} else {
-			nameStr = s.words[3]
 		}
 	}
 
