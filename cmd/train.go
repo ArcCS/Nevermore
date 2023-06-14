@@ -54,7 +54,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Str.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Str.Current+1); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}
@@ -63,7 +63,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Dex.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Dex.Current+1); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}
@@ -72,7 +72,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Con.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Con.Current+1); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}
@@ -81,7 +81,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Int.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Int.Current+1); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}
@@ -90,7 +90,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier, s.actor.Pie.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Pie.Current+1); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}

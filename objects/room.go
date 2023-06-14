@@ -353,7 +353,7 @@ func (r *Room) Encounter() {
 								// This is the mob!  Put it in the room!
 								newMob := Mob{}
 								copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true})
-								if newMob.Placement == 0 {
+								if newMob.Placement <= 0 {
 									newMob.Placement = 5
 								} else if newMob.Placement >= 6 {
 									newMob.Placement = utils.Roll(5, 1, 0)
