@@ -252,52 +252,53 @@ func (godir) process(s *state) {
 									return
 								}
 
-								s.actor.RunHook("move")
+								follChar.RunHook("move")
 
 								evasiveMan = 0
 								followList = make([]*objects.Mob, 0)
 
 								if !objects.Rooms[toE.ToId].Flags["active"] {
-									s.msg.Actor.SendBad("Go where?")
+									follChar.Write([]byte(text.Bad + "Go where?"))
 									return
 								}
 
-								if toE.Flags["invisible"] && !s.actor.CheckFlag("detect_invisible") {
-									s.msg.Actor.SendBad("Go where?")
+								if toE.Flags["invisible"] && !follChar.CheckFlag("detect_invisible") {
+									follChar.Write([]byte(text.Bad + "Go where?"))
 									return
 								}
 
-								if toE.Flags["placement_dependent"] && s.actor.Placement != toE.Placement {
-									s.msg.Actor.SendBad("You must be next to the exit to use it.")
+								if toE.Flags["placement_dependent"] && follChar.Placement != toE.Placement {
+									follChar.Write([]byte(text.Bad + "You must be next to the exit to use it."))
 									return
 								}
 
-								if s.actor.Equipment.GetWeight() > s.actor.MaxWeight() {
-									s.msg.Actor.SendBad("You are carrying too much to move.")
+								if follChar.Equipment.GetWeight() > follChar.MaxWeight() {
+									follChar.Write([]byte(text.Bad + "You are carrying too much to move."))
 									return
 								}
 
 								hasRope := false
-								if s.actor.Equipment.Off != (*objects.Item)(nil) {
-									if s.actor.Equipment.Off.ItemId == 1463 {
+								if follChar.Equipment.Off != (*objects.Item)(nil) {
+									if follChar.Equipment.Off.ItemId == 1463 {
 										hasRope = true
 									}
 								}
-								if toE.Flags["levitate"] && !s.actor.CheckFlag("levitate") && !hasRope {
-									chanceToPass := s.actor.GetStat("dex")/45 + 10
+
+								if toE.Flags["levitate"] && !follChar.CheckFlag("levitate") && !hasRope {
+									chanceToPass := follChar.GetStat("dex")/45 + 10
 									if utils.Roll(100, 1, 0) >= chanceToPass {
-										fallDamageStam := (config.FallDamage * s.actor.Stam.Max) -
-											(config.ConFallDamageMod * s.actor.GetStat("con")) -
-											(config.DexFallDamageMod * s.actor.GetStat("dex"))
-										fallDamageVit := (config.FallDamage * s.actor.Vit.Max) -
-											(config.ConFallDamageMod * s.actor.GetStat("con")) -
-											(config.DexFallDamageMod * s.actor.GetStat("dex"))
+										fallDamageStam := (config.FallDamage * follChar.Stam.Max) -
+											(config.ConFallDamageMod * follChar.GetStat("con")) -
+											(config.DexFallDamageMod * follChar.GetStat("dex"))
+										fallDamageVit := (config.FallDamage * follChar.Vit.Max) -
+											(config.ConFallDamageMod * follChar.GetStat("con")) -
+											(config.DexFallDamageMod * follChar.GetStat("dex"))
 										totStam, totVit := 0, 0
 										if fallDamageStam > 0 {
-											totStam, totVit = s.actor.ReceiveDamageNoArmor(fallDamageStam)
+											totStam, totVit = follChar.ReceiveDamageNoArmor(fallDamageStam)
 										}
 										if fallDamageVit > 0 {
-											totVit += s.actor.ReceiveVitalDamageNoArmor(fallDamageVit)
+											totVit += follChar.ReceiveVitalDamageNoArmor(fallDamageVit)
 										}
 										buildStr := ""
 										if totStam <= 0 && totVit <= 0 {
@@ -314,8 +315,8 @@ func (godir) process(s *state) {
 											}
 											buildStr += " damage in the fall."
 										}
-										s.msg.Actor.Send("You fall while trying to go that way! " + buildStr)
-										go s.actor.DeathCheck("fell to their death.")
+										follChar.Write([]byte(text.Bad + "You fall while trying to go that way! " + buildStr))
+										go follChar.DeathCheck("fell to their death.")
 										return
 									}
 								}
@@ -361,7 +362,7 @@ func (godir) process(s *state) {
 								go Script(follChar, "LOOK")
 
 								// Broadcast leaving and arrival notifications
-								if s.actor.Flags["invisible"] == false {
+								if follChar.Flags["invisible"] == false {
 									s.msg.Observers[from.RoomId].SendInfo("You see ", follChar.Name, " follow "+s.actor.Name+" to the ", strings.ToLower(toE.Name), ".")
 									s.msg.Observers[to.RoomId].SendInfo(follChar.Name, " just arrived.")
 								}
