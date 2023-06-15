@@ -951,22 +951,22 @@ func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {
 	switch element {
 	case "fire":
 		resisting = float64(m.FireResistance) / 100
-		if m.CheckFlag("resist_fire") {
+		if m.CheckFlag("resist-fire") {
 			resisting += .25
 		}
 	case "air":
 		resisting = float64(m.AirResistance) / 100
-		if m.CheckFlag("resist_air") {
+		if m.CheckFlag("resist-air") {
 			resisting += .25
 		}
 	case "earth":
 		resisting = float64(m.EarthResistance) / 100
-		if m.CheckFlag("resist_earth") {
+		if m.CheckFlag("resist-earth") {
 			resisting += .25
 		}
 	case "water":
 		resisting = float64(m.WaterResistance) / 100
-		if m.CheckFlag("resist_water") {
+		if m.CheckFlag("resist-water") {
 			resisting += .25
 		}
 	}
@@ -974,7 +974,7 @@ func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {
 		resisting = (float64(m.Int.Current) / 30) * resisting
 	}
 
-	if m.CheckFlag("resist_magic") {
+	if m.CheckFlag("resist-magic") {
 		resisting += .10
 	}
 	resisted := int(math.Ceil(float64(damage) * resisting))
