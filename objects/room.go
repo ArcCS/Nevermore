@@ -273,7 +273,7 @@ func (r *Room) FirstPerson() {
 					if r.Flags["earth"] || r.Flags["fire"] || r.Flags["air"] || r.Flags["water"] {
 						for _, c := range r.Chars.Contents {
 							if r.Flags["earth"] {
-								if !c.Flags["resist_earth"] {
+								if !c.Flags["resist-earth"] {
 									c.Write([]byte(text.Brown + "The earth swells up around you." + "\n"))
 									c.ReceiveMagicDamage(20, "earth")
 									c.DeathCheck("was swallowed by the earth.")
@@ -281,15 +281,15 @@ func (r *Room) FirstPerson() {
 									c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n"))
 								}
 							} else if r.Flags["fire"] {
-								if !c.Flags["resist_fire"] {
+								if !c.Flags["resist-fire"] {
 									c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n"))
 									c.ReceiveMagicDamage(20, "fire")
-									c.DeathCheck("was burned alived.")
+									c.DeathCheck("was burned alive.")
 								} else {
 									c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n"))
 								}
 							} else if r.Flags["water"] {
-								if !c.Flags["resist_water"] {
+								if !c.Flags["resist-water"] {
 									c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n"))
 									c.DeathCheck("drowned.")
 									c.ReceiveMagicDamage(20, "water")
@@ -297,7 +297,7 @@ func (r *Room) FirstPerson() {
 									c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n"))
 								}
 							} else if r.Flags["air"] {
-								if !c.Flags["resist_air"] {
+								if !c.Flags["resist-air"] {
 									c.Write([]byte(text.Brown + "The icy air buffets you." + "\n"))
 									c.DeathCheck("was frozen solid.")
 									c.ReceiveMagicDamage(20, "air")
