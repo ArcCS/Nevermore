@@ -33,6 +33,13 @@ func (ooc) process(s *state) {
 			s.ok = false
 			return
 		} else {
+			for _, mob := range s.where.Mobs.Contents {
+				if mob.CheckThreatTable(s.actor.Name) {
+					s.msg.Actor.SendBad("You can't do that while in combat!")
+					return
+				}
+			}
+
 			s.actor.OOCSwap = s.actor.ParentId
 			s.actor.Flags["ooc"] = true
 			s.where.Chars.Remove(s.actor)

@@ -130,6 +130,6 @@ func (snipe) process(s *state) {
 		}
 	}
 
-	s.msg.Actor.SendInfo("Bash what?")
+	s.msg.Actor.SendInfo("Snipe what?")
 	s.ok = true
 }

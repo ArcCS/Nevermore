@@ -150,10 +150,10 @@ func (godir) process(s *state) {
 					if toE.Flags["levitate"] && !s.actor.CheckFlag("levitate") && !hasRope {
 						chanceToPass := s.actor.GetStat("dex")/45 + 10
 						if utils.Roll(100, 1, 0) >= chanceToPass {
-							fallDamageStam := (config.FallDamage * s.actor.Stam.Max) -
+							fallDamageStam := int(config.FallDamage*float64(s.actor.Stam.Max)) -
 								(config.ConFallDamageMod * s.actor.GetStat("con")) -
 								(config.DexFallDamageMod * s.actor.GetStat("dex"))
-							fallDamageVit := (config.FallDamage * s.actor.Vit.Max) -
+							fallDamageVit := int(config.FallDamage*float64(s.actor.Stam.Max)) -
 								(config.ConFallDamageMod * s.actor.GetStat("con")) -
 								(config.DexFallDamageMod * s.actor.GetStat("dex"))
 							totStam, totVit := 0, 0
@@ -246,111 +246,113 @@ func (godir) process(s *state) {
 							endFollProc := false
 							if follChar != nil {
 								// Check some timers
-								ready, msg := follChar.TimerReady("evade")
-								if !ready {
-									follChar.Write([]byte(text.Bad + msg))
-									return
-								}
-
-								follChar.RunHook("move")
-
-								evasiveMan = 0
-								followList = make([]*objects.Mob, 0)
-
-								if !objects.Rooms[toE.ToId].Flags["active"] {
-									follChar.Write([]byte(text.Bad + "Go where?"))
-									return
-								}
-
-								if toE.Flags["invisible"] && !follChar.CheckFlag("detect_invisible") {
-									follChar.Write([]byte(text.Bad + "Go where?"))
-									return
-								}
-
-								if toE.Flags["placement_dependent"] && follChar.Placement != toE.Placement {
-									follChar.Write([]byte(text.Bad + "You must be next to the exit to use it."))
-									return
-								}
-
-								if follChar.Equipment.GetWeight() > follChar.MaxWeight() {
-									follChar.Write([]byte(text.Bad + "You are carrying too much to move."))
-									return
-								}
-
-								hasRope := false
-								if follChar.Equipment.Off != (*objects.Item)(nil) {
-									if follChar.Equipment.Off.ItemId == 1463 {
-										hasRope = true
+								if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+									ready, msg := follChar.TimerReady("evade")
+									if !ready {
+										follChar.Write([]byte(text.Bad + msg))
+										break
 									}
-								}
 
-								if toE.Flags["levitate"] && !follChar.CheckFlag("levitate") && !hasRope {
-									chanceToPass := follChar.GetStat("dex")/45 + 10
-									if utils.Roll(100, 1, 0) >= chanceToPass {
-										fallDamageStam := (config.FallDamage * follChar.Stam.Max) -
-											(config.ConFallDamageMod * follChar.GetStat("con")) -
-											(config.DexFallDamageMod * follChar.GetStat("dex"))
-										fallDamageVit := (config.FallDamage * follChar.Vit.Max) -
-											(config.ConFallDamageMod * follChar.GetStat("con")) -
-											(config.DexFallDamageMod * follChar.GetStat("dex"))
-										totStam, totVit := 0, 0
-										if fallDamageStam > 0 {
-											totStam, totVit = follChar.ReceiveDamageNoArmor(fallDamageStam)
+									follChar.RunHook("move")
+
+									evasiveMan = 0
+									followList = make([]*objects.Mob, 0)
+
+									if !objects.Rooms[toE.ToId].Flags["active"] {
+										follChar.Write([]byte(text.Bad + "Go where?"))
+										break
+									}
+
+									if toE.Flags["invisible"] && !follChar.CheckFlag("detect_invisible") {
+										follChar.Write([]byte(text.Bad + "Go where?"))
+										break
+									}
+
+									if toE.Flags["placement_dependent"] && follChar.Placement != toE.Placement {
+										follChar.Write([]byte(text.Bad + "You must be next to the exit to use it."))
+										break
+									}
+
+									if follChar.Equipment.GetWeight() > follChar.MaxWeight() {
+										follChar.Write([]byte(text.Bad + "You are carrying too much to move."))
+										break
+									}
+
+									hasRope := false
+									if follChar.Equipment.Off != (*objects.Item)(nil) {
+										if follChar.Equipment.Off.ItemId == 1463 {
+											hasRope = true
 										}
-										if fallDamageVit > 0 {
-											totVit += follChar.ReceiveVitalDamageNoArmor(fallDamageVit)
-										}
-										buildStr := ""
-										if totStam <= 0 && totVit <= 0 {
-											buildStr = "You take no damage in the fall."
-										} else {
-											if totStam >= 1 {
-												buildStr += "You take " + strconv.Itoa(totStam) + " points of stamina"
+									}
+
+									if toE.Flags["levitate"] && !follChar.CheckFlag("levitate") && !hasRope {
+										chanceToPass := follChar.GetStat("dex")/45 + 10
+										if utils.Roll(100, 1, 0) >= chanceToPass {
+											fallDamageStam := int(config.FallDamage*float64(follChar.Stam.Max)) -
+												(config.ConFallDamageMod * follChar.GetStat("con")) -
+												(config.DexFallDamageMod * follChar.GetStat("dex"))
+											fallDamageVit := int(config.FallDamage*float64(follChar.Stam.Max)) -
+												(config.ConFallDamageMod * follChar.GetStat("con")) -
+												(config.DexFallDamageMod * follChar.GetStat("dex"))
+											totStam, totVit := 0, 0
+											if fallDamageStam > 0 {
+												totStam, totVit = follChar.ReceiveDamageNoArmor(fallDamageStam)
 											}
-											if totVit >= 1 {
+											if fallDamageVit > 0 {
+												totVit += follChar.ReceiveVitalDamageNoArmor(fallDamageVit)
+											}
+											buildStr := ""
+											if totStam <= 0 && totVit <= 0 {
+												buildStr = "You take no damage in the fall."
+											} else {
 												if totStam >= 1 {
-													buildStr += " and "
+													buildStr += "You take " + strconv.Itoa(totStam) + " points of stamina"
 												}
-												buildStr += strconv.Itoa(totVit) + " points of vitality"
+												if totVit >= 1 {
+													if totStam >= 1 {
+														buildStr += " and "
+													}
+													buildStr += strconv.Itoa(totVit) + " points of vitality"
+												}
+												buildStr += " damage in the fall."
 											}
-											buildStr += " damage in the fall."
+											follChar.Write([]byte(text.Bad + "You fall while trying to go that way! " + buildStr))
+											go follChar.DeathCheck("fell to their death.")
+											break
 										}
-										follChar.Write([]byte(text.Bad + "You fall while trying to go that way! " + buildStr))
-										go follChar.DeathCheck("fell to their death.")
-										return
 									}
-								}
 
-								// Check if anyone blocks.
-								for _, mob := range s.where.Mobs.Contents {
-									// Check if a mob blocks.
-									if _, inList := mob.ThreatTable[follChar.Name]; inList {
-										if mob.CheckFlag("block_exit") && mob.Placement == follChar.Placement && mob.MobStunned == 0 && !mob.CheckFlag("run_away") {
-											curChance := config.MobBlock - ((follChar.Tier - mob.Level) * config.MobBlockPerLevel)
-											if curChance > 85 {
-												curChance = 85
+									// Check if anyone blocks.
+									for _, mob := range s.where.Mobs.Contents {
+										// Check if a mob blocks.
+										if _, inList := mob.ThreatTable[follChar.Name]; inList {
+											if mob.CheckFlag("block_exit") && mob.Placement == follChar.Placement && mob.MobStunned == 0 && !mob.CheckFlag("run_away") {
+												curChance := config.MobBlock - ((follChar.Tier - mob.Level) * config.MobBlockPerLevel)
+												if curChance > 85 {
+													curChance = 85
+												}
+												if utils.Roll(100, 1, 0) <= curChance {
+													follChar.Write([]byte(mob.Name + " blocks you from following." + "\n"))
+													follChar.SetTimer("global", 8)
+													endFollProc = true
+													break
+												}
 											}
-											if utils.Roll(100, 1, 0) <= curChance {
-												follChar.Write([]byte(mob.Name + " blocks you from following." + "\n"))
-												follChar.SetTimer("global", 8)
-												endFollProc = true
-												break
-											}
-										}
-										if mob.CurrentTarget == follChar.Name {
-											// Now check if they follow.
-											if mob.CheckFlag("follows") && !mob.CheckFlag("curious_canticle") {
-												followList = append(followList, mob)
-											}
-											evasiveMan = 2
-											if mob.Placement == follChar.Placement {
-												evasiveMan = 4
+											if mob.CurrentTarget == follChar.Name {
+												// Now check if they follow.
+												if mob.CheckFlag("follows") && !mob.CheckFlag("curious_canticle") {
+													followList = append(followList, mob)
+												}
+												evasiveMan = 2
+												if mob.Placement == follChar.Placement {
+													evasiveMan = 4
+												}
 											}
 										}
 									}
-								}
-								if endFollProc {
-									continue
+									if endFollProc {
+										continue
+									}
 								}
 								from.Chars.Remove(follChar)
 								// If they were evasive, add a global timer

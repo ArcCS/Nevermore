@@ -52,6 +52,7 @@ var accounts struct {
 // init is used to initialise the map used in account ID tracking.
 func init() {
 	accounts.inuse = make(map[string]struct{})
+
 }
 
 // closedError represents the fact that Close has been called on a frontend
@@ -85,6 +86,7 @@ type frontend struct {
 	permissions permissions.Permissions
 	err         error       // First error to occur else nil
 	writeError  func(error) // Network error to return to player
+	ClientClose func()      // Disconnect up the stack
 }
 
 func (f *frontend) GetCharacter() *objects.Character {
@@ -99,16 +101,22 @@ func (f *frontend) GetCharacter() *objects.Character {
 // The io.Writer is used to send responses back from calling Parse. The new
 // frontend is initialised with a message buffer and nextFunc setup to call
 // greetingDisplay.
-func New(output io.Writer, address string, errorWriter func(error)) *frontend {
+func New(output io.Writer, address string, errorWriter func(error), disconnect func()) *frontend {
 	f := &frontend{
-		buf:        message.AcquireBuffer(),
-		output:     output,
-		remoteAddr: address,
-		writeError: errorWriter,
+		buf:         message.AcquireBuffer(),
+		output:      output,
+		remoteAddr:  address,
+		writeError:  errorWriter,
+		ClientClose: disconnect,
 	}
 	f.buf.OmitLF(true)
 	f.nextFunc = f.greetingDisplay
 	return f
+}
+
+func (f *frontend) Disconnect() {
+	f.character = (*objects.Character)(nil)
+	f.ClientClose()
 }
 
 // Close makes sure the player is no longer 'in game' and frees up resources
@@ -123,7 +131,7 @@ func (f *frontend) Close() {
 	f.err = closedError{}
 
 	// If player is still in the game force them to quit
-	if f.character != nil {
+	if f.character != (*objects.Character)(nil) {
 		if objects.ActiveCharacters.Find(f.character.Name) != nil {
 			cmd.Parse(f.character, "QUIT")
 		}
@@ -136,9 +144,6 @@ func (f *frontend) Close() {
 	f.output = nil
 	f.nextFunc = nil
 
-	if f.character != nil {
-		f.character.Free()
-	}
 	f.character = (*objects.Character)(nil)
 
 	f = (*frontend)(nil)

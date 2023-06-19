@@ -154,18 +154,6 @@ func (i *ItemInventory) ListItems() []*Item {
 	return items
 }
 
-// Free recursively calls Free on all of it's content when the ItemInventory
-// attribute is freed.
-func (i *ItemInventory) Free() {
-	if i == nil {
-		return
-	}
-	for x, t := range i.Contents {
-		i.Contents[x] = nil
-		t.Free()
-	}
-}
-
 func (i *ItemInventory) Jsonify() string {
 	itemList := make([]map[string]interface{}, 0)
 

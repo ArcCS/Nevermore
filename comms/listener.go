@@ -8,7 +8,7 @@ package comms
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
-	"github.com/ArcCS/Nevermore/jarvoral"
+	"github.com/ArcCS/Nevermore/objects"
 	"log"
 	"net"
 	"os"
@@ -65,6 +65,6 @@ func Listen(host, port string) {
 
 	log.Println("Shutting down the server...")
 	data.DRIVER.Close()
-	jarvoral.StopJarvoral()
+	objects.StopJarvoral()
 	os.Exit(0)
 }

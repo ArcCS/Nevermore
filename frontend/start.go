@@ -14,6 +14,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"sort"
 	"strings"
 )
@@ -131,8 +132,17 @@ func (m *start) startProcess() {
 			if objects.ActiveCharacters.Find(string(m.input)) == nil {
 				StartGame(m.frontend, string(m.input))
 			} else {
-				m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.  (If you were mysteriously disconnected, you may have to wait for the game to idle out your character.)", text.Reset)
-				return
+				if strings.Split(m.remoteAddr, ":")[0] == strings.Split(objects.IpMap[string(m.input)], ":")[0] {
+					m.buf.Send(text.Good, "Resuming session...\n", text.Reset)
+					var character = objects.ActiveCharacters.Find(string(m.input))
+					log.Println("Disconnect old lease")
+					character.Disconnect()
+					log.Println("Resume game")
+					ResumeGame(m.frontend, character)
+				} else {
+					m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.  (If you were mysteriously disconnected, you may have to wait for the game to idle out your character.)", text.Reset)
+					return
+				}
 			}
 		}
 		m.buf.Send(text.Bad, "Invalid option selected. Please try again.", text.Reset)

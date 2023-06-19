@@ -77,13 +77,13 @@ func (slam) process(s *state) {
 
 		// Shortcut weapon not being blunt
 		if s.actor.Equipment.Off.ItemType != 23 {
-			s.msg.Actor.SendBad("You can only bash with a shield!")
+			s.msg.Actor.SendBad("You can only slam with a shield!")
 			return
 		}
 
 		// Shortcut target not being in the right location, check if it's a missile weapon, or that they are placed right.
 		if s.actor.Placement != whatMob.Placement {
-			s.msg.Actor.SendBad("You are too far away to bash them.")
+			s.msg.Actor.SendBad("You are too far away to slam them.")
 			return
 		}
 

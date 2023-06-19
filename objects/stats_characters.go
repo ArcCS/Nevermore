@@ -148,6 +148,9 @@ func (c *characterStats) GMList() []string {
 }
 
 func (c *characterStats) MessageExcept(msg string, except *Character) {
+	if DiscordSession != nil {
+		DiscordSession.ChannelMessageSend("854733320474329088", msg)
+	}
 	// Setup buffer
 	msgbuf := message.AcquireBuffer()
 	msgbuf.Send(text.White, msg)
@@ -163,6 +166,9 @@ func (c *characterStats) MessageExcept(msg string, except *Character) {
 }
 
 func (c *characterStats) MessageAll(msg string) {
+	if DiscordSession != nil {
+		DiscordSession.ChannelMessageSend("854733320474329088", msg)
+	}
 	c.Lock()
 
 	// Setup buffer

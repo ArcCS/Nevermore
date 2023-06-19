@@ -24,7 +24,7 @@ type game struct {
 // game can be used for processing communication to the actual game.
 func StartGame(f *frontend, charName string) (g *game) {
 	g = &game{frontend: f}
-	g.character, _ = objects.LoadCharacter(charName, f.output)
+	g.character, _ = objects.LoadCharacter(charName, f.output, g.Disconnect)
 	g.gameInit()
 	return
 }
@@ -33,7 +33,7 @@ func StartGame(f *frontend, charName string) (g *game) {
 // game can be used for processing communication to the actual game.
 func FirstTimeStartGame(f *frontend, charName string) (g *game) {
 	g = &game{frontend: f}
-	g.character, _ = objects.LoadCharacter(charName, f.output)
+	g.character, _ = objects.LoadCharacter(charName, f.output, f.Disconnect)
 	for _, item_id := range config.StartingGear[g.character.Class] {
 		newItem := objects.Item{}
 		copier.CopyWithOption(&newItem, objects.Items[item_id], copier.Option{DeepCopy: true})
@@ -63,12 +63,37 @@ func (g *game) gameInit() {
 		g.character.Permission.ToggleFlag(config.ClassPerms[g.character.Class])
 	}
 	g.character.Unloader = g.CharUnloader
+	g.character.Disconnect = g.Disconnect
 	objects.Rooms[g.character.ParentId].Lock()
 	objects.Rooms[g.character.ParentId].Chars.Add(g.character)
 	objects.ActiveCharacters.Add(g.character, g.remoteAddr)
 	objects.Rooms[g.character.ParentId].Unlock()
 
 	cmd.Script(g.character, "$POOF")
+	// Initialize this characters ticker
+	g.nextFunc = g.gameProcess
+}
+
+// NewGame returns a game with the specified frontend embedded. The returned
+// game can be used for processing communication to the actual game.
+func ResumeGame(f *frontend, charRef *objects.Character) (g *game) {
+	g = &game{frontend: f}
+	g.character = charRef
+	g.gameResumeInit()
+	return
+}
+
+// gameInit is used to place the player into the game world. As the game
+// backend has it's own output handling we remove the frontend.buf buffer to
+// prevent duplicate output. The buffer is restored by gameProcess when the
+// player quits the game world.
+func (g *game) gameResumeInit() {
+	message.ReleaseBuffer(g.buf)
+	g.buf = nil
+	g.character.Writer = g.output
+	g.character.Unloader = g.CharUnloader
+	g.character.Disconnect = g.Disconnect
+	cmd.Script(g.character, "LOOK")
 	// Initialize this characters ticker
 	g.nextFunc = g.gameProcess
 }

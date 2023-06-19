@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/jarvoral"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
@@ -24,9 +23,6 @@ func (msgall) process(s *state) {
 
 	message := "###: " + strings.Join(s.input, " ")
 	objects.ActiveCharacters.MessageAll(message)
-	if jarvoral.DiscordSession != nil {
-		jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", message)
-	}
 
 	s.ok = true
 	return

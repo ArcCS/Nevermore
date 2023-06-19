@@ -6,7 +6,6 @@ import (
 	"github.com/ArcCS/Nevermore/comms"
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
-	"github.com/ArcCS/Nevermore/jarvoral"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/stats"
 	"io"
@@ -27,7 +26,7 @@ func main() {
 	// Load MOTD from database
 	config.Server.Motd, _ = data.LoadSetting("motd")
 
-	go jarvoral.StartJarvoral()
+	go objects.StartJarvoral()
 	objects.Load()
 	log.Println("Starting time...")
 	StartTime()

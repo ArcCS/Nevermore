@@ -243,7 +243,7 @@ func (m *Mob) Tick() {
 							Rooms[m.ParentId].Items.Remove(item)
 							m.Inventory.Add(item)
 							Rooms[m.ParentId].MessageAll(m.Name + " picks up " + item.DisplayName() + text.Reset + "\n")
-							return
+							break
 						}
 					}
 				}
@@ -306,6 +306,7 @@ func (m *Mob) Tick() {
 					var targets []*Character
 					for _, character := range Rooms[m.ParentId].Chars.Contents {
 						if character.Placement == target.Placement {
+							log.Println("Adding target: ", character.Name, " to breath list")
 							targets = append(targets, character)
 						}
 					}
@@ -1020,7 +1021,7 @@ func (m *Mob) Look() string {
 	buildText := "You see a " + m.Name + ", " + config.TextTiers[m.Level] + " level. \n"
 	buildText += m.Description
 	if m.Flags["hostile"] {
-		buildText += "\n It looks hostile!"
+		buildText += text.Bad + "\nIt looks hostile!" + text.Info
 	}
 	return buildText
 }

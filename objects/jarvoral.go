@@ -1,8 +1,7 @@
-package jarvoral
+package objects
 
 import (
 	"fmt"
-	"github.com/ArcCS/Nevermore/objects"
 	"github.com/bwmarrin/discordgo"
 	"os"
 	"strconv"
@@ -11,8 +10,8 @@ import (
 
 // Variables used for command line parameters
 var (
-	DiscordSession  *discordgo.Session
-	err error
+	DiscordSession *discordgo.Session
+	err            error
 )
 
 func StartJarvoral() {
@@ -56,7 +55,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// If the message is "ping" reply with "Pong!"
 	if strings.ToLower(m.Content) == "who" {
 		var message string
-		players := objects.ActiveCharacters.List()
+		players := ActiveCharacters.List()
 
 		if len(players) == 0 {
 			//log.Println(m.ChannelID)

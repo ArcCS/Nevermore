@@ -42,8 +42,10 @@ func addHandler(h handler, helpString string, permission permissions.Permissions
 func dispatchHandler(s *state) {
 
 	if len(s.cmd) > 0 {
-		log.Println(s.actor.Name + " sent " + s.cmd + " " + strings.Join(s.input, " "))
-		s.actor.LastAction = time.Now()
+		if !s.scripting {
+			log.Println(s.actor.Name + " sent " + s.cmd + " " + strings.Join(s.input, " "))
+			s.actor.LastAction = time.Now()
+		}
 
 		if s.where.RoomId == config.OocRoom && s.cmd != "SAY" && s.cmd != "QUIT" && s.cmd != "HELP" && s.cmd != "WHO" && s.cmd != "LOOK" && s.cmd != "IC" && s.cmd != "$POOF" && s.cmd != "AFK" {
 			s.msg.Actor.SendBad("You must be IC to do that.")

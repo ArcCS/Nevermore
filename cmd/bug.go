@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/jarvoral"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
@@ -24,8 +23,8 @@ func (error_report) process(s *state) {
 
 	message := "### " + s.actor.Name + " reporting bug: " + strings.Join(s.input, " ")
 	objects.ActiveCharacters.MessageGM(message)
-	if jarvoral.DiscordSession != nil {
-		jarvoral.DiscordSession.ChannelMessageSend("729467777416691712", message)
+	if objects.DiscordSession != nil {
+		objects.DiscordSession.ChannelMessageSend("729467777416691712", message)
 	}
 
 	s.ok = true

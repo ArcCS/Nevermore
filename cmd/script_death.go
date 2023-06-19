@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/jarvoral"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
@@ -39,12 +38,8 @@ func (scriptDeath) process(s *state) {
 
 	objects.ActiveCharacters.MessageAll("### An otherworldly bell sounds once, the note echoing in your soul")
 	objects.ActiveCharacters.MessageAll(deathString)
-	if jarvoral.DiscordSession != nil {
-		jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", "### An otherworldly bell sounds once, the note echoing in your soul")
-		jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", deathString)
-	}
 
-	if time.Now().Sub(s.actor.LastAction).Minutes() < 5 {
+	if time.Now().Sub(s.actor.LastAction).Seconds() < 60 {
 		if s.actor.Tier > config.FreeDeathTier {
 			equipment := s.actor.Equipment.UnequipAll()
 

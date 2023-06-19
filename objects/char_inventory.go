@@ -197,15 +197,3 @@ func (i *CharInventory) MobList(observer *Mob) []string {
 	}
 	return items
 }
-
-// Free recursively calls Free on all of it's content when the CharInventory
-// attribute is freed.
-func (i *CharInventory) Free() {
-	if i == nil {
-		return
-	}
-	for x, t := range i.Contents {
-		i.Contents[x] = nil
-		t.Free()
-	}
-}

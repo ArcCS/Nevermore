@@ -109,7 +109,7 @@ var MobBlock = 25
 var MobBlockPerLevel = 5
 var MobFollow = 25
 var MobFollowPerLevel = 2
-var MobTakeChance = 10 // Percent
+var MobTakeChance = 20 // Percent
 
 // Str Mods
 var StrCarryMod = 10 // Per Point
@@ -130,7 +130,7 @@ var MissPerDex = 1
 var DexDodgeMod = .0025 //Chance to dodge
 var DexFallDamageMod = 1
 
-var FallDamage = 20
+var FallDamage = .20
 
 // Int Mods
 var IntResistMagicBase = 10

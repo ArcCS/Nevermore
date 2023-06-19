@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/jarvoral"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
@@ -25,20 +24,12 @@ func (broadcast) process(s *state) {
 	if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster) {
 		if s.actor.Broadcasts < 1 {
 			s.msg.Actor.SendBad("You're out of broadcasts today.")
-		}else{
+		} else {
 			s.actor.Broadcasts -= 1
 			objects.ActiveCharacters.MessageAll(message)
-			if jarvoral.DiscordSession != nil {
-				jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", message)
-			}
-
 		}
-	}else {
+	} else {
 		objects.ActiveCharacters.MessageAll(message)
-		if jarvoral.DiscordSession != nil {
-			jarvoral.DiscordSession.ChannelMessageSend("854733320474329088", message)
-		}
-
 	}
 
 	s.ok = true

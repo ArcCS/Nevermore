@@ -76,7 +76,7 @@ func newClient(conn *net.TCPConn) *client {
 	c.leaseAcquire()
 
 	// Setup frontend if no error acquiring a lease
-	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError)
+	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError, c.close)
 	c.frontend.Parse([]byte(""))
 
 	return c
@@ -94,8 +94,12 @@ func (c *client) process() {
 				log.Printf("%s: %s", err, debug.Stack())
 			}
 		}
-		log.Print("Ending game loop: ", c.RemoteAddr())
-		c.close()
+		if c != nil {
+			log.Print("Ending game loop: ", c.RemoteAddr())
+			c.close()
+		} else {
+			log.Print("Ending game loop: Nullified Connection")
+		}
 	}()
 
 	// Main input processing loop, terminates on any error raised not just read
@@ -211,24 +215,23 @@ func fixDEL(in *[]byte) {
 // close shuts down a client cleanly, closes network connections and
 // deallocates resources.
 func (c *client) close() {
-
 	// Deallocate current frontend if we have one
 	if c.frontend != nil {
 		// Sometimes these disconnects are a little messy,  need to add some extra cleanup
 		if c.frontend.GetCharacter() != nil {
-			log.Println("Force Close from Client: Save Character")
+			log.Println("Force Close from Client")
 			c.frontend.GetCharacter().Save()
-			log.Println("Force Close from Client: Remove Follow")
+			//log.Println("Force Close from Client: Remove Follow")
 			c.frontend.GetCharacter().Unfollow()
-			log.Println("Force Close from Client: Lose Party")
+			//log.Println("Force Close from Client: Lose Party")
 			c.frontend.GetCharacter().LoseParty()
-			log.Println("Force Close from Client: Purge Effects")
+			//log.Println("Force Close from Client: Purge Effects")
 			c.frontend.GetCharacter().PurgeEffects()
-			log.Println("Force Close from Client: Clean Room")
+			//log.Println("Force Close from Client: Clean Room")
 			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
-			log.Println("Force Close from Client: Unload Char Ticker")
+			//log.Println("Force Close from Client: Unload Char Ticker")
 			c.frontend.GetCharacter().Unload()
-			log.Println("Force Close from Client: Clean Activate Char container")
+			//log.Println("Force Close from Client: Clean Activate Char container")
 			objects.ActiveCharacters.Remove(c.frontend.GetCharacter())
 		}
 

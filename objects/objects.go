@@ -18,8 +18,8 @@ The rest of the the world constructs from this
 type Object struct {
 	Name        string
 	Description string
-	Placement int
-	Commands map[string]prompt.MenuItem
+	Placement   int
+	Commands    map[string]prompt.MenuItem
 }
 
 var ObjectCount chan uint
@@ -46,10 +46,6 @@ func (o *Object) RemoveCommand(cmdItem string) {
 
 func (o *Object) String() string {
 	return fmt.Sprintf("%p %[1]T", o)
-}
-
-func (o *Object) Free() {
-
 }
 
 func (o *Object) ChangePlacement(place int) bool {

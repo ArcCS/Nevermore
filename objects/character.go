@@ -101,9 +101,10 @@ type Character struct {
 	LastMessenger   string
 	DeathInProgress bool
 	Rerolls         int
+	Disconnect      func()
 }
 
-func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
+func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Character, bool) {
 	charData, err := data.LoadChar(charName)
 	lastRefresh, _ := time.Parse(time.RFC3339, charData["lastrefresh"].(string))
 	if err {
@@ -203,6 +204,7 @@ func LoadCharacter(charName string, writer io.Writer) (*Character, bool) {
 			"",
 			false,
 			int(charData["rerolls"].(int64)),
+			disconnect,
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
