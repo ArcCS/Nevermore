@@ -34,6 +34,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"io"
+	"log"
 	"sync"
 
 	"github.com/ArcCS/Nevermore/config"
@@ -117,6 +118,11 @@ func New(output io.Writer, address string, errorWriter func(error), disconnect f
 func (f *frontend) Disconnect() {
 	f.character = (*objects.Character)(nil)
 	f.ClientClose()
+}
+
+func (f *frontend) AccountCleanup() {
+	delete(accounts.inuse, f.account)
+	log.Println(accounts.inuse)
 }
 
 // Close makes sure the player is no longer 'in game' and frees up resources

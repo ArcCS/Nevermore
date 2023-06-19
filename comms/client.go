@@ -47,6 +47,7 @@ type client struct {
 		Parse([]byte) error
 		Close()
 		GetCharacter() *objects.Character
+		AccountCleanup()
 	}
 }
 
@@ -219,6 +220,7 @@ func (c *client) close() {
 	if c.frontend != nil {
 		// Sometimes these disconnects are a little messy,  need to add some extra cleanup
 		if c.frontend.GetCharacter() != nil {
+			c.frontend.AccountCleanup()
 			log.Println("Force Close from Client")
 			c.frontend.GetCharacter().Save()
 			//log.Println("Force Close from Client: Remove Follow")
