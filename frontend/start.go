@@ -129,8 +129,14 @@ func (m *start) startProcess() {
 
 			}
 		} else if utils.StringInLower(string(m.input), m.characters) {
+
 			if objects.ActiveCharacters.Find(string(m.input)) == nil {
-				StartGame(m.frontend, string(m.input))
+				if m.accountAllowed() {
+					StartGame(m.frontend, string(m.input))
+				} else {
+					m.buf.Send(text.Bad, "Account already logged in.\n", text.Reset)
+					return
+				}
 			} else {
 				if strings.Split(m.remoteAddr, ":")[0] == strings.Split(objects.IpMap[string(m.input)], ":")[0] {
 					m.buf.Send(text.Good, "Resuming session...\n", text.Reset)
@@ -140,13 +146,22 @@ func (m *start) startProcess() {
 					log.Println("Resume game")
 					ResumeGame(m.frontend, character)
 				} else {
-					m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.  (If you were mysteriously disconnected, you may have to wait for the game to idle out your character.)", text.Reset)
+					m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.  (Your IP has possibly changed in a DC?)", text.Reset)
 					return
 				}
 			}
 		}
 		m.buf.Send(text.Bad, "Invalid option selected. Please try again.", text.Reset)
 	}
+}
+
+func (m *start) accountAllowed() bool {
+	if m.permissions < 16 {
+		if _, ok := accounts.inuse[m.account]; ok {
+			return false
+		}
+	}
+	return true
 }
 
 func (m *start) verifyPw() {

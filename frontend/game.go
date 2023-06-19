@@ -23,6 +23,7 @@ type game struct {
 // NewGame returns a game with the specified frontend embedded. The returned
 // game can be used for processing communication to the actual game.
 func StartGame(f *frontend, charName string) (g *game) {
+	accounts.inuse[f.account] = struct{}{}
 	g = &game{frontend: f}
 	g.character, _ = objects.LoadCharacter(charName, f.output, g.Disconnect)
 	g.gameInit()
