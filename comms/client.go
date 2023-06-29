@@ -96,7 +96,6 @@ func (c *client) process() {
 			}
 		}
 		if c != nil {
-			log.Print("Ending game loop: ", c.RemoteAddr())
 			c.close()
 		} else {
 			log.Print("Ending game loop: Nullified Connection")
