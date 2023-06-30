@@ -77,7 +77,7 @@ func newClient(conn *net.TCPConn) *client {
 	c.leaseAcquire()
 
 	// Setup frontend if no error acquiring a lease
-	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError, c.close)
+	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError, c.closeDC)
 	c.frontend.Parse([]byte(""))
 
 	return c
@@ -96,6 +96,7 @@ func (c *client) process() {
 			}
 		}
 		if c != nil {
+			log.Print("Ending game loop: Nullified Connection")
 			c.close()
 		} else {
 			log.Print("Ending game loop: Nullified Connection")
@@ -246,15 +247,44 @@ func (c *client) close() {
 	// Revert to default colors
 	_, _ = c.Write([]byte(text.Reset))
 
-	// io.EOF does not give address info so handle specially, otherwise just
-	// report the error
-	/*
-		if c.Error() == io.EOF {
-			log.Printf("Connection dropped by remote client: %s", c.remoteAddr)
-		} else {
-			log.Printf("Connection error: %s, %s", c.Error(), c.remoteAddr)
+	// Make sure connection closed down and deallocated
+	if err := c.Close(); err != nil {
+		log.Printf("Error closing connection: %s", err)
+	} else {
+		log.Printf("Connection closed: %s", c.remoteAddr)
+	}
+	c.TCPConn = nil
+	c.leaseRelease()
+
+}
+
+// closeDC is a pass down call to close connections but skip writes.
+// deallocates resources.
+func (c *client) closeDC() {
+	// Deallocate current frontend if we have one
+	if c.frontend != nil {
+		// Sometimes these disconnects are a little messy,  need to add some extra cleanup
+		if c.frontend.GetCharacter() != nil {
+			c.frontend.AccountCleanup()
+			log.Println("Force Close from Client")
+			c.frontend.GetCharacter().Save()
+			//log.Println("Force Close from Client: Remove Follow")
+			c.frontend.GetCharacter().Unfollow()
+			//log.Println("Force Close from Client: Lose Party")
+			c.frontend.GetCharacter().LoseParty()
+			//log.Println("Force Close from Client: Purge Effects")
+			c.frontend.GetCharacter().PurgeEffects()
+			//log.Println("Force Close from Client: Clean Room")
+			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
+			//log.Println("Force Close from Client: Unload Char Ticker")
+			c.frontend.GetCharacter().Unload()
+			//log.Println("Force Close from Client: Clean Activate Char container")
+			objects.ActiveCharacters.Remove(c.frontend.GetCharacter())
 		}
-	*/
+
+		c.frontend.Close()
+		c.frontend = nil
+	}
 
 	// Make sure connection closed down and deallocated
 	if err := c.Close(); err != nil {
