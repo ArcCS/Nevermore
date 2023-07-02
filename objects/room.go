@@ -404,7 +404,7 @@ func (r *Room) LastPerson() {
 		}
 	}
 
-	go r.Save()
+	AddRoomUpdate(r.RoomId)
 
 }
 

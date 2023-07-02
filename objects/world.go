@@ -27,7 +27,23 @@ var (
 )
 
 // Create a bind variable so we can send scripting events up the state chain
-var Script func(o *Character, input string) string
+var (
+	Script             func(o *Character, input string) string
+	RoomsPendingUpdate []int
+)
+
+func AddRoomUpdate(roomId int) {
+	RoomsPendingUpdate = append(RoomsPendingUpdate, roomId)
+}
+
+func FlushRoomUpdates() {
+	for _, roomId := range RoomsPendingUpdate {
+		if len(Rooms[roomId].Chars.Contents) > 0 {
+			Rooms[roomId].Save()
+		}
+	}
+	RoomsPendingUpdate = nil
+}
 
 // Load fills the world with love.
 func Load() {

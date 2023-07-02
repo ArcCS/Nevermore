@@ -361,7 +361,7 @@ func (godir) process(s *state) {
 								follChar.Victim = nil
 								follChar.Placement = 3
 								follChar.ParentId = toE.ToId
-								go Script(follChar, "LOOK")
+								follChar.Write([]byte(objects.Rooms[to.RoomId].Look(follChar)))
 
 								// Broadcast leaving and arrival notifications
 								if follChar.Flags["invisible"] == false {

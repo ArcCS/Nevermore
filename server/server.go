@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+var RoomSyncTicker *time.Ticker
+
 func main() {
 	logFile, err := os.OpenFile("log_"+time.Now().Format("01-02-2006")+".txt", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
 	if err != nil {
@@ -31,6 +33,18 @@ func main() {
 	log.Println("Starting time...")
 	StartTime()
 	comms.Listen(config.Server.Host, config.Server.Port)
+}
+
+func StartRoomSync() {
+	RoomSyncTicker = time.NewTicker(5 * time.Minute)
+	go func() {
+		for {
+			select {
+			case <-RoomSyncTicker.C:
+				objects.FlushRoomUpdates()
+			}
+		}
+	}()
 }
 
 func StartTime() {
