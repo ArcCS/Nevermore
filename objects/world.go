@@ -2,6 +2,7 @@ package objects
 
 import (
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"runtime"
 	"time"
@@ -33,7 +34,9 @@ var (
 )
 
 func AddRoomUpdate(roomId int) {
-	RoomsPendingUpdate = append(RoomsPendingUpdate, roomId)
+	if !utils.IntIn(roomId, RoomsPendingUpdate) {
+		RoomsPendingUpdate = append(RoomsPendingUpdate, roomId)
+	}
 }
 
 func FlushRoomUpdates() {
