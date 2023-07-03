@@ -110,6 +110,10 @@ func (m *start) startProcess() {
 			m.buf.Send(text.Bad, "New character creation is disabled at this time.", text.Reset)
 		}
 	case "0":
+		// Say goodbye to client
+		_, _ = m.Write([]byte(text.Info + "\nBye bye...\n\n"))
+		// Revert to default colors
+		_, _ = m.Write([]byte(text.Reset))
 		m.Close()
 	case "2":
 		m.buf.Send(text.Info, "Enter your new password:")
