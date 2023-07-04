@@ -8,6 +8,7 @@ package comms
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"log"
@@ -56,6 +57,11 @@ func (c *client) WriteError(err error) {
 	c.err = err
 }
 
+func (c *client) DisconnectResumeError() {
+	log.Println("Issuing disconnect resume error")
+	c.err = fmt.Errorf("character cisconnect issued from lower in stack")
+}
+
 // newClient returns an initialised client for the passed connection.
 func newClient(conn *net.TCPConn) *client {
 
@@ -76,7 +82,7 @@ func newClient(conn *net.TCPConn) *client {
 	c.leaseAcquire()
 
 	// Setup frontend if no error acquiring a lease
-	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError, c.close)
+	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError, c.DisconnectResumeError)
 	c.frontend.Parse([]byte(""))
 
 	return c
