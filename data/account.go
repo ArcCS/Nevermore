@@ -36,7 +36,7 @@ func NewAcct(acctData map[string]interface{}) bool {
 // LoadAcct Retrieve account info based on an acctName
 func LoadAcct(acctName string) (map[string]interface{}, bool) {
 	results, err := execRead("MATCH (a:account) WHERE toLower(a.name)=toLower($acctName) RETURN "+
-		"{account_id: a.account_id, name: a.name, permissions: a.permissions, password: a.password}",
+		"{account_id: a.account_id, name: a.name, permissions: a.permissions, password: a.password, active: a.active}",
 		map[string]interface{}{
 			"acctName": acctName,
 		},

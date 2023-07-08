@@ -58,7 +58,6 @@ func (examine) process(s *state) {
 			{"T", "heal_fast", strconv.FormatBool(roomRef.Flags["heal_fast"]), "Regenerate quickly"},
 			{"T", "no_teleport", strconv.FormatBool(roomRef.Flags["no_teleport"]), "Blocks teleporting out"},
 			{"T", "no_word_of_recall", strconv.FormatBool(roomRef.Flags["no_word_of_recall"]), "Blocks WoD"},
-			{"T", "no_scry", strconv.FormatBool(roomRef.Flags["no_scry"]), "Blocks clairvoyance"},
 			{"T", "no_magic", strconv.FormatBool(roomRef.Flags["no_magic"]), "Cannot cast spells"},
 			{"T", "dark_always", strconv.FormatBool(roomRef.Flags["dark_always"]), "Always dark"},
 			{"T", "light_always", strconv.FormatBool(roomRef.Flags["light_always"]), "Always lit"},

@@ -499,15 +499,6 @@ var Spells = map[string]Spell{
 		Effect:      "resist-earth",
 		Classes:     map[string]int{"cleric": 7, "mage": 7, "paladin": 11, "ranger": 11, "bard": 9, "monk": 13},
 	},
-	"clairvoyance": {
-		Name:        "clairvoyance",
-		Description: "the clairvoyance spell allows the caster to focus their consciousness toward another. the caster must close their eyes, and focus on the person they wish to find while whispering the spell Chant like a mantra. the difficulty in shunting away the consciousness often causes the sepll to fail, however, when it does work, the caster is given a brief glimpse of the area around their intended target, as if the caster was really there. (which, the caster is, partially, which again proves the complexity of this spell..) ",
-		Cost:        15,
-		Chant:       "I am the eye in the sky, looking at you.",
-		Magnitude:   1,
-		Effect:      "clairvoyance",
-		Classes:     map[string]int{"cleric": 8, "mage": 8, "paladin": 9, "ranger": 9, "bard": 9, "thief": 10, "fighter": 15, "monk": 10},
-	},
 	"remove-disease": {
 		Name:        "remove-disease",
 		Description: "the remove disease spell purges nearly any disease from the system of its recipient. this spell is actually a customized low power spell combined from the fire and water realms, in which the water portion guides the magics through the recipient's body, to find the infection while the fire purges it from the body. this spell is very painful to the recipient, especially in the case of advanced infection, however it is far preferable to death. it is important to note as well that this spell is incapable of curing extremely virulant diseases, such as plagues. to cast the spell, the caster points at the recipient, and focuses inward, to direct the spell, while speaking the spell Chant. ",
@@ -640,7 +631,6 @@ var Spells = map[string]Spell{
 
 var RemoteSpells = []string{
 	"summon",
-	"clairvoyance",
 	"wizard-walk",
 }
 
@@ -718,14 +708,11 @@ var MiscSpells = []string{
 	"summon",
 	"wizard-walk",
 	"levitate",
-	"clairvoyance",
-	//"polymorph",
 	"attraction",
 }
 
 var AmbiguousTargets = []string{
 	"attraction",
-	"clairvoyance",
 }
 
 var MobSupportSpells = []string{
