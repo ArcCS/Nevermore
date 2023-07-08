@@ -59,6 +59,11 @@ func (enchant) process(s *state) {
 		return
 	}
 
+	if s.actor.ClassProps["enchants"] <= 0 {
+		s.msg.Actor.SendBad("You cannot enchant further today.")
+		return
+	}
+
 	s.actor.RunHook("act")
 	s.msg.Actor.SendGood("You chant: \"I inject my magicks into thee!\"")
 	s.msg.Observers.SendGood(s.actor.Name + " chants: \"I inject my magicks into thee!\"")
