@@ -50,7 +50,6 @@ var Effects = map[string]func(caller interface{}, target interface{}, magnitude 
 	"resist-air":       resistair,
 	"resist-water":     resistwater,
 	"resist-earth":     resistearth,
-	"clairvoyance":     clairvoyance,
 	"remove-disease":   removedisease,
 	"remove-blindness": cureblindness,
 	//"polymorph":        polymorph,
@@ -1090,36 +1089,6 @@ func resistearth(caller interface{}, target interface{}, magnitude int) string {
 			func() {
 				target.ToggleFlag("resist-earth")
 			})
-		return ""
-	}
-	return ""
-}
-
-func clairvoyance(caller interface{}, target interface{}, magnitude int) string {
-	if caller == target {
-		return "You cannot cast clairvoyance on yourself."
-	}
-	switch caller := caller.(type) {
-	case *Character:
-		switch target := target.(type) {
-		case *Character:
-			if target.Resist {
-				// For every 5 points of int over the target there's an extra 10% chance to clairvoyance
-				diff := ((caller.GetStat("int") - target.GetStat("int")) / 5) * 10
-				chance := 30 + diff
-				if utils.Roll(100, 1, 0) > chance {
-					target.Write([]byte(text.Info + caller.Name + " failed to cast clairvoyance on you. \n" + text.Reset))
-					return "You failed to cast clairvoyance on " + target.Name
-				} else {
-					target.Write([]byte(text.Info + caller.Name + " sees through your eyes. \n" + text.Reset))
-					caller.Write([]byte(Rooms[target.ParentId].Look(target) + text.Reset))
-				}
-			}
-		case *Mob:
-			return "Cannot be cast on a mob."
-		}
-
-	case *Mob:
 		return ""
 	}
 	return ""

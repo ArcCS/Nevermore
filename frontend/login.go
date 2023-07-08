@@ -92,6 +92,12 @@ func (l *login) passwordProcess() {
 		return
 	}
 
+	if !acctData["active"].(bool) {
+		l.buf.Send(text.Bad, "Account is not active.\n", text.Reset)
+		NewLogin(l.frontend)
+		return
+	}
+
 	accounts.Lock()
 	l.frontend.account = acctData["name"].(string)
 	l.frontend.permissions = permissions.Permissions(acctData["permissions"].(int64))
