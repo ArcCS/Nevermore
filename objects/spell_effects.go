@@ -1334,11 +1334,14 @@ func disruptmagic(caller interface{}, target interface{}, magnitude int) string 
 				spellEffects = append(spellEffects, k)
 			}
 		}
-		rand.Seed(time.Now().Unix())
-		chosenSpell := spellEffects[rand.Intn(len(spellEffects))]
-		target.RemoveEffect(chosenSpell)
-		target.Write([]byte(text.Bad + "The disruptive magic removes " + chosenSpell + " from you.\n"))
-		return ""
+		if len(spellEffects) > 0 {
+			rand.Seed(time.Now().Unix())
+			chosenSpell := spellEffects[rand.Intn(len(spellEffects))]
+			target.RemoveEffect(chosenSpell)
+			target.Write([]byte(text.Bad + "The disruptive magic removes " + chosenSpell + " from you.\n"))
+			return ""
+		}
+		target.Write([]byte(text.Info + "The disruptive magic has no effect on you.\n"))
 	case *Mob:
 		if target.CheckFlag("resist-magic") {
 			// 50:50 chance to resist the disrupt spell
@@ -1352,15 +1355,22 @@ func disruptmagic(caller interface{}, target interface{}, magnitude int) string 
 				spellEffects = append(spellEffects, k)
 			}
 		}
-		rand.Seed(time.Now().Unix())
-		chosenSpell := spellEffects[rand.Intn(len(spellEffects))]
-		target.RemoveEffect(chosenSpell)
+		if len(spellEffects) > 0 {
+			rand.Seed(time.Now().Unix())
+			chosenSpell := spellEffects[rand.Intn(len(spellEffects))]
+			target.RemoveEffect(chosenSpell)
+			switch caller := caller.(type) {
+			case *Character:
+				caller.Write([]byte(text.Bad + "Your disruptive magic removes " + chosenSpell + " from " + target.Name + " .\n"))
+			}
+			return ""
+		}
 		switch caller := caller.(type) {
 		case *Character:
-			caller.Write([]byte(text.Bad + "Your disruptive for removes " + chosenSpell + " from " + target.Name + " .\n"))
+			caller.Write([]byte(text.Bad + "Your disruptive magic has no effect on " + target.Name + " .\n"))
 		}
-		return ""
 	}
+
 	return ""
 
 }
