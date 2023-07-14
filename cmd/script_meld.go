@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/objects"
 	"strconv"
 
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 )
@@ -64,6 +64,11 @@ func (scriptMeld) process(s *state) {
 			return
 		}
 
+		if target.MaxUses > 50 || meld.MaxUses > 50 {
+			s.msg.Actor.SendBad("You cannot meld items with more than 50 uses.")
+			return
+		}
+
 		if utils.IntIn(meld.ItemType, []int{6, 15}) {
 			if meld.ItemType != target.ItemType {
 				s.msg.Actor.SendBad("These are not the same item type.")
@@ -73,7 +78,12 @@ func (scriptMeld) process(s *state) {
 				s.msg.Actor.SendBad("These items do not contain the same spell.")
 				return
 			}
-			cost := int(float64(target.Value+target.Value/2) + ((float64(meld.MaxUses) / float64(objects.Items[meld.ItemId].MaxUses)) * float64(objects.Items[meld.ItemId].Value)))
+			baseValue := (objects.Items[target.ItemId].Value / objects.Items[target.ItemId].MaxUses) / 2
+			meldValue := (objects.Items[meld.ItemId].Value / objects.Items[meld.ItemId].MaxUses) / 2
+			if meldValue > baseValue {
+				baseValue = meldValue
+			}
+			cost := int(baseValue * meld.MaxUses)
 			s.msg.Actor.SendInfo("The cost to meld this item will be " + strconv.Itoa(cost) + ".  Do you want to meld it? (Type yes to meld)")
 			s.actor.AddCommands("yes", "$CONFIRMMELD "+targetStr+" "+strconv.Itoa(targetNum)+" "+meldStr+" "+strconv.Itoa(meldNum))
 			s.actor.AddCommands("y", "$CONFIRMMELD "+targetStr+" "+strconv.Itoa(targetNum)+" "+meldStr+" "+strconv.Itoa(meldNum))
@@ -123,7 +133,12 @@ func (confirmMeld) process(s *state) {
 		return
 	} else {
 		if utils.IntIn(target.ItemType, config.ArmorTypes) || utils.IntIn(meld.ItemType, config.WeaponTypes) || utils.IntIn(meld.ItemType, []int{6, 15}) {
-			cost := int(float64(target.Value+target.Value/2) + ((float64(meld.MaxUses) / float64(objects.Items[meld.ItemId].MaxUses)) * float64(objects.Items[meld.ItemId].Value)))
+			baseValue := (objects.Items[target.ItemId].Value / objects.Items[target.ItemId].MaxUses) / 2
+			meldValue := (objects.Items[meld.ItemId].Value / objects.Items[meld.ItemId].MaxUses) / 2
+			if meldValue > baseValue {
+				baseValue = meldValue
+			}
+			cost := int(baseValue * meld.MaxUses)
 			if s.actor.Gold.Value < cost {
 				s.msg.Actor.SendBad("You do not have enough money to meld this item.")
 				return
@@ -132,7 +147,7 @@ func (confirmMeld) process(s *state) {
 			}
 			target.MaxUses += meld.MaxUses
 			s.actor.Inventory.Remove(meld)
-			s.msg.Actor.SendGood("Meld completed.")
+			s.msg.Actor.SendGood("Meld completed. You now have " + strconv.Itoa(target.MaxUses) + " uses on this item.")
 			meld = nil
 		} else {
 			s.msg.Actor.SendBad("These are not meldable items")

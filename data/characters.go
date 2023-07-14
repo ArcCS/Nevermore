@@ -211,7 +211,7 @@ func SaveChar(charData map[string]interface{}) bool {
 		"MATCH (a:character) WHERE a.character_id=$characterid SET "+
 			"a.name = $name, "+
 			"a.passages = 0,"+
-			"a.bonuspoints = 0,"+
+			"a.bonuspoints = $bonuspoints,"+
 			"a.title = $title, "+
 			"a.tier = $tier,  "+
 			"a.strcur = $strcur, "+
@@ -303,6 +303,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"heals":       charData["heals"],
 			"restores":    charData["restores"],
 			"rerolls":     charData["rerolls"],
+			"bonuspoints": charData["bonuspoints"],
 		},
 	)
 	if err != nil {

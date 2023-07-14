@@ -9,7 +9,7 @@ import (
 
 func init() {
 	addHandler(give{},
-		"Usage:  give [person] itemName # \n \n Give the specific person an item. \n\n or \n\n give [person] $[value] to give someone gold",
+		"Usage:  give itemName # [person] \n \n Give the specific person an item. \n\n or \n\n give $[value] [person] to give someone gold",
 		permissions.Player,
 		"GIVE")
 }

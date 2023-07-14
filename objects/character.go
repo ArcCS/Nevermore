@@ -583,6 +583,7 @@ func (c *Character) Save() {
 	charData["timers"] = c.SerialSaveTimers()
 	charData["lastrefresh"] = c.LastRefresh.Format(time.RFC3339)
 	charData["oocswap"] = c.OOCSwap
+	charData["bonuspoints"] = c.BonusPoints.Value
 	charData["ooc"] = utils.Btoi(c.Flags["ooc"])
 	charData["enchants"] = 0
 	charData["heals"] = 0
