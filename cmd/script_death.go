@@ -31,15 +31,15 @@ func (scriptDeath) process(s *state) {
 		return
 	}
 
-	deathString := "### " + s.actor.Name + " has died."
-	if len(s.words[0]) > 0 {
-		deathString = "### " + s.actor.Name + " " + strings.Join(s.input[0:], " ")
-	}
-
-	objects.ActiveCharacters.MessageAll("### An otherworldly bell sounds once, the note echoing in your soul")
-	objects.ActiveCharacters.MessageAll(deathString)
-
 	if time.Now().Sub(s.actor.LastAction).Seconds() < 60 {
+		deathString := "### " + s.actor.Name + " has died."
+		if len(s.words[0]) > 0 {
+			deathString = "### " + s.actor.Name + " " + strings.Join(s.input[0:], " ")
+		}
+
+		objects.ActiveCharacters.MessageAll("### An otherworldly bell sounds once, the note echoing in your soul")
+		objects.ActiveCharacters.MessageAll(deathString)
+
 		if s.actor.Tier > config.FreeDeathTier {
 			equipment := s.actor.Equipment.UnequipAll()
 
@@ -115,8 +115,15 @@ func (scriptDeath) process(s *state) {
 		s.scriptActor("LOOK")
 
 	} else {
+		deathString := "### " + s.actor.Name + " died a lag death."
+		if len(s.words[0]) > 0 {
+			deathString = "### " + s.actor.Name + " " + strings.Join(s.input[0:], " ")
+		}
+
+		objects.ActiveCharacters.MessageAll("### An otherworldly bell attempts to ring but is abruptly muffled.")
+		objects.ActiveCharacters.MessageAll(deathString)
+
 		go func() {
-			s.actor.DeathInProgress = false
 			log.Println("Lag Death: Kill prompt")
 			s.actor.SetPromptStyle(objects.StyleNone)
 			log.Println("Lag Death: Clear Follows")
@@ -127,8 +134,14 @@ func (scriptDeath) process(s *state) {
 			s.actor.PurgeEffects()
 			log.Println("Lag Death: Clean Room")
 			s.where.Chars.Remove(s.actor)
+			healingHand.Chars.Add(s.actor)
+			s.actor.Placement = 3
+			s.actor.ParentId = healingHand.RoomId
 			log.Println("Lag Death: Active Character Removal")
 			objects.ActiveCharacters.Remove(s.actor)
+			s.actor.DeathInProgress = false
+			// Issue a disconnect
+			s.actor.Disconnect()
 		}()
 	}
 
