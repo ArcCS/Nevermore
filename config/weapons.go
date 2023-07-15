@@ -113,6 +113,36 @@ var DivinityTitles = []string{
 	"Transcendent",
 }
 
+var StealthTitles = []string{
+	"Street Urchin",
+	"Footpad",
+	"Cutpurse",
+	"Burguler",
+	"Prowler",
+	"Infiltrator",
+	"Elusive",
+	"Shadow Dancer",
+	"Phantom Blade",
+	"Assassin",
+	"Master Assassin",
+	"Moonshadow",
+}
+
+var StealthExpLevels = map[int]int{
+	0:  0,
+	1:  1500,
+	2:  3000,
+	3:  30000,
+	4:  300000,
+	5:  750000,
+	6:  1500000,
+	7:  2250000,
+	8:  3000000,
+	9:  7500000,
+	10: 15000000,
+	11: 45000000,
+}
+
 var HealingSkill = map[int]int{
 	0:  0,
 	1:  20,
@@ -229,6 +259,93 @@ func DivinityExpTitle(exp int) string {
 		return DivinityTitles[10]
 	default:
 		return DivinityTitles[0]
+	}
+}
+
+func StealthExpTitle(exp int) string {
+	switch {
+	case exp >= StealthExpLevels[0] && exp < StealthExpLevels[1]:
+		return StealthTitles[0]
+	case exp >= StealthExpLevels[1] && exp < StealthExpLevels[2]:
+		return StealthTitles[1]
+	case exp >= StealthExpLevels[2] && exp < StealthExpLevels[3]:
+		return StealthTitles[2]
+	case exp >= StealthExpLevels[3] && exp < StealthExpLevels[4]:
+		return StealthTitles[3]
+	case exp >= StealthExpLevels[4] && exp < StealthExpLevels[5]:
+		return StealthTitles[4]
+	case exp >= StealthExpLevels[5] && exp < StealthExpLevels[6]:
+		return StealthTitles[5]
+	case exp >= StealthExpLevels[6] && exp < StealthExpLevels[7]:
+		return StealthTitles[6]
+	case exp >= StealthExpLevels[7] && exp < StealthExpLevels[8]:
+		return StealthTitles[7]
+	case exp >= StealthExpLevels[8] && exp < StealthExpLevels[9]:
+		return StealthTitles[8]
+	case exp >= StealthExpLevels[9] && exp < StealthExpLevels[10]:
+		return StealthTitles[9]
+	case exp >= StealthExpLevels[10]:
+		return StealthTitles[10]
+	default:
+		return StealthTitles[0]
+	}
+}
+
+func StealthLevel(exp int) int {
+	switch {
+	case exp >= StealthExpLevels[0] && exp < StealthExpLevels[1]:
+		return 0
+	case exp >= StealthExpLevels[1] && exp < StealthExpLevels[2]:
+		return 1
+	case exp >= StealthExpLevels[2] && exp < StealthExpLevels[3]:
+		return 2
+	case exp >= StealthExpLevels[3] && exp < StealthExpLevels[4]:
+		return 3
+	case exp >= StealthExpLevels[4] && exp < StealthExpLevels[5]:
+		return 4
+	case exp >= StealthExpLevels[5] && exp < StealthExpLevels[6]:
+		return 5
+	case exp >= StealthExpLevels[6] && exp < StealthExpLevels[7]:
+		return 6
+	case exp >= StealthExpLevels[7] && exp < StealthExpLevels[8]:
+		return 7
+	case exp >= StealthExpLevels[8] && exp < StealthExpLevels[9]:
+		return 8
+	case exp >= StealthExpLevels[9] && exp < StealthExpLevels[10]:
+		return 9
+	case exp >= StealthExpLevels[10]:
+		return 10
+	default:
+		return 0
+	}
+}
+
+func StealthExpNext(exp int) int {
+	switch {
+	case exp >= StealthExpLevels[0] && exp < StealthExpLevels[1]:
+		return StealthExpLevels[1]
+	case exp >= StealthExpLevels[1] && exp < StealthExpLevels[2]:
+		return StealthExpLevels[2]
+	case exp >= StealthExpLevels[2] && exp < StealthExpLevels[3]:
+		return StealthExpLevels[3]
+	case exp >= StealthExpLevels[3] && exp < StealthExpLevels[4]:
+		return StealthExpLevels[4]
+	case exp >= StealthExpLevels[4] && exp < StealthExpLevels[5]:
+		return StealthExpLevels[5]
+	case exp >= StealthExpLevels[5] && exp < StealthExpLevels[6]:
+		return StealthExpLevels[6]
+	case exp >= StealthExpLevels[6] && exp < StealthExpLevels[7]:
+		return StealthExpLevels[7]
+	case exp >= StealthExpLevels[7] && exp < StealthExpLevels[8]:
+		return StealthExpLevels[8]
+	case exp >= StealthExpLevels[8] && exp < StealthExpLevels[9]:
+		return StealthExpLevels[9]
+	case exp >= StealthExpLevels[9] && exp < StealthExpLevels[10]:
+		return StealthExpLevels[10]
+	case exp >= StealthExpLevels[10]:
+		return 0
+	default:
+		return StealthExpLevels[1]
 	}
 }
 

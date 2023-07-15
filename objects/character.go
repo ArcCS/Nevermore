@@ -170,7 +170,8 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 				7:  {int(charData["airexp"].(int64))},
 				8:  {int(charData["earthexp"].(int64))},
 				9:  {int(charData["waterexp"].(int64))},
-				10: {int(charData["divinity"].(int64))}},
+				10: {int(charData["divinity"].(int64))},
+				11: {int(charData["stealthexp"].(int64))}},
 			map[string]*Accumulator{
 				"fire":  {0},
 				"earth": {0},
@@ -559,6 +560,7 @@ func (c *Character) Save() {
 	charData["earthexp"] = c.Skills[8].Value
 	charData["waterexp"] = c.Skills[9].Value
 	charData["divinity"] = c.Skills[10].Value
+	charData["stealthexp"] = c.Skills[11].Value
 	charData["bankgold"] = c.BankGold.Value
 	charData["gold"] = c.Gold.Value
 	charData["evals"] = c.Evals
@@ -841,6 +843,11 @@ func (c *Character) AdvanceDivinity(amount int, class int) {
 	if class == 5 || class == 6 {
 		c.Skills[10].Add(amount)
 	}
+	return
+}
+
+func (c *Character) AdvanceStealthExp(amount int) {
+	c.Skills[11].Add(amount)
 	return
 }
 

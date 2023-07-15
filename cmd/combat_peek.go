@@ -57,11 +57,23 @@ func (peek) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
-		curChance := config.StealChance + (config.StealChancePerLevel * (s.actor.Tier - whatMob.Level))
-		curChance += s.actor.Dex.Current * config.StealChancePerPoint
+		curChance := config.StealChance + (s.actor.Dex.Current * config.StealChancePerPoint) + (config.StealthLevel(s.actor.Skills[11].Value) * config.StealChancePerSkillLevel)
+		lvlDiff := float64(whatMob.Level - s.actor.Tier)
+		if lvlDiff > 2 {
+			lvlDiff = (lvlDiff - 2) * 0.2
+			curChance -= int(float64(curChance) * lvlDiff)
+		}
 
-		if curChance >= 100 {
+		curChance = curChance + 10
+
+		//s.msg.Actor.SendInfo("Steal chance = " + strconv.Itoa(curChance))
+
+		if curChance > 95 {
 			curChance = 95
+		}
+
+		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			curChance = 100
 		}
 
 		log.Println(s.actor.Name+"Peek Chance Roll: ", curChance)

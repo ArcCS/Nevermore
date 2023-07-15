@@ -52,6 +52,14 @@ Divinity        |    Level of Devotion (Experience/NextLevel)
 Curative Arts        {{.Divinity}} ({{.DivinityTotal}}/{{.DivinityNext}})
 
 `
+
+	thief_skills :=
+		`
+Clandestine Skills    |    Level of Skill (Experience/NextLevel)
+-----------------------------------------------------------------
+Covert Arts              {{.Stealth}} ({{.StealthTotal}}/{{.StealthNext}})		
+`
+
 	data := struct {
 		Sharp         string
 		Thrust        string
@@ -64,6 +72,7 @@ Curative Arts        {{.Divinity}} ({{.DivinityTotal}}/{{.DivinityNext}})
 		Earth         string
 		Water         string
 		Divinity      string
+		Stealth       string
 		SharpTotal    string
 		SharpNext     string
 		ThrustTotal   string
@@ -86,6 +95,8 @@ Curative Arts        {{.Divinity}} ({{.DivinityTotal}}/{{.DivinityNext}})
 		WaterNext     string
 		DivinityTotal string
 		DivinityNext  string
+		StealthTotal  string
+		StealthNext   string
 	}{
 		config.WeaponExpTitle(s.actor.Skills[0].Value, s.actor.Class),
 		config.WeaponExpTitle(s.actor.Skills[1].Value, s.actor.Class),
@@ -98,6 +109,7 @@ Curative Arts        {{.Divinity}} ({{.DivinityTotal}}/{{.DivinityNext}})
 		config.AffinityExpTitle(s.actor.Skills[8].Value),
 		config.AffinityExpTitle(s.actor.Skills[9].Value),
 		config.DivinityExpTitle(s.actor.Skills[10].Value),
+		config.StealthExpTitle(s.actor.Skills[11].Value),
 		strconv.Itoa(s.actor.Skills[0].Value),
 		strconv.Itoa(config.WeaponExpNext(s.actor.Skills[0].Value, s.actor.Class)),
 		strconv.Itoa(s.actor.Skills[1].Value),
@@ -120,6 +132,8 @@ Curative Arts        {{.Divinity}} ({{.DivinityTotal}}/{{.DivinityNext}})
 		strconv.Itoa(config.WeaponExpNext(s.actor.Skills[9].Value, s.actor.Class)),
 		strconv.Itoa(s.actor.Skills[10].Value),
 		strconv.Itoa(config.WeaponExpNext(s.actor.Skills[10].Value, s.actor.Class)),
+		strconv.Itoa(s.actor.Skills[11].Value),
+		strconv.Itoa(config.StealthExpNext(s.actor.Skills[11].Value)),
 	}
 
 	if s.actor.Class == 8 {
@@ -129,6 +143,9 @@ Curative Arts        {{.Divinity}} ({{.DivinityTotal}}/{{.DivinityNext}})
 	}
 	if s.actor.Class == 4 {
 		skill_header += mage_skills
+	}
+	if s.actor.Class == 2 {
+		skill_header += thief_skills
 	}
 	if s.actor.Class == 5 || s.actor.Class == 6 {
 		skill_header += healer_skills
