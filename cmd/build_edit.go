@@ -281,10 +281,12 @@ func (edit) process(s *state) {
 				case "mana":
 					value, _ := strconv.Atoi(s.words[3])
 					mob.Mana.Max = value
+					mob.Mana.Current = value
 					s.msg.Actor.SendGood("Changed mana")
 				case "stam":
 					value, _ := strconv.Atoi(s.words[3])
 					mob.Stam.Max = value
+					mob.Stam.Current = value
 					s.msg.Actor.SendGood("Changed stam")
 				case "ndice":
 					value, _ := strconv.Atoi(s.words[3])
@@ -314,6 +316,22 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					mob.WimpyValue = value
 					s.msg.Actor.SendGood("Changed value that mob tries to flee")
+				case "air_resistance":
+					value, _ := strconv.Atoi(s.words[3])
+					mob.AirResistance = value
+					s.msg.Actor.SendGood("Changed air resistance")
+				case "earth_resistance":
+					value, _ := strconv.Atoi(s.words[3])
+					mob.EarthResistance = value
+					s.msg.Actor.SendGood("Changed earth resistance")
+				case "fire_resistance":
+					value, _ := strconv.Atoi(s.words[3])
+					mob.FireResistance = value
+					s.msg.Actor.SendGood("Changed fire resistance")
+				case "water_resistance":
+					value, _ := strconv.Atoi(s.words[3])
+					mob.WaterResistance = value
+					s.msg.Actor.SendGood("Changed water resistance")
 				case "spells":
 					spellName := strings.ToLower(s.words[3])
 					if _, ok := objects.Spells[spellName]; ok {

@@ -16,6 +16,11 @@ var (
 
 func StartJarvoral() {
 	// Create a new Discord session using the provided bot token.
+	if os.Getenv("DISCORDTOKEN") == "" {
+		fmt.Println("No Discord Token found")
+		return
+	}
+
 	DiscordSession, err = discordgo.New("Bot " + os.Getenv("DISCORDTOKEN"))
 	if err != nil {
 		fmt.Println("Discord session was not created: \n,", err)

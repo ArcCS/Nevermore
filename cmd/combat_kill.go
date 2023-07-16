@@ -265,7 +265,7 @@ func DetermineMissChance(s *state, lvlDiff int) int {
 		missChance = 95
 	}
 	if missChance <= 0 {
-		missChance = 1
+		missChance = 5
 	}
 	return missChance
 }

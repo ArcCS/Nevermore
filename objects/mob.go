@@ -340,10 +340,12 @@ func (m *Mob) Tick() {
 
 			if m.CurrentTarget != "" && m.ChanceCast > 0 {
 				// Try to cast a spell first
+				log.Println("High chance to cast, trying to cast a spell")
 				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
 				spellSelected := false
 				selectSpell := ""
 				if utils.Roll(100, 1, 0) <= m.ChanceCast {
+					log.Println("Successful Roll, trying to cast a spell")
 					for range m.Spells {
 						rand.Seed(time.Now().Unix())
 						selectSpell = m.Spells[rand.Intn(len(m.Spells))]

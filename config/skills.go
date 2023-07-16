@@ -130,17 +130,16 @@ var StealthTitles = []string{
 
 var StealthExpLevels = map[int]int{
 	0:  0,
-	1:  1500,
-	2:  3000,
-	3:  30000,
-	4:  300000,
-	5:  750000,
-	6:  1500000,
-	7:  2250000,
-	8:  3000000,
-	9:  7500000,
-	10: 15000000,
-	11: 45000000,
+	1:  3000,
+	2:  30000,
+	3:  300000,
+	4:  750000,
+	5:  1500000,
+	6:  2250000,
+	7:  3000000,
+	8:  7500000,
+	9:  15000000,
+	10: 45000000,
 }
 
 var HealingSkill = map[int]int{
@@ -159,16 +158,16 @@ var HealingSkill = map[int]int{
 
 var SpellDmgSkill = map[int]int{
 	0:  0,
-	1:  5,
-	2:  10,
-	3:  15,
-	4:  30,
-	5:  45,
-	6:  60,
-	7:  75,
-	8:  90,
-	9:  105,
-	10: 120,
+	1:  3,
+	2:  7,
+	3:  10,
+	4:  15,
+	5:  25,
+	6:  35,
+	7:  45,
+	8:  55,
+	9:  65,
+	10: 75,
 }
 
 func WeaponExpTitle(exp int, class int) string {
@@ -371,13 +370,11 @@ func WeaponLevel(exp int, class int) int {
 		return 8
 	case exp >= WeaponExpLevels[9] && exp < WeaponExpLevels[10]:
 		return 9
-	case exp >= WeaponExpLevels[10] && exp < WeaponExpLevels[11]:
-		return 10
-	case exp >= WeaponExpLevels[11]:
+	case exp >= WeaponExpLevels[10]:
 		if class == 0 || class == 4 || class == 5 || class == 6 {
-			return 11
-		} else {
 			return 10
+		} else {
+			return 9
 		}
 	default:
 		return 0

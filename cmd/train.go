@@ -46,6 +46,10 @@ func (train) process(s *state) {
 		s.msg.Actor.SendBad("You must enter a valid stat to train. (pie, int, con, dex, str)")
 		return
 	}
+	validateVal := 1
+	if s.words[0] == s.words[1] {
+		validateVal = 2
+	}
 	for _, val := range s.input {
 		proc := strings.ToLower(val)
 		// Verify Moves
@@ -54,7 +58,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Str.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Str.Current+validateVal); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}
@@ -63,7 +67,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Dex.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Dex.Current+validateVal); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}
@@ -72,7 +76,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Con.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Con.Current+validateVal); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}
@@ -81,7 +85,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Int.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Int.Current+validateVal); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}
@@ -90,7 +94,7 @@ func (train) process(s *state) {
 				s.msg.Actor.SendBad("You've already maxed out that stat.")
 				return
 			}
-			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Pie.Current+1); !status {
+			if status, msg := validateStatLevel(s.actor.Tier+1, s.actor.Pie.Current+validateVal); !status {
 				s.msg.Actor.SendBad(msg)
 				return
 			}

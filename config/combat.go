@@ -4,7 +4,7 @@ import "github.com/ArcCS/Nevermore/utils"
 
 var CombatModifiers = map[string]int{
 	// Attack Modifiers
-	"critical": 6,
+	"critical": 5,
 	"double":   2,
 
 	// Bash
@@ -16,7 +16,7 @@ var CombatModifiers = map[string]int{
 	"berserk": 5,
 
 	// Sneaky Types
-	"backstab": 6,
+	"backstab": 5,
 	"snipe":    4,
 }
 
