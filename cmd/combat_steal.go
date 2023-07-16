@@ -114,11 +114,25 @@ func (steal) process(s *state) {
 			s.actor.SetTimer("steal", config.StealCD)
 			if (s.actor.GetCurrentWeight() + what.GetWeight()) <= s.actor.MaxWeight() {
 				// base chance is 15% to hide
-				curChance := config.StealChance + (config.StealChancePerLevel * (s.actor.Tier - whatMob.Level))
-				curChance += s.actor.Dex.Current * config.StealChancePerPoint
+				//curChance := config.StealChance + (config.StealChancePerLevel * (s.actor.Tier - whatMob.Level))
+				//curChance += s.actor.Dex.Current * config.StealChancePerPoint
+
+				curChance := config.StealChance + (s.actor.Dex.Current * config.StealChancePerPoint) + (config.StealthLevel(s.actor.Skills[11].Value) * config.StealChancePerSkillLevel)
+				curChance -= int(what.Weight / 2)
+				lvlDiff := float64(whatMob.Level - s.actor.Tier)
+				if lvlDiff > 2 {
+					lvlDiff = (lvlDiff - 2) * 0.2
+					curChance -= int(float64(curChance) * lvlDiff)
+				}
+
+				//s.msg.Actor.SendInfo("Steal chance = " + strconv.Itoa(curChance))
+
+				if curChance > 95 {
+					curChance = 95
+				}
 
 				if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-					curChance = 95
+					curChance = 100
 				}
 
 				log.Println(s.actor.Name+"Peek Chance Roll: ", curChance)
@@ -126,6 +140,7 @@ func (steal) process(s *state) {
 				if utils.Roll(100, 1, 0) <= curChance {
 					whatMob.Inventory.Remove(what)
 					s.actor.Inventory.Add(what)
+					s.actor.AdvanceStealthExp(int(float64(what.Value) * 0.5))
 					s.msg.Actor.SendGood("You steal a ", what.Name, " from ", whatMob.Name, ".")
 					return
 				} else {

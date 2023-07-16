@@ -511,6 +511,10 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					character.Skills[10].Value = value
 					s.msg.Actor.SendGood("Changed divinity")
+				case "stealthexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[11].Value = value
+					s.msg.Actor.SendGood("Changed stealth exp")
 
 				default:
 					s.msg.Actor.SendBad("Property not found.")
@@ -652,6 +656,10 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					character.Skills[10].Value = value
 					s.msg.Actor.SendGood("Changed divinity")
+				case "stealthexp":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Skills[11].Value = value
+					s.msg.Actor.SendGood("Changed stealth exp")
 				case "parent_id":
 					value, _ := strconv.Atoi(s.words[3])
 					character.Skills[4].Value = value

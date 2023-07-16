@@ -290,6 +290,7 @@ func (examine) process(s *state) {
 				{"V", "earthexp", charData["earthexp"].(int64), "Earth Affinity"},
 				{"V", "waterexp", charData["waterexp"].(int64), "Water Affinity"},
 				{"V", "divinity", charData["divinity"].(int64), "Divinity"},
+				{"V", "stealthexp", charData["stealthexp"].(int64), "Stealth Experience"},
 				{"T", "darkvision", strconv.FormatBool(charData["flags"].(map[string]interface{})["darkvision"].(int64) != 0), "Permanent Dark Vision"},
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
@@ -333,6 +334,7 @@ func (examine) process(s *state) {
 				{"V", "earthexp", character.Skills[8].Value, "Earth Affinity"},
 				{"V", "waterexp", character.Skills[9].Value, "Water Affinity"},
 				{"V", "divinity", character.Skills[10].Value, "Divinity"},
+				{"V", "stealthexp", character.Skills[11].Value, "Stealth Experience"},
 				{"T", "invisible", strconv.FormatBool(character.Flags["invisible"]), "Character is currently invisible"},
 				{"T", "darkvision", strconv.FormatBool(character.Flags["darkvision"]), "Permanent Dark Vision"},
 			})
