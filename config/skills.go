@@ -46,17 +46,16 @@ func CanWield(tier int, class int, max int) bool {
 // Exp to level weapon classes
 var WeaponExpLevels = map[int]int{
 	0:  0,
-	1:  1500,
-	2:  3000,
-	3:  30000,
-	4:  300000,
-	5:  750000,
-	6:  1500000,
-	7:  2250000,
-	8:  3000000,
-	9:  7500000,
-	10: 15000000,
-	11: 45000000,
+	1:  3000,
+	2:  30000,
+	3:  300000,
+	4:  750000,
+	5:  1500000,
+	6:  2250000,
+	7:  3000000,
+	8:  7500000,
+	9:  15000000,
+	10: 45000000,
 }
 
 var SkillAdvancement = map[int]float32{
