@@ -102,7 +102,7 @@ func (backstab) process(s *state) {
 			lvlDiff = (lvlDiff - 1) * .125
 			curChance -= int(float64(curChance) * lvlDiff)
 		} else if lvlDiff == 1 {
-			curChance -= config.BackStabChancePerLevel
+			curChance -= int(float64(curChance) * 0.05)
 		}
 
 		//s.msg.Actor.SendInfo("BS chance = " + strconv.Itoa(curChance))
