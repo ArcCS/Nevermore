@@ -38,6 +38,7 @@ func (redeem) process(s *state) {
 
 	if amt > s.actor.BonusPoints.Value {
 		s.msg.Actor.SendBad("You do not have that many bonus points to redeem.")
+		return
 	}
 
 	if redType == "GOLD" {
