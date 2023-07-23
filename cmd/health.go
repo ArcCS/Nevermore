@@ -18,6 +18,11 @@ type health cmd
 
 func (health) process(s *state) {
 
+	if s.actor.CheckFlag("berserk") {
+		s.msg.Actor.SendGood("The red rage has you, there's no time for that.\n")
+		return
+	}
+
 	char_template := "You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.\n"
 
 	data := struct {

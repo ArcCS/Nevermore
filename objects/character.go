@@ -615,6 +615,9 @@ func (c *Character) buildPrompt() []byte {
 	case StyleNone:
 		return []byte(text.Prompt + ">" + text.Reset + "\n")
 	case StyleStat:
+		if c.CheckFlag("berserk") {
+			return []byte((text.Prompt + "(" + text.Red + "Berserk!!" + text.Prompt + "): " + text.Reset + "\n"))
+		}
 		return []byte((text.Prompt + "(" + text.Yellow +
 			strconv.Itoa(c.Stam.Current) + "|" +
 			text.Red + strconv.Itoa(c.Vit.Current) + "|" +
