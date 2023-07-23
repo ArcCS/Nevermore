@@ -55,8 +55,13 @@ func (give) process(s *state) {
 
 	// We're going to process a money transaction.
 	if strings.HasPrefix(targetStr, "$") {
+
 		if amount64, err := strconv.ParseInt(strings.Trim(targetStr, "$"), 10, 64); err == nil {
 			amount := int(amount64)
+			if amount <= 0 {
+				s.msg.Actor.SendInfo("That is not a valid amount to give")
+				return
+			}
 			if s.actor.Gold.CanSubtract(amount) {
 				s.actor.RunHook("act")
 				s.actor.Gold.SubIfCan(amount)

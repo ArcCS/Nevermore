@@ -532,7 +532,7 @@ func (c *Character) GetStat(stat string) int {
 		if c.Class == 8 {
 			return c.Modifiers["armor"] + (c.Tier * config.MonkArmorPerLevel) + (c.GetStat("con") * config.ConMonkArmor)
 		}
-		return c.Equipment.Armor + c.Modifiers["armor"]
+		return c.Equipment.Armor + c.Modifiers["armor"] + int(float64(c.Con.Current)*config.ConArmorMod*float64(c.Equipment.Armor))
 	default:
 		return 0
 	}
