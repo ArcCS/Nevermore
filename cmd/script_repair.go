@@ -40,6 +40,10 @@ func (scriptRepair) process(s *state) {
 	what := s.actor.Inventory.Search(targetStr, targetNum)
 
 	if what != nil {
+		if what.Flags["always_crit"] {
+			s.msg.Actor.SendBad("This item cannot be repaired.")
+			return
+		}
 		if utils.IntIn(what.ItemType, config.ArmorTypes) || utils.IntIn(what.ItemType, config.WeaponTypes) {
 			cost := int(math.Round(.3 * (float64(what.Value)) * (float64(objects.Items[what.ItemId].MaxUses-what.MaxUses) / float64(objects.Items[what.ItemId].MaxUses))))
 			s.msg.Actor.SendInfo("The cost to repair this item will be " + strconv.Itoa(cost) + ".  Do you want to repair it? (Type yes to repair)")
