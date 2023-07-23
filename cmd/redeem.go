@@ -41,6 +41,11 @@ func (redeem) process(s *state) {
 		return
 	}
 
+	if amt <= 0 {
+		s.msg.Actor.SendBad("Not a valid value to redeem.")
+		return
+	}
+
 	if redType == "GOLD" {
 		s.actor.BonusPoints.Subtract(amt)
 		totalGold := int(math.Floor(float64(config.GoldPerLevel[s.actor.Tier+1])*.01)) * amt

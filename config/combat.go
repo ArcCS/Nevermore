@@ -124,6 +124,7 @@ var ConBonusHealthDiv = 5
 var ConHealRegenMod = .10
 var ConMonkArmor = 2 // 2 Armor Extra Per Con
 var ConFallDamageMod = 1
+var ConArmorMod = .01
 
 // Dex Mods
 var HitPerDex = 1
