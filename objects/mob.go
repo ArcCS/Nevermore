@@ -926,7 +926,7 @@ func (m *Mob) CheckFlag(flagName string) bool {
 }
 
 func (m *Mob) ReceiveDamage(damage int) (int, int) {
-	resist := int(float64(1) / (float64(m.Armor) * config.MobArmorReduction) * float64(damage))
+	resist := int(((float64(m.Armor) / 100) * .8) * float64(damage))
 	finalDamage := damage - resist
 	if m.CheckFlag("inertial-barrier") {
 		finalDamage -= int(math.Ceil(float64(damage) * config.InertialDamageIgnore))
