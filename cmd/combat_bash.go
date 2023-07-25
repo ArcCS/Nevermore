@@ -96,7 +96,7 @@ func (bash) process(s *state) {
 
 		s.actor.Victim = whatMob
 		// Check the rolls in reverse order from hardest to lowest for bash rolls.
-		damageModifier, stunModifier, bashMsg := config.RollBash(config.WeaponLevel(s.actor.Skills[1].Value, s.actor.Class))
+		damageModifier, stunModifier, bashMsg := config.RollBash(config.WeaponLevel(s.actor.Skills[2].Value, s.actor.Class))
 		whatMob.Stun(config.BashStuns * stunModifier)
 		actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
 		whatMob.AddThreatDamage(actualDamage, s.actor)
