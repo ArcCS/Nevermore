@@ -128,7 +128,11 @@ func (scriptDeath) process(s *state) {
 			s.actor.Placement = 3
 			s.actor.ParentId = healingHand.RoomId
 			s.actor.DeathInProgress = false
-			go Script(s.actor, "quit")
+			go func() {
+				Script(s.actor, "quit")
+				s.actor.Unloader()
+			}()
+
 		}()
 	}
 
