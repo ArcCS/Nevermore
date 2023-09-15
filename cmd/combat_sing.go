@@ -81,9 +81,6 @@ func (sing) process(s *state) {
 		return
 	}
 
-	// Damage Instrument
-	weapMsg := s.actor.Equipment.DamageWeapon("off", 1)
-
 	// Calculate duration of the song, as well as the tick rate
 	duration := 45 + (s.actor.GetStat("con") * config.DurationPerCon)
 
@@ -94,7 +91,8 @@ func (sing) process(s *state) {
 			s.actor.SingSong(song, tickRate)
 		},
 		func() {
-
+			// Damage Instrument
+			weapMsg := s.actor.Equipment.DamageWeapon("off", 1)
 			if weapMsg != "" {
 				s.msg.Actor.SendInfo(weapMsg)
 			}
