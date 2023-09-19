@@ -6,6 +6,7 @@ import (
 	"github.com/ArcCS/Nevermore/comms"
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/intelligence"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/stats"
 	"io"
@@ -32,6 +33,7 @@ func main() {
 	objects.Load()
 	log.Println("Starting time...")
 	StartTime()
+	intelligence.StartRoomAI()
 	comms.Listen(config.Server.Host, config.Server.Port)
 }
 
