@@ -20,6 +20,10 @@ var CombatModifiers = map[string]int{
 	"snipe":    4,
 }
 
+var RoomClearTimer = 3            // Seconds
+var RoomEffectInvocation = 18     // Seconds
+var RoomDefaultEncounterSpeed = 8 // Seconds
+
 var IntMajorPenalty = 7
 var PieMajorPenalty = 5
 
