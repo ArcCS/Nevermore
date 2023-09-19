@@ -30,15 +30,15 @@ type Room struct {
 	// This is a whole number percentage out of 100
 	EncounterRate int
 	// MobID mapped to an encounter percentage
-	EncounterTable     map[int]int
-	roomTicker         *time.Ticker
-	roomTickerUnload   chan bool
-	effectTicker       *time.Ticker
-	effectTickerUnload chan bool
-	StoreOwner         string
-	StoreInventory     *ItemInventory
-	Songs              map[string]string
-	LockPriority       string
+	EncounterTable    map[int]int
+	EvacuateTime      time.Time
+	LastEffectTime    time.Time
+	LastEncounterTime time.Time
+	EncounterSpeed    int
+	StoreOwner        string
+	StoreInventory    *ItemInventory
+	Songs             map[string]string
+	LockPriority      string
 }
 
 // Pop the room data
@@ -60,10 +60,11 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		make(map[string]bool),
 		int(roomData["encounter_rate"].(int64)),
 		make(map[int]int),
-		nil,
-		make(chan bool),
-		nil,
-		make(chan bool),
+		time.Time{},
+		time.Time{},
+		time.Time{},
+		//int(roomData["encounter_speed"].(int64)),
+		config.RoomDefaultEncounterSpeed,
 		roomData["store_owner"].(string),
 		RestoreInventory(roomData["store_inventory"].(string)),
 		make(map[string]string),
@@ -98,6 +99,10 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 	newRoom.Mobs.ContinueEmpty = newRoom.ContinueEmpty
 	return newRoom, true
 }
+
+var (
+	ActivateRoom func(roomId int)
+)
 
 // Evaluate if there are too many players in this rooms inventory
 func (r *Room) Crowded() (crowded bool) {
@@ -240,84 +245,20 @@ func (r *Room) ToggleFlag(flagName string) bool {
 // Actions to be taken on the first person entering a room
 func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
-	//*
-	if r.Flags["encounters_on"] {
-		r.roomTicker = time.NewTicker(10 * time.Second)
-		go func() {
-			for {
-				if len(r.Chars.Contents) <= 0 {
-					log.Println("Tried to run while no one was in the room.. last person destructor not working?")
-					r.roomTicker.Stop()
-					return
-				}
-				select {
-				case <-r.roomTickerUnload:
-					r.roomTicker.Stop()
-					return
-				case <-r.roomTicker.C:
-					r.Encounter()
-				}
-			}
-		}()
-	}
-	if r.Flags["fire"] || r.Flags["earth"] || r.Flags["wind"] || r.Flags["water"] {
-		r.effectTicker = time.NewTicker(45 * time.Second)
-		go func() {
-			for {
-				select {
-				case <-r.effectTickerUnload:
-					r.effectTicker.Stop()
-					return
-				case <-r.effectTicker.C:
-
-					if r.Flags["earth"] || r.Flags["fire"] || r.Flags["air"] || r.Flags["water"] {
-						for _, c := range r.Chars.Contents {
-							if r.Flags["earth"] {
-								if !c.Flags["resist-earth"] {
-									c.Write([]byte(text.Brown + "The earth swells up around you." + "\n"))
-									c.ReceiveMagicDamage(20, "earth")
-									c.DeathCheck("was swallowed by the earth.")
-								} else {
-									c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n"))
-								}
-							} else if r.Flags["fire"] {
-								if !c.Flags["resist-fire"] {
-									c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n"))
-									c.ReceiveMagicDamage(20, "fire")
-									c.DeathCheck("was burned alive.")
-								} else {
-									c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n"))
-								}
-							} else if r.Flags["water"] {
-								if !c.Flags["resist-water"] {
-									c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n"))
-									c.DeathCheck("drowned.")
-									c.ReceiveMagicDamage(20, "water")
-								} else {
-									c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n"))
-								}
-							} else if r.Flags["air"] {
-								if !c.Flags["resist-air"] {
-									c.Write([]byte(text.Brown + "The icy air buffets you." + "\n"))
-									c.DeathCheck("was frozen solid.")
-									c.ReceiveMagicDamage(20, "air")
-								} else {
-									c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n"))
-								}
-							}
-						}
-					}
-				}
-			}
-		}()
-	}
+	ActivateRoom(r.RoomId)
+	r.EvacuateTime = time.Time{}
+	r.LastEffectTime = time.Now()
+	r.LastEncounterTime = time.Now()
 	r.Mobs.RestartPerms()
 }
 
 func (r *Room) Encounter() {
 	// Check if encounters are off, a GM can change this live.
 	if r.Flags["encounters_on"] {
+		r.Lock()
+		defer r.Unlock()
 		log.Println("Room# " + strconv.Itoa(r.RoomId) + " Run the encounter function!")
+		r.LastEncounterTime = time.Now()
 		if len(r.Mobs.Contents) < 10 {
 			// Augment the encounter based on the number of players in the room
 			aug := len(r.Chars.Contents)
@@ -370,11 +311,53 @@ func (r *Room) Encounter() {
 	}
 }
 
-func (r *Room) LastPerson() {
-	// Verify that no one else is in here after a follow mob invocation
-	if len(r.Chars.Contents) != 0 {
-		return
+func (r *Room) ElementalDamage() {
+	r.Lock()
+	defer r.Unlock()
+	for _, c := range r.Chars.Contents {
+		if r.Flags["earth"] {
+			if !c.Flags["resist-earth"] {
+				c.Write([]byte(text.Brown + "The earth swells up around you." + "\n"))
+				c.ReceiveMagicDamage(20, "earth")
+				c.DeathCheck("was swallowed by the earth.")
+			} else {
+				c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n"))
+			}
+		} else if r.Flags["fire"] {
+			if !c.Flags["resist-fire"] {
+				c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n"))
+				c.ReceiveMagicDamage(20, "fire")
+				c.DeathCheck("was burned alive.")
+			} else {
+				c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n"))
+			}
+		} else if r.Flags["water"] {
+			if !c.Flags["resist-water"] {
+				c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n"))
+				c.DeathCheck("drowned.")
+				c.ReceiveMagicDamage(20, "water")
+			} else {
+				c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n"))
+			}
+		} else if r.Flags["air"] {
+			if !c.Flags["resist-air"] {
+				c.Write([]byte(text.Brown + "The icy air buffets you." + "\n"))
+				c.DeathCheck("was frozen solid.")
+				c.ReceiveMagicDamage(20, "air")
+			} else {
+				c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n"))
+			}
+		}
 	}
+}
+
+func (r *Room) LastPerson() {
+	// Set the last person time to now
+	r.EvacuateTime = time.Now()
+}
+
+func (r *Room) CleanRoom() {
+	// Verify that no one else is in here after a follow mob invocation
 
 	// This was the last character, invoke the whole cleaning routine now.
 	log.Println("Clearing Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")")
@@ -385,16 +368,6 @@ func (r *Room) LastPerson() {
 		if exit.Flags["autoclose"] {
 			exit.Close()
 		}
-	}
-
-	// Destruct the ticker
-	if r.Flags["encounters_on"] {
-		r.roomTickerUnload <- true
-	}
-
-	// Destruct the ticker
-	if r.Flags["fire"] || r.Flags["earth"] || r.Flags["wind"] || r.Flags["water"] {
-		r.effectTickerUnload <- true
 	}
 
 	// Relock all the exits.
