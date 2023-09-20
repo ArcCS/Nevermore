@@ -20,6 +20,9 @@ var CombatModifiers = map[string]int{
 	"snipe":    4,
 }
 
+var CombatCooldown = 8
+var UnequipCooldown = 2
+
 var RoomClearTimer = 3            // Seconds
 var RoomEffectInvocation = 18     // Seconds
 var RoomDefaultEncounterSpeed = 8 // Seconds
@@ -95,7 +98,6 @@ var TurnTimer = 60
 var SlamTimer = 30
 var ShieldDamage = 3
 var ShieldStun = .4
-var CombatCooldown = 8
 
 // Bard Stuff
 var ScalePerPiety = 1

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
 )
 
@@ -24,24 +25,22 @@ func (unequip) process(s *state) {
 		return
 	}
 
-	name := s.input[0]
-	/*nameNum := 1
-
-	if len(s.words) > 1 {
-		// Try to snag a number off the list
-		if val, err := strconv.Atoi(s.words[1]); err == nil {
-			nameNum = val
-		}
+	// Check some timers
+	ready, msg := s.actor.TimerReady("combat")
+	if !ready {
+		s.msg.Actor.SendBad(msg)
+		return
 	}
 
-	*/
-
+	name := s.input[0]
 	s.actor.RunHook("combat")
 
 	if s.actor.CheckFlag("singing") {
-		s.msg.Actor.SendBad("You must end your performance before you can remove your equipment.")
-		s.ok = true
-		return
+		if s.actor.Equipment.FindLocation(name) != "main" {
+			s.msg.Actor.SendBad("You may only remove your main hand weapon while performing.")
+			s.ok = true
+			return
+		}
 	}
 
 	_, what := s.actor.Equipment.Unequip(name)
@@ -49,6 +48,7 @@ func (unequip) process(s *state) {
 		s.actor.Inventory.Add(what)
 		s.msg.Actor.SendGood("You unequip " + what.Name)
 		s.msg.Observer.SendInfo(s.actor.Name + " unequips " + what.Name)
+		s.actor.SetTimer("combat", config.UnequipCooldown)
 		s.ok = true
 		return
 	}

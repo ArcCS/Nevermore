@@ -19,6 +19,11 @@ type MobInventory struct {
 	JsonRepr      string
 }
 
+var (
+	ActivateMob   func(mob *Mob)
+	DeactivateMob func(mob *Mob)
+)
+
 // NewMobInventory returns a new basic MobInventory structure
 func NewMobInventory(ParentID int, o ...*Mob) *MobInventory {
 	i := &MobInventory{

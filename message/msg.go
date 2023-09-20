@@ -16,10 +16,15 @@ package message
 // Observers[s.where] point to the same Buffer. See the Allocate method for
 // more details.
 type Msg struct {
-	Actor       *Buffer
-	Participant *Buffer
-	Observer    *Buffer
-	Observers   buffers
+	Actor              *Buffer
+	GM                 *Buffer
+	ActorVerbose       *Buffer
+	Participant        *Buffer
+	ParticipantVerbose *Buffer
+	Observer           *Buffer
+	ObserverVerbose    *Buffer
+	Observers          buffers
+	ObserversVerbose   buffers
 }
 
 // Allocate sets up the message buffers for the actor, participant and

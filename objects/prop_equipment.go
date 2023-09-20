@@ -275,22 +275,22 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 		e.Chest = item
 		itemSlot = "chest"
 		ok = true
-	} //body",
+	} //body
 	if item.ItemType == 6 && e.Off == (*Item)(nil) {
 		e.Off = item
 		itemSlot = "off"
 		ok = true
-	} //device",
+	} //device
 	if item.ItemType == 7 && e.Off == (*Item)(nil) {
 		e.Off = item
 		itemSlot = "off"
 		ok = true
-	} //scroll",
+	} //scroll
 	if item.ItemType == 8 && e.Off == (*Item)(nil) {
 		e.Off = item
 		itemSlot = "off"
 		ok = true
-	} //wand",
+	} //wand
 	if item.ItemType == 12 && e.Off == (*Item)(nil) {
 		e.Off = item
 		itemSlot = "off"
@@ -312,37 +312,37 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 		e.Off = item
 		itemSlot = "off"
 		ok = true
-	} //instrument",
+	} //instrument
 	if item.ItemType == 17 && e.Off == (*Item)(nil) {
 		e.Off = item
 		itemSlot = "off"
 		ok = true
-	} //beverage",
+	} //beverage
 	if item.ItemType == 19 && e.Feet == (*Item)(nil) {
 		e.Feet = item
 		itemSlot = "feet"
 		ok = true
-	} //feet",
+	} //feet
 	if item.ItemType == 20 && e.Legs == (*Item)(nil) {
 		e.Legs = item
 		itemSlot = "legs"
 		ok = true
-	} //legs",
+	} //legs
 	if item.ItemType == 21 && e.Arms == (*Item)(nil) {
 		e.Arms = item
 		itemSlot = "arms"
 		ok = true
-	} //arms",
+	} //arms
 	if item.ItemType == 22 && e.Neck == (*Item)(nil) {
 		e.Neck = item
 		itemSlot = "neck"
 		ok = true
-	} //neck",
+	} //neck
 	if item.ItemType == 23 && e.Off == (*Item)(nil) {
 		e.Off = item
 		itemSlot = "off"
 		ok = true
-	} //shield",
+	} //shield
 	if item.ItemType == 24 && (e.Ring1 == (*Item)(nil) || e.Ring2 == (*Item)(nil)) {
 		if e.Ring1 == (*Item)(nil) {
 			e.Ring1 = item
@@ -352,42 +352,42 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 			itemSlot = "ring2"
 		}
 		ok = true
-	} //finger",
+	} //finger
 	if item.ItemType == 25 && e.Head == (*Item)(nil) {
 		e.Head = item
 		itemSlot = "head"
 		ok = true
-	} //head",
+	} //head
 	if item.ItemType == 26 && e.Hands == (*Item)(nil) {
 		e.Hands = item
 		itemSlot = "hands"
 		ok = true
-	} //hands",
+	} //hands
 	if item.ItemType == 0 && e.Main == (*Item)(nil) {
 		e.Main = item
 		itemSlot = "main"
 		ok = true
-	} //sharp",
+	} //sharp
 	if item.ItemType == 1 && e.Main == (*Item)(nil) {
 		e.Main = item
 		itemSlot = "main"
 		ok = true
-	} //thrust",
+	} //thrust
 	if item.ItemType == 2 && e.Main == (*Item)(nil) {
 		e.Main = item
 		itemSlot = "main"
 		ok = true
-	} //blunt",
+	} //blunt
 	if item.ItemType == 3 && e.Main == (*Item)(nil) {
 		e.Main = item
 		itemSlot = "main"
 		ok = true
-	} //pole",
+	} //pole
 	if item.ItemType == 4 && e.Main == (*Item)(nil) {
 		e.Main = item
 		itemSlot = "main"
 		ok = true
-	} //range",
+	} //range
 
 	// Update armor values
 	if ok {
@@ -595,6 +595,68 @@ func (e *Equipment) Unequip(alias string) (ok bool, item *Item) {
 		e.Armor -= item.Armor
 	}
 	return ok, item
+}
+
+// FindLocation Attempt to find an item by name, return location
+func (e *Equipment) FindLocation(alias string) (slot string) {
+	itemSlot := ""
+	if e.Head != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Head.Name), strings.ToLower(alias)) {
+			itemSlot = "head"
+		}
+	}
+	if e.Chest != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Chest.Name), strings.ToLower(alias)) {
+			itemSlot = "chest"
+		}
+	}
+	if e.Neck != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Neck.Name), strings.ToLower(alias)) {
+			itemSlot = "neck"
+		}
+	}
+	if e.Legs != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Legs.Name), strings.ToLower(alias)) {
+			itemSlot = "legs"
+		}
+	}
+	if e.Feet != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Feet.Name), strings.ToLower(alias)) {
+			itemSlot = "feet"
+		}
+	}
+	if e.Arms != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Arms.Name), strings.ToLower(alias)) {
+			itemSlot = "arms"
+		}
+	}
+	if e.Hands != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Hands.Name), strings.ToLower(alias)) {
+			itemSlot = "hands"
+		}
+	}
+	if e.Ring1 != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Ring1.Name), strings.ToLower(alias)) {
+			itemSlot = "ring1"
+		}
+	}
+	if e.Ring2 != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Ring2.Name), strings.ToLower(alias)) {
+			itemSlot = "ring2"
+		}
+	}
+	if e.Main != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Main.Name), strings.ToLower(alias)) {
+			itemSlot = "main"
+		}
+	}
+	if e.Off != (*Item)(nil) {
+		if strings.Contains(strings.ToLower(e.Off.Name), strings.ToLower(alias)) {
+			itemSlot = "off"
+		}
+	}
+
+	return itemSlot
 }
 
 // UnequipAll Remove all equipment

@@ -1186,12 +1186,12 @@ func (c *Character) Unfollow() {
 	}
 }
 
-func (c *Character) MessageParty(msg string) {
+func (c *Character) MessageParty(msg string, exclude *Character) {
 	if len(c.PartyFollowers) > 0 {
 		for _, findChar := range c.PartyFollowers {
 			char := ActiveCharacters.Find(findChar)
-			if char != nil {
-				char.Write([]byte(text.Info + c.Name + " party flashes# \"" + msg + "\"\n"))
+			if char != nil && char != exclude {
+				char.Write([]byte(text.White + c.Name + " party flashes# \"" + msg + "\"\n"))
 			}
 		}
 	}

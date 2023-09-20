@@ -125,14 +125,14 @@ func (scriptDeath) process(s *state) {
 			log.Println("Lag Death: Clean Room")
 			s.where.Chars.Remove(s.actor)
 			healingHand.Chars.Add(s.actor)
+			s.actor.RemoveEffect("blind")
+			s.actor.RemoveEffect("poison")
+			s.actor.RemoveEffect("disease")
+			s.actor.Stam.Current = s.actor.Stam.Max
+			s.actor.Vit.Current = s.actor.Vit.Max
+			s.actor.Mana.Current = s.actor.Mana.Max
 			s.actor.Placement = 3
 			s.actor.ParentId = healingHand.RoomId
-			s.actor.DeathInProgress = false
-			go func() {
-				Script(s.actor, "quit")
-				s.actor.Unloader()
-			}()
-
 		}()
 	}
 

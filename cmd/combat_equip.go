@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 )
@@ -22,6 +23,13 @@ func (equip) process(s *state) {
 
 	if s.actor.Stam.Current <= 0 {
 		s.msg.Actor.SendBad("You are far too tired to do that.")
+		return
+	}
+
+	// Check some timers
+	ready, msg := s.actor.TimerReady("combat")
+	if !ready {
+		s.msg.Actor.SendBad(msg)
 		return
 	}
 
@@ -53,6 +61,7 @@ func (equip) process(s *state) {
 			s.msg.Actor.SendGood("You equip " + what.DisplayName())
 			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.DisplayName())
 			s.actor.Inventory.Remove(what)
+			s.actor.SetTimer("combat", config.CombatCooldown)
 		} else {
 			s.msg.Actor.SendBad("You cannot equip that.")
 		}
