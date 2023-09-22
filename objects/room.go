@@ -255,8 +255,6 @@ func (r *Room) FirstPerson() {
 func (r *Room) Encounter() {
 	// Check if encounters are off, a GM can change this live.
 	if r.Flags["encounters_on"] {
-		r.Lock()
-		defer r.Unlock()
 		log.Println("Room# " + strconv.Itoa(r.RoomId) + " Run the encounter function!")
 		r.LastEncounterTime = time.Now()
 		if len(r.Mobs.Contents) < 10 {

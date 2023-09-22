@@ -43,7 +43,7 @@ func StartRoomAI() {
 
 func LoopRooms() {
 	for _, r := range ActiveRooms {
-		// Invoke the room AI for cleanup/spawning etc
+		objects.Rooms[r].Lock()
 		//log.Println("Room AI invoked for room: ", r)
 		if len(objects.Rooms[r].Chars.Contents) <= 0 {
 			if !time.Time.IsZero(objects.Rooms[r].EvacuateTime) &&
@@ -67,5 +67,6 @@ func LoopRooms() {
 			time.Now().Sub(objects.Rooms[r].LastEffectTime).Seconds() > float64(config.RoomEffectInvocation) {
 			objects.Rooms[r].ElementalDamage()
 		}
+		objects.Rooms[r].Unlock()
 	}
 }
