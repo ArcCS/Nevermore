@@ -246,7 +246,7 @@ func (godir) process(s *state) {
 							endFollProc := false
 							if follChar != nil {
 								// Check some timers
-								if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+								if !follChar.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 									ready, msg := follChar.TimerReady("evade")
 									if !ready {
 										follChar.Write([]byte(text.Bad + msg))
