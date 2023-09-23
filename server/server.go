@@ -5,7 +5,6 @@ package main
 import (
 	"github.com/ArcCS/Nevermore/comms"
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/intelligence"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/stats"
@@ -26,8 +25,6 @@ func main() {
 	mw := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(mw)
 	stats.Start()
-	// Load MOTD from database
-	config.Server.Motd, _ = data.LoadSetting("motd")
 
 	go objects.StartJarvoral()
 	objects.Load()

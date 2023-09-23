@@ -43,29 +43,31 @@ func StartRoomAI() {
 
 func LoopRooms() {
 	for _, r := range ActiveRooms {
-		// Invoke the room AI for cleanup/spawning etc
+		objects.Rooms[r].Lock()
 		//log.Println("Room AI invoked for room: ", r)
 		if len(objects.Rooms[r].Chars.Contents) <= 0 {
+			log.Println("Entering cleanup phase.")
 			if !time.Time.IsZero(objects.Rooms[r].EvacuateTime) &&
 				time.Now().Sub(objects.Rooms[r].EvacuateTime).Seconds() > float64(config.RoomClearTimer) {
 				log.Println("Clear timer invoked for room: ", r)
 				DeactivateRoom(r)
 				objects.Rooms[r].CleanRoom()
 			}
-			return
-		}
-		if objects.Rooms[r].Flags["encounters_on"] {
-			if time.Now().Sub(objects.Rooms[r].LastEncounterTime).Seconds() > float64(objects.Rooms[r].EncounterSpeed) {
-				objects.Rooms[r].Encounter()
+		} else {
+			if objects.Rooms[r].Flags["encounters_on"] {
+				if time.Now().Sub(objects.Rooms[r].LastEncounterTime).Seconds() > float64(objects.Rooms[r].EncounterSpeed) {
+					objects.Rooms[r].Encounter()
+				}
+			}
+
+			if (objects.Rooms[r].Flags["fire"] ||
+				objects.Rooms[r].Flags["earth"] ||
+				objects.Rooms[r].Flags["wind"] ||
+				objects.Rooms[r].Flags["water"]) &&
+				time.Now().Sub(objects.Rooms[r].LastEffectTime).Seconds() > float64(config.RoomEffectInvocation) {
+				objects.Rooms[r].ElementalDamage()
 			}
 		}
-
-		if (objects.Rooms[r].Flags["fire"] ||
-			objects.Rooms[r].Flags["earth"] ||
-			objects.Rooms[r].Flags["wind"] ||
-			objects.Rooms[r].Flags["water"]) &&
-			time.Now().Sub(objects.Rooms[r].LastEffectTime).Seconds() > float64(config.RoomEffectInvocation) {
-			objects.Rooms[r].ElementalDamage()
-		}
+		objects.Rooms[r].Unlock()
 	}
 }

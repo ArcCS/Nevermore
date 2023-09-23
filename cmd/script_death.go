@@ -76,7 +76,7 @@ func (scriptDeath) process(s *state) {
 				newItem.Storage.Add(&newGold)
 				s.actor.Gold.Value = 0
 			}
-			s.where.MessageAll("The lifeless body of " + s.actor.Name + " falls to the ground.\n\n" + text.Reset)
+			s.msg.Observers.SendBad("The lifeless body of " + s.actor.Name + " falls to the ground.\n\n")
 			s.where.Items.Add(&newItem)
 		} else {
 			s.msg.Actor.Send(text.Green + "An apprentice aura protects you from the worst of this death and ferries you and your gear safely to the healing hand...")
@@ -120,6 +120,8 @@ func (scriptDeath) process(s *state) {
 
 		objects.ActiveCharacters.MessageAll("### An otherworldly bell attempts to ring but is abruptly muffled.")
 		objects.ActiveCharacters.MessageAll(deathString)
+
+		s.actor.DeathInProgress = false
 
 		go func() {
 			log.Println("Lag Death: Clean Room")
