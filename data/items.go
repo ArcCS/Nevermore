@@ -17,6 +17,7 @@ func LoadItems() []interface{} {
 	type:i.type,
 	pdice:i.pdice,
 	armor:i.armor,
+	armor_class:i.armor_class,
 	max_uses:i.max_uses,
 	name:i.name,
 	sdice:i.sdice,
@@ -53,6 +54,7 @@ func LoadItem(itemId int) map[string]interface{} {
 	type:i.type,
 	pdice:i.pdice,
 	armor:i.armor,
+	armor_class:i.armor_class,
 	max_uses:i.max_uses,
 	name:i.name,
 	sdice:i.sdice,
@@ -89,6 +91,7 @@ func CreateItem(itemData map[string]interface{}) (int, bool) {
 		i.type = $type,
 		i.pdice = 1,
 		i.armor = 0,
+		i.armor_class = 0,
 		i.max_uses = 1,
 		i.commands = '[]',
 		i.name = $name,
@@ -130,6 +133,7 @@ func UpdateItem(itemData map[string]interface{}) bool {
 		i.type = $type,
 		i.pdice = $pdice,
 		i.armor = $armor,
+		i.armor_class = $armor_class,
 		i.max_uses = $max_uses,
 		i.name = $name,
 		i.sdice = $sdice,
@@ -152,6 +156,7 @@ func UpdateItem(itemData map[string]interface{}) bool {
 			"type":             itemData["type"],
 			"pdice":            itemData["pdice"],
 			"armor":            itemData["armor"],
+			"armor_class":      itemData["armor_class"],
 			"max_uses":         itemData["max_uses"],
 			"name":             itemData["name"],
 			"sdice":            itemData["sdice"],
@@ -318,6 +323,25 @@ func SearchItemDesc(searchStr string, skip int) []interface{} {
 
 func SearchItemMaxDamage(searchStr string, skip int) []interface{} {
 	results, err := execRead("MATCH (i:item) WHERE i.ndice*i.sdice+i.pdice <= toInteger($search) and i.type <=4 RETURN {name:i.name, type:i.type, item_id: i.item_id, max_damage: i.ndice*i.sdice+i.pdice}  SKIP $skip LIMIT $limit",
+		map[string]interface{}{
+			"search": searchStr,
+			"skip":   skip,
+			"limit":  config.Server.SearchResults,
+		},
+	)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	searchList := make([]interface{}, len(results))
+	for _, row := range results {
+		searchList = append(searchList, row.Values[0].(map[string]interface{}))
+	}
+	return searchList
+}
+
+func SearchItemType(searchStr string, skip int) []interface{} {
+	results, err := execRead("MATCH (i:item) WHERE i.type = toInteger($search) RETURN {name:i.name, type:i.type, item_id: i.item_id}  SKIP $skip LIMIT $limit",
 		map[string]interface{}{
 			"search": searchStr,
 			"skip":   skip,

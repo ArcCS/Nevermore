@@ -198,6 +198,10 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					item.MaxUses = value
 					s.msg.Actor.SendGood("Changed max_uses")
+				case "armor_class":
+					value, _ := strconv.Atoi(s.words[3])
+					item.Armor_Class = value
+					s.msg.Actor.SendGood("Changed armor class")
 				/*case "placement":
 				intKey, _ :=  strconv.Atoi(s.words[3])
 				if intKey >= 1 && intKey <= 5 {
