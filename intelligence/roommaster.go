@@ -17,7 +17,7 @@ func init() {
 }
 
 func ActivateRoom(roomId int) {
-	if utils.IntIn(roomId, ActiveRooms) {
+	if !utils.IntIn(roomId, ActiveRooms) {
 		log.Println("Adding room to active rooms: ", roomId)
 		ActiveRooms = append(ActiveRooms, roomId)
 		log.Println(ActiveRooms)
