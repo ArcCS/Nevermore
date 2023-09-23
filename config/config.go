@@ -17,7 +17,6 @@ var Server = struct {
 	DBAddress         string        // The address of the neo4j server
 	Port              string        // Port for server to listen on
 	Greeting          []byte        // Connection greeting
-	Motd              string        // MOTD when logging in
 	IdleTimeout       time.Duration // Idle connection disconnect time
 	AFKTimeout        time.Duration
 	OOCTimeout        time.Duration
@@ -35,7 +34,6 @@ var Server = struct {
 	DBAddress:         "127.0.0.1",
 	Port:              "4001",
 	Greeting:          []byte("Welcome to Aalynor's Nexus."),
-	Motd:              "",
 	IdleTimeout:       15 * time.Minute,
 	AFKTimeout:        30 * time.Minute,
 	OOCTimeout:        20 * time.Minute,

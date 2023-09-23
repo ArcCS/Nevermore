@@ -255,8 +255,6 @@ func (r *Room) FirstPerson() {
 func (r *Room) Encounter() {
 	// Check if encounters are off, a GM can change this live.
 	if r.Flags["encounters_on"] {
-		r.Lock()
-		defer r.Unlock()
 		log.Println("Room# " + strconv.Itoa(r.RoomId) + " Run the encounter function!")
 		r.LastEncounterTime = time.Now()
 		if len(r.Mobs.Contents) < 10 {
@@ -314,6 +312,7 @@ func (r *Room) Encounter() {
 func (r *Room) ElementalDamage() {
 	r.Lock()
 	defer r.Unlock()
+	r.LastEffectTime = time.Now()
 	for _, c := range r.Chars.Contents {
 		if r.Flags["earth"] {
 			if !c.Flags["resist-earth"] {

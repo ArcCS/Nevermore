@@ -238,10 +238,14 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 			healAmount := target.HealStam(damage)
 			caller.AdvanceDivinity(healAmount*2, caller.Class)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
-				for _, mob := range Rooms[target.ParentId].Mobs.Contents {
-					if mob.Flags["hostile"] {
-						mob.AddThreatDamage(healAmount/10, caller)
-					}
+				/*
+					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
+						if mob.Flags["hostile"] {
+							mob.AddThreatDamage(healAmount/10, caller)
+						}
+					}*/
+				if target.Victim != nil {
+					target.Victim.(*Mob).AddThreatDamage(healAmount/3, caller)
 				}
 			}
 
@@ -266,10 +270,14 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 			healAmount := target.HealVital(damage)
 			caller.AdvanceDivinity(healAmount*5, caller.Class)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
-				for _, mob := range Rooms[target.ParentId].Mobs.Contents {
-					if mob.Flags["hostile"] {
-						mob.AddThreatDamage(healAmount/10, caller)
-					}
+				/*
+					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
+						if mob.Flags["hostile"] {
+							mob.AddThreatDamage(healAmount/10, caller)
+						}
+					}*/
+				if target.Victim != nil {
+					target.Victim.(*Mob).AddThreatDamage(healAmount/3, caller)
 				}
 			}
 			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
@@ -299,10 +307,14 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 			stam, vit := target.Heal(damage)
 			caller.AdvanceDivinity((stam*5)+(vit*5), caller.Class)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
-				for _, mob := range Rooms[target.ParentId].Mobs.Contents {
-					if mob.Flags["hostile"] {
-						mob.AddThreatDamage((stam+vit)/10, caller)
-					}
+				/*
+					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
+						if mob.Flags["hostile"] {
+							mob.AddThreatDamage(healAmount/10, caller)
+						}
+					}*/
+				if target.Victim != nil {
+					target.Victim.(*Mob).AddThreatDamage(stam+vit/3, caller)
 				}
 			}
 			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"

@@ -55,9 +55,7 @@ func (m *start) startDisplay() {
 		charOption = ` 1. Make a new character `
 	}
 
-	output.WriteString(text.White + `
- Message of the Day: 
-` + config.Server.Motd + text.Good + `
+	output.WriteString(text.Good + `
  
 =========
  Choose an action:
