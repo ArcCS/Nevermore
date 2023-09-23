@@ -763,6 +763,10 @@ func (c *Character) CanEquip(item *Item) (bool, string) {
 		if !config.CheckArmor(item.ItemType, c.Tier, item.Armor) {
 			return false, "You are unsure of how to maximize the benefit of this armor and cannot wear it."
 		}
+		if !utils.IntIn(item.Armor_Class, config.ArmorRestrictions[c.Class]) {
+			return false, "You cannot equip armor of this class."
+		}
+
 	}
 	if utils.IntIn(item.ItemType, []int{0, 1, 2, 3, 4, 16}) &&
 		!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
@@ -770,6 +774,7 @@ func (c *Character) CanEquip(item *Item) (bool, string) {
 			return false, "You are not well enough trained to wield " + item.Name
 		}
 	}
+
 	return true, ""
 }
 

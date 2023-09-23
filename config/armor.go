@@ -10,6 +10,14 @@ var MaxArmor = map[int]map[int]int{
 	25: {5: 130, 20: 80, 21: 55, 19: 55, 25: 70, 22: 55, 26: 55, 23: 100, 24: 12},
 }
 
+var ArmorClass = map[int]string{
+	0: "",
+	1: "Light",
+	2: "Medium",
+	3: "Heavy",
+	4: "Robe",
+}
+
 func CheckArmor(aType, tier, val int) bool {
 	switch {
 	case tier <= 4:
@@ -34,4 +42,16 @@ func CheckArmor(aType, tier, val int) bool {
 		}
 	}
 	return false
+}
+
+var ArmorRestrictions = map[int][]int{
+	0: {0, 1, 2, 3},
+	1: {0, 1, 2, 3},
+	2: {0, 1, 2},
+	3: {0, 1, 2},
+	4: {0, 4},
+	5: {0, 4},
+	6: {0, 1, 2, 3},
+	7: {0, 1},
+	8: {0},
 }

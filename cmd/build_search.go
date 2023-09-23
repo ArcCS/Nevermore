@@ -171,6 +171,18 @@ func (find) process(s *state) {
 			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
 			s.actor.AddCommands("more", "find item range "+searchText+" "+strconv.Itoa(searchPage+1))
 			return
+		} else if searchType == "type" {
+			results := data.SearchItemType(searchText, config.Server.SearchResults*searchPage)
+			s.msg.Actor.SendGood("===== Search Results =====")
+			for _, item := range results {
+				if item != nil {
+					itemData := item.(map[string]interface{})
+					s.msg.Actor.SendGood("(" + strconv.Itoa(int(itemData["item_id"].(int64))) + ")(" + config.ItemTypes[int(itemData["type"].(int64))] + ") " + itemData["name"].(string))
+				}
+			}
+			s.msg.Actor.SendGood("===== Type 'more' for another page of results =====")
+			s.actor.AddCommands("more", "find item type "+searchText+" "+strconv.Itoa(searchPage+1))
+			return
 		} else {
 			s.msg.Actor.SendBad("Search which field?")
 		}

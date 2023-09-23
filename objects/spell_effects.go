@@ -789,12 +789,12 @@ func detectInvisible(caller interface{}, target interface{}, magnitude int) stri
 	}
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect("detect-invisibile", strconv.Itoa(duration), 0, 0,
+		target.ApplyEffect("detect-invisible", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("detect-invisibile", "detectinvisibile_spell", text.Info+"Your senses are magnified, detecting the unseen.\n")
+				target.ToggleFlagAndMsg("detect-invisible", "detectinvisible_spell", text.Info+"Your senses are magnified, detecting the unseen.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("detect-invisibile", "detectinvisibile_spell", text.Cyan+"Your invisibility detection fades away.\n")
+				target.ToggleFlagAndMsg("detect-invisible", "detectinvisible_spell", text.Cyan+"Your invisibility detection fades away.\n")
 			})
 		return ""
 	case *Mob:
