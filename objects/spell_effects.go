@@ -245,7 +245,10 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 						}
 					}*/
 				if target.Victim != nil {
-					target.Victim.(*Mob).AddThreatDamage(healAmount/3, caller)
+					switch victim := target.Victim.(type) {
+					case *Mob:
+						victim.AddThreatDamage(healAmount/3, caller)
+					}
 				}
 			}
 
@@ -277,7 +280,10 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 						}
 					}*/
 				if target.Victim != nil {
-					target.Victim.(*Mob).AddThreatDamage(healAmount/3, caller)
+					switch victim := target.Victim.(type) {
+					case *Mob:
+						victim.AddThreatDamage(healAmount/3, caller)
+					}
 				}
 			}
 			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
@@ -313,8 +319,9 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 							mob.AddThreatDamage(healAmount/10, caller)
 						}
 					}*/
-				if target.Victim != nil {
-					target.Victim.(*Mob).AddThreatDamage(stam+vit/3, caller)
+				switch victim := target.Victim.(type) {
+				case *Mob:
+					victim.AddThreatDamage(stam+vit/3, caller)
 				}
 			}
 			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
