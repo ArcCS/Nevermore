@@ -47,7 +47,6 @@ func StartRoomAI() {
 func LoopRooms() {
 	for _, r := range ActiveRooms {
 		objects.Rooms[r].Lock()
-		//log.Println("Room AI invoked for room: ", r)
 		if len(objects.Rooms[r].Chars.Contents) <= 0 {
 			log.Println("Entering cleanup phase.")
 			if !time.Time.IsZero(objects.Rooms[r].EvacuateTime) &&
@@ -62,7 +61,6 @@ func LoopRooms() {
 					objects.Rooms[r].Encounter()
 				}
 			}
-
 			if (objects.Rooms[r].Flags["fire"] ||
 				objects.Rooms[r].Flags["earth"] ||
 				objects.Rooms[r].Flags["wind"] ||

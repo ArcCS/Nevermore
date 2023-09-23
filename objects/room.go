@@ -310,8 +310,6 @@ func (r *Room) Encounter() {
 }
 
 func (r *Room) ElementalDamage() {
-	r.Lock()
-	defer r.Unlock()
 	r.LastEffectTime = time.Now()
 	for _, c := range r.Chars.Contents {
 		if r.Flags["earth"] {
