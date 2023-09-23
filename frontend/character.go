@@ -668,20 +668,19 @@ func (a *newCharacter) validateStats(statInput string) bool {
 	if stats[0]+stats[1]+stats[2]+stats[3]+stats[4] != 50 {
 		return false
 	}
-	if (config.RaceDefs[config.AvailableRaces[a.race]].StrMin > stats[0] || stats[0] > config.RaceDefs[config.AvailableRaces[a.race]].StrMax) && stats[0] <= 20 {
+	if config.RaceDefs[config.AvailableRaces[a.race]].StrMin > stats[0] || stats[0] > config.RaceDefs[config.AvailableRaces[a.race]].StrMax || stats[0] > 20 {
 		return false
 	}
-	if (config.RaceDefs[config.AvailableRaces[a.race]].DexMin > stats[1] || stats[1] > config.RaceDefs[config.AvailableRaces[a.race]].DexMax) && stats[1] <= 20 {
-		return false
-
-	}
-	if (config.RaceDefs[config.AvailableRaces[a.race]].ConMin > stats[2] || stats[2] > config.RaceDefs[config.AvailableRaces[a.race]].ConMax) && stats[2] <= 20 {
+	if config.RaceDefs[config.AvailableRaces[a.race]].DexMin > stats[1] || stats[1] > config.RaceDefs[config.AvailableRaces[a.race]].DexMax || stats[1] > 20 {
 		return false
 	}
-	if (config.RaceDefs[config.AvailableRaces[a.race]].IntMin > stats[3] || stats[3] > config.RaceDefs[config.AvailableRaces[a.race]].IntMax) && stats[3] <= 20 {
+	if config.RaceDefs[config.AvailableRaces[a.race]].ConMin > stats[2] || stats[2] > config.RaceDefs[config.AvailableRaces[a.race]].ConMax || stats[2] > 20 {
 		return false
 	}
-	if (config.RaceDefs[config.AvailableRaces[a.race]].PieMin > stats[4] || stats[4] > config.RaceDefs[config.AvailableRaces[a.race]].PieMax) && stats[4] <= 20 {
+	if config.RaceDefs[config.AvailableRaces[a.race]].IntMin > stats[3] || stats[3] > config.RaceDefs[config.AvailableRaces[a.race]].IntMax || stats[3] > 20 {
+		return false
+	}
+	if config.RaceDefs[config.AvailableRaces[a.race]].PieMin > stats[4] || stats[4] > config.RaceDefs[config.AvailableRaces[a.race]].PieMax || stats[4] > 20 {
 		return false
 	}
 	return true
