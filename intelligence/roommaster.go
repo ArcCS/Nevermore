@@ -5,6 +5,7 @@ package intelligence
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"time"
 )
@@ -16,9 +17,11 @@ func init() {
 }
 
 func ActivateRoom(roomId int) {
-	log.Println("Adding room to active rooms: ", roomId)
-	ActiveRooms = append(ActiveRooms, roomId)
-	log.Println(ActiveRooms)
+	if utils.IntIn(roomId, ActiveRooms) {
+		log.Println("Adding room to active rooms: ", roomId)
+		ActiveRooms = append(ActiveRooms, roomId)
+		log.Println(ActiveRooms)
+	}
 }
 
 func DeactivateRoom(roomId int) {
