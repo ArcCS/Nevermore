@@ -77,8 +77,8 @@ var BackStabChancePerPoint = 1
 var SnipeChancePerPoint = 1
 var SnipeChancePerLevel = 5
 var SnipeFumbleChance = 20
-var MobStealRevengeVitalChance = 5
-var MobBSRevengeVitalChance = 10
+var MobStealRevengeVitalChance = 15
+var MobBSRevengeVitalChance = 25
 var VitalStrikeScale = 2
 
 // Monk
