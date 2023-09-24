@@ -1196,7 +1196,7 @@ func (c *Character) MessageParty(msg string, exclude *Character) {
 		for _, findChar := range c.PartyFollowers {
 			char := ActiveCharacters.Find(findChar)
 			if char != nil && char != exclude {
-				char.Write([]byte(text.White + c.Name + " party flashes# \"" + msg + "\"\n"))
+				char.Write([]byte(msg))
 			}
 		}
 	}

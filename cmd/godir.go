@@ -253,6 +253,11 @@ func (godir) process(s *state) {
 										break
 									}
 
+									if s.actor.Stam.Current <= 0 {
+										follChar.Write([]byte(text.Bad + "You are far too tired to follow."))
+										break
+									}
+
 									follChar.RunHook("move")
 
 									evasiveMan = 0
@@ -361,7 +366,13 @@ func (godir) process(s *state) {
 								follChar.Victim = nil
 								follChar.Placement = 3
 								follChar.ParentId = toE.ToId
-								follChar.Write([]byte(objects.Rooms[to.RoomId].Look(follChar)))
+
+								if s.actor.CheckFlag("blind") {
+									s.msg.Actor.SendBad("You can't see anything!")
+									return
+								} else {
+									follChar.Write([]byte(objects.Rooms[to.RoomId].Look(follChar)))
+								}
 
 								// Broadcast leaving and arrival notifications
 								if follChar.Flags["invisible"] == false {

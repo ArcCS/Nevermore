@@ -23,13 +23,14 @@ func (ptell) process(s *state) {
 	}
 
 	msg := strings.Join(s.input, " ")
+	msg = text.White + s.actor.Name + " party flashes# \"" + msg + "\""
 	if s.actor.PartyFollow == "" && len(s.actor.PartyFollowers) == 0 {
 		s.msg.Actor.SendBad("You have no party to telepathically communicate with.")
 	}
 	if s.actor.PartyFollow != "" {
 		leadChar := objects.ActiveCharacters.Find(s.actor.PartyFollow)
 		s.participant = leadChar
-		s.msg.Participant.Send(text.White + s.actor.Name + " sent to party#, \"" + msg + "\"")
+		s.msg.Participant.Send(msg)
 		if leadChar != nil {
 			leadChar.MessageParty(msg, s.actor)
 		}
