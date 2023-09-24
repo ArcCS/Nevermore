@@ -162,6 +162,15 @@ var ArmorReductionPoints = 10
 
 var MobArmorReduction = .5
 
+//Party
+var ExperienceReduction = map[int]float64{
+	1: .9,
+	2: .7,
+	3: .6,
+	4: .5,
+	5: .45,
+}
+
 func MaxWeight(str int) int {
 	return BaseCarryWeight + (str * StrCarryMod)
 }

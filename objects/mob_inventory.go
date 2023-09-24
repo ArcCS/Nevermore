@@ -212,7 +212,7 @@ func (i *MobInventory) ListHiddenMobs(observer *Character) []*Mob {
 	for _, m := range i.Contents {
 		// List all
 		if m.CheckFlag("hidden") {
-			if !m.CheckFlag("invisible") || observer.CheckFlag("detect-invisible") {
+			if !m.CheckFlag("invisible") || observer.CheckFlag("detect_invisible") {
 				items = append(items, m)
 			}
 		}

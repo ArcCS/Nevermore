@@ -386,7 +386,7 @@ var Spells = map[string]Spell{
 		Cost:        10,
 		Chant:       "Magical veil defied, my vision clarified.",
 		Magnitude:   1,
-		Effect:      "detect-invisible",
+		Effect:      "detect_invisible",
 		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 1, "ranger": 1, "bard": 1, "thief": 2, "barbarian": 3, "fighter": 3, "monk": 2},
 	},
 	"teleport": {

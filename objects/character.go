@@ -655,33 +655,33 @@ func (c *Character) ReturnVictim() string {
 }
 
 func (c *Character) ReturnState() string {
-	stamStatus := "energetic"
-	vitStatus := "healthy"
+	stamStatus := text.Green + "energetic" + text.Info
+	vitStatus := text.Green + "healthy" + text.Info
 	effectStatus := ""
 	if c.Stam.Current < (c.Stam.Max - int(.75*float32(c.Stam.Max))) {
-		stamStatus = "exhausted"
+		stamStatus = text.Red + "exhausted" + text.Info
 	} else if c.Stam.Current < (c.Stam.Max - int(.5*float32(c.Stam.Max))) {
-		stamStatus = "fatigued"
+		stamStatus = text.LightYellow + "fatigued" + text.Info
 	} else if c.Stam.Current < (c.Stam.Max - int(.25*float32(c.Stam.Max))) {
-		stamStatus = "slightly fatigued"
+		stamStatus = text.LightGreen + "slightly fatigued" + text.Info
 	}
 
 	if c.Vit.Current < (c.Vit.Max - int(.75*float32(c.Vit.Max))) {
-		vitStatus = "mortally wounded"
+		vitStatus = text.Red + "mortally wounded" + text.Info
 	} else if c.Vit.Current < (c.Vit.Max - int(.5*float32(c.Vit.Max))) {
-		vitStatus = "injured"
+		vitStatus = text.LightYellow + "injured" + text.Info
 	} else if c.Vit.Current < (c.Vit.Max - int(.25*float32(c.Vit.Max))) {
-		vitStatus = "slightly injured"
+		vitStatus = text.LightGreen + "slightly injured" + text.Info
 	}
 
 	if c.CheckFlag("poisoned") {
-		effectStatus = effectStatus + " and poisoned"
+		effectStatus = effectStatus + " and " + text.LightRed + "poisoned" + text.Info
 	}
 	if c.CheckFlag("disease") {
-		effectStatus = effectStatus + " and diseased"
+		effectStatus = effectStatus + " and " + text.LightRed + "diseased" + text.Info
 	}
 	if c.CheckFlag("blind") {
-		effectStatus = effectStatus + " and blinded"
+		effectStatus = effectStatus + " and " + text.LightRed + "blinded" + text.Info
 	}
 
 	return " looks " + stamStatus + " and " + vitStatus + effectStatus
