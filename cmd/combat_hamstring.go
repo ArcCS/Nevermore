@@ -57,7 +57,7 @@ func (hamstring) process(s *state) {
 		s.actor.RunHook("combat")
 
 		// Shortcut a missing weapon:
-		if s.actor.Equipment.Main == nil && s.actor.Class != 0 {
+		if s.actor.Equipment.Main == (*objects.Item)(nil) {
 			s.msg.Actor.SendBad("You have no weapon to attack with.")
 			return
 		}

@@ -2,6 +2,7 @@ package objects
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
+	"strconv"
 	"strings"
 )
 
@@ -85,6 +86,34 @@ func (i *CharInventory) Search(alias string, observer *Character) *Character {
 	}
 
 	return nil
+}
+
+// List Chars attacking in the room
+func (i *CharInventory) ListAttackers(observer *Character) string {
+	items := ""
+	var victim *Mob
+
+	for _, o := range i.Contents {
+		if o.LookVictim() != nil {
+			victim = o.LookVictim()
+			// List all
+			if observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				items += o.Name + " is attacking " + victim.Name + " #" + strconv.Itoa(Rooms[o.ParentId].Mobs.GetNumber(victim)) + "!\n"
+				// List non-hiddens invis
+			} else if observer.Flags["detect_invisible"] {
+				if o.Flags["hidden"] != true {
+					items += o.Name + " is attacking " + victim.Name + " #" + strconv.Itoa(Rooms[o.ParentId].Mobs.GetNumber(victim)) + "!\n"
+				}
+				// List non-hiddens
+			} else {
+				if o.Flags["invisible"] != true && o.Flags["hidden"] != true {
+					items += o.Name + " is attacking " + victim.Name + " #" + strconv.Itoa(Rooms[o.ParentId].Mobs.GetNumber(victim)) + "!\n"
+				}
+			}
+		}
+	}
+
+	return items
 }
 
 // Search the CharInventory to return a specific instance of something

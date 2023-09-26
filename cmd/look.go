@@ -41,12 +41,14 @@ func (look) process(s *state) {
 	var others []string
 	var mobs string
 	var mobAttacking string
+	var charAttacking string
 	if len(s.input) == 0 {
 		roomLook := objects.Rooms[s.actor.ParentId]
 		s.msg.Actor.SendInfo(roomLook.Look(s.actor))
 		others = objects.Rooms[s.actor.ParentId].Chars.List(s.actor)
 		mobs = objects.Rooms[s.actor.ParentId].Mobs.ReducedList(s.actor)
 		mobAttacking = objects.Rooms[s.actor.ParentId].Mobs.ListAttackers(s.actor)
+		charAttacking = objects.Rooms[s.actor.ParentId].Chars.ListAttackers(s.actor)
 		if len(others) == 1 {
 			s.msg.Actor.SendInfo(strings.Join(others, ", "), " is also here.")
 		} else if len(others) > 1 {
@@ -64,7 +66,10 @@ func (look) process(s *state) {
 			s.msg.Actor.SendInfo("You see " + items)
 		}
 		if len(mobAttacking) > 0 {
-			s.msg.Actor.SendInfo(mobAttacking)
+			s.msg.Actor.Send(text.Red + mobAttacking + text.Reset)
+		}
+		if len(charAttacking) > 0 {
+			s.msg.Actor.Send(text.Bold + text.Green + charAttacking + text.Reset)
 		}
 		return
 	}

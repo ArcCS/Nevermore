@@ -43,7 +43,7 @@ func (sayto) process(s *state) {
 	s.participant = who
 
 	msg := strings.Join(s.input[1:], " ")
-
+	s.actor.RunHook("say")
 	if msg[len(msg)-1:] == "?" {
 		s.msg.Actor.SendGood("You ask "+who.Name+": \"", msg, "\"")
 		s.msg.Participant.SendInfo(whoSays, " asks you: \"", msg, "\"")

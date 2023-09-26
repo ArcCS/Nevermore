@@ -654,6 +654,19 @@ func (c *Character) ReturnVictim() string {
 	}
 }
 
+func (c *Character) LookVictim() *Mob {
+	switch c.Victim.(type) {
+	case *Mob:
+		target := c.Victim.(*Mob)
+		if target.ParentId == c.ParentId {
+			return target
+		}
+		return nil
+	default:
+		return nil
+	}
+}
+
 func (c *Character) ReturnState() string {
 	stamStatus := text.Green + "energetic" + text.Info
 	vitStatus := text.Green + "healthy" + text.Info

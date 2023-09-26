@@ -41,6 +41,10 @@ type Room struct {
 	LockPriority      string
 }
 
+var (
+	ActivateRoom func(roomId int)
+)
+
 // Pop the room data
 func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 	newRoom := &Room{
@@ -99,10 +103,6 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 	newRoom.Mobs.ContinueEmpty = newRoom.ContinueEmpty
 	return newRoom, true
 }
-
-var (
-	ActivateRoom func(roomId int)
-)
 
 // Evaluate if there are too many players in this rooms inventory
 func (r *Room) Crowded() (crowded bool) {
