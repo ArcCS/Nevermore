@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
@@ -169,7 +170,7 @@ func (edit) process(s *state) {
 						return
 					}
 					item.ItemType = types
-					s.msg.Actor.SendGood("Changed types.")
+					s.msg.Actor.SendGood("Changed item type to " + config.ItemTypes[types])
 				case "value":
 					value, _ := strconv.Atoi(s.words[3])
 					item.Value = value

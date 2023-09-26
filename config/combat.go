@@ -80,6 +80,7 @@ var SnipeFumbleChance = 20
 var MobStealRevengeVitalChance = 15
 var MobBSRevengeVitalChance = 25
 var VitalStrikeScale = 2
+var BackstabCooldown = 60
 
 // Monk
 var TodMax = 5
