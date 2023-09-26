@@ -220,37 +220,45 @@ func DeathCheck(s *state, m *objects.Mob) {
 	if m.Stam.Current <= 0 {
 		s.msg.Actor.SendGood("You killed " + m.Name)
 		s.msg.Observers.SendGood(s.actor.Name + " killed " + m.Name)
-		partySize := 1
 		partyLead := s.actor
 		if s.actor.PartyFollow != "" {
 			partyLead = objects.ActiveCharacters.Find(s.actor.PartyFollow)
-			partySize += len(partyLead.PartyFollowers)
-		} else {
-			partySize += len(s.actor.PartyFollowers)
-		}
-		for _, gm := range s.actor.PartyFollowers {
-			if objects.ActiveCharacters.Find(gm).Class > 8 {
-				partySize -= 1
-			}
 		}
 		partyMembers := append(partyLead.PartyFollowers, partyLead.Name)
-		//debuging stuff
-		s.msg.Actor.SendGood("Party Size: " + strconv.Itoa(partySize))
-		s.msg.Actor.SendGood(strconv.Itoa(len(partyMembers)))
-		s.msg.Actor.SendGood(partyMembers...)
+		expReduce := len(s.where.Chars.Contents)
+		for _, gm := range s.where.Chars.Contents {
+			if gm.Class > 8 {
+				expReduce -= 1
+			}
+		}
 
+		if expReduce > 5 {
+			expReduce = 5
+		}
+		//debuging stuff
+		s.msg.Actor.SendGood("Players in room: " + strconv.Itoa(expReduce))
+		//s.msg.Actor.SendGood(strconv.Itoa(len(partyMembers)))
+		//s.msg.Actor.SendGood(partyMembers...)
 		experienceAwarded := 0
 		if m.CheckFlag("hostile") {
-			experienceAwarded = int(float64(m.Experience) * (config.ExperienceReduction[partySize] + (float64(utils.Roll(10, 1, 0)) / 100)))
+			experienceAwarded = int(float64(m.Experience) * (config.ExperienceReduction[expReduce] + (float64(utils.Roll(10, 1, 0)) / 100)))
 		} else {
 			experienceAwarded = m.Experience / 10
 		}
-		for _, member := range partyMembers {
+		for _, member := range s.where.Chars.Contents {
 			buildActorString := ""
-			charClean := s.where.Chars.SearchAll(member)
+			charClean := s.where.Chars.SearchAll(member.Name)
 			if charClean != nil {
-				buildActorString += text.Cyan + "You earn " + strconv.Itoa(experienceAwarded) + " experience for the defeat of the " + m.Name + "\n"
-				charClean.Experience.Add(experienceAwarded)
+				partyCheck := false
+				for _, name := range partyMembers {
+					if charClean.Name == name {
+						partyCheck = true
+					}
+				}
+				if partyCheck || m.CheckThreatTable(charClean.Name) {
+					buildActorString += text.Cyan + "You earn " + strconv.Itoa(experienceAwarded) + " experience for the defeat of the " + m.Name + "\n"
+					charClean.Experience.Add(experienceAwarded)
+				}
 				if charClean == s.actor {
 					buildActorString += text.Green + m.DropInventory() + "\n"
 					s.msg.Actor.Send(buildActorString)

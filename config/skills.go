@@ -143,16 +143,16 @@ var StealthExpLevels = map[int]int{
 
 var HealingSkill = map[int]int{
 	0:  0,
-	1:  15,
-	2:  30,
-	3:  45,
-	4:  60,
-	5:  80,
-	6:  100,
-	7:  120,
-	8:  150,
-	9:  170,
-	10: 190,
+	1:  20,
+	2:  40,
+	3:  60,
+	4:  80,
+	5:  100,
+	6:  120,
+	7:  140,
+	8:  160,
+	9:  180,
+	10: 200,
 }
 
 var SpellDmgSkill = map[int]int{
