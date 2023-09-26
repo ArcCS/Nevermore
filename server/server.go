@@ -25,12 +25,12 @@ func main() {
 	mw := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(mw)
 	stats.Start()
-
 	go objects.StartJarvoral()
 	objects.Load()
 	log.Println("Starting time...")
 	StartTime()
 	intelligence.StartRoomAI()
+	StartRoomSync()
 	comms.Listen(config.Server.Host, config.Server.Port)
 }
 
