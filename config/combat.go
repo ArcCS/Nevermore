@@ -77,8 +77,8 @@ var BackStabChancePerPoint = 1
 var SnipeChancePerPoint = 1
 var SnipeChancePerLevel = 5
 var SnipeFumbleChance = 20
-var MobStealRevengeVitalChance = 5
-var MobBSRevengeVitalChance = 10
+var MobStealRevengeVitalChance = 15
+var MobBSRevengeVitalChance = 25
 var VitalStrikeScale = 2
 
 // Monk
@@ -161,6 +161,15 @@ var ArmorReduction = .007
 var ArmorReductionPoints = 10
 
 var MobArmorReduction = .5
+
+//Party
+var ExperienceReduction = map[int]float64{
+	1: .9,
+	2: .7,
+	3: .6,
+	4: .5,
+	5: .45,
+}
 
 func MaxWeight(str int) int {
 	return BaseCarryWeight + (str * StrCarryMod)

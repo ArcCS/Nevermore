@@ -1,14 +1,15 @@
 package cmd
 
 import (
+	"log"
+	"math"
+	"strconv"
+
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
-	"math"
-	"strconv"
 )
 
 func init() {
@@ -219,17 +220,41 @@ func DeathCheck(s *state, m *objects.Mob) {
 	if m.Stam.Current <= 0 {
 		s.msg.Actor.SendGood("You killed " + m.Name)
 		s.msg.Observers.SendGood(s.actor.Name + " killed " + m.Name)
-		for k, threat := range m.ThreatTable {
+		partyLead := s.actor
+		if s.actor.PartyFollow != "" {
+			partyLead = objects.ActiveCharacters.Find(s.actor.PartyFollow)
+		}
+		partyMembers := append(partyLead.PartyFollowers, partyLead.Name)
+		expReduce := len(s.where.Chars.Contents)
+		for _, gm := range s.where.Chars.Contents {
+			if gm.Class > 8 {
+				expReduce -= 1
+			}
+		}
+
+		if expReduce > 5 {
+			expReduce = 5
+		}
+		//debuging stuff
+		//s.msg.Actor.SendGood("Players in room: " + strconv.Itoa(expReduce))
+		//s.msg.Actor.SendGood(partyMembers...)
+		experienceAwarded := 0
+		if m.CheckFlag("hostile") {
+			experienceAwarded = int(float64(m.Experience) * (config.ExperienceReduction[expReduce] + (float64(utils.Roll(10, 1, 0)) / 100)))
+		} else {
+			experienceAwarded = m.Experience / 10
+		}
+		for _, member := range s.where.Chars.Contents {
 			buildActorString := ""
-			experienceAwarded := 0
-			charClean := s.where.Chars.SearchAll(k)
+			charClean := s.where.Chars.SearchAll(member.Name)
 			if charClean != nil {
-				if m.CheckFlag("hostile") {
-					experienceAwarded = m.Experience
-				} else {
-					experienceAwarded = m.Experience / 10
+				partyCheck := false
+				for _, name := range partyMembers {
+					if charClean.Name == name {
+						partyCheck = true
+					}
 				}
-				if threat > 0 {
+				if partyCheck || m.CheckThreatTable(charClean.Name) {
 					buildActorString += text.Cyan + "You earn " + strconv.Itoa(experienceAwarded) + " experience for the defeat of the " + m.Name + "\n"
 					charClean.Experience.Add(experienceAwarded)
 				}

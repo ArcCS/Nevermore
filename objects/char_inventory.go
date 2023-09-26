@@ -171,7 +171,7 @@ func (i *CharInventory) ListHiddenChars(observer *Character) []*Character {
 		// List all
 		if strings.ToLower(c.Name) != strings.ToLower(observer.Name) {
 			if c.CheckFlag("hidden") && !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-				if !c.CheckFlag("invisible") || observer.CheckFlag("detect-invisible") {
+				if !c.CheckFlag("invisible") || observer.CheckFlag("detect_invisible") {
 					items = append(items, c)
 				}
 			}

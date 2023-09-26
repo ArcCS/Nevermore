@@ -50,7 +50,7 @@ var Spells = map[string]Spell{
 	"detraumatize": {
 		Name:        "detraumatize",
 		Description: "the spell calls directly upon the caster's (who must be cleric, paladin or bard) faith to power the spell, drawing into the caster a small portion of the power of their deity. the caster yells their deity's name, and concentrates inwardly upon the power of the their faith. as they do, a visible aura surrounds them, as the strong healing energies fill their being. the caster then need only point their hands at the target, who can be up to three zones away. the target's pain and tiredness are washed away as the spell instantly knits bone and tissue, attempting to render the target whole. as can be seen by the spell's name, this spell was created by the cleric lordewok, who wanted nothing more than to hone his already superior healing skills in his battle to protect the realms. ",
-		Cost:        7,
+		Cost:        12,
 		Chant:       "Deities aid my stricken friend!",
 		Magnitude:   1,
 		Effect:      "heal",
@@ -59,7 +59,7 @@ var Spells = map[string]Spell{
 	"renewal": {
 		Name:        "renewal",
 		Description: "kenlokerai's renewal (herein referred to as renewal), is the most powerful unlimited healing spell that can exist within the magical weave and still be castable by mortals. this spell calls directly upon the caster's deity, and their link to the faith. as such, this spell must be cast by cleric, paladin, or bard. the amount of power of this spell is stronger amongst the devout followers of the gods, and even stronger amongst their chosen. the caster yells their deity's name, and concentrates inwardly upon the power of the their god. as they do, a visible aura surrounds them, as the strong healing energies fill their being. the caster then need only concentrate on bringing the power of the god into their recipient. the target's pain and injury are obliterated as flesh knits, even regrowing lost members if needed, attempting to completely renew the target's body. ",
-		Cost:        13,
+		Cost:        20,
 		Chant:       "Thy wounds wash away as my faith flows.",
 		Magnitude:   2,
 		Effect:      "heal",
@@ -386,7 +386,7 @@ var Spells = map[string]Spell{
 		Cost:        10,
 		Chant:       "Magical veil defied, my vision clarified.",
 		Magnitude:   1,
-		Effect:      "detect-invisible",
+		Effect:      "detect_invisible",
 		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 1, "ranger": 1, "bard": 1, "thief": 2, "barbarian": 3, "fighter": 3, "monk": 2},
 	},
 	"teleport": {

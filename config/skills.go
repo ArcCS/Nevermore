@@ -157,16 +157,16 @@ var HealingSkill = map[int]int{
 
 var SpellDmgSkill = map[int]int{
 	0:  0,
-	1:  3,
-	2:  7,
-	3:  10,
-	4:  15,
-	5:  25,
-	6:  35,
-	7:  45,
-	8:  55,
-	9:  65,
-	10: 75,
+	1:  5,
+	2:  10,
+	3:  15,
+	4:  25,
+	5:  35,
+	6:  45,
+	7:  70,
+	8:  85,
+	9:  100,
+	10: 120,
 }
 
 func WeaponExpTitle(exp int, class int) string {
