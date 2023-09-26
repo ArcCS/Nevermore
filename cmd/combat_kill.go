@@ -236,8 +236,7 @@ func DeathCheck(s *state, m *objects.Mob) {
 			expReduce = 5
 		}
 		//debuging stuff
-		s.msg.Actor.SendGood("Players in room: " + strconv.Itoa(expReduce))
-		//s.msg.Actor.SendGood(strconv.Itoa(len(partyMembers)))
+		//s.msg.Actor.SendGood("Players in room: " + strconv.Itoa(expReduce))
 		//s.msg.Actor.SendGood(partyMembers...)
 		experienceAwarded := 0
 		if m.CheckFlag("hostile") {
