@@ -45,7 +45,13 @@ func (backstab) process(s *state) {
 		return
 	}
 
-	ready, msg := s.actor.TimerReady("combat")
+	ready, msg := s.actor.TimerReady("combat_backstab")
+	if !ready {
+		s.msg.Actor.SendBad(msg)
+		return
+	}
+
+	ready, msg = s.actor.TimerReady("combat")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
 		return
@@ -133,6 +139,7 @@ func (backstab) process(s *state) {
 				s.actor.DeathCheck(" was killed by reflection!")
 			}
 			DeathCheck(s, whatMob)
+			s.actor.SetTimer("combat_backstab", config.BackstabCooldown)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			msg := s.actor.Equipment.DamageWeapon("main", 4)
 			if msg != "" {

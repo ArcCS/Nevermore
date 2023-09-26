@@ -65,7 +65,9 @@ func (use) process(s *state) {
 	}
 
 	what := s.actor.Inventory.Search(itemName, itemNum)
-
+	if what == nil {
+		what = s.actor.Equipment.Search(itemName, itemNum)
+	}
 	// It was on you the whole time
 	if what != nil {
 		if what.Spell != "" && what.MaxUses > 0 {
