@@ -137,7 +137,7 @@ func (i *MobInventory) Search(alias string, num int, observer *Character) *Mob {
 
 					if c.Flags["invisible"] == false ||
 						(c.Flags["invisible"] == true &&
-							observer.Flags["detect_invisible"]) ||
+							observer.Flags["detect-invisible"]) ||
 						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 						return c
 					}
@@ -175,7 +175,7 @@ func (i *MobInventory) List(observer *Character) []string {
 
 			if c.Flags["invisible"] == false ||
 				(c.Flags["invisible"] == true &&
-					observer.Flags["detect_invisible"]) ||
+					observer.Flags["detect-invisible"]) ||
 				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				items = append(items, c.Name)
 			}
@@ -195,7 +195,7 @@ func (i *MobInventory) ListMobs(observer *Character) []*Mob {
 
 			if c.Flags["invisible"] == false ||
 				(c.Flags["invisible"] == true &&
-					observer.Flags["detect_invisible"]) ||
+					observer.Flags["detect-invisible"]) ||
 				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				items = append(items, c)
 			}
@@ -212,7 +212,7 @@ func (i *MobInventory) ListHiddenMobs(observer *Character) []*Mob {
 	for _, m := range i.Contents {
 		// List all
 		if m.CheckFlag("hidden") {
-			if !m.CheckFlag("invisible") || observer.CheckFlag("detect_invisible") {
+			if !m.CheckFlag("invisible") || observer.CheckFlag("detect-invisible") {
 				items = append(items, m)
 			}
 		}
@@ -235,7 +235,7 @@ func (i *MobInventory) ListAttackers(observer *Character) string {
 			if observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + victim + "!\n"
 				// List non-hiddens invis
-			} else if observer.Flags["detect_invisible"] {
+			} else if observer.Flags["detect-invisible"] {
 				if o.Flags["hidden"] != true {
 					items += o.Name + " #" + strconv.Itoa(i.GetNumber(o)) + " is attacking " + victim + "!\n"
 				}
@@ -263,7 +263,7 @@ func (i *MobInventory) ReducedList(observer *Character) string {
 
 			if c.Flags["invisible"] == false ||
 				(c.Flags["invisible"] == true &&
-					observer.Flags["detect_invisible"]) ||
+					observer.Flags["detect-invisible"]) ||
 				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				if inMap {
 					items[c.Name]++

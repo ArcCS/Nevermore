@@ -745,10 +745,7 @@ func (c *Character) Look() (buildText string) {
 
 func (c *Character) ApplyEffect(effectName string, length string, interval int, magnitude int, effect func(triggers int), effectOff func()) {
 	if effectInstance, ok := c.Effects[effectName]; ok {
-		//TODO: Allow for intensifying effects instead of extending them
-		durExtend, _ := strconv.ParseFloat(length, 64)
-		effectInstance.ExtendDuration(durExtend)
-		return
+		effectInstance.effectOff()
 	}
 	c.Effects[effectName] = NewEffect(length, interval, magnitude, effect, effectOff)
 	c.Effects[effectName].RunEffect()

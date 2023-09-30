@@ -389,7 +389,7 @@ func (r *Room) MessageVisible(Message string) {
 	// Message all the characters in this room
 	for _, chara := range r.Chars.Contents {
 		// Check invisible detection
-		visDetect, err := chara.Flags["detect_invisible"]
+		visDetect, err := chara.Flags["detect-invisible"]
 		if !err {
 			continue
 		}

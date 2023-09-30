@@ -76,7 +76,7 @@ func (i *CharInventory) Search(alias string, observer *Character) *Character {
 	for _, c := range i.Contents {
 		if c.Flags["invisible"] == false ||
 			(c.Flags["invisible"] == true &&
-				observer.Flags["detect_invisible"] &&
+				observer.Flags["detect-invisible"] &&
 				!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
 			observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
@@ -100,7 +100,7 @@ func (i *CharInventory) ListAttackers(observer *Character) string {
 			if observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 				items += o.Name + " is attacking " + victim.Name + " #" + strconv.Itoa(Rooms[o.ParentId].Mobs.GetNumber(victim)) + "!\n"
 				// List non-hiddens invis
-			} else if observer.Flags["detect_invisible"] {
+			} else if observer.Flags["detect-invisible"] {
 				if o.Flags["hidden"] != true {
 					items += o.Name + " is attacking " + victim.Name + " #" + strconv.Itoa(Rooms[o.ParentId].Mobs.GetNumber(victim)) + "!\n"
 				}
@@ -125,7 +125,7 @@ func (i *CharInventory) MobSearch(alias string, observer *Mob) *Character {
 	for _, c := range i.Contents {
 		if c.Flags["invisible"] == false ||
 			(c.Flags["invisible"] == true &&
-				observer.Flags["detect_invisible"] &&
+				observer.Flags["detect-invisible"] &&
 				!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) {
 			if strings.Contains(strings.ToLower(c.Name), strings.ToLower(alias)) {
 				return c
@@ -150,7 +150,7 @@ func (i *CharInventory) List(observer *Character) []string {
 
 				if c.Flags["invisible"] == false ||
 					(c.Flags["invisible"] == true &&
-						observer.Flags["detect_invisible"] &&
+						observer.Flags["detect-invisible"] &&
 						!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
 					observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					if c.CheckFlag("singing") {
@@ -180,7 +180,7 @@ func (i *CharInventory) ListChars(observer *Character) []*Character {
 
 				if c.Flags["invisible"] == false ||
 					(c.Flags["invisible"] == true &&
-						observer.Flags["detect_invisible"] &&
+						observer.Flags["detect-invisible"] &&
 						!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
 					observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					items = append(items, c)
@@ -200,7 +200,7 @@ func (i *CharInventory) ListHiddenChars(observer *Character) []*Character {
 		// List all
 		if strings.ToLower(c.Name) != strings.ToLower(observer.Name) {
 			if c.CheckFlag("hidden") && !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-				if !c.CheckFlag("invisible") || observer.CheckFlag("detect_invisible") {
+				if !c.CheckFlag("invisible") || observer.CheckFlag("detect-invisible") {
 					items = append(items, c)
 				}
 			}
@@ -219,7 +219,7 @@ func (i *CharInventory) MobList(observer *Mob) []string {
 		if c.Flags["hidden"] == false {
 			if c.Flags["invisible"] == false ||
 				(c.Flags["invisible"] == true &&
-					observer.Flags["detect_invisible"]) {
+					observer.Flags["detect-invisible"]) {
 				items = append(items, c.Name)
 			}
 		}

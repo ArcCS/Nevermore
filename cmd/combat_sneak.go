@@ -109,7 +109,7 @@ func (sneak) process(s *state) {
 					return
 				}
 
-				if toE.Flags["invisible"] && !s.actor.CheckFlag("detect_invisible") {
+				if toE.Flags["invisible"] && !s.actor.CheckFlag("detect-invisible") {
 					s.msg.Actor.SendBad("Go where?")
 					return
 				}

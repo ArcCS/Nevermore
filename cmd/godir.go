@@ -111,7 +111,7 @@ func (godir) process(s *state) {
 						return
 					}
 
-					if toE.Flags["invisible"] && !s.actor.CheckFlag("detect_invisible") {
+					if toE.Flags["invisible"] && !s.actor.CheckFlag("detectj-invisible") {
 						s.msg.Actor.SendBad("Go where?")
 						return
 					}
@@ -268,7 +268,7 @@ func (godir) process(s *state) {
 										break
 									}
 
-									if toE.Flags["invisible"] && !follChar.CheckFlag("detect_invisible") {
+									if toE.Flags["invisible"] && !follChar.CheckFlag("detect-invisible") {
 										follChar.Write([]byte(text.Bad + "Go where?"))
 										break
 									}
