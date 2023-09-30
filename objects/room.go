@@ -280,9 +280,9 @@ func (r *Room) Encounter() {
 				} else if len(r.Chars.Contents) == 3 {
 					doubleChance = 15
 				}
-				if utils.Roll(100, 1, 0) <= tripleChance {
+				if utils.Roll(100, 1, 0) <= tripleChance && len(r.Mobs.ListHostile()) <= config.RoomEncNoTriples {
 					multMob = 3
-				} else if utils.Roll(100, 1, 0) <= doubleChance {
+				} else if utils.Roll(100, 1, 0) <= doubleChance && len(r.Mobs.ListHostile()) <= config.RoomEncNoDoubles {
 					multMob = 2
 				}
 				for i := 0; i < multMob; i++ {

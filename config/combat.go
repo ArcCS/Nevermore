@@ -27,6 +27,8 @@ var RoomClearTimer = 3             // Seconds
 var RoomEffectInvocation = 18      // Seconds
 var RoomDefaultEncounterSpeed = 10 // Seconds
 var RoomMaxJigger = 4
+var RoomEncNoDoubles = 6
+var RoomEncNoTriples = 5
 
 var IntMajorPenalty = 7
 var PieMajorPenalty = 5

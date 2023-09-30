@@ -185,6 +185,18 @@ func (i *MobInventory) List(observer *Character) []string {
 }
 
 // List the items in this MobInventory
+func (i *MobInventory) ListHostile() []string {
+	items := make([]string, 0)
+
+	for _, c := range i.Contents {
+		if c.CheckFlag("hostile") {
+			items = append(items, c.Name)
+		}
+	}
+	return items
+}
+
+// List the items in this MobInventory
 func (i *MobInventory) ListMobs(observer *Character) []*Mob {
 	items := make([]*Mob, 0)
 
