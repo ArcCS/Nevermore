@@ -35,6 +35,7 @@ type Room struct {
 	LastEffectTime    time.Time
 	LastEncounterTime time.Time
 	EncounterSpeed    int
+	EncounterJigger   int
 	StoreOwner        string
 	StoreInventory    *ItemInventory
 	Songs             map[string]string
@@ -69,6 +70,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 		time.Time{},
 		//int(roomData["encounter_speed"].(int64)),
 		config.RoomDefaultEncounterSpeed,
+		0,
 		roomData["store_owner"].(string),
 		RestoreInventory(roomData["store_inventory"].(string)),
 		make(map[string]string),
@@ -257,6 +259,7 @@ func (r *Room) Encounter() {
 	if r.Flags["encounters_on"] {
 		log.Println("Room# " + strconv.Itoa(r.RoomId) + " Run the encounter function!")
 		r.LastEncounterTime = time.Now()
+		r.EncounterJigger = utils.Roll(config.RoomMaxJigger, 1, 0)
 		if len(r.Mobs.Contents) < 10 {
 			// Augment the encounter based on the number of players in the room
 			aug := len(r.Chars.Contents)

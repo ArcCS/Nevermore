@@ -58,7 +58,10 @@ func LoopRooms() {
 		} else {
 			if objects.Rooms[r].Flags["encounters_on"] {
 				if time.Now().Sub(objects.Rooms[r].LastEncounterTime).Seconds() > float64(objects.Rooms[r].EncounterSpeed) {
-					objects.Rooms[r].Encounter()
+					// Apply jigger
+					if time.Now().Sub(objects.Rooms[r].LastEncounterTime).Seconds() > float64(objects.Rooms[r].EncounterSpeed+objects.Rooms[r].EncounterJigger) {
+						objects.Rooms[r].Encounter()
+					}
 				}
 			}
 			if (objects.Rooms[r].Flags["fire"] ||

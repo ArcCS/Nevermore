@@ -23,9 +23,10 @@ var CombatModifiers = map[string]int{
 var CombatCooldown = 8
 var UnequipCooldown = 2
 
-var RoomClearTimer = 3            // Seconds
-var RoomEffectInvocation = 18     // Seconds
-var RoomDefaultEncounterSpeed = 8 // Seconds
+var RoomClearTimer = 3             // Seconds
+var RoomEffectInvocation = 18      // Seconds
+var RoomDefaultEncounterSpeed = 10 // Seconds
+var RoomMaxJigger = 4
 
 var IntMajorPenalty = 7
 var PieMajorPenalty = 5
@@ -163,7 +164,7 @@ var ArmorReductionPoints = 10
 
 var MobArmorReduction = .5
 
-//Party
+// Party
 var ExperienceReduction = map[int]float64{
 	1: .9,
 	2: .7,
