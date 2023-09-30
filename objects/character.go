@@ -756,6 +756,12 @@ func (c *Character) RemoveEffect(effectName string) {
 	}
 }
 
+func (c *Character) GainExperience(value int) {
+	if c.Tier < config.LevelCap {
+		c.Experience.Add(value)
+	}
+}
+
 func (c *Character) CanEquip(item *Item) (bool, string) {
 	if c.Class == 8 {
 		//check if weapon

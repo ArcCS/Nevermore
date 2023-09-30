@@ -20,6 +20,10 @@ func (train) process(s *state) {
 		s.msg.Actor.SendBad("You must find a training location in order to advance your tier.")
 		return
 	}
+	if s.actor.Tier == config.LevelCap {
+		s.msg.Actor.SendBad("You've already reached the maximum tier attainable at this time.")
+		return
+	}
 	if !(s.actor.Experience.Value >= config.TierExpLevels[s.actor.Tier+1]) {
 		s.msg.Actor.SendBad("You don't have enough experience earned to train to the next tier.")
 		return

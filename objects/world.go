@@ -41,7 +41,7 @@ func AddRoomUpdate(roomId int) {
 
 func FlushRoomUpdates() {
 	for _, roomId := range RoomsPendingUpdate {
-		if len(Rooms[roomId].Chars.Contents) > 0 {
+		if len(Rooms[roomId].Chars.Contents) <= 0 {
 			Rooms[roomId].Save()
 		}
 	}

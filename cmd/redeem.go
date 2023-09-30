@@ -58,7 +58,7 @@ func (redeem) process(s *state) {
 		s.actor.BonusPoints.Subtract(amt)
 		experienceNeeded := config.TierExpLevels[s.actor.Tier+1] - config.TierExpLevels[s.actor.Tier]
 		expAward := int(math.Floor(float64(experienceNeeded)*.01)) * amt
-		s.actor.Experience.Add(expAward)
+		s.actor.GainExperience(expAward)
 		s.msg.Actor.SendGood("You have redeemed ", strconv.Itoa(amt), " bonus points for ", strconv.Itoa(expAward), " experience.")
 		return
 	}

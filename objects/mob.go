@@ -558,7 +558,7 @@ func (m *Mob) DeathCheck(target *Character) bool {
 		stringExp := strconv.Itoa(m.Experience)
 		for k := range m.ThreatTable {
 			Rooms[m.ParentId].Chars.SearchAll(k).Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
-			Rooms[m.ParentId].Chars.SearchAll(k).Experience.Add(m.Experience)
+			Rooms[m.ParentId].Chars.SearchAll(k).GainExperience(m.Experience)
 		}
 		Rooms[m.ParentId].MessageAll(m.Name + " dies.")
 		target.Write([]byte(text.White + m.DropInventory()))

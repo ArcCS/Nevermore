@@ -256,7 +256,7 @@ func DeathCheck(s *state, m *objects.Mob) {
 				}
 				if partyCheck || m.CheckThreatTable(charClean.Name) {
 					buildActorString += text.Cyan + "You earn " + strconv.Itoa(experienceAwarded) + " experience for the defeat of the " + m.Name + "\n"
-					charClean.Experience.Add(experienceAwarded)
+					charClean.GainExperience(experienceAwarded)
 				}
 				if charClean == s.actor {
 					buildActorString += text.Green + m.DropInventory() + "\n"

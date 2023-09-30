@@ -35,7 +35,7 @@ func main() {
 }
 
 func StartRoomSync() {
-	RoomSyncTicker = time.NewTicker(5 * time.Minute)
+	RoomSyncTicker = time.NewTicker(3 * time.Minute)
 	go func() {
 		for {
 			select {
