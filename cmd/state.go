@@ -99,14 +99,14 @@ func newState(o *objects.Character, input string) *state {
 //	s.input = []string{"I'm", "in", "need", "of", "help!"}
 //	s.words = []string{"I'M", "NEED", "HELP!"}
 func (s *state) tokenizeInput(input string) {
-	quoteReg := regexp.MustCompile("\"(.*)\"")
+	quoteReg := regexp.MustCompile("\\^(.*)\\^")
 	for _, match := range quoteReg.FindStringSubmatch(input) {
 		input = strings.ReplaceAll(input, match, strings.ReplaceAll(match, " ", "%_R%"))
 	}
 	s.input = strings.Fields(input)
 	for wordInt, _ := range s.input {
 		// No quotes
-		s.input[wordInt] = strings.ReplaceAll(s.input[wordInt], "\"", "")
+		s.input[wordInt] = strings.ReplaceAll(s.input[wordInt], "\\^", "")
 		// Restore spaces
 		s.input[wordInt] = strings.ReplaceAll(s.input[wordInt], "%_R%", " ")
 	}

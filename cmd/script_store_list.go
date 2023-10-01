@@ -40,7 +40,7 @@ func (list) process(s *state) {
 				})
 			} else if item.ItemType == 18 {
 				t.AppendRows([]table.Row{
-					{item.Name, item.StorePrice, "(M) " + objects.Spells[item.Spell].Name},
+					{item.Name, item.StorePrice, "(M) " + item.Spell},
 				})
 			} else if item.ItemType == 6 {
 				t.AppendRows([]table.Row{

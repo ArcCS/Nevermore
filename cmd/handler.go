@@ -8,6 +8,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"strings"
 	"time"
@@ -24,6 +25,7 @@ type handler interface {
 var handlers = map[string]handler{}
 var handlerPermission = map[string]permissions.Permissions{}
 var helpText = map[string]string{}
+var oocCommands = []string{"SAY", "QUIT", "HELP", "WHO", "LOOK", "IC", "$POOF", "AFK", "GO", "ACT"}
 
 // addHandler adds the given commands for the specified handler.
 // It requires the command handler,  a help string to add to the help data, a bitmask permission, and the relative
@@ -47,7 +49,9 @@ func dispatchHandler(s *state) {
 			s.actor.LastAction = time.Now()
 		}
 
-		if s.where.RoomId == config.OocRoom && s.cmd != "SAY" && s.cmd != "QUIT" && s.cmd != "HELP" && s.cmd != "WHO" && s.cmd != "LOOK" && s.cmd != "IC" && s.cmd != "$POOF" && s.cmd != "AFK" {
+		if s.where.RoomId == config.OocRoom &&
+			!s.actor.Permission.HasAnyFlags(permissions.Dungeonmaster, permissions.Gamemaster) &&
+			!utils.StringIn(strings.ToUpper(s.cmd), oocCommands) {
 			s.msg.Actor.SendBad("You must be IC to do that.")
 			return
 		}
