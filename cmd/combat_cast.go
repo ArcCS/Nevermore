@@ -104,7 +104,9 @@ func (cast) process(s *state) {
 		if whatMob != nil {
 			s.actor.RunHook("combat")
 			s.actor.Victim = whatMob
+			s.actor.FlagOn("casting", "cast")
 			msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
+			s.actor.FlagOff("casting", "cast")
 			s.actor.Mana.Subtract(cost)
 			s.actor.SetTimer("combat", 8)
 			// TODO: At level 15 wizards can change  the chant to a different action to invoke spells,
@@ -160,7 +162,9 @@ func (cast) process(s *state) {
 						s.actor.ClassProps["restore"]--
 					}
 				}
+				s.actor.FlagOn("casting", "cast")
 				msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
+				s.actor.FlagOff("casting", "cast")
 				s.actor.Mana.Subtract(cost)
 				s.actor.SetTimer("combat", config.CombatCooldown)
 				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
@@ -192,7 +196,9 @@ func (cast) process(s *state) {
 				s.ok = true
 				return
 			}
+			s.actor.FlagOn("casting", "cast")
 			msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
+			s.actor.FlagOff("casting", "cast")
 			s.actor.Mana.Subtract(cost)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
@@ -219,7 +225,9 @@ func (cast) process(s *state) {
 		}
 
 		s.actor.RunHook("combat")
+		s.actor.FlagOn("casting", "cast")
 		msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
+		s.actor.FlagOff("casting", "cast")
 		s.actor.SetTimer("combat", 8)
 		s.actor.Mana.Subtract(cost)
 		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
