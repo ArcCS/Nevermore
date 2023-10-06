@@ -18,7 +18,7 @@ var Spells = map[string]Spell{
 		Chant:       "Thy energies return!",
 		Magnitude:   1,
 		Effect:      "heal-stam",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 1, "ranger": 1, "bard": 1, "thief": 1, "barbarian": 1, "fighter": 1, "monk": 1},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 1, "ranger": 1, "bard": 1, "thief": 1, "monk": 1},
 	},
 	"mend": {
 		Name:        "mend",
@@ -27,7 +27,7 @@ var Spells = map[string]Spell{
 		Chant:       "Ease thy pain, knit thy flesh.",
 		Magnitude:   1,
 		Effect:      "heal-vit",
-		Classes:     map[string]int{"cleric": 3, "mage": 4, "paladin": 3, "ranger": 4, "bard": 3, "thief": 4, "barbarian": 6, "fighter": 5, "monk": 5},
+		Classes:     map[string]int{"cleric": 3, "mage": 4, "paladin": 3, "ranger": 4, "bard": 3, "thief": 4, "monk": 5},
 	},
 	"heal": {
 		Name:        "heal",
@@ -45,7 +45,7 @@ var Spells = map[string]Spell{
 		Chant:       "Mystical energy build and return!",
 		Magnitude:   1,
 		Effect:      "restore",
-		Classes:     map[string]int{"bard": 14, "paladin": 13},
+		Classes:     map[string]int{"bard": 14, "cleric": 13},
 	},
 	"detraumatize": {
 		Name:        "detraumatize",
@@ -72,7 +72,7 @@ var Spells = map[string]Spell{
 		Chant:       "Breeze, be gentle no more.",
 		Magnitude:   1,
 		Effect:      "air-damage",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "barbarian": 7, "fighter": 5, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2, "monk": 3},
 	},
 	"rumble": {
 		Name:        "rumble",
@@ -81,7 +81,7 @@ var Spells = map[string]Spell{
 		Chant:       "Shaken, not stirred.",
 		Magnitude:   1,
 		Effect:      "earth-damage",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "barbarian": 7, "fighter": 5, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2, "monk": 3},
 	},
 	"burn": {
 		Name:        "burn",
@@ -90,7 +90,7 @@ var Spells = map[string]Spell{
 		Chant:       "Fire, flicker, ignite!",
 		Magnitude:   1,
 		Effect:      "fire-damage",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "barbarian": 7, "fighter": 5, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2, "monk": 3},
 	},
 	"blister": {
 		Name:        "blister",
@@ -99,7 +99,7 @@ var Spells = map[string]Spell{
 		Chant:       "Thy water rises and causes thee pain.",
 		Magnitude:   1,
 		Effect:      "water-damage",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "barbarian": 7, "fighter": 5, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2, "monk": 3},
 	},
 	"dustgust": {
 		Name:        "dustgust",
@@ -108,7 +108,7 @@ var Spells = map[string]Spell{
 		Chant:       "Arise stinging mists, strike my foe.",
 		Magnitude:   2,
 		Effect:      "air-damage",
-		Classes:     map[string]int{"cleric": 6, "mage": 5, "paladin": 7, "ranger": 7, "bard": 7, "thief": 10},
+		Classes:     map[string]int{"cleric": 6, "mage": 5, "bard": 7},
 	},
 	"stonecrush": {
 		Name:        "stonecrush",
@@ -117,7 +117,7 @@ var Spells = map[string]Spell{
 		Chant:       "The stones of earth, smite thee!",
 		Magnitude:   2,
 		Effect:      "earth-damage",
-		Classes:     map[string]int{"cleric": 6, "mage": 5, "paladin": 7, "ranger": 7, "bard": 7, "thief": 10},
+		Classes:     map[string]int{"cleric": 6, "mage": 5, "bard": 7},
 	},
 	"fireball": {
 		Name:        "fireball",
@@ -126,7 +126,7 @@ var Spells = map[string]Spell{
 		Chant:       "Fiery missile strike thy target!",
 		Magnitude:   2,
 		Effect:      "fire-damage",
-		Classes:     map[string]int{"cleric": 6, "mage": 5, "paladin": 7, "ranger": 7, "bard": 7, "thief": 10},
+		Classes:     map[string]int{"cleric": 6, "mage": 5, "bard": 7},
 	},
 	"waterbolt": {
 		Name:        "waterbolt",
@@ -135,7 +135,7 @@ var Spells = map[string]Spell{
 		Chant:       "The force of waves, crash into thee!",
 		Magnitude:   2,
 		Effect:      "water-damage",
-		Classes:     map[string]int{"cleric": 6, "mage": 5, "paladin": 7, "ranger": 7, "bard": 7, "thief": 10},
+		Classes:     map[string]int{"cleric": 6, "mage": 5, "bard": 7},
 	},
 	"shockbolt": {
 		Name:        "shockbolt",
@@ -144,7 +144,7 @@ var Spells = map[string]Spell{
 		Chant:       "Static bolt, shock my foe!",
 		Magnitude:   3,
 		Effect:      "air-damage",
-		Classes:     map[string]int{"cleric": 11, "mage": 9, "paladin": 12, "ranger": 12, "bard": 12},
+		Classes:     map[string]int{"cleric": 11, "mage": 9, "bard": 12},
 	},
 	"shatterstone": {
 		Name:        "shatterstone",
@@ -153,7 +153,7 @@ var Spells = map[string]Spell{
 		Chant:       "Stones explode and shrapnel strike!",
 		Magnitude:   3,
 		Effect:      "earth-damage",
-		Classes:     map[string]int{"cleric": 11, "mage": 9, "paladin": 12, "ranger": 12, "bard": 12},
+		Classes:     map[string]int{"cleric": 11, "mage": 9, "bard": 12},
 	},
 	"burstflame": {
 		Name:        "burstflame",
@@ -162,7 +162,7 @@ var Spells = map[string]Spell{
 		Chant:       "Flameburst, strike, burn!",
 		Magnitude:   3,
 		Effect:      "fire-damage",
-		Classes:     map[string]int{"cleric": 11, "mage": 9, "paladin": 12, "ranger": 12, "bard": 12},
+		Classes:     map[string]int{"cleric": 11, "mage": 9, "bard": 12},
 	},
 	"steamblast": {
 		Name:        "steamblast",
@@ -171,7 +171,7 @@ var Spells = map[string]Spell{
 		Chant:       "Scalding vapors parbroil thee!",
 		Magnitude:   3,
 		Effect:      "water-damage",
-		Classes:     map[string]int{"cleric": 11, "mage": 9, "paladin": 12, "ranger": 12, "bard": 12},
+		Classes:     map[string]int{"cleric": 11, "mage": 9, "bard": 12},
 	},
 	"lightning": {
 		Name:        "lightning",
@@ -351,7 +351,7 @@ var Spells = map[string]Spell{
 		Chant:       "Venom be purged from thy body.",
 		Magnitude:   1,
 		Effect:      "curepoison",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 1, "ranger": 1, "bard": 1, "thief": 1, "barbarian": 1, "fighter": 1, "monk": 1},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 1, "ranger": 1, "bard": 1, "thief": 1, "monk": 1},
 	},
 	"bless": {
 		Name:        "bless",
@@ -387,7 +387,7 @@ var Spells = map[string]Spell{
 		Chant:       "Magical veil defied, my vision clarified.",
 		Magnitude:   1,
 		Effect:      "detect-invisible",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 1, "ranger": 1, "bard": 1, "thief": 2, "barbarian": 3, "fighter": 3, "monk": 2},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 1, "ranger": 1, "bard": 1, "thief": 2, "monk": 2},
 	},
 	"teleport": {
 		Name:        "teleport",
@@ -396,7 +396,7 @@ var Spells = map[string]Spell{
 		Chant:       "Go where the winds carry thee.",
 		Magnitude:   1,
 		Effect:      "teleport",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "barbarian": 7, "fighter": 5, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "monk": 3},
 	},
 	"stun": {
 		Name:        "stun",
@@ -405,7 +405,7 @@ var Spells = map[string]Spell{
 		Chant:       "Confusion of mind, and blast of body.",
 		Magnitude:   1,
 		Effect:      "stun",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "barbarian": 7, "fighter": 5, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "paladin": 2, "ranger": 2, "bard": 2, "thief": 4, "monk": 3},
 	},
 	"word-of-recall": {
 		Description: "this spell, strictly in the realm of clerical magic, instantly transports the target to safety. to cast this spell, the cleric grips their holy symbol in one hand, while speaking the spell Chant. the cleric then need only point at the target, and they will be returned to the safest place in the nexus... the chamber of the order of the healing hand. while similar in effet to the spell, teleport, this spell functions entirely differently. when word-of-recall is cast, a manifestation of the cleric's deity (a ray of light for aalynor, an aura of black fire for tilnar, etc.) surrounds the target and safely transport the target, along with all carried equipment to the destination",

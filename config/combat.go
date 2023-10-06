@@ -31,6 +31,8 @@ var RoomEncNoDoubles = 6
 var RoomEncNoTriples = 5
 var LevelCap = 14
 
+var BaseDevicePiety = 8.0
+
 var IntMajorPenalty = 7
 var PieMajorPenalty = 5
 

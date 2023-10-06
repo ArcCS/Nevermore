@@ -236,7 +236,7 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 			damage = int((float64(caller.Pie.Current) * config.PieHealMod) + float64(utils.Roll(10, 1, 0))*(1+float64(divinityLevel)*.01))
 			damage = caller.CalcHealPenalty(damage)
 		} else {
-			damage = int((float64(5) * config.PieHealMod) + float64(utils.Roll(10, 1, 0)))
+			damage = int((config.BaseDevicePiety * config.PieHealMod) + float64(utils.Roll(10, 1, 0)))
 		}
 		switch target := target.(type) {
 		case *Character:
@@ -278,7 +278,7 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 			damage = int((float64(caller.Pie.Current) * config.PieHealMod) + float64(utils.Roll(10, 1, 0))*(1+float64(divinityLevel)*.01))
 			damage = caller.CalcHealPenalty(damage)
 		} else {
-			damage = int((float64(5) * config.PieHealMod) + float64(utils.Roll(10, 1, 0)))
+			damage = int((config.BaseDevicePiety * config.PieHealMod) + float64(utils.Roll(10, 1, 0)))
 		}
 		switch target := target.(type) {
 		case *Character:
@@ -325,7 +325,7 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 			damage = int((float64(damage) + (float64(caller.Pie.Current) * config.PieHealMod) + float64(utils.Roll(10, 1, 0))) * (1 + float64(divinityLevel)*.01))
 			damage = caller.CalcHealPenalty(damage)
 		} else {
-			damage += int((float64(5) * config.PieHealMod) + float64(utils.Roll(10, 1, 0)))
+			damage += int((config.BaseDevicePiety * config.PieHealMod) + float64(utils.Roll(10, 1, 0)))
 		}
 		switch target := target.(type) {
 		case *Character:

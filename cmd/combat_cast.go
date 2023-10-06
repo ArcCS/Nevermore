@@ -12,7 +12,7 @@ import (
 func init() {
 	addHandler(cast{},
 		"Usage:  cast spell_name target # \n\n Attempts to cast a known spell from your spellbook",
-		permissions.Player,
+		permissions.Mage|permissions.Bard|permissions.Cleric|permissions.Ranger|permissions.Paladin|permissions.Thief|permissions.Monk|permissions.Gamemaster|permissions.Dungeonmaster|permissions.Builder,
 		"cast", "ca", "c")
 }
 
@@ -34,7 +34,7 @@ func (cast) process(s *state) {
 		return
 	}
 
-	ready, msg := s.actor.TimerReady("combat")
+	ready, msg := s.actor.TimerReady("cast")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
 		return
@@ -68,6 +68,7 @@ func (cast) process(s *state) {
 			s.msg.Actor.SendBad("You attempt to cast the spell, but it fizzles out.")
 			s.actor.Mana.Current -= cost
 			s.actor.SetTimer("combat", 8)
+			s.actor.SetTimer("cast", 8)
 			return
 		}
 	}
@@ -108,7 +109,10 @@ func (cast) process(s *state) {
 			msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
 			s.actor.FlagOff("casting", "cast")
 			s.actor.Mana.Subtract(cost)
-			s.actor.SetTimer("combat", 8)
+			if (s.actor.Class == 5 || s.actor.Class == 4) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+				s.actor.SetTimer("combat", 8)
+			}
+			s.actor.SetTimer("cast", 8)
 			// TODO: At level 15 wizards can change  the chant to a different action to invoke spells,
 			// bards simply stop chanting and can invoke spells at will.
 			if (s.actor.Class == 7 || s.actor.Class == 4) && s.actor.Tier <= 15 {
@@ -166,7 +170,10 @@ func (cast) process(s *state) {
 				msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
 				s.actor.FlagOff("casting", "cast")
 				s.actor.Mana.Subtract(cost)
-				s.actor.SetTimer("combat", config.CombatCooldown)
+				if (s.actor.Class == 5 || s.actor.Class == 4) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+					s.actor.SetTimer("combat", config.CombatCooldown)
+				}
+				s.actor.SetTimer("cast", config.CombatCooldown)
 				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 				s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatChar.Name)
@@ -200,7 +207,10 @@ func (cast) process(s *state) {
 			msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
 			s.actor.FlagOff("casting", "cast")
 			s.actor.Mana.Subtract(cost)
-			s.actor.SetTimer("combat", config.CombatCooldown)
+			if (s.actor.Class == 5 || s.actor.Class == 4) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+				s.actor.SetTimer("combat", config.CombatCooldown)
+			}
+			s.actor.SetTimer("cast", config.CombatCooldown)
 			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 			s.msg.Participant.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 			s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
@@ -228,7 +238,10 @@ func (cast) process(s *state) {
 		s.actor.FlagOn("casting", "cast")
 		msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 		s.actor.FlagOff("casting", "cast")
-		s.actor.SetTimer("combat", 8)
+		if (s.actor.Class == 5 || s.actor.Class == 4) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+			s.actor.SetTimer("combat", config.CombatCooldown)
+		}
+		s.actor.SetTimer("cast", config.CombatCooldown)
 		s.actor.Mana.Subtract(cost)
 		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
