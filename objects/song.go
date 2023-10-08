@@ -82,7 +82,7 @@ func DraensTale(target interface{}, singer *Character) {
 func RunAway(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Mob:
-		target.ApplyEffect(singer.Name+"_run_away", "16", 0, 0,
+		target.ApplyEffect(singer.Name+"_run_away_song", "16", 0, 0,
 			func(triggers int) {
 				target.FlagOn("run_away", singer.Name+"_run_away")
 			},
@@ -95,7 +95,7 @@ func RunAway(target interface{}, singer *Character) {
 func SweetComfort(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Mob:
-		target.ApplyEffect(singer.Name+"_sweet_comfort", "16", 0, 0,
+		target.ApplyEffect(singer.Name+"_sweet_comfort_song", "16", 0, 0,
 			func(triggers int) {
 				target.FlagOn("sweet_comfort", singer.Name+"_sweet_comfort")
 			},
@@ -108,7 +108,7 @@ func SweetComfort(target interface{}, singer *Character) {
 func CuriousCanticle(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Mob:
-		target.ApplyEffect(singer.Name+"_curious_canticle", "16", 0, 0,
+		target.ApplyEffect(singer.Name+"_curious_canticle_song", "16", 0, 0,
 			func(triggers int) {
 				target.FlagOn("curious_canticle", singer.Name+"_curious_canticle")
 			},
@@ -130,7 +130,7 @@ func CelebrationNight(target interface{}, singer *Character) {
 func ChampionsAnthem(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Character:
-		target.ApplyEffect(singer.Name+"_champions_anthem", "16", 0, 0,
+		target.ApplyEffect(singer.Name+"_champions_anthem_song", "16", 0, 0,
 			func(triggers int) {
 				target.SetModifier("base_damage", singer.GetStat("pie")*config.ScalePerPiety)
 			},
