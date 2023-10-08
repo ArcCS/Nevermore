@@ -83,6 +83,15 @@ func (cast) process(s *state) {
 		}
 	}
 
+	if (s.actor.Class == 5 || s.actor.Class == 4) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+		// Make sure we check that the combat timer is ready as well if this spell is offensive.
+		ready, msg := s.actor.TimerReady("combat")
+		if !ready {
+			s.msg.Actor.SendBad(msg)
+			return
+		}
+	}
+
 	if s.actor.Mana.Current < cost && s.actor.Class != 100 {
 		s.msg.Actor.SendBad("You do not have enough mana to cast this spell. ")
 		return
