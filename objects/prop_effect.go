@@ -17,13 +17,13 @@ type Effect struct {
 	magnitude   int
 }
 
-func (s *Effect) AlterTime(duration float64) {
-	s.length = time.Duration(duration * float64(time.Second))
+func (e *Effect) AlterTime(duration float64) {
+	e.length = time.Duration(duration * float64(time.Second))
 }
 
-func (s *Effect) ExtendDuration(duration float64) {
-	calc := s.length - (s.length - (time.Now().Sub(s.startTime)))
-	s.length = time.Duration(duration)*time.Second - time.Duration(calc.Seconds())
+func (e *Effect) ExtendDuration(duration float64) {
+	calc := e.length - (e.length - (time.Now().Sub(e.startTime)))
+	e.length = time.Duration(duration)*time.Second - time.Duration(calc.Seconds())
 }
 
 func NewEffect(length string, interval int, magnitude int, effect func(triggers int), effectOff func()) *Effect {
@@ -39,33 +39,36 @@ func NewEffect(length string, interval int, magnitude int, effect func(triggers 
 		magnitude}
 }
 
-func (s *Effect) RunEffect() {
-	s.effect(s.triggers)
-	s.triggers += 1
-	s.lastTrigger = time.Now()
+func (e *Effect) RunEffect() {
+	e.effect(e.triggers)
+	e.triggers += 1
+	e.lastTrigger = time.Now()
 }
 
-func (s *Effect) Reset(t time.Duration) {
-	s.startTime = time.Now()
-	s.length = t
+func (e *Effect) Reset(t string) {
+	lengthTime, _ := strconv.Atoi(t)
+	parseLength := time.Duration(lengthTime) * time.Second
+	e.startTime = time.Now()
+	e.length = parseLength
+	e.triggers = 0
 }
 
-func (s *Effect) TimeRemaining() float64 {
-	calc := s.length - (time.Now().Sub(s.startTime))
+func (e *Effect) TimeRemaining() float64 {
+	calc := e.length - (time.Now().Sub(e.startTime))
 	return calc.Seconds()
 }
 
-func (s *Effect) LastTriggerInterval() int {
-	lTrigger := time.Now().Sub(s.lastTrigger)
-	calc := s.interval - int(lTrigger.Seconds())
+func (e *Effect) LastTriggerInterval() int {
+	lTrigger := time.Now().Sub(e.lastTrigger)
+	calc := e.interval - int(lTrigger.Seconds())
 	return calc
 }
 
 // Function to return only the modifiable properties
-func (s *Effect) ReturnEffectProps() map[string]interface{} {
+func (e *Effect) ReturnEffectProps() map[string]interface{} {
 	serialList := map[string]interface{}{
-		"timeRemaining": s.TimeRemaining(),
-		"magnitude":     s.magnitude,
+		"timeRemaining": e.TimeRemaining(),
+		"magnitude":     e.magnitude,
 	}
 	return serialList
 }

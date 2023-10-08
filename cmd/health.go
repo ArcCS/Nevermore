@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/text"
 	"log"
 	"text/template"
 )
@@ -23,7 +24,9 @@ func (health) process(s *state) {
 		return
 	}
 
-	char_template := "You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.\n"
+	char_template := "You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.\n" +
+		"{{if .Poisoned}}" + text.Red + "You have poison coursing through your veins.\n{{end}}" + text.Good +
+		"{{if .Diseased}}" + text.Brown + "You are suffering from affliction.\n{{end}}" + text.Good
 
 	data := struct {
 		Stamina     int
@@ -32,6 +35,8 @@ func (health) process(s *state) {
 		Max_health  int
 		Mana        int
 		Max_mana    int
+		Poisoned    bool
+		Diseased    bool
 	}{
 		s.actor.Stam.Current,
 		s.actor.Stam.Max,
@@ -39,6 +44,8 @@ func (health) process(s *state) {
 		s.actor.Vit.Max,
 		s.actor.Mana.Current,
 		s.actor.Mana.Max,
+		s.actor.CheckFlag("poisoned"),
+		s.actor.CheckFlag("disease"),
 	}
 
 	tmpl, _ := template.New("char_info").Parse(char_template)

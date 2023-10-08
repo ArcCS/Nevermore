@@ -743,7 +743,8 @@ func (c *Character) Look() (buildText string) {
 
 func (c *Character) ApplyEffect(effectName string, length string, interval int, magnitude int, effect func(triggers int), effectOff func()) {
 	if effectInstance, ok := c.Effects[effectName]; ok {
-		effectInstance.effectOff()
+		effectInstance.Reset(length)
+		return
 	}
 	c.Effects[effectName] = NewEffect(length, interval, magnitude, effect, effectOff)
 	c.Effects[effectName].RunEffect()
@@ -838,39 +839,47 @@ func (c *Character) RunHook(hook string) {
 }
 
 func (c *Character) AdvanceSkillExp(amount int) {
-	if c.Equipment.Main != nil {
-		c.Skills[c.Equipment.Main.ItemType].Add(amount)
-	} else if c.Class == 8 {
-		c.Skills[5].Add(amount)
+	if c.Tier < config.LevelCap {
+		if c.Equipment.Main != nil {
+			c.Skills[c.Equipment.Main.ItemType].Add(amount)
+		} else if c.Class == 8 {
+			c.Skills[5].Add(amount)
+		}
 	}
 }
 
 func (c *Character) AdvanceElementalExp(amount int, element string, class int) {
-	if class == 4 {
-		switch element {
-		case "fire":
-			c.Skills[6].Add(amount)
-		case "air":
-			c.Skills[7].Add(amount)
-		case "earth":
-			c.Skills[8].Add(amount)
-		case "water":
-			c.Skills[9].Add(amount)
+	if c.Tier < config.LevelCap {
+		if class == 4 {
+			switch element {
+			case "fire":
+				c.Skills[6].Add(amount)
+			case "air":
+				c.Skills[7].Add(amount)
+			case "earth":
+				c.Skills[8].Add(amount)
+			case "water":
+				c.Skills[9].Add(amount)
+			}
 		}
+		return
 	}
-	return
 }
 
 func (c *Character) AdvanceDivinity(amount int, class int) {
-	if class == 5 || class == 6 {
-		c.Skills[10].Add(amount)
+	if c.Tier < config.LevelCap {
+		if class == 5 || class == 6 {
+			c.Skills[10].Add(amount)
+		}
+		return
 	}
-	return
 }
 
 func (c *Character) AdvanceStealthExp(amount int) {
-	c.Skills[11].Add(amount)
-	return
+	if c.Tier < config.LevelCap {
+		c.Skills[11].Add(amount)
+		return
+	}
 }
 
 // ReceiveDamage Return stam and vital damage

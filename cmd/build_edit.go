@@ -232,7 +232,7 @@ func (edit) process(s *state) {
 		if mob != nil {
 			if strings.ToLower(s.input[1]) == "toggle" {
 				for _, flag := range s.input[3:] {
-					if mob.ToggleFlag(strings.ToLower(flag)) {
+					if mob.EditToggleFlag(strings.ToLower(flag)) {
 						s.msg.Actor.SendGood("Toggled " + flag)
 						if flag == "permanent" {
 							log.Println("Executing Save")

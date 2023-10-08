@@ -75,12 +75,12 @@ func berserk(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("berserk", "60", 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("berserk", "berserk", text.Red+"The red rage grips you!!!\n")
+				target.FlagOnAndMsg("berserk", "berserk", text.Red+"The red rage grips you!!!\n")
 				target.SetModifier("str", 5)
 				target.SetModifier("base_damage", target.GetStat("str")*config.CombatModifiers["berserk"])
 			},
 			func() {
-				target.ToggleFlagAndMsg("berserk", "berserk", text.Cyan+"The tension releases and your rage fades...\n")
+				target.FlagOffAndMsg("berserk", "berserk", text.Cyan+"The tension releases and your rage fades...\n")
 				target.SetModifier("base_damage", -target.GetStat("str")*config.CombatModifiers["berserk"])
 				target.SetModifier("str", -5)
 			})
@@ -194,11 +194,11 @@ func haste(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("haste", "60", 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("haste", "haste", text.Info+"Your muscles tighten and your reflexes hasten!!!\n")
+				target.FlagOnAndMsg("haste", "haste", text.Info+"Your muscles tighten and your reflexes hasten!!!\n")
 				target.SetModifier("dex", 5)
 			},
 			func() {
-				target.ToggleFlagAndMsg("haste", "haste", text.Cyan+"Your reflexes return to normal.\n")
+				target.FlagOffAndMsg("haste", "haste", text.Cyan+"Your reflexes return to normal.\n")
 				target.SetModifier("dex", -5)
 			})
 		return ""
@@ -213,11 +213,11 @@ func pray(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("pray", "300", 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("pray", "pray", text.Red+"Your faith fills your being.\n")
+				target.FlagOnAndMsg("pray", "pray", text.Red+"Your faith fills your being.\n")
 				target.SetModifier("pie", 5)
 			},
 			func() {
-				target.ToggleFlagAndMsg("pray", "pray", text.Cyan+"Your piousness returns to normal.\n")
+				target.FlagOffAndMsg("pray", "pray", text.Cyan+"Your piousness returns to normal.\n")
 				target.SetModifier("pie", -5)
 			})
 		return ""
@@ -705,10 +705,10 @@ func light(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("light", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("light", "light_spell", text.Info+"A small orb of light flits next to you.\n")
+				target.FlagOnAndMsg("light", "light_spell", text.Info+"A small orb of light flits next to you.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("light", "light_spell", text.Cyan+"The orb of light fades away\n")
+				target.FlagOffAndMsg("light", "light_spell", text.Cyan+"The orb of light fades away\n")
 			})
 		return ""
 	case *Mob:
@@ -740,10 +740,10 @@ func bless(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("bless", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("bless", "bless_spell", text.Info+"The devotion to Gods fills your soul.\n")
+				target.FlagOnAndMsg("bless", "bless_spell", text.Info+"The devotion to Gods fills your soul.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("bless", "bless_spell", text.Cyan+"The blessing fades from you.\n")
+				target.FlagOffAndMsg("bless", "bless_spell", text.Cyan+"The blessing fades from you.\n")
 			})
 		return ""
 	case *Mob:
@@ -764,22 +764,22 @@ func protection(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("protection", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("protection", "protection_spell", text.Info+"Your aura flows from you, protecting you. \n")
+				target.FlagOnAndMsg("protection", "protection_spell", text.Info+"Your aura flows from you, protecting you. \n")
 				target.SetModifier("armor", 25)
 			},
 			func() {
-				target.ToggleFlagAndMsg("protection", "protection_spell", text.Cyan+"Your aura returns to normal.\n")
+				target.FlagOffAndMsg("protection", "protection_spell", text.Cyan+"Your aura returns to normal.\n")
 				target.SetModifier("armor", -25)
 			})
 		return ""
 	case *Mob:
 		target.ApplyEffect("protection", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("protection")
+				target.FlagOn("protection", "protection_spell")
 				target.Armor += 25
 			},
 			func() {
-				target.ToggleFlag("protection")
+				target.FlagOff("protection", "protection_spell")
 				target.Armor -= 25
 			})
 		return ""
@@ -797,10 +797,10 @@ func invisibility(caller interface{}, target interface{}, magnitude int) string 
 	case *Character:
 		target.ApplyEffect("invisibility", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("invisibility", "invisibility_spell", text.Info+"Light flows around you. \n")
+				target.FlagOnAndMsg("invisibility", "invisibility_spell", text.Info+"Light flows around you. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("invisibility", "invisibility_spell", text.Cyan+"The cloak falls and you become visible.\n")
+				target.FlagOffAndMsg("invisibility", "invisibility_spell", text.Cyan+"The cloak falls and you become visible.\n")
 			})
 		return ""
 	case *Mob:
@@ -819,10 +819,10 @@ func detectInvisible(caller interface{}, target interface{}, magnitude int) stri
 	case *Character:
 		target.ApplyEffect("detect-invisible", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("detect-invisible", "detectinvisible_spell", text.Info+"Your senses are magnified, detecting the unseen.\n")
+				target.FlagOnAndMsg("detect-invisible", "detectinvisible_spell", text.Info+"Your senses are magnified, detecting the unseen.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("detect-invisible", "detectinvisible_spell", text.Cyan+"Your invisibility detection fades away.\n")
+				target.FlagOffAndMsg("detect-invisible", "detectinvisible_spell", text.Cyan+"Your invisibility detection fades away.\n")
 			})
 		return ""
 	case *Mob:
@@ -968,10 +968,10 @@ func levitate(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("levitate", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("levitate", "levitate_spell", text.Info+"You lift off of your feet. \n")
+				target.FlagOnAndMsg("levitate", "levitate_spell", text.Info+"You lift off of your feet. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("levitate", "levitate_spell", text.Cyan+"Your feet touch the ground as the spell fades. \n")
+				target.FlagOffAndMsg("levitate", "levitate_spell", text.Cyan+"Your feet touch the ground as the spell fades. \n")
 			})
 		return ""
 	case *Mob:
@@ -992,19 +992,19 @@ func resistfire(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("resist-fire", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("resist-fire", "resistfire_spell", text.Info+"Magical shielding springs up around you protecting you from fire. \n")
+				target.FlagOnAndMsg("resist-fire", "resistfire_spell", text.Info+"Magical shielding springs up around you protecting you from fire. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resist-fire", "resistfire_spell", text.Cyan+"The magical cloak protecting you from fire fades. \n")
+				target.FlagOffAndMsg("resist-fire", "resistfire_spell", text.Cyan+"The magical cloak protecting you from fire fades. \n")
 			})
 		return ""
 	case *Mob:
 		target.ApplyEffect("resist-fire", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("resist-fire")
+				target.FlagOn("resist-fire", "resistfire_spell")
 			},
 			func() {
-				target.ToggleFlag("resist-fire")
+				target.FlagOff("resist-fire", "resistfire_spell")
 			})
 	}
 	return ""
@@ -1022,19 +1022,19 @@ func resistmagic(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("resist-magic", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("resist-magic", "resistmagic_spell", text.Info+"Magical shielding springs up around you protecting you from magic. \n")
+				target.FlagOnAndMsg("resist-magic", "resistmagic_spell", text.Info+"Magical shielding springs up around you protecting you from magic. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resist-magic", "resistmagic_spell", text.Cyan+"The magical cloak protecting you from magic fades. \n")
+				target.FlagOffAndMsg("resist-magic", "resistmagic_spell", text.Cyan+"The magical cloak protecting you from magic fades. \n")
 			})
 		return ""
 	case *Mob:
 		target.ApplyEffect("resist-magic", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("resist-magic")
+				target.FlagOn("resist-magic", "resistmagic_spell")
 			},
 			func() {
-				target.ToggleFlag("resist-magic")
+				target.FlagOff("resist-magic", "resistmagic_spell")
 			})
 		return ""
 	}
@@ -1053,19 +1053,19 @@ func resistair(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("resist-air", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("resist-air", "resistair_spell", text.Info+"Magical shielding springs up around you protecting you from air. \n")
+				target.FlagOnAndMsg("resist-air", "resistair_spell", text.Info+"Magical shielding springs up around you protecting you from air. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resist-air", "resistair_spell", text.Cyan+"The magical cloak protecting you from air fades. \n")
+				target.FlagOffAndMsg("resist-air", "resistair_spell", text.Cyan+"The magical cloak protecting you from air fades. \n")
 			})
 		return ""
 	case *Mob:
 		target.ApplyEffect("resist-air", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("resist-air")
+				target.FlagOn("resist-air", "resistair_spell")
 			},
 			func() {
-				target.ToggleFlag("resist-air")
+				target.FlagOff("resist-air", "resistair_spell")
 			})
 		return ""
 	}
@@ -1084,19 +1084,19 @@ func resistwater(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("resist-water", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("resist-water", "resistwater_spell", text.Info+"Magical shielding springs up around you protecting you from water. \n")
+				target.FlagOnAndMsg("resist-water", "resistwater_spell", text.Info+"Magical shielding springs up around you protecting you from water. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resist-water", "resistwater_spell", text.Cyan+"The magical cloak protecting you from water fades. \n")
+				target.FlagOffAndMsg("resist-water", "resistwater_spell", text.Cyan+"The magical cloak protecting you from water fades. \n")
 			})
 		return ""
 	case *Mob:
 		target.ApplyEffect("resist-water", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("resist-water")
+				target.FlagOn("resist-water", "resistwater_spell")
 			},
 			func() {
-				target.ToggleFlag("resist-water")
+				target.FlagOff("resist-water", "resistwater_spell")
 			})
 		return ""
 	}
@@ -1115,19 +1115,19 @@ func resistearth(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("resist-earth", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("resist-earth", "resistearth_spell", text.Info+"Magical shielding springs up around you protecting you from earth. \n")
+				target.FlagOnAndMsg("resist-earth", "resistearth_spell", text.Info+"Magical shielding springs up around you protecting you from earth. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resist-earth", "resistearth_spell", text.Cyan+"The magical cloak protecting you from earth fades. \n")
+				target.FlagOffAndMsg("resist-earth", "resistearth_spell", text.Cyan+"The magical cloak protecting you from earth fades. \n")
 			})
 		return ""
 	case *Mob:
 		target.ApplyEffect("resist-water", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("resist-earth")
+				target.FlagOn("resist-earth", "resistearth_spell")
 			},
 			func() {
-				target.ToggleFlag("resist-earth")
+				target.FlagOff("resist-earth", "resistearth_spell")
 			})
 		return ""
 	}
@@ -1176,19 +1176,19 @@ func inertialbarrier(caller interface{}, target interface{}, magnitude int) stri
 	case *Character:
 		target.ApplyEffect("inertial-barrier", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("inertial-barrier", "inertialbarrier_spell", text.Info+"A dampening barrier forms around you.\n")
+				target.FlagOnAndMsg("inertial-barrier", "inertialbarrier_spell", text.Info+"A dampening barrier forms around you.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("inertial-barrier", "inertialbarrier_spell", text.Cyan+"The dampening barrier falls away. \n")
+				target.FlagOffAndMsg("inertial-barrier", "inertialbarrier_spell", text.Cyan+"The dampening barrier falls away. \n")
 			})
 		return ""
 	case *Mob:
 		target.ApplyEffect("inertial-barrier", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("inertial-barrier")
+				target.FlagOn("inertial-barrier", "inertialbarrier_spell")
 			},
 			func() {
-				target.ToggleFlag("inertial-barrier")
+				target.FlagOff("inertial-barrier", "inertialbarrier_spell")
 			})
 		return ""
 	}
@@ -1205,10 +1205,10 @@ func surge(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("surge", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("surge", "surge_spell", text.Info+"You feel the power flow into you.\n")
+				target.FlagOnAndMsg("surge", "surge_spell", text.Info+"You feel the power flow into you.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("surge", "surge_spell", text.Cyan+"The surge of power fades from you.\n")
+				target.FlagOffAndMsg("surge", "surge_spell", text.Cyan+"The surge of power fades from you.\n")
 			})
 		return ""
 	case *Mob:
@@ -1227,10 +1227,10 @@ func resistpoison(caller interface{}, target interface{}, magnitude int) string 
 	case *Character:
 		target.ApplyEffect("resist-poison", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("resist-poison", "resistpoison_spell", text.Info+"Your blood thickens, protecting you from poison. \n")
+				target.FlagOnAndMsg("resist-poison", "resistpoison_spell", text.Info+"Your blood thickens, protecting you from poison. \n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resist-poison", "resistpoison_spell", text.Cyan+"Your blood returns to normal, your magical protection from poison fading. \n")
+				target.FlagOffAndMsg("resist-poison", "resistpoison_spell", text.Cyan+"Your blood returns to normal, your magical protection from poison fading. \n")
 			})
 		return ""
 	case *Mob:
@@ -1249,10 +1249,10 @@ func resilientaura(caller interface{}, target interface{}, magnitude int) string
 	case *Character:
 		target.ApplyEffect("resilient-aura", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("resilient-aura", "resilientaura_spell", text.Info+"A magical shield forms around your gear protecting it from damage.\n")
+				target.FlagOnAndMsg("resilient-aura", "resilientaura_spell", text.Info+"A magical shield forms around your gear protecting it from damage.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resilient-aura", "resilientaura_spell", text.Cyan+"The magical shield around your equipment fades. \n")
+				target.FlagOffAndMsg("resilient-aura", "resilientaura_spell", text.Cyan+"The magical shield around your equipment fades. \n")
 			})
 		return ""
 	case *Mob:
@@ -1271,10 +1271,10 @@ func resistdisease(caller interface{}, target interface{}, magnitude int) string
 	case *Character:
 		target.ApplyEffect("resist-disease", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("resist-disease", "resistdisease_spell", text.Info+"Your blood heats, protecting you from disease.\n")
+				target.FlagOnAndMsg("resist-disease", "resistdisease_spell", text.Info+"Your blood heats, protecting you from disease.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resist-disease", "resistdisease_spell", text.Cyan+"Your magical fever fades, removing your resistance to disease.\n")
+				target.FlagOffAndMsg("resist-disease", "resistdisease_spell", text.Cyan+"Your magical fever fades, removing your resistance to disease.\n")
 			})
 		return ""
 	case *Mob:
@@ -1295,19 +1295,19 @@ func reflection(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("reflection", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("reflection", "reflect_spell", text.Info+"A mirrored shell forms around you and fades from view.\n")
+				target.FlagOnAndMsg("reflection", "reflect_spell", text.Info+"A mirrored shell forms around you and fades from view.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("reflection", "reflect_spell", text.Cyan+"The mirrored shell shatters, and falls away.\n")
+				target.FlagOffAndMsg("reflection", "reflect_spell", text.Cyan+"The mirrored shell shatters, and falls away.\n")
 			})
 		return ""
 	case *Mob:
 		target.ApplyEffect("reflection", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("reflection")
+				target.FlagOn("reflection", "reflect_spell")
 			},
 			func() {
-				target.ToggleFlag("reflection")
+				target.FlagOff("reflection", "reflect_spell")
 			})
 		return ""
 	}
@@ -1324,10 +1324,10 @@ func dodge(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("dodge", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("dodge", "dodge_spell", text.Info+"Your reflexes quicken.\n")
+				target.FlagOnAndMsg("dodge", "dodge_spell", text.Info+"Your reflexes quicken.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("dodge", "dodge_spell", text.Cyan+"Your magically quickened reflexes return to normal.\n")
+				target.FlagOffAndMsg("dodge", "dodge_spell", text.Cyan+"Your magically quickened reflexes return to normal.\n")
 			})
 		return ""
 	case *Mob:
@@ -1346,10 +1346,10 @@ func resistacid(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		target.ApplyEffect("resist-acid", strconv.Itoa(duration), 0, 0,
 			func(triggers int) {
-				target.ToggleFlagAndMsg("resist-acid", "resistacid_spell", text.Info+"A thick mucous coats your skin protecting you from acid damage.\n")
+				target.FlagOnAndMsg("resist-acid", "resistacid_spell", text.Info+"A thick mucous coats your skin protecting you from acid damage.\n")
 			},
 			func() {
-				target.ToggleFlagAndMsg("resist-acid", "resistacid_spell", text.Cyan+"The mucous falls away.\n")
+				target.FlagOffAndMsg("resist-acid", "resistacid_spell", text.Cyan+"The mucous falls away.\n")
 			})
 		return ""
 	case *Mob:

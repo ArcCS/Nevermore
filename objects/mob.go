@@ -19,12 +19,13 @@ import (
 // Mob implements a control object for mobs interacting with players and each other
 type Mob struct {
 	Object
-	MobId     int
-	Inventory *ItemInventory
-	ItemList  map[int]int
-	Flags     map[string]bool
-	Effects   map[string]*Effect
-	Hooks     map[string]map[string]*Hook
+	MobId         int
+	Inventory     *ItemInventory
+	ItemList      map[int]int
+	Flags         map[string]bool
+	FlagProviders map[string][]string
+	Effects       map[string]*Effect
+	Hooks         map[string]map[string]*Hook
 
 	// ParentId is the room id for the room
 	ParentId   int
@@ -92,6 +93,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		NewItemInventory(),
 		make(map[int]int),
 		make(map[string]bool),
+		make(map[string][]string),
 		make(map[string]*Effect),
 		map[string]map[string]*Hook{
 			"act":      make(map[string]*Hook),
@@ -222,7 +224,10 @@ func (m *Mob) CheckThreatTable(charName string) bool {
 
 // The mob brain is this ticker
 func (m *Mob) Tick() {
-	// Am I actually in the room?
+	// It appears sometimes that mobs get a second wind round if they try to lock at the sametime they die, lets prevent that.
+	if m.Stam.Current <= 0 {
+		return
+	}
 	if m.MobStunned > 0 {
 		m.MobStunned -= 8
 	} else {
@@ -844,10 +849,8 @@ func (m *Mob) AddThreatDamage(damage int, attacker *Character) {
 
 func (m *Mob) ApplyEffect(effectName string, length string, interval int, magnitude int, effect func(triggers int), effectOff func()) {
 	if effectInstance, ok := m.Effects[effectName]; ok {
-		durExtend, _ := strconv.ParseFloat(length, 64)
-		effectInstance.ExtendDuration(durExtend)
+		effectInstance.Reset(length)
 		return
-		//m.Effects[effectName].effectOff()
 	}
 	m.Effects[effectName] = NewEffect(length, interval, magnitude, effect, effectOff)
 	m.Effects[effectName].RunEffect()
@@ -900,7 +903,7 @@ func (m *Mob) GetInt() int {
 	return m.Int.Current
 }
 
-func (m *Mob) ToggleFlag(flagName string) bool {
+func (m *Mob) EditToggleFlag(flagName string) bool {
 	if val, exists := m.Flags[flagName]; exists {
 		m.Flags[flagName] = !val
 		return true
@@ -909,13 +912,64 @@ func (m *Mob) ToggleFlag(flagName string) bool {
 	}
 }
 
-func (m *Mob) ToggleFlagAndMsg(flagName string, msg string) {
-	if val, exists := m.Flags[flagName]; exists {
-		m.Flags[flagName] = !val
+func (m *Mob) ToggleFlag(flagName string, provider string) {
+
+	if _, exists := m.Flags[flagName]; exists {
+		if m.Flags[flagName] == true && utils.StringIn(provider, m.FlagProviders[flagName]) && len(m.FlagProviders[flagName]) > 1 {
+			m.FlagProviders[flagName][utils.IndexOf(provider, m.FlagProviders[flagName])] = m.FlagProviders[flagName][len(m.FlagProviders[flagName])-1] // Copy last element to index i.
+			m.FlagProviders[flagName][len(m.FlagProviders[flagName])-1] = ""                                                                            // Erase last element (write zero value).
+			m.FlagProviders[flagName] = m.FlagProviders[flagName][:len(m.FlagProviders[flagName])-1]                                                    // Truncate slice.
+		} else if m.Flags[flagName] == true && !utils.StringIn(provider, m.FlagProviders[flagName]) && len(m.FlagProviders[flagName]) >= 1 {
+			m.FlagProviders[flagName] = append(m.FlagProviders[flagName], provider)
+		} else if m.Flags[flagName] == true && len(m.FlagProviders[flagName]) == 1 {
+			m.Flags[flagName] = false
+			m.FlagProviders[flagName] = []string{}
+		} else if m.Flags[flagName] == false && provider == "" {
+			m.Flags[flagName] = true
+		} else if m.Flags[flagName] == true && provider == "" {
+			m.Flags[flagName] = false
+			m.FlagProviders[flagName] = []string{}
+		} else if m.Flags[flagName] == false && provider != "" {
+			m.Flags[flagName] = true
+			m.FlagProviders[flagName] = []string{provider}
+		}
 	} else {
 		m.Flags[flagName] = true
+		m.FlagProviders[flagName] = []string{provider}
 	}
+}
+
+func (m *Mob) ToggleFlagAndMsg(flagName string, provider string, msg string) {
+	m.ToggleFlag(flagName, provider)
 	log.Println(m.Name, " informed: ", msg)
+}
+
+func (m *Mob) FlagOn(flagName string, provider string) {
+
+	if _, exists := m.Flags[flagName]; exists {
+		if m.Flags[flagName] == true && !utils.StringIn(provider, m.FlagProviders[flagName]) && len(m.FlagProviders[flagName]) >= 1 {
+			m.FlagProviders[flagName] = append(m.FlagProviders[flagName], provider)
+		} else if m.Flags[flagName] == false {
+			m.Flags[flagName] = true
+			m.FlagProviders[flagName] = []string{provider}
+		}
+	} else {
+		m.Flags[flagName] = true
+		m.FlagProviders[flagName] = []string{provider}
+	}
+}
+
+func (m *Mob) FlagOff(flagName string, provider string) {
+	if _, exists := m.Flags[flagName]; exists {
+		if m.Flags[flagName] == true && utils.StringIn(provider, m.FlagProviders[flagName]) && len(m.FlagProviders[flagName]) > 1 {
+			m.FlagProviders[flagName][utils.IndexOf(provider, m.FlagProviders[flagName])] = m.FlagProviders[flagName][len(m.FlagProviders[flagName])-1] // Copy last element to index i.
+			m.FlagProviders[flagName][len(m.FlagProviders[flagName])-1] = ""                                                                            // Erase last element (write zero value).
+			m.FlagProviders[flagName] = m.FlagProviders[flagName][:len(m.FlagProviders[flagName])-1]                                                    // Truncate slice.
+		} else if m.Flags[flagName] == true && len(m.FlagProviders[flagName]) == 1 {
+			m.Flags[flagName] = false
+			m.FlagProviders[flagName] = []string{}
+		}
+	}
 }
 
 func (m *Mob) CheckFlag(flagName string) bool {

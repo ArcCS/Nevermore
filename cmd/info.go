@@ -55,7 +55,7 @@ func (information) process(s *state) {
 		showHeals = true
 		heals = s.actor.ClassProps["heals"]
 	}
-	if (s.actor.Class == 7 && s.actor.Tier >= 14) || (s.actor.Class == 6 && s.actor.Tier >= 13) {
+	if (s.actor.Class == 5 && s.actor.Tier >= 14) || (s.actor.Class == 7 && s.actor.Tier >= 13) {
 		showRestores = true
 		restores = s.actor.ClassProps["restores"]
 	}

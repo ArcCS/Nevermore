@@ -218,7 +218,11 @@ func (cast) process(s *state) {
 			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatChar.Name)
 			s.msg.Participant.SendInfo(s.actor.Name + " cast a " + spellInstance.Name + " spell on you")
 			if strings.Contains(msg, "$CRIPT") {
-				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+				if whatChar == s.actor {
+					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+				} else {
+					go Script(whatChar, strings.Replace(msg, "$CRIPT ", "", 1))
+				}
 			} else if msg != "" {
 				s.msg.Participant.Send(msg)
 			}

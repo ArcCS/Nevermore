@@ -84,10 +84,10 @@ func RunAway(target interface{}, singer *Character) {
 	case *Mob:
 		target.ApplyEffect(singer.Name+"_run_away", "16", 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("run_away")
+				target.FlagOn("run_away", singer.Name+"_run_away")
 			},
 			func() {
-				target.ToggleFlag("run_away")
+				target.FlagOff("run_away", singer.Name+"_run_away")
 			})
 	}
 }
@@ -97,10 +97,10 @@ func SweetComfort(target interface{}, singer *Character) {
 	case *Mob:
 		target.ApplyEffect(singer.Name+"_sweet_comfort", "16", 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("sweet_comfort")
+				target.FlagOn("sweet_comfort", singer.Name+"_sweet_comfort")
 			},
 			func() {
-				target.ToggleFlag("sweet_comfort")
+				target.FlagOff("sweet_comfort", singer.Name+"_sweet_comfort")
 			})
 	}
 }
@@ -110,10 +110,10 @@ func CuriousCanticle(target interface{}, singer *Character) {
 	case *Mob:
 		target.ApplyEffect(singer.Name+"_curious_canticle", "16", 0, 0,
 			func(triggers int) {
-				target.ToggleFlag("curious_canticle")
+				target.FlagOn("curious_canticle", singer.Name+"_curious_canticle")
 			},
 			func() {
-				target.ToggleFlag("curious_canticle")
+				target.FlagOff("curious_canticle", singer.Name+"_curious_canticle")
 			})
 	}
 }

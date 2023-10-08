@@ -40,7 +40,7 @@ var Spells = map[string]Spell{
 	},
 	"restore": {
 		Name:        "restore",
-		Description: "A specialized use of power from the weave of life by paladins and bards.  The spell causes energy to build around the target and absorb into them restoring their mana.  The strange mixture of drawing energy from the weave of life to restore mana to the target prevents the casts from using this spell on themselves. ",
+		Description: "A specialized use of power from the weave of life by clerics and bards.  The spell causes energy to build around the target and absorb into them restoring their mana.  The confluence of energies required to restore mana to the target prevents the caster from using this spell on themselves.",
 		Cost:        30,
 		Chant:       "Mystical energy build and return!",
 		Magnitude:   1,
