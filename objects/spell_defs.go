@@ -506,7 +506,7 @@ var Spells = map[string]Spell{
 		Chant:       "By fire and ice, thy pestilence purged.",
 		Magnitude:   1,
 		Effect:      "remove-disease",
-		Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 6, "ranger": 7, "bard": 7, "thief": 9, "fighter": 12, "monk": 10},
+		Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 6, "ranger": 7, "bard": 7, "thief": 9, "monk": 10},
 	},
 	"remove-blindness": {
 		Name:        "remove-blindness",
@@ -562,7 +562,7 @@ var Spells = map[string]Spell{
 		Chant:       "Thy burning blood purge new venoms.",
 		Magnitude:   1,
 		Effect:      "resist-poison",
-		Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 7, "ranger": 7, "bard": 7, "thief": 8, "fighter": 9, "monk": 7},
+		Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 7, "ranger": 7, "bard": 7, "thief": 8, "monk": 7},
 	},
 	"resilient-aura": {
 		Name:        "resilient-aura",
@@ -580,7 +580,7 @@ var Spells = map[string]Spell{
 		Chant:       "Thy blood thickens, be free from infection.",
 		Magnitude:   1,
 		Effect:      "resist-disease",
-		Classes:     map[string]int{"cleric": 6, "mage": 7, "paladin": 8, "ranger": 8, "bard": 8, "thief": 9, "fighter": 10, "monk": 8},
+		Classes:     map[string]int{"cleric": 6, "mage": 7, "paladin": 8, "ranger": 8, "bard": 8, "thief": 9, "monk": 8},
 	},
 	"disrupt-magic": {
 		Name:        "disrupt-magic",
@@ -625,7 +625,7 @@ var Spells = map[string]Spell{
 			Chant:       "There is naught to fear save fear.",
 			Magnitude:   1,
 			Effect:      "embolden",
-			Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 8, "ranger": 8, "bard": 10, "thief": 12, "fighter": 15, "monk": 9},
+			Classes:     map[string]int{"cleric": 5, "mage": 6, "paladin": 8, "ranger": 8, "bard": 10, "thief": 12, "monk": 9},
 		},*/
 }
 
