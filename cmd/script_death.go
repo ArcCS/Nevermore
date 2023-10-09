@@ -41,6 +41,11 @@ func (scriptDeath) process(s *state) {
 		objects.ActiveCharacters.MessageAll(deathString)
 
 		if s.actor.Tier > config.FreeDeathTier {
+
+			// End the bards song before processing their death
+			if s.actor.CheckFlag("singing") {
+				s.actor.RemoveEffect("sing")
+			}
 			equipment := s.actor.Equipment.UnequipAll()
 
 			var tempStore []*objects.Item
