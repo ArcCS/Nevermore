@@ -131,7 +131,7 @@ func (get) process(s *state) {
 						s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
 					}
 					return
-				} else if (checkWeight && (s.actor.GetCurrentWeight()+whereInventory.GetWeight() <= s.actor.MaxWeight())) || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				} else if (!checkWeight) || (checkWeight && (s.actor.GetCurrentWeight()+whereInventory.GetWeight() <= s.actor.MaxWeight())) || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					s.actor.RunHook("act")
 					where.Storage.Remove(whereInventory)
 					s.actor.Inventory.Add(whereInventory)
