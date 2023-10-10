@@ -537,7 +537,8 @@ func (c *Character) GetStat(stat string) int {
 }
 
 func (c *Character) Save() {
-
+	Rooms[c.ParentId].Lock()
+	c.Write([]byte(text.Info + "Saving...." + text.Reset))
 	c.MinutesPlayed += int(time.Now().Sub(c.LoginTime).Minutes())
 	c.LoginTime = time.Now()
 	charData := make(map[string]interface{})
@@ -599,6 +600,8 @@ func (c *Character) Save() {
 		c.ClassProps["restores"] = c.ClassProps["restores"]
 	}
 	data.SaveChar(charData)
+	c.Write([]byte(text.Info + "Saved!" + text.Reset))
+	Rooms[c.ParentId].Unlock()
 }
 
 func (c *Character) SetPromptStyle(new PromptStyle) (old PromptStyle) {
@@ -758,7 +761,7 @@ func (c *Character) RemoveEffect(effectName string) {
 }
 
 func (c *Character) GainExperience(value int) {
-	if c.Tier < config.LevelCap {
+	if c.Experience.Value < config.TierExpLevels[config.LevelCap] {
 		c.Experience.Add(value)
 	}
 }
@@ -839,44 +842,52 @@ func (c *Character) RunHook(hook string) {
 }
 
 func (c *Character) AdvanceSkillExp(amount int) {
-	if c.Tier < config.LevelCap {
-		if c.Equipment.Main != nil {
+	if c.Equipment.Main != nil {
+		if c.Skills[c.Equipment.Main.ItemType].Value < config.SkillCap {
 			c.Skills[c.Equipment.Main.ItemType].Add(amount)
-		} else if c.Class == 8 {
+		}
+	} else if c.Class == 8 {
+		if c.Skills[8].Value < config.SkillCap {
 			c.Skills[5].Add(amount)
 		}
 	}
 }
 
 func (c *Character) AdvanceElementalExp(amount int, element string, class int) {
-	if c.Tier < config.LevelCap {
-		if class == 4 {
-			switch element {
-			case "fire":
+	if class == 4 {
+		switch element {
+		case "fire":
+			if c.Skills[6].Value < config.SkillCap {
 				c.Skills[6].Add(amount)
-			case "air":
+			}
+		case "air":
+			if c.Skills[7].Value < config.SkillCap {
 				c.Skills[7].Add(amount)
-			case "earth":
+			}
+		case "earth":
+			if c.Skills[8].Value < config.SkillCap {
 				c.Skills[8].Add(amount)
-			case "water":
+			}
+		case "water":
+			if c.Skills[9].Value < config.SkillCap {
 				c.Skills[9].Add(amount)
 			}
 		}
-		return
 	}
+	return
 }
 
 func (c *Character) AdvanceDivinity(amount int, class int) {
-	if c.Tier < config.LevelCap {
-		if class == 5 || class == 6 {
+	if class == 5 || class == 6 {
+		if c.Skills[10].Value < config.SkillCap {
 			c.Skills[10].Add(amount)
 		}
-		return
 	}
+	return
 }
 
 func (c *Character) AdvanceStealthExp(amount int) {
-	if c.Tier < config.LevelCap {
+	if c.Skills[11].Value < config.SkillCap {
 		c.Skills[11].Add(amount)
 		return
 	}

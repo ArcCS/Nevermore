@@ -26,6 +26,7 @@ func (get) process(s *state) {
 		return
 	}
 
+	checkWeight := true
 	targetStr := s.words[0]
 	targetNum := 1
 	whereStr := ""
@@ -111,6 +112,11 @@ func (get) process(s *state) {
 		// If we didn't find it in the room, look on the person.
 		if where == nil {
 			where = s.actor.Inventory.Search(whereStr, whereNum)
+			if where != nil {
+				if !where.Flags["weightless_chest"] {
+					checkWeight = false
+				}
+			}
 		}
 
 		if where != nil {
@@ -125,7 +131,7 @@ func (get) process(s *state) {
 						s.msg.Observers.SendInfo("You see ", s.actor.Name, " take ", whereInventory.Name, " from ", where.Name, ".")
 					}
 					return
-				} else if (where.Flags["weightless_chest"] && (s.actor.GetCurrentWeight()+whereInventory.GetWeight()) <= s.actor.MaxWeight()) || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				} else if (checkWeight && (s.actor.GetCurrentWeight()+whereInventory.GetWeight() <= s.actor.MaxWeight())) || s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					s.actor.RunHook("act")
 					where.Storage.Remove(whereInventory)
 					s.actor.Inventory.Add(whereInventory)

@@ -29,7 +29,6 @@ var RoomDefaultEncounterSpeed = 10 // Seconds
 var RoomMaxJigger = 4
 var RoomEncNoDoubles = 6
 var RoomEncNoTriples = 5
-var LevelCap = 14
 
 var BaseDevicePiety = 8.0
 
