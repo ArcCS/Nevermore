@@ -537,8 +537,6 @@ func (c *Character) GetStat(stat string) int {
 }
 
 func (c *Character) Save() {
-	Rooms[c.ParentId].Lock()
-	c.Write([]byte(text.Info + "Saving...." + text.Reset))
 	c.MinutesPlayed += int(time.Now().Sub(c.LoginTime).Minutes())
 	c.LoginTime = time.Now()
 	charData := make(map[string]interface{})
@@ -600,6 +598,12 @@ func (c *Character) Save() {
 		c.ClassProps["restores"] = c.ClassProps["restores"]
 	}
 	data.SaveChar(charData)
+}
+
+func (c *Character) TickSaveWrapper() {
+	Rooms[c.ParentId].Lock()
+	c.Write([]byte(text.Info + "Saving...." + text.Reset))
+	c.Save()
 	c.Write([]byte(text.Info + "Saved!" + text.Reset))
 	Rooms[c.ParentId].Unlock()
 }
@@ -712,7 +716,7 @@ const (
 func (c *Character) Tick() {
 	if time.Now().Sub(c.LastSave) > 5*time.Minute {
 		c.LastSave = time.Now()
-		c.Save()
+		c.TickSaveWrapper()
 	}
 	if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod * 2)))
