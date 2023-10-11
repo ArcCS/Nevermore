@@ -310,7 +310,7 @@ func (m *Mob) Tick() {
 					target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
 					var targets []*Character
 					for _, character := range Rooms[m.ParentId].Chars.Contents {
-						if character.Placement == target.Placement {
+						if character.Placement == target.Placement && !character.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 							log.Println("Adding target: ", character.Name, " to breath list")
 							targets = append(targets, character)
 						}

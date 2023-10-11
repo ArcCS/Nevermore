@@ -315,37 +315,39 @@ func (r *Room) Encounter() {
 func (r *Room) ElementalDamage() {
 	r.LastEffectTime = time.Now()
 	for _, c := range r.Chars.Contents {
-		if r.Flags["earth"] {
-			if !c.Flags["resist-earth"] {
-				c.Write([]byte(text.Brown + "The earth swells up around you." + "\n"))
-				c.ReceiveMagicDamage(20, "earth")
-				c.DeathCheck("was swallowed by the earth.")
-			} else {
-				c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n"))
-			}
-		} else if r.Flags["fire"] {
-			if !c.Flags["resist-fire"] {
-				c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n"))
-				c.ReceiveMagicDamage(20, "fire")
-				c.DeathCheck("was burned alive.")
-			} else {
-				c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n"))
-			}
-		} else if r.Flags["water"] {
-			if !c.Flags["resist-water"] {
-				c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n"))
-				c.DeathCheck("drowned.")
-				c.ReceiveMagicDamage(20, "water")
-			} else {
-				c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n"))
-			}
-		} else if r.Flags["air"] {
-			if !c.Flags["resist-air"] {
-				c.Write([]byte(text.Brown + "The icy air buffets you." + "\n"))
-				c.DeathCheck("was frozen solid.")
-				c.ReceiveMagicDamage(20, "air")
-			} else {
-				c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n"))
+		if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			if r.Flags["earth"] {
+				if !c.Flags["resist-earth"] {
+					c.Write([]byte(text.Brown + "The earth swells up around you." + "\n"))
+					c.ReceiveMagicDamage(20, "earth")
+					c.DeathCheck("was swallowed by the earth.")
+				} else {
+					c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n"))
+				}
+			} else if r.Flags["fire"] {
+				if !c.Flags["resist-fire"] {
+					c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n"))
+					c.ReceiveMagicDamage(20, "fire")
+					c.DeathCheck("was burned alive.")
+				} else {
+					c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n"))
+				}
+			} else if r.Flags["water"] {
+				if !c.Flags["resist-water"] {
+					c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n"))
+					c.DeathCheck("drowned.")
+					c.ReceiveMagicDamage(20, "water")
+				} else {
+					c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n"))
+				}
+			} else if r.Flags["air"] {
+				if !c.Flags["resist-air"] {
+					c.Write([]byte(text.Brown + "The icy air buffets you." + "\n"))
+					c.DeathCheck("was frozen solid.")
+					c.ReceiveMagicDamage(20, "air")
+				} else {
+					c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n"))
+				}
 			}
 		}
 	}
