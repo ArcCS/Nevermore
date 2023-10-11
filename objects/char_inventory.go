@@ -192,6 +192,29 @@ func (i *CharInventory) ListChars(observer *Character) []*Character {
 }
 
 // ListChars the items in this CharInventory
+func (i *CharInventory) ListPeoChars(observer *Character) []*Character {
+	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	items := make([]*Character, 0)
+
+	for _, c := range i.Contents {
+		// List all
+		if c.Flags["hidden"] == false ||
+			(c.Flags["hidden"] == true &&
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) {
+
+			if c.Flags["invisible"] == false ||
+				(c.Flags["invisible"] == true &&
+					observer.Flags["detect-invisible"] &&
+					!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
+				observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+				items = append(items, c)
+			}
+		}
+	}
+	return items
+}
+
+// ListChars the items in this CharInventory
 func (i *CharInventory) ListHiddenChars(observer *Character) []*Character {
 	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
 	items := make([]*Character, 0)
