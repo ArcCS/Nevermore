@@ -676,7 +676,7 @@ func (c *Character) ReturnState() string {
 	stamStatus := text.Green + "untouched" + text.Info
 	vitStatus := text.Green + "healthy" + text.Info
 	effectStatus := ""
-	if c.Stam.Current < (c.Stam.Max) {
+	if c.Stam.Current < (c.Stam.Max) || c.Vit.Current < (c.Vit.Max) {
 		stamStatus = text.Green + "energetic" + text.Info
 	} else if c.Stam.Current < (c.Stam.Max - int(.75*float32(c.Stam.Max))) {
 		stamStatus = text.Red + "exhausted" + text.Info
