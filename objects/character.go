@@ -673,10 +673,12 @@ func (c *Character) LookVictim() *Mob {
 }
 
 func (c *Character) ReturnState() string {
-	stamStatus := text.Green + "energetic" + text.Info
+	stamStatus := text.Green + "untouched" + text.Info
 	vitStatus := text.Green + "healthy" + text.Info
 	effectStatus := ""
-	if c.Stam.Current < (c.Stam.Max - int(.75*float32(c.Stam.Max))) {
+	if c.Stam.Current < (c.Stam.Max) {
+		stamStatus := text.Green + "energetic" + text.Info
+	} else if c.Stam.Current < (c.Stam.Max - int(.75*float32(c.Stam.Max))) {
 		stamStatus = text.Red + "exhausted" + text.Info
 	} else if c.Stam.Current < (c.Stam.Max - int(.5*float32(c.Stam.Max))) {
 		stamStatus = text.LightYellow + "fatigued" + text.Info
