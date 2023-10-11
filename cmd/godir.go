@@ -14,10 +14,10 @@ func init() {
 	addHandler(godir{},
 		"Usage:  go direction # \n \n Proceed to the specified exit.   The cardinal directions can also be used without the use of go",
 		permissions.Player,
-		"N", "NE", "E", "SE", "S", "SW", "W", "NW", "U", "D",
+		"GO", "N", "NE", "E", "SE", "S", "SW", "W", "NW", "U", "D",
 		"NORTH", "NORTHEAST", "EAST", "SOUTHEAST",
 		"SOUTH", "SOUTHWEST", "WEST", "NORTHWEST",
-		"UP", "DOWN", "GO", "OUT")
+		"UP", "DOWN", "OUT")
 }
 
 var (

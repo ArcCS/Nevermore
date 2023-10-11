@@ -19,24 +19,41 @@ type handler interface {
 	process(*state)
 }
 
+type helpTextStruct struct {
+	helpText string
+	aliases  string
+}
+
 // handlers is a list of commands and their handlers. addHandler should be used
 // to add new handlers. dispatchHandler then uses this list to lookup the
 // correct handler to invoke for a given command.
 var handlers = map[string]handler{}
 var handlerPermission = map[string]permissions.Permissions{}
-var helpText = map[string]string{}
+var helpText = map[string]helpTextStruct{}
 var oocCommands = []string{"SAY", "QUIT", "HELP", "WHO", "LOOK", "IC", "$POOF", "AFK", "GO", "ACT"}
+var reverseLookup = map[string]string{}
+var emotes = []string{"ACT", "BLINK", "BLUSH", "BOW", "BURP", "CACKLE", "CHEER", "CHUCKLE", "CLAP", "CONFUSED", "COUGH", "CROSSARMS", "CROSSFINGERS", "CRY",
+	"DANCE", "EMOTE", "FLEX", "FLINCH", "FROWN", "GASP", "GIGGLE", "GRIN", "GROAN", "HICCUP", "JUMP", "KNEEL", "LAUGH", "NOD", "PONDER", "SALUTE", "SHAKE", "SHIVER", "SHRUG",
+	"SIGH", "SNEEZE", "SNAP", "SMILE", "SMIRK", "SNICKER", "SPIT", "STARE", "STRETCH", "TAP", "THUMBSDOWN", "THUMBSUP", "WAVE", "WHISTLE", "WINK", "YAWN",
+	"BUG", "BOW", "HUG", "ANGRY", "GLARE", "STARE", "TICKLE", "POKE", "SLAP", "KICK", "WAVE", "WINK"}
 
 // addHandler adds the given commands for the specified handler.
 // It requires the command handler,  a help string to add to the help data, a bitmask permission, and the relative
 // commands that will be each added to dispatch
 func addHandler(h handler, helpString string, permission permissions.Permissions, cmds ...string) {
+	primeString := ""
+	if len(cmds) != 0 {
+		primeString = strings.ToUpper(cmds[0])
+	}
+	if helpString != "" {
+		helpText[strings.ToUpper(cmds[0])] = helpTextStruct{helpString, strings.Join(cmds[0:], ", ")}
+	}
 	for _, cmd := range cmds {
+		if cmd != primeString {
+			reverseLookup[strings.ToUpper(cmd)] = primeString
+		}
 		handlers[strings.ToUpper(cmd)] = h
 		handlerPermission[strings.ToUpper(cmd)] = permission
-		if helpString != "" {
-			helpText[strings.ToUpper(cmd)] = helpString
-		}
 	}
 }
 

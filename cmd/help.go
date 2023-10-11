@@ -25,7 +25,7 @@ func (help) process(s *state) {
 
 	if len(s.words) < 1 {
 		s.msg.Actor.SendGood("Available commands:\n" +
-			"(Type help cmd_name for more details, or spell_list for a list of spells, or song_list for a list of songs)\n" +
+			"(Type help cmd_name for more details, or emotes for a list of emotes, or spell_list for a list of spells, or song_list for a list of songs)\n" +
 			"=====================================================")
 		cmds := make([]string, len(helpText), len(helpText))
 
@@ -59,7 +59,7 @@ func (help) process(s *state) {
 
 		var (
 			columnWidth = maxWidth + gutter
-			columnCount = 80 / columnWidth
+			columnCount = 100 / columnWidth
 			rowCount    = len(cmds) / columnCount
 		)
 
@@ -88,7 +88,55 @@ func (help) process(s *state) {
 		// Here we return the help text
 		subject := s.words[0]
 
-		// Lets shortcut the help text to add spells and song lists
+		// Lets shortcut the help text to add emotes, spells and song lists
+		if subject == "EMOTES" {
+			s.msg.Actor.SendGood("All Emotes:\n" +
+				"(Type help emote for more details)\n" +
+				"=====================================================")
+			cmds := make([]string, len(emotes), len(emotes))
+
+			// Extract keys from handler map
+			pos := 0
+			for _, emote := range emotes {
+				cmds[pos] = emote
+				pos++
+			}
+
+			// Find longest key extracted
+			maxWidth := 0
+			for _, spell := range cmds {
+				if l := len(spell); l > maxWidth {
+					maxWidth = l
+				}
+			}
+
+			sort.Strings(cmds)
+
+			var (
+				columnWidth = maxWidth + gutter
+				columnCount = 80 / columnWidth
+				rowCount    = len(cmds) / columnCount
+			)
+
+			if len(cmds) > rowCount*columnCount {
+				rowCount++
+			}
+
+			for row := 0; row < rowCount; row++ {
+				line := []byte{}
+				for column := 0; column < columnCount; column++ {
+					cell := (column * rowCount) + row
+					if cell < len(cmds) {
+						line = append(line, cmds[cell]...)
+						line = append(line, strings.Repeat(" ", columnWidth-len(cmds[cell]))...)
+					}
+				}
+				s.msg.Actor.Send(string(line))
+			}
+
+			s.ok = true
+			return
+		}
 
 		if subject == "SPELL_LIST" {
 			s.msg.Actor.SendGood("All Spells:\n" +
@@ -206,8 +254,11 @@ func (help) process(s *state) {
 			return
 		}
 
+		if _, ok := reverseLookup[strings.ToUpper(subject)]; ok {
+			subject = reverseLookup[strings.ToUpper(subject)]
+		}
 		if s.actor.Permission.HasFlag(handlerPermission[strings.ToUpper(subject)]) {
-			s.msg.Actor.SendGood("Command: ", subject, "\n\n", helpText[subject])
+			s.msg.Actor.SendGood("Command: ", subject, "\n\n", helpText[subject].helpText, "\n\n", "Aliases:", helpText[subject].aliases)
 		} else {
 			s.msg.Actor.SendBad("Not a command available to you.")
 		}
