@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/spf13/viper"
 	"log"
@@ -16,7 +17,6 @@ var Server = struct {
 	DBPword           string        // The Password for the neo4j instance
 	DBAddress         string        // The address of the neo4j server
 	Port              string        // Port for server to listen on
-	Greeting          []byte        // Connection greeting
 	IdleTimeout       time.Duration // Idle connection disconnect time
 	AFKTimeout        time.Duration
 	OOCTimeout        time.Duration
@@ -33,7 +33,6 @@ var Server = struct {
 	DBPword:           "PASSWORD",
 	DBAddress:         "127.0.0.1",
 	Port:              "4001",
-	Greeting:          []byte("Welcome to Aalynor's Nexus."),
 	IdleTimeout:       15 * time.Minute,
 	AFKTimeout:        30 * time.Minute,
 	OOCTimeout:        20 * time.Minute,
@@ -45,6 +44,35 @@ var Server = struct {
 	CreateChars:       true,
 	PermissionDefault: 2,
 }
+
+var DragonAscii = text.Red + `
+                                      #**###                                                        
+                                     ####**##                                                       
+                         ###         #####***##                             #                       
+                       ################**###*####                     #######                       
+                     ###***##***#****##**##*****##              #########                           
+                   ###*****##*****#******##********#      #####**###*####                           
+                 ####******##******######***##******#     #####*##**#####                           
+                ###*********#*****#########**********#      ##      ##*##                           
+               ####*********#**################***#***#             ##**#                           
+              #####*********###############****###**##*#          ##****                            
+             ##**##******###########**#*#### ##*##***#############*****                             
+            ###***#****# #########******###   *##**#*#####**##*******                               
+           ###****#**** ########*****    # ####**************#**#*####                              
+          ###*****###  ###*##**#*##    ######***#***********##############                          
+          ##******##   ##******#*#  #######****************########  #####                          
+         ##******###  *#****##  ## #####******************##                                        
+         ##******  # ##*****      #####*******########*****                                         
+         ##*****     ##***#        ####***** #########**##  *                                       
+         #****#       ##****#      #####******#  #####*#######**********                            
+         ##**#          ###*####*#   ###*****************************#*******#*                     
+         ##*                            #########*########***####         ##****##                  
+         ###                                                                   #**#                 
+           ###          ` + text.White + `Welcome to Aalynor's Nexus!` + text.Red + `                                                 
+             ###                                                                                    
+                                                                                                    
+                                                                                                    
+` + text.White
 
 // Stats default configuration
 var Stats = struct {

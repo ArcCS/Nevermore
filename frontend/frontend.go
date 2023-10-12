@@ -189,7 +189,7 @@ func (f *frontend) Parse(input []byte) error {
 // This is due to the fact that frontend needs to initialise nextFunc with a
 // func() type and greetingDisplay seems a logical choice.
 func (f *frontend) greetingDisplay() {
-	f.buf.Send(string(config.Server.Greeting))
+	f.buf.Send(config.DragonAscii)
 	NewLogin(f)
 }
 
