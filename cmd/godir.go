@@ -283,6 +283,12 @@ func (godir) process(s *state) {
 										break
 									}
 
+									if objects.Rooms[toE.ToId].Crowded() {
+										follChar.SendInfo("That area is crowded.")
+										s.ok = true
+										return
+									}
+
 									hasRope := false
 									if follChar.Equipment.Off != (*objects.Item)(nil) {
 										if follChar.Equipment.Off.ItemId == 1463 {
