@@ -42,6 +42,10 @@ func (list) process(s *state) {
 				t.AppendRows([]table.Row{
 					{item.Name, item.StorePrice, "(M) " + item.Spell},
 				})
+			} else if item.ItemType == 16 {
+				t.AppendRows([]table.Row{
+					{item.Name + "(" + strconv.Itoa(item.Adjustment) + ")", item.StorePrice, config.ItemTypes[item.ItemType]},
+				})
 			} else if item.ItemType == 6 {
 				t.AppendRows([]table.Row{
 					{item.Name, item.StorePrice, "(D) " + objects.Spells[item.Spell].Name},

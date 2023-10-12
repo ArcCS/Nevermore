@@ -284,7 +284,7 @@ func (godir) process(s *state) {
 									}
 
 									if objects.Rooms[toE.ToId].Crowded() {
-										follChar.SendInfo("That area is crowded.")
+										follChar.Write([]byte("That area is crowded."))
 										s.ok = true
 										return
 									}
