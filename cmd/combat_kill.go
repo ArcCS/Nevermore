@@ -224,8 +224,13 @@ func DeathCheck(s *state, m *objects.Mob) {
 			partyLead = objects.ActiveCharacters.Find(s.actor.PartyFollow)
 		}
 		partyMembers := append(partyLead.PartyFollowers, partyLead.Name)
+		highestTier := 0
 		expReduce := len(s.where.Chars.Contents)
+		//reusing this because we are already running through everyone in the room
 		for _, gm := range s.where.Chars.Contents {
+			if gm.Tier > highestTier && gm.Class <= 8 {
+				highestTier = gm.Tier
+			}
 			if gm.Class > 8 {
 				expReduce -= 1
 			}
@@ -235,8 +240,8 @@ func DeathCheck(s *state, m *objects.Mob) {
 			expReduce = 5
 		}
 		//debuging stuff
-		//s.msg.Actor.SendGood("Players in room: " + strconv.Itoa(expReduce))
-		//s.msg.Actor.SendGood(partyMembers...)
+		//s.msg.Actor.SendGood("Highest Tier: " + strconv.Itoa(highestTier))
+		//s.msg.Actor.SendGood(strconv.Itoa(tierLimit))
 		experienceAwarded := 0
 		if m.CheckFlag("hostile") {
 			experienceAwarded = int(float64(m.Experience) * (config.ExperienceReduction[expReduce] + (float64(utils.Roll(10, 1, 0)) / 100)))
@@ -254,8 +259,12 @@ func DeathCheck(s *state, m *objects.Mob) {
 					}
 				}
 				if partyCheck || m.CheckThreatTable(charClean.Name) {
-					buildActorString += text.Cyan + "You earn " + strconv.Itoa(experienceAwarded) + " experience for the defeat of the " + m.Name + "\n"
-					charClean.GainExperience(experienceAwarded)
+					if int(math.Ceil((float64(charClean.Tier+1))*1.2)) <= highestTier {
+						buildActorString += text.Cyan + "You learn nothing for the defeat of the " + m.Name + "\n"
+					} else {
+						buildActorString += text.Cyan + "You earn " + strconv.Itoa(experienceAwarded) + " experience for the defeat of the " + m.Name + "\n"
+						charClean.GainExperience(experienceAwarded)
+					}
 				}
 				if charClean == s.actor {
 					buildActorString += text.Green + m.DropInventory() + "\n"
