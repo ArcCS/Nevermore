@@ -559,6 +559,63 @@ func (m *Mob) Tick() {
 
 func (m *Mob) DeathCheck(target *Character) bool {
 	if m.Stam.Current <= 0 {
+		Rooms[m.ParentId].MessageAll(target.Name + " killed " + m.Name)
+		partyLead := target
+		if target.PartyFollow != "" {
+			partyLead = ActiveCharacters.Find(target.PartyFollow)
+		}
+		partyMembers := append(partyLead.PartyFollowers, partyLead.Name)
+		highestTier := 0
+		expReduce := len(Rooms[m.ParentId].Chars.Contents)
+		//reusing this because we are already running through everyone in the room
+		for _, gm := range Rooms[m.ParentId].Chars.Contents {
+			if gm.Tier > highestTier && gm.Class <= 8 {
+				highestTier = gm.Tier
+			}
+			if gm.Class > 8 {
+				expReduce -= 1
+			}
+		}
+
+		if expReduce > 5 {
+			expReduce = 5
+		}
+		experienceAwarded := 0
+		if m.CheckFlag("hostile") {
+			experienceAwarded = int(float64(m.Experience) * (config.ExperienceReduction[expReduce] + (float64(utils.Roll(10, 1, 0)) / 100)))
+		} else {
+			experienceAwarded = m.Experience / 10
+		}
+		for _, member := range Rooms[m.ParentId].Chars.Contents {
+			buildActorString := ""
+			charClean := Rooms[m.ParentId].Chars.SearchAll(member.Name)
+			if charClean != nil {
+				partyCheck := false
+				for _, name := range partyMembers {
+					if charClean.Name == name {
+						partyCheck = true
+					}
+				}
+				if partyCheck || m.CheckThreatTable(charClean.Name) {
+					if int(math.Ceil((float64(charClean.Tier+1))*1.2)) <= highestTier {
+						buildActorString += text.Cyan + "You learn nothing for the defeat of the " + m.Name + "\n"
+					} else {
+						buildActorString += text.Cyan + "You earn " + strconv.Itoa(experienceAwarded) + " experience for the defeat of the " + m.Name + "\n"
+						charClean.GainExperience(experienceAwarded)
+					}
+				}
+				if charClean == target {
+					buildActorString += text.Green + m.DropInventory() + "\n"
+					target.Write([]byte(buildActorString))
+				} else {
+					go charClean.Write([]byte(buildActorString + "\n" + text.Reset))
+				}
+				if charClean.Victim == m {
+					charClean.Victim = nil
+				}
+			}
+		}
+
 		Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
 		stringExp := strconv.Itoa(m.Experience)
 		for k := range m.ThreatTable {

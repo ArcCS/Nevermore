@@ -297,10 +297,10 @@ func (c *Character) ReturnToInventory(item *Item) {
 
 func (c *Character) TimerReady(timer string) (bool, string) {
 	// Always check Global:
-	remaining := int(c.Timers["global"].Sub(time.Now()) / time.Second)
+	remaining := math.Ceil(float64(c.Timers["global"].Sub(time.Now()) / time.Second))
 	if remaining <= 0 {
 		if curTimer, ok := c.Timers[timer]; ok {
-			remaining = int(curTimer.Sub(time.Now()) / time.Second)
+			remaining = math.Ceil(float64(curTimer.Sub(time.Now()) / time.Second))
 			if remaining <= 0 {
 				return true, ""
 			}
@@ -309,7 +309,7 @@ func (c *Character) TimerReady(timer string) (bool, string) {
 		}
 
 	}
-	return false, text.Gray + "You have " + strconv.Itoa(remaining) + " seconds before you can perform this action."
+	return false, text.Gray + "You have " + strconv.Itoa(int(remaining)) + " seconds before you can perform this action."
 
 }
 
