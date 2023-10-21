@@ -616,20 +616,6 @@ func (m *Mob) DeathCheck(target *Character) bool {
 			}
 		}
 
-		Rooms[m.ParentId].MessageAll(text.Green + target.Name + " killed " + m.Name)
-		stringExp := strconv.Itoa(m.Experience)
-		for k := range m.ThreatTable {
-			charClean := Rooms[m.ParentId].Chars.SearchAll(k)
-			if charClean != nil {
-				charClean.Write([]byte(text.Cyan + "You earn " + stringExp + "exp for the defeat of the " + m.Name + "\n" + text.Reset))
-				charClean.GainExperience(m.Experience)
-				if charClean.Victim == m {
-					charClean.Victim = nil
-				}
-			}
-		}
-		Rooms[m.ParentId].MessageAll(m.Name + " dies.")
-		target.Write([]byte(text.White + m.DropInventory()))
 		go Rooms[m.ParentId].ClearMob(m)
 		return true
 	}
