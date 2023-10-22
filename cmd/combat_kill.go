@@ -259,7 +259,7 @@ func DeathCheck(s *state, m *objects.Mob) {
 					}
 				}
 				if partyCheck || m.CheckThreatTable(charClean.Name) {
-					if int(math.Ceil((float64(charClean.Tier+1))*1.2)) <= highestTier {
+					if int(math.Ceil((float64(charClean.Tier+1))*1.2)) < highestTier {
 						buildActorString += text.Cyan + "You learn nothing for the defeat of the " + m.Name + "\n"
 					} else {
 						buildActorString += text.Cyan + "You earn " + strconv.Itoa(experienceAwarded) + " experience for the defeat of the " + m.Name + "\n"
