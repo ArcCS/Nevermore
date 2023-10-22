@@ -44,16 +44,11 @@ func (scriptTeleportTo) process(s *state) {
 		return
 	}
 
-	if !utils.IntIn(newRoom.RoomId, s.rLocks) {
-		s.AddLocks(newRoom.RoomId)
-		s.ok = false
-		return
-	}
-
 	s.msg.Actor.SendInfo(utils.Title(strings.ToLower(strings.Join(s.words[1:], " "))))
 	s.where.Chars.Remove(s.actor)
 	newRoom.Chars.Add(s.actor)
 	s.actor.ParentId = newRoom.RoomId
+	s.msg.Observers[newRoomId].SendInfo(s.actor.Name, " just arrived.")
 	s.scriptActor("LOOK")
 	s.ok = true
 	return

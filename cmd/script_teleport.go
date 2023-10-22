@@ -38,6 +38,7 @@ func (scriptTeleport) process(s *state) {
 	newRoom.Chars.Add(s.actor)
 	s.actor.ParentId = newRoom.RoomId
 	s.msg.Observers.Send(s.actor.Name + " was teleported away!")
+	s.msg.Observers[newRoom.RoomId].SendInfo(s.actor.Name, " arrives in a puff of smoke.")
 	s.scriptActor("LOOK")
 	s.ok = true
 	return
