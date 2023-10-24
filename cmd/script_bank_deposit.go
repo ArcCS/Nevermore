@@ -7,9 +7,9 @@ import (
 
 func init() {
 	addHandler(deposit{},
-	"",
-	permissions.Player,
-	"$DEPOSIT")
+		"",
+		permissions.Player,
+		"$DEPOSIT")
 }
 
 type deposit cmd
@@ -24,6 +24,10 @@ func (deposit) process(s *state) {
 
 	if amount64, err := strconv.Atoi(value); err == nil {
 		amount := amount64
+		if amount < 0 {
+			s.msg.Actor.SendGood("You can not deposit a negative amount of gold.")
+			return
+		}
 		if s.actor.Gold.CanSubtract(amount) {
 			s.actor.RunHook("act")
 			s.actor.Gold.SubIfCan(amount)
@@ -34,7 +38,7 @@ func (deposit) process(s *state) {
 			s.msg.Actor.SendInfo("You don't have that much gold.")
 			return
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That's not a valid number.")
 		return
 	}

@@ -7,9 +7,9 @@ import (
 
 func init() {
 	addHandler(withdraw{},
-	"",
-	permissions.Player,
-	"$WITHDRAW")
+		"",
+		permissions.Player,
+		"$WITHDRAW")
 }
 
 type withdraw cmd
@@ -24,6 +24,10 @@ func (withdraw) process(s *state) {
 
 	if amount64, err := strconv.Atoi(value); err == nil {
 		amount := amount64
+		if amount < 0 {
+			s.msg.Actor.SendGood("You can not withdraw a negative amount of gold.")
+			return
+		}
 		if s.actor.BankGold.CanSubtract(amount) {
 			s.actor.RunHook("act")
 			s.actor.BankGold.SubIfCan(amount)
@@ -34,7 +38,7 @@ func (withdraw) process(s *state) {
 			s.msg.Actor.SendInfo("You don't have that much gold in your bank account.")
 			return
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That's not a valid number.")
 		return
 	}
