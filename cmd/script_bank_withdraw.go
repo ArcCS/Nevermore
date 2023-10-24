@@ -7,9 +7,9 @@ import (
 
 func init() {
 	addHandler(withdraw{},
-	"",
-	permissions.Player,
-	"$WITHDRAW")
+		"",
+		permissions.Player,
+		"$WITHDRAW")
 }
 
 type withdraw cmd
@@ -34,7 +34,7 @@ func (withdraw) process(s *state) {
 			s.msg.Actor.SendInfo("You don't have that much gold in your bank account.")
 			return
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That's not a valid number.")
 		return
 	}

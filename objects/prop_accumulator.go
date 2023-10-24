@@ -10,7 +10,7 @@ func (a *Accumulator) Add(val int) {
 
 func (a *Accumulator) CanSubtract(val int) (cansub bool) {
 	cansub = false
-	if a.Value-val >= 0 {
+	if a.Value-val >= 0 && val >= 0 {
 		cansub = true
 	}
 	return

@@ -7,9 +7,9 @@ import (
 
 func init() {
 	addHandler(deposit{},
-	"",
-	permissions.Player,
-	"$DEPOSIT")
+		"",
+		permissions.Player,
+		"$DEPOSIT")
 }
 
 type deposit cmd
@@ -34,7 +34,7 @@ func (deposit) process(s *state) {
 			s.msg.Actor.SendInfo("You don't have that much gold.")
 			return
 		}
-	}else{
+	} else {
 		s.msg.Actor.SendBad("That's not a valid number.")
 		return
 	}
