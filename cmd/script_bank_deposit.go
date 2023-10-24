@@ -24,10 +24,6 @@ func (deposit) process(s *state) {
 
 	if amount64, err := strconv.Atoi(value); err == nil {
 		amount := amount64
-		if amount < 0 {
-			s.msg.Actor.SendGood("You can not deposit a negative amount of gold.")
-			return
-		}
 		if s.actor.Gold.CanSubtract(amount) {
 			s.actor.RunHook("act")
 			s.actor.Gold.SubIfCan(amount)
