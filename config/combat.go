@@ -87,7 +87,7 @@ var (
 	MobStealRevengeVitalChance  = 15
 	MobBSRevengeVitalChance     = 25
 	VitalStrikeScale            = 2
-	BackstabCooldown            = 60
+	BackstabCooldown            = 30
 
 	// Monk
 	TodMax            = 5

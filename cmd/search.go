@@ -32,7 +32,7 @@ func (search) process(s *state) {
 	if !s.actor.CheckFlag("hidden") && !s.actor.CheckFlag("invisible") {
 		s.msg.Observers.SendInfo(s.actor.Name + " searches the area.")
 	}
-	s.actor.SetTimer("search", 60)
+	s.actor.SetTimer("search", 16)
 
 	// Use Int to determine the success roll for searching
 	searchChance := s.actor.Int.Current * config.SearchPerInt

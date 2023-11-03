@@ -105,8 +105,8 @@ func (steal) process(s *state) {
 			return
 		}
 
-		if len(whatMob.ThreatTable) > 0 && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			s.msg.Actor.SendBad("This mob is already in combat, you can't get a clear access to steal from it!")
+		if _, ok := whatMob.ThreatTable[s.actor.Name]; ok {
+			s.msg.Actor.SendBad("This mob is already aware of you, you can't steal from them.")
 			return
 		}
 

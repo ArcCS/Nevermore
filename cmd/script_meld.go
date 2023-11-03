@@ -64,8 +64,8 @@ func (scriptMeld) process(s *state) {
 			return
 		}
 
-		if target.MaxUses > 50 || meld.MaxUses > 50 {
-			s.msg.Actor.SendBad("You cannot meld items with more than 50 uses.")
+		if target.MaxUses+meld.MaxUses < 100 {
+			s.msg.Actor.SendBad("You cannot meld items with more than 100 uses.")
 			return
 		}
 
@@ -78,8 +78,8 @@ func (scriptMeld) process(s *state) {
 				s.msg.Actor.SendBad("These items do not contain the same spell.")
 				return
 			}
-			baseValue := (objects.Items[target.ItemId].Value / objects.Items[target.ItemId].MaxUses) / 2
-			meldValue := (objects.Items[meld.ItemId].Value / objects.Items[meld.ItemId].MaxUses) / 2
+			baseValue := (objects.Items[target.ItemId].Value / objects.Items[target.ItemId].MaxUses) / 3
+			meldValue := (objects.Items[meld.ItemId].Value / objects.Items[meld.ItemId].MaxUses) / 3
 			if meldValue > baseValue {
 				baseValue = meldValue
 			}
