@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/data"
 	"log"
 	"math"
 	"strconv"
@@ -184,14 +185,16 @@ func (kill) process(s *state) {
 					s.msg.Actor.SendGood("Double Damage!")
 				}
 
-				actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
+				actualDamage, _, resisted := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
+				data.StoreCombatMetric("kill", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 				whatMob.AddThreatDamage(actualDamage, s.actor)
 				log.Println(strconv.Itoa(whatMob.Stam.Max))
 				s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 				s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 				if whatMob.CheckFlag("reflection") {
 					reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
-					s.actor.ReceiveDamage(reflectDamage)
+					stamDamage, vitDamage, resisted := s.actor.ReceiveDamage(reflectDamage)
+					data.StoreCombatMetric("kill_mob_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
 					s.msg.Actor.Send("The " + whatMob.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back at you!")
 					s.actor.DeathCheck(" was killed by reflection!")
 				}

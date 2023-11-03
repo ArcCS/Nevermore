@@ -11,6 +11,7 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jinzhu/copier v0.3.4
+	github.com/lib/pq v1.10.9
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/neo4j/neo4j-go-driver/v4 v4.4.0
 	github.com/spf13/viper v1.12.0

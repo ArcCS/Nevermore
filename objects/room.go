@@ -461,6 +461,7 @@ func (r *Room) SongPlaying(songName string) bool {
 }
 
 func (r *Room) Save() {
+	r.Mobs.Jsonify()
 	roomData := make(map[string]interface{})
 	roomData["room_id"] = r.RoomId
 	roomData["name"] = r.Name

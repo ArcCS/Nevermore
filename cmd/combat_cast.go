@@ -118,12 +118,11 @@ func (cast) process(s *state) {
 			msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
 			s.actor.FlagOff("casting", "cast")
 			s.actor.Mana.Subtract(cost)
-			if (s.actor.Class == 5 || s.actor.Class == 4) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+			if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
 				s.actor.SetTimer("combat", 8)
 			}
 			s.actor.SetTimer("cast", 8)
-			// TODO: At level 15 wizards can change  the chant to a different action to invoke spells,
-			// bards simply stop chanting and can invoke spells at will.
+
 			if (s.actor.Class == 7 || s.actor.Class == 4) && s.actor.Tier <= 15 {
 				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
@@ -179,7 +178,7 @@ func (cast) process(s *state) {
 				msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
 				s.actor.FlagOff("casting", "cast")
 				s.actor.Mana.Subtract(cost)
-				if (s.actor.Class == 5 || s.actor.Class == 4) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+				if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
 					s.actor.SetTimer("combat", config.CombatCooldown)
 				}
 				s.actor.SetTimer("cast", config.CombatCooldown)

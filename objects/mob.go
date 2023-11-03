@@ -404,6 +404,7 @@ func (m *Mob) Tick() {
 				// If we made it here, default out and do a range hit.
 				stamDamage := 0
 				vitDamage := 0
+				resisted := 0
 				reflectDamage := 0
 				actualDamage := m.InflictDamage()
 				if utils.Roll(10, 1, 0) <= penalty {
@@ -420,10 +421,12 @@ func (m *Mob) Tick() {
 					}
 				}
 				if vitalStrike {
-					vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
+					vitDamage, resisted = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
+					data.StoreCombatMetric("range_vital", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
 					target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
 				} else {
-					stamDamage, vitDamage = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
+					stamDamage, vitDamage, resisted = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
+					data.StoreCombatMetric("range", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
 				}
 
 				buildString := ""
@@ -445,7 +448,8 @@ func (m *Mob) Tick() {
 				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
 				if target.CheckFlag("reflection") {
 					reflectDamage = int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
-					m.ReceiveDamage(reflectDamage)
+					mobFin, _, mobResisted := m.ReceiveDamage(reflectDamage)
+					data.StoreCombatMetric("range_player_reflect", 0, 1, reflectDamage, mobResisted, mobFin, 0, target.CharId, target.Tier, 1, m.MobId)
 					target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset))
 					m.DeathCheck(target)
 				}
@@ -489,7 +493,8 @@ func (m *Mob) Tick() {
 				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(config.WeaponLevel(target.Skills[target.Equipment.Main.ItemType].Value, target.Class)) {
 					if target.Tier >= config.SpecialAbilityTier {
 						// It's a riposte
-						actualDamage, _ := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
+						actualDamage, _, resisted := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
+						data.StoreCombatMetric("melee_riposte", 0, 1, actualDamage+resisted, resisted, actualDamage, 0, target.CharId, target.Tier, 1, m.MobId)
 						target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))
 						if m.DeathCheck(target) {
 							return
@@ -502,6 +507,7 @@ func (m *Mob) Tick() {
 				} else {
 					stamDamage := 0
 					vitDamage := 0
+					resisted := 0
 					actualDamage := m.InflictDamage()
 					reflectDamage := 0
 					if utils.Roll(10, 1, 0) <= penalty {
@@ -518,10 +524,13 @@ func (m *Mob) Tick() {
 						}
 					}
 					if vitalStrike {
-						vitDamage = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
+						vitDamage, resisted = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
+						data.StoreCombatMetric("melee_vital", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
 						target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
 					} else {
-						stamDamage, vitDamage = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
+						stamDamage, vitDamage, resisted = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
+						data.StoreCombatMetric("range_vital", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, stamDamage+vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
+
 					}
 					buildString := ""
 					if stamDamage != 0 {
@@ -546,7 +555,8 @@ func (m *Mob) Tick() {
 					}
 					if target.CheckFlag("reflection") {
 						reflectDamage = int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
-						m.ReceiveDamage(reflectDamage)
+						mobFin, _, mobResisted := m.ReceiveDamage(reflectDamage)
+						data.StoreCombatMetric("melee_player_reflect", 0, 1, reflectDamage, mobResisted, mobFin, 0, target.CharId, target.Tier, 1, m.MobId)
 						target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset))
 						m.DeathCheck(target)
 					}
@@ -722,7 +732,9 @@ func (m *Mob) Follow(params []string) {
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
 				//log.Println("Check for Vital")
 				if utils.Roll(100, 1, 0) <= config.MobFollowVital {
-					vitDamage := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()))))
+					vitDamage, resisted := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()))))
+					data.StoreCombatMetric("follow_vital", 0, 1, vitDamage, resisted, vitDamage, 1, m.MobId, m.Level, 0, targetChar.CharId)
+
 					if vitDamage == 0 {
 						targetChar.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset))
 					} else {
@@ -1028,7 +1040,7 @@ func (m *Mob) CheckFlag(flagName string) bool {
 	return false
 }
 
-func (m *Mob) ReceiveDamage(damage int) (int, int) {
+func (m *Mob) ReceiveDamage(damage int) (int, int, int) {
 	resist := int(((float64(m.Armor) / 100) * config.MobArmorReduction) * float64(damage))
 	finalDamage := damage - resist
 	if m.CheckFlag("inertial-barrier") {
@@ -1039,7 +1051,7 @@ func (m *Mob) ReceiveDamage(damage int) (int, int) {
 		m.MobCommands <- "flee"
 	}
 	log.Println(m.Name+" Receives Damage: ", damage, "Resist: ", resist, "Final Damage: ", finalDamage)
-	return finalDamage, 0
+	return finalDamage, 0, resist
 }
 
 func (m *Mob) ReceiveDamageNoArmor(damage int) (int, int) {
@@ -1088,9 +1100,9 @@ func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {
 	return stamDam, vitDam, resisted
 }
 
-func (m *Mob) ReceiveVitalDamage(damage int) int {
-	damageMod, _ := m.ReceiveDamage(damage)
-	return damageMod
+func (m *Mob) ReceiveVitalDamage(damage int) (int, int) {
+	damageMod, _, resisted := m.ReceiveDamage(damage)
+	return damageMod, resisted
 }
 
 func (m *Mob) Heal(damage int) (int, int) {

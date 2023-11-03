@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
@@ -63,6 +64,7 @@ func (actwith) process(s *state) {
 		return
 	}
 
+	data.StoreChatLog(3, s.actor.CharId, s.participant.CharId, action)
 	s.msg.Actor.SendInfo("You " + action + " " + whoWith)
 	if s.participant != nil {
 		s.msg.Participant.SendInfo(s.actor.Name + " " + action + " you.")

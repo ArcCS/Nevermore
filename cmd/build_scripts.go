@@ -30,6 +30,7 @@ var ScriptList = map[string]string{
 	"$MELD":       "Usage: $MELD, melds 2 like items together",
 	"$SOULBIND":   "Usage: $SOULBIND, binds an item to a player",
 	"$RENAME":     "Usage: $RENAME, renames an item",
+	"$SELLCHEST":  "Usage: $SELLCHEST, sells the contents of a chest/container",
 }
 
 func (scripts) process(s *state) {

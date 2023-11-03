@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
@@ -98,13 +99,15 @@ func (snipe) process(s *state) {
 
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
-			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["snipe"]))))
+			actualDamage, _, resisted := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["snipe"]))))
+			data.StoreCombatMetric("snipe", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 			s.msg.Actor.SendInfo("You sniped the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 			s.msg.Observers.SendInfo(s.actor.Name + " snipes " + whatMob.Name)
 			if whatMob.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
-				s.actor.ReceiveDamage(reflectDamage)
+				stamDamage, vitDamage, resisted := s.actor.ReceiveDamage(reflectDamage)
+				data.StoreCombatMetric("snipe_mob_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
 				s.msg.Actor.Send("The " + whatMob.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back at you!")
 				s.actor.DeathCheck(" was killed by reflection!")
 			}

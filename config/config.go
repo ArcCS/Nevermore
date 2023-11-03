@@ -13,9 +13,13 @@ import (
 // Server default configuration
 var Server = struct {
 	Host              string        // Host for server to listen on
-	DBUname           string        // The Username for the neo4j instance
-	DBPword           string        // The Password for the neo4j instance
-	DBAddress         string        // The address of the neo4j server
+	NEOUname          string        // The Username for the neo4j instance
+	NEOPword          string        // The Password for the neo4j instance
+	NEOAddress        string        // The address of the neo4j server
+	PGUname           string        // The Username for the neo4j instance
+	PGPword           string        // The Password for the neo4j instance
+	PGAddress         string        // The address of the neo4j server
+	PGPort            int           // The port of the postgres server
 	Port              string        // Port for server to listen on
 	IdleTimeout       time.Duration // Idle connection disconnect time
 	AFKTimeout        time.Duration
@@ -29,10 +33,14 @@ var Server = struct {
 	PermissionDefault int
 }{
 	Host:              "127.0.0.1",
-	DBUname:           "USERNAME",
-	DBPword:           "PASSWORD",
-	DBAddress:         "127.0.0.1",
+	NEOUname:          "USERNAME",
+	NEOPword:          "PASSWORD",
+	NEOAddress:        "127.0.0.1",
 	Port:              "4001",
+	PGUname:           "USERNAME",
+	PGPword:           "PASSWORD",
+	PGAddress:         "127.0.0.1",
+	PGPort:            5432,
 	IdleTimeout:       15 * time.Minute,
 	AFKTimeout:        30 * time.Minute,
 	OOCTimeout:        20 * time.Minute,
@@ -138,11 +146,14 @@ func init() {
 	}
 
 	Server.Host = viper.GetString("host")
-	Server.DBUname = viper.GetString("dbuname")
-	Server.DBPword = viper.GetString("dbpword")
-	Server.DBAddress = viper.GetString("dbaddress")
+	Server.NEOUname = viper.GetString("neouname")
+	Server.NEOPword = viper.GetString("neopword")
+	Server.NEOAddress = viper.GetString("neoaddress")
+	Server.PGUname = viper.GetString("pguname")
+	Server.PGPword = viper.GetString("pgpword")
+	Server.PGAddress = viper.GetString("pgaddress")
 	Server.Port = viper.GetString("port")
-
+	Server.PGPort = viper.GetInt("pgport")
 	// Setup global logging format
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile | log.Lmicroseconds)
 

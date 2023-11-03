@@ -11,9 +11,9 @@ How to Run Locally:
   
   Lines 25-27
   ```
-	DBUname:		"USERNAME",
-	DBPword:		"PASSWORD",
-	DBAddress:		"127.0.0.1",
+	NEOUname:		"USERNAME",
+	NEOPword:		"PASSWORD",
+	NEOAddress:		"127.0.0.1",
   ```
   
   You can then build the code base:

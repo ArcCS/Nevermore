@@ -2,6 +2,7 @@ package objects
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
@@ -145,7 +146,8 @@ func BansheesLament(target interface{}, singer *Character) {
 	case *Mob:
 		damage := ((utils.Roll(singer.Equipment.Off.SidesDice, singer.Equipment.Off.NumDice, singer.Equipment.Off.PlusDice) + singer.Equipment.Off.Adjustment) / 2) / len(Rooms[target.ParentId].Mobs.Contents)
 		singer.Write([]byte(text.Red + "Your song caused " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset))
-		target.ReceiveDamageNoArmor(damage)
+		actualDamage, resisted := target.ReceiveDamageNoArmor(damage)
+		data.StoreCombatMetric("banshees_lament", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, singer.CharId, singer.Tier, 1, target.MobId)
 		target.AddThreatDamage(damage, singer)
 	}
 }

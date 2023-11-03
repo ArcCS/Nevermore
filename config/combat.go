@@ -20,162 +20,165 @@ var CombatModifiers = map[string]int{
 	"snipe":    4,
 }
 
-var CombatCooldown = 8
-var UnequipCooldown = 2
+var (
+	BerserkCooldown = 60 * 5
+	CombatCooldown  = 8
+	UnequipCooldown = 2
 
-var RoomClearTimer = 3             // Seconds
-var RoomEffectInvocation = 18      // Seconds
-var RoomDefaultEncounterSpeed = 10 // Seconds
-var RoomMaxJigger = 4
-var RoomEncNoDoubles = 6
-var RoomEncNoTriples = 5
+	RoomClearTimer            = 3  // Seconds
+	RoomEffectInvocation      = 18 // Seconds
+	RoomDefaultEncounterSpeed = 10 // Seconds
+	RoomMaxJigger             = 4
+	RoomEncNoDoubles          = 6
+	RoomEncNoTriples          = 5
 
-var BaseDevicePiety = 8.0
+	BaseDevicePiety = 8.0
 
-var IntMajorPenalty = 7
-var PieMajorPenalty = 5
+	IntMajorPenalty = 7
+	PieMajorPenalty = 5
 
-var MobAugmentPerCharacter = 3
+	MobAugmentPerCharacter = 3
 
-var FreeDeathTier = 4
+	FreeDeathTier = 4
 
-var SpecialAbilityTier = 7
-var MinorAbilityTier = 5
+	SpecialAbilityTier = 7
+	MinorAbilityTier   = 5
 
-var MobVital = 3
-var MobCritical = 4
-var MobDouble = 10
-var MobFollowVital = 35
+	MobVital       = 3
+	MobCritical    = 4
+	MobDouble      = 10
+	MobFollowVital = 35
 
-var BindCost = 75000
-var RenameCost = 150000
+	BindCost   = 75000
+	RenameCost = 150000
 
-var MissPerLevel = 8 // This is a percentage
-var SearchPerInt = 3 // This is a percentage
+	MissPerLevel = 8 // This is a percentage
+	SearchPerInt = 3 // This is a percentage
 
-var SurgeExtraDamage = .15
-var SurgeDamageBonus = .20     // Percentage added when using surge
-var InertialDamageIgnore = .20 // Percentage ignored when using inertial barrier
-var ReflectDamagePerInt = .02  // Percentage of damage reflected per int point
-var ReflectDamageFromMob = .15 // Percentage of damage reflected from mob
+	SurgeExtraDamage     = .15
+	SurgeDamageBonus     = .20 // Percentage added when using surge
+	InertialDamageIgnore = .20 // Percentage ignored when using inertial barrier
+	ReflectDamagePerInt  = .02 // Percentage of damage reflected per int point
+	ReflectDamageFromMob = .15 // Percentage of damage reflected from mob
 
-var DodgeDamagePerDex = .01
-var FullDodgeChancePerDex = .01
+	DodgeDamagePerDex     = .01
+	FullDodgeChancePerDex = .01
 
-// Thief & Ranger
-var PeekCD = 8
-var StealCD = 8
-var HideChance = 20
-var SneakChance = 20
-var SneakBonus = 10
-var StealChance = 20
-var StealChancePerSkillLevel = 4
-var BackStabChance = 20
-var BackStabChancePerLevel = 5
-var BackStabChancePerSkillLevel = 3
-var SnipeChance = 15
-var HideChancePerPoint = 3
-var SneakChancePerPoint = 1
-var SneakChancePerTier = 1
-var StealChancePerPoint = 1
-var BackStabChancePerPoint = 1
-var SnipeChancePerPoint = 1
-var SnipeChancePerLevel = 5
-var SnipeFumbleChance = 20
-var MobStealRevengeVitalChance = 15
-var MobBSRevengeVitalChance = 25
-var VitalStrikeScale = 2
-var BackstabCooldown = 60
+	// Thief & Ranger
+	PeekCD                      = 8
+	StealCD                     = 8
+	HideChance                  = 20
+	SneakChance                 = 20
+	SneakBonus                  = 10
+	StealChance                 = 20
+	StealChancePerSkillLevel    = 4
+	BackStabChance              = 20
+	BackStabChancePerLevel      = 5
+	BackStabChancePerSkillLevel = 3
+	SnipeChance                 = 15
+	HideChancePerPoint          = 3
+	SneakChancePerPoint         = 1
+	SneakChancePerTier          = 1
+	StealChancePerPoint         = 1
+	BackStabChancePerPoint      = 1
+	SnipeChancePerPoint         = 1
+	SnipeChancePerLevel         = 5
+	SnipeFumbleChance           = 20
+	MobStealRevengeVitalChance  = 15
+	MobBSRevengeVitalChance     = 25
+	VitalStrikeScale            = 2
+	BackstabCooldown            = 60
 
-// Monk
-var TodMax = 5
-var TodScaleDown = 10
-var MonkArmorPerLevel = 15
-var TodTimer = 600
-var TodCost = 10
-var VitalChance = 15
-var MeditateTime = 600
+	// Monk
+	TodMax            = 5
+	TodScaleDown      = 10
+	MonkArmorPerLevel = 15
+	TodTimer          = 600
+	TodCost           = 10
+	VitalChance       = 15
+	MeditateTime      = 600
 
-// Paladin/Cleri
-var TurnMax = 50
-var TurnScaleDown = 10
-var DisintegrateChance = 5
-var TurnTimer = 60
-var SlamTimer = 30
-var ShieldDamage = 3
-var ShieldStun = .4
+	// Paladin/Cleri
+	TurnMax            = 50
+	TurnScaleDown      = 10
+	DisintegrateChance = 5
+	TurnTimer          = 60
+	SlamTimer          = 30
+	ShieldDamage       = 3
+	ShieldStun         = .4
 
-// Bard Stuff
-var ScalePerPiety = 1
-var DurationPerCon = 10
+	// Bard Stuff
+	ScalePerPiety  = 1
+	DurationPerCon = 10
 
-// Mob Stuns:
-var ParryStuns = 2
-var CircleStuns = 1
-var CircleTimer = 16
-var HamTimer = 24
-var BashStuns = 16
-var BashTimer = 45
+	// Mob Stuns:
+	ParryStuns  = 2
+	CircleStuns = 1
+	CircleTimer = 16
+	HamTimer    = 24
+	BashStuns   = 16
+	BashTimer   = 45
 
-// Mob Things
-var MobBlock = 25
-var MobBlockPerLevel = 5
-var MobFollow = 25
-var MobFollowPerLevel = 2
-var MobTakeChance = 20 // Percent
+	// Mob Things
+	MobBlock          = 25
+	MobBlockPerLevel  = 5
+	MobFollow         = 25
+	MobFollowPerLevel = 2
+	MobTakeChance     = 20 // Percent
 
-// Str Mods
-var StrCarryMod = 10 // Per Point
-var BaseCarryWeight = 40
-var StatDamageMod = .01 // Per Point
+	// Str Mods
+	StrCarryMod     = 10 // Per Point
+	BaseCarryWeight = 40
+	StatDamageMod   = .01 // Per Point
 
-// Con Mods
-var ReduceSickCon = 1
-var SickConBonus = 2
-var ConBonusHealthDiv = 5
-var ConHealRegenMod = .10
-var ConMonkArmor = 2 // 2 Armor Extra Per Con
-var ConFallDamageMod = 1
-var ConArmorMod = .01
+	// Con Mods
+	ReduceSickCon     = 1
+	SickConBonus      = 2
+	ConBonusHealthDiv = 5
+	ConHealRegenMod   = .10
+	ConMonkArmor      = 2 // 2 Armor Extra Per Con
+	ConFallDamageMod  = 1
+	ConArmorMod       = .01
 
-// Dex Mods
-var HitPerDex = 1
-var MissPerDex = 1
-var DexDodgeMod = .0025 //Chance to dodge
-var DexFallDamageMod = 1
+	// Dex Mods
+	HitPerDex        = 1
+	MissPerDex       = 1
+	DexDodgeMod      = .0025 //Chance to dodge
+	DexFallDamageMod = 1
 
-var FallDamage = .20
+	FallDamage = .20
 
-// Int Mods
-var IntResistMagicBase = 10
-var IntResistMagicPerPoint = 1
-var IntManaPool = 2             // Number of points of mana to add
-var IntManaPoolDiv = 5          // Number to divide by
-var IntSpellEffectDuration = 30 // Seconds to add
-var IntBroad = 1                // Number of broadcasts per int point
-var IntEvalDivInt = 3           //Divide int by this number to get eval
-var BaseEvals = 1
-var BaseBroads = 5
-var FizzleSave = 50
+	// Int Mods
+	IntResistMagicBase     = 10
+	IntResistMagicPerPoint = 1
+	IntManaPool            = 2  // Number of points of mana to add
+	IntManaPoolDiv         = 5  // Number to divide by
+	IntSpellEffectDuration = 30 // Seconds to add
+	IntBroad               = 1  // Number of broadcasts per int point
+	IntEvalDivInt          = 3  //Divide int by this number to get eval
+	BaseEvals              = 1
+	BaseBroads             = 5
+	FizzleSave             = 50
 
-// Piety Mods
-var PieRegenMod = .4 // Regen Mana per tick
-var PieHealMod = .7  // Per point
+	// Piety Mods
+	PieRegenMod = .4 // Regen Mana per tick
+	PieHealMod  = .7 // Per point
 
-// Armor Values
-var ArmorReduction = .007
-var ArmorReductionPoints = 10
+	// Armor Values
+	ArmorReduction       = .007
+	ArmorReductionPoints = 10
 
-var MobArmorReduction = .5
+	MobArmorReduction = .5
 
-// Party
-var ExperienceReduction = map[int]float64{
-	1: .9,
-	2: .7,
-	3: .6,
-	4: .5,
-	5: .45,
-}
+	// Party
+	ExperienceReduction = map[int]float64{
+		1: .9,
+		2: .7,
+		3: .6,
+		4: .5,
+		5: .45,
+	}
+)
 
 func MaxWeight(str int) int {
 	return BaseCarryWeight + (str * StrCarryMod)
@@ -306,15 +309,15 @@ var LethalDamage = []int{
 // BashChances Skill = Thunk, Crushing, Thwomp, Thump
 var BashChances = map[int][]int{
 	0: {0, 0, 0, 0},
-	1: {125, 600, 1200, 2400},
-	2: {250, 1000, 2000, 4000},
-	3: {500, 2000, 4000, 8000},
-	4: {750, 3000, 6000, 12000},
-	5: {1000, 4000, 8000, 16000},
-	6: {1250, 5000, 10000, 20000},
-	7: {1500, 6000, 12000, 24000},
-	8: {1875, 7500, 15000, 30000},
-	9: {3000, 12000, 24000, 48000},
+	1: {125 * 4, 600 * 4, 1200 * 4, 2400 * 4},
+	2: {250 * 4, 1000 * 4, 2000 * 4, 4000 * 4},
+	3: {500 * 4, 2000 * 4, 4000 * 4, 8000 * 4},
+	4: {750 * 4, 3000 * 4, 6000 * 4, 12000 * 4},
+	5: {1000 * 4, 4000 * 4, 8000 * 4, 16000 * 4},
+	6: {1250 * 4, 5000 * 4, 10000 * 4, 20000 * 4},
+	7: {1500 * 4, 6000 * 4, 12000 * 4, 24000 * 4},
+	8: {1875 * 4, 7500 * 4, 15000 * 4, 30000 * 4},
+	9: {3000 * 4, 12000 * 4, 24000 * 4, 48000 * 4},
 }
 
 func RollBash(skill int) (damModifier int, stunModifier int, output string) {

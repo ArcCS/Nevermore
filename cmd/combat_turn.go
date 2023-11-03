@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
@@ -67,7 +68,7 @@ func (turn) process(s *state) {
 			return
 		}
 
-		if s.actor.Placement != whatMob.Placement {
+		if s.actor.Class == 6 && (s.actor.Placement != whatMob.Placement) {
 			s.msg.Actor.SendBad("You are too far away to turn them.")
 			return
 		}
@@ -90,6 +91,7 @@ func (turn) process(s *state) {
 			s.msg.Observers.SendInfo(s.actor.Name + " disintegrates " + whatMob.Name)
 			whatMob.AddThreatDamage(whatMob.Stam.Current, s.actor)
 			whatMob.Stam.Current = 0
+			data.StoreCombatMetric("turn_whole", 0, 0, whatMob.Stam.Max, 0, whatMob.Stam.Max, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 			DeathCheck(s, whatMob)
 			whatMob = nil
 		} else if curChance >= 100 || turnRoll <= curChance {
@@ -97,11 +99,14 @@ func (turn) process(s *state) {
 			s.msg.Observers.SendInfo(s.actor.Name + " turned " + whatMob.Name)
 			whatMob.AddThreatDamage(whatMob.Stam.Current/2, s.actor)
 			whatMob.Stam.Subtract(whatMob.Stam.Current / 2)
+			data.StoreCombatMetric("turn_half", 0, 0, whatMob.Stam.Current, 0, whatMob.Stam.Current, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 		} else {
 			s.msg.Actor.SendBad("You fail to turn the " + whatMob.Name + ".  They charge you!")
 			whatMob.CurrentTarget = s.actor.Name
+			whatMob.Placement = s.actor.Placement
 			whatMob.AddThreatDamage(whatMob.Stam.Current, s.actor)
-			s.actor.ReceiveDamage(s.actor.Stam.Max / 2)
+			stamDamage, vitDamage, resisted := s.actor.ReceiveDamage(s.actor.Stam.Max / 2)
+			data.StoreCombatMetric("tod_fail_retaliate", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
 			s.msg.Observers.SendInfo(s.actor.Name + " turn attempt fails and enrages " + whatMob.Name)
 		}
 		return

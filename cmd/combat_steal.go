@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
@@ -145,19 +146,21 @@ func (steal) process(s *state) {
 					return
 				} else {
 					s.msg.Actor.SendBad("You failed to steal from ", whatMob.Name, ", and stumble out of the shadows.")
+					s.msg.Observers.SendBad(s.actor.Name + " fails to steal from " + whatMob.Name)
 					s.actor.RemoveHook("combat", "hide")
 					whatMob.AddThreatDamage(whatMob.Stam.Max/4, s.actor)
 					if utils.Roll(100, 1, 0) <= config.MobStealRevengeVitalChance {
 						whatMob.CurrentTarget = s.actor.Name
 						s.msg.Actor.SendInfo(whatMob.Name + " turns to you.")
 						s.msg.Observers.SendInfo(whatMob.Name + " turns to " + s.actor.Name + ".")
-						vitDamage := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage() * config.VitalStrikeScale))))
+						vitDamage, resisted := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage() * config.VitalStrikeScale))))
+						data.StoreCombatMetric("steal_fail_vital", 0, 0, vitDamage+resisted, resisted, vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
 						if vitDamage == 0 {
 							s.msg.Actor.SendGood(whatMob.Name, " vital strike bounces off of you for no damage!")
 						} else {
 							s.msg.Actor.SendInfo(whatMob.Name, " attacks you for "+strconv.Itoa(vitDamage)+" points of vitality damage!")
 						}
-						s.actor.DeathCheck("was slaying trying to steal from " + whatMob.Name + ".")
+						s.actor.DeathCheck("was slain trying to steal from " + whatMob.Name + ".")
 					}
 					return
 				}

@@ -902,7 +902,7 @@ func (c *Character) AdvanceStealthExp(amount int) {
 }
 
 // ReceiveDamage Return stam and vital damage
-func (c *Character) ReceiveDamage(damage int) (int, int) {
+func (c *Character) ReceiveDamage(damage int) (int, int, int) {
 	if c.CheckFlag("surge") {
 		damage += int(math.Ceil(float64(damage) * config.SurgeExtraDamage))
 	}
@@ -935,7 +935,7 @@ func (c *Character) ReceiveDamage(damage int) (int, int) {
 		vitalDamage = 0
 	}
 	log.Println(c.Name+"Receives Damage: ", damage, "Resist: ", resist, "Final Damage: ", finalDamage, "Stam Damage: ", stamDamage, "Vital Damage: ", vitalDamage)
-	return stamDamage, vitalDamage
+	return stamDamage, vitalDamage, resist
 }
 
 func (c *Character) ReceiveDamageNoArmor(damage int) (int, int) {
@@ -962,12 +962,14 @@ func (c *Character) ReceiveDamageNoArmor(damage int) (int, int) {
 	return stamDamage, vitalDamage
 }
 
-func (c *Character) ReceiveVitalDamage(damage int) int {
+func (c *Character) ReceiveVitalDamage(damage int) (int, int) {
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
 	}
-	finalDamage := int(math.Ceil(float64(damage) * (1 - (float64(c.GetStat("armor")/config.ArmorReductionPoints) * config.ArmorReduction))))
+	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
+
+	finalDamage := damage - resist
 	if finalDamage < 0 {
 		finalDamage = 0
 	}
@@ -977,7 +979,7 @@ func (c *Character) ReceiveVitalDamage(damage int) int {
 	} else {
 		c.Vit.Subtract(finalDamage)
 	}
-	return finalDamage
+	return finalDamage, resist
 }
 
 func (c *Character) ReceiveVitalDamageNoArmor(damage int) int {

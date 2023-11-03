@@ -5,6 +5,7 @@ package main
 import (
 	"github.com/ArcCS/Nevermore/comms"
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/intelligence"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/stats"
@@ -30,17 +31,21 @@ func main() {
 	log.Println("Starting time...")
 	StartTime()
 	intelligence.StartRoomAI()
-	StartRoomSync()
+	StartSync()
 	comms.Listen(config.Server.Host, config.Server.Port)
 }
 
-func StartRoomSync() {
+func StartSync() {
 	RoomSyncTicker = time.NewTicker(3 * time.Minute)
 	go func() {
 		for {
 			select {
 			case <-RoomSyncTicker.C:
 				objects.FlushRoomUpdates()
+				data.FlushChatLogs()
+				data.FlushItemSales()
+				data.FlushItemTotals()
+				data.FlushCombatMetrics()
 			}
 		}
 	}()

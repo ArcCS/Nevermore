@@ -31,6 +31,7 @@ var handlers = map[string]handler{}
 var handlerPermission = map[string]permissions.Permissions{}
 var helpText = map[string]helpTextStruct{}
 var oocCommands = []string{"SAY", "QUIT", "HELP", "WHO", "LOOK", "IC", "$POOF", "AFK", "GO", "ACT"}
+var excludeFromLogs = []string{"SAY", "TELL", "OSAY", "SEND", "R", "REPLY", "REP", "PARTYTELL", "PTELL"}
 var reverseLookup = map[string]string{}
 var emotes = []string{"ACT", "BLINK", "BLUSH", "BOW", "BURP", "CACKLE", "CHEER", "CHUCKLE", "CLAP", "CONFUSED", "COUGH", "CROSSARMS", "CROSSFINGERS", "CRY",
 	"DANCE", "EMOTE", "FLEX", "FLINCH", "FROWN", "GASP", "GIGGLE", "GRIN", "GROAN", "HICCUP", "JUMP", "KNEEL", "LAUGH", "NOD", "PONDER", "SALUTE", "SHAKE", "SHIVER", "SHRUG",
@@ -61,10 +62,12 @@ func addHandler(h handler, helpString string, permission permissions.Permissions
 func dispatchHandler(s *state) {
 
 	if len(s.cmd) > 0 {
-		if !s.scripting {
+		//if !s.scripting {
+		if !utils.StringIn(strings.ToUpper(s.cmd), emotes) && !utils.StringIn(strings.ToUpper(s.cmd), excludeFromLogs) {
 			log.Println(s.actor.Name + " sent " + s.cmd + " " + strings.Join(s.input, " "))
 			s.actor.LastAction = time.Now()
 		}
+		//}
 
 		if s.where.RoomId == config.OocRoom &&
 			!s.actor.Permission.HasAnyFlags(permissions.Dungeonmaster, permissions.Gamemaster) &&

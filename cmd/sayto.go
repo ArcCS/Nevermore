@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
@@ -42,8 +43,14 @@ func (sayto) process(s *state) {
 	}
 	s.participant = who
 
+	if who == s.actor {
+		s.msg.Actor.SendBad("Talk to yourself in your head, not out loud.")
+		return
+	}
+
 	msg := strings.Join(s.input[1:], " ")
 	s.actor.RunHook("say")
+	data.StoreChatLog(0, s.actor.CharId, 0, msg)
 	if msg[len(msg)-1:] == "?" {
 		s.msg.Actor.SendGood("You ask "+who.Name+": \"", msg, "\"")
 		s.msg.Participant.SendInfo(whoSays, " asks you: \"", msg, "\"")

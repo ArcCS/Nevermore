@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
@@ -125,16 +126,17 @@ func (backstab) process(s *state) {
 		s.actor.RunHook("combat")
 		if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
 
-			actualDamage, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["backstab"]))))
-
+			actualDamage, _, resisted := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["backstab"]))))
+			data.StoreCombatMetric("backstab", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 			s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
-			s.actor.AdvanceStealthExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience))))
+			s.actor.AdvanceStealthExp(int(float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)))
 			whatMob.AddThreatDamage(actualDamage, s.actor)
 			s.msg.Actor.SendInfo("You backstabbed the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 			s.msg.Observers.SendInfo(s.actor.Name + " backstabs " + whatMob.Name)
 			if whatMob.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
-				s.actor.ReceiveDamage(reflectDamage)
+				stamDamage, vitDamage, resisted := s.actor.ReceiveDamage(reflectDamage)
+				data.StoreCombatMetric("backstab_mob_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
 				s.msg.Actor.Send("The " + whatMob.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back at you!")
 				s.actor.DeathCheck(" was killed by reflection!")
 			}
@@ -155,7 +157,8 @@ func (backstab) process(s *state) {
 				whatMob.CurrentTarget = s.actor.Name
 				s.msg.Actor.SendInfo(whatMob.Name + " turns it's attention to you.")
 				s.msg.Observers.SendInfo(whatMob.Name + " turns to " + s.actor.Name + ".")
-				vitDamage := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage() * config.VitalStrikeScale))))
+				vitDamage, resisted := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage() * config.VitalStrikeScale))))
+				data.StoreCombatMetric("backstab_mob_vital", 0, 0, vitDamage+resisted, resisted, vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
 				if vitDamage == 0 {
 					s.msg.Actor.SendGood(whatMob.Name, " vital strike bounces off of you for no damage!")
 				} else {
