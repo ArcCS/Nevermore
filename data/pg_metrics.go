@@ -44,29 +44,6 @@ type ItemSales struct {
 	SellValue  int
 }
 
-func AddCombatMetric(combatMetric CombatMetric) bool {
-	// Insert a combat metric
-	_, err := pgExec("INSERT INTO combat_metrics (action, type, mode, total_damage, resisted, final_damage, attacker_type, attacker_id, attacker_tier, victim_type, victim_id, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURN combat_id",
-		combatMetric.Action,
-		combatMetric.ActionType,
-		combatMetric.Mode,
-		combatMetric.TotalDamage,
-		combatMetric.Resisted,
-		combatMetric.FinalDamage,
-		combatMetric.AttackerType,
-		combatMetric.AttackerId,
-		combatMetric.AttackerTier,
-		combatMetric.VictimType,
-		combatMetric.VictimId,
-		combatMetric.CombatTime,
-	)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	return true
-}
-
 func FlushCombatMetrics() bool {
 	if len(CombatMetricsCapture) > 0 {
 		db, err := sql.Open("postgres", PGCONNSTR)

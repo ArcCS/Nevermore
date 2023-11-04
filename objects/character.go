@@ -643,7 +643,12 @@ func (c *Character) buildPrompt() []byte {
 
 // Write writes the specified byte slice to the associated client.
 func (c *Character) Write(b []byte) (n int, err error) {
+	if c == nil {
+		return
+	}
+
 	// Push text to a channel buffer
+	log.Println("Placing text on buffer" + string(b))
 	if len(b) > 0 {
 		c.MsgBuffer <- b
 	}
@@ -652,6 +657,8 @@ func (c *Character) Write(b []byte) (n int, err error) {
 
 // Write writes the specified byte slice to the associated client.
 func (c *Character) WriteBuffer(b []byte) (n int, err error) {
+
+	log.Println("Flushing buffered string" + string(b))
 	if c == nil {
 		return
 	}
