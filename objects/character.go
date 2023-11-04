@@ -277,6 +277,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 		FilledCharacter.Equipment.ReturnToInventory = FilledCharacter.ReturnToInventory
 		FilledCharacter.Equipment.CheckEquipment()
 		FilledCharacter.Equipment.PostEquipmentLight()
+		go func() { FilledCharacter.Flags["load_complete"] = true }()
 		return FilledCharacter, false
 	}
 }
@@ -644,6 +645,9 @@ func (c *Character) buildPrompt() []byte {
 // Write writes the specified byte slice to the associated client.
 func (c *Character) Write(b []byte) (n int, err error) {
 	if c == nil {
+		return
+	}
+	if !c.CheckFlag("load_complete") {
 		return
 	}
 
