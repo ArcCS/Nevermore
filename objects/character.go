@@ -253,7 +253,6 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			for {
 				select {
 				case <-FilledCharacter.CharTickerUnload:
-					FilledCharacter.BufferUnload <- true
 					return
 				case <-FilledCharacter.CharTicker.C:
 					FilledCharacter.Tick()
@@ -366,6 +365,8 @@ func (c *Character) SingSong(song string, tickRate int) {
 
 func (c *Character) Unload() {
 	c.CharTicker.Stop()
+	c.FlagOff("load_complete", "")
+	c.BufferUnload <- true
 	c.CharTickerUnload <- true
 }
 
