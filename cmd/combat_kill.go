@@ -74,6 +74,7 @@ func (kill) process(s *state) {
 		// This is an override for a GM to delete a mob
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendInfo("You smashed ", whatMob.Name, " out of existence.")
+			s.actor.Victim = nil
 			objects.Rooms[whatMob.ParentId].Mobs.Remove(whatMob)
 			whatMob = nil
 			return

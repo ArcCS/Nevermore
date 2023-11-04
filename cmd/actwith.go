@@ -33,11 +33,13 @@ type actwith cmd
 
 func (actwith) process(s *state) {
 	whoWith := ""
+	whoId := 0
 	if len(s.words) > 0 {
 		targetPlayer := s.where.Chars.Search(s.words[0], s.actor)
 		if targetPlayer != nil {
 			s.participant = targetPlayer
 			whoWith = targetPlayer.Name
+			whoId = targetPlayer.CharId
 		} else {
 			targetMob := s.where.Mobs.Search(s.words[0], 1, s.actor)
 			if targetMob != nil {
@@ -64,7 +66,7 @@ func (actwith) process(s *state) {
 		return
 	}
 
-	data.StoreChatLog(3, s.actor.CharId, s.participant.CharId, action)
+	data.StoreChatLog(3, s.actor.CharId, whoId, action)
 	s.msg.Actor.SendInfo("You " + action + " " + whoWith)
 	if s.participant != nil {
 		s.msg.Participant.SendInfo(s.actor.Name + " " + action + " you.")

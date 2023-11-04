@@ -106,7 +106,7 @@ func (turn) process(s *state) {
 			whatMob.Placement = s.actor.Placement
 			whatMob.AddThreatDamage(whatMob.Stam.Current, s.actor)
 			stamDamage, vitDamage, resisted := s.actor.ReceiveDamage(s.actor.Stam.Max / 2)
-			data.StoreCombatMetric("tod_fail_retaliate", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
+			data.StoreCombatMetric("turn_fail_retaliate", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
 			s.msg.Observers.SendInfo(s.actor.Name + " turn attempt fails and enrages " + whatMob.Name)
 		}
 		return

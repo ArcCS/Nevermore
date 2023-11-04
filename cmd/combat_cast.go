@@ -107,37 +107,6 @@ func (cast) process(s *state) {
 				nameNum = val
 			}
 		}
-		// Try Mobs First
-		var whatMob *objects.Mob
-		whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
-		// It was a mob!
-		if whatMob != nil {
-			s.actor.RunHook("combat")
-			s.actor.Victim = whatMob
-			s.actor.FlagOn("casting", "cast")
-			msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
-			s.actor.FlagOff("casting", "cast")
-			s.actor.Mana.Subtract(cost)
-			if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
-				s.actor.SetTimer("combat", 8)
-			}
-			s.actor.SetTimer("cast", 8)
-
-			if (s.actor.Class == 7 || s.actor.Class == 4) && s.actor.Tier <= 15 {
-				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
-				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
-			}
-			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatMob.Name)
-			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatMob.Name)
-			if strings.Contains(msg, "$CRIPT") {
-				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
-			} else if msg != "" {
-				s.msg.Actor.SendGood(msg)
-			}
-			DeathCheck(s, whatMob)
-			s.ok = true
-			return
-		}
 
 		// Are we casting on a character
 		var whatChar *objects.Character
@@ -238,6 +207,37 @@ func (cast) process(s *state) {
 			return
 		}
 
+		// Try Mobs Last
+		var whatMob *objects.Mob
+		whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
+		// It was a mob!
+		if whatMob != nil {
+			s.actor.RunHook("combat")
+			s.actor.Victim = whatMob
+			s.actor.FlagOn("casting", "cast")
+			msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
+			s.actor.FlagOff("casting", "cast")
+			s.actor.Mana.Subtract(cost)
+			if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+				s.actor.SetTimer("combat", 8)
+			}
+			s.actor.SetTimer("cast", 8)
+
+			if (s.actor.Class == 7 || s.actor.Class == 4) && s.actor.Tier <= 15 {
+				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
+				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
+			}
+			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatMob.Name)
+			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatMob.Name)
+			if strings.Contains(msg, "$CRIPT") {
+				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+			} else if msg != "" {
+				s.msg.Actor.SendGood(msg)
+			}
+			DeathCheck(s, whatMob)
+			s.ok = true
+			return
+		}
 	} else {
 
 		if strings.Contains(spellInstance.Effect, "damage") {
@@ -271,7 +271,6 @@ func (cast) process(s *state) {
 		}
 		s.ok = true
 		return
-
 	}
 
 	s.msg.Actor.SendInfo("Cast on who?")

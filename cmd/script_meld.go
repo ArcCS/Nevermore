@@ -64,7 +64,7 @@ func (scriptMeld) process(s *state) {
 			return
 		}
 
-		if target.MaxUses+meld.MaxUses < 100 {
+		if target.MaxUses+meld.MaxUses > 100 {
 			s.msg.Actor.SendBad("You cannot meld items with more than 100 uses.")
 			return
 		}

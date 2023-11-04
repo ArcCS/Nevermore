@@ -494,7 +494,7 @@ func (m *Mob) Tick() {
 					if target.Tier >= config.SpecialAbilityTier {
 						// It's a riposte
 						actualDamage, _, resisted := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
-						data.StoreCombatMetric("melee_riposte", 0, 1, actualDamage+resisted, resisted, actualDamage, 0, target.CharId, target.Tier, 1, m.MobId)
+						data.StoreCombatMetric("melee_player_riposte", 0, 1, actualDamage+resisted, resisted, actualDamage, 0, target.CharId, target.Tier, 1, m.MobId)
 						target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))
 						if m.DeathCheck(target) {
 							return
@@ -529,7 +529,7 @@ func (m *Mob) Tick() {
 						target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
 					} else {
 						stamDamage, vitDamage, resisted = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
-						data.StoreCombatMetric("range_vital", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, stamDamage+vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
+						data.StoreCombatMetric("melee", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, stamDamage+vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
 
 					}
 					buildString := ""
