@@ -83,6 +83,7 @@ type Character struct {
 
 	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
+	BufferUnload     chan bool
 	CharCommands     chan string
 	MsgBuffer        chan []byte
 	SongTicker       *time.Ticker
@@ -180,6 +181,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 				"air":   {0}},
 			nil,
 			make(chan bool),
+			make(chan bool),
 			make(chan string),
 			make(chan []byte),
 			nil,
@@ -250,6 +252,18 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 		go func() {
 			for {
 				select {
+				case <-FilledCharacter.CharTickerUnload:
+					FilledCharacter.BufferUnload <- true
+					return
+				case <-FilledCharacter.CharTicker.C:
+					FilledCharacter.Tick()
+				}
+			}
+		}()
+
+		go func() {
+			for {
+				select {
 				case msg := <-FilledCharacter.CharCommands:
 					// This function call will immediately call a command off the stack and push it to script
 					go Script(FilledCharacter, msg)
@@ -260,10 +274,8 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 							log.Println(err)
 						}
 					}()
-				case <-FilledCharacter.CharTickerUnload:
+				case <-FilledCharacter.BufferUnload:
 					return
-				case <-FilledCharacter.CharTicker.C:
-					FilledCharacter.Tick()
 				}
 			}
 		}()
@@ -643,7 +655,7 @@ func (c *Character) buildPrompt() []byte {
 }
 
 // Write writes the specified byte slice to the associated client.
-func (c *Character) WriteBuffer(b []byte) (n int, err error) {
+func (c *Character) Write(b []byte) (n int, err error) {
 	if c == nil {
 		return
 	}
@@ -659,7 +671,7 @@ func (c *Character) WriteBuffer(b []byte) (n int, err error) {
 }
 
 // Write writes the specified byte slice to the associated client.
-func (c *Character) Write(b []byte) (n int, err error) {
+func (c *Character) WriteBuffer(b []byte) (n int, err error) {
 
 	if c == nil {
 		return
