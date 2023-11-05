@@ -207,7 +207,7 @@ func FlushItemTotals() bool {
 		}
 
 		// Prepare the insert statement
-		stmt, err := tx.Prepare("INSERT INTO item_economy (item_id, total_sold, total_value, last_sold) VALUES ($1, $2, $3, $4) ON CONFLICT (item_id) DO UPDATE SET (total_sold, total_value, last_sold) VALUES total_sold + EXCLUDED.total_sold, total_value + EXCLUDED.total_value, EXCLUDED.last_sold")
+		stmt, err := tx.Prepare("INSERT INTO item_economy (item_id, total_sold, total_value, last_sold) VALUES ($1, $2, $3, $4) ON CONFLICT (item_id) DO UPDATE SET (total_sold, total_value, last_sold) = (total_sold + EXCLUDED.total_sold, total_value + EXCLUDED.total_value, EXCLUDED.last_sold)")
 		if err != nil {
 			log.Println(err)
 			return false

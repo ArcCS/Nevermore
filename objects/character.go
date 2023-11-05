@@ -83,7 +83,6 @@ type Character struct {
 
 	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
-	BufferUnload     chan bool
 	CharCommands     chan string
 	MsgBuffer        chan []byte
 	SongTicker       *time.Ticker
@@ -181,9 +180,8 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 				"air":   {0}},
 			nil,
 			make(chan bool),
-			make(chan bool),
 			make(chan string),
-			make(chan []byte),
+			make(chan []byte, 100),
 			nil,
 			make(chan bool),
 			map[string]map[string]*Hook{
@@ -262,19 +260,20 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 
 		go func() {
 			for {
+				log.Println("Entering select loop")
 				select {
-				case msg := <-FilledCharacter.CharCommands:
+				case cmd := <-FilledCharacter.CharCommands:
 					// This function call will immediately call a command off the stack and push it to script
-					go Script(FilledCharacter, msg)
-				case buf := <-FilledCharacter.MsgBuffer:
-					go func() {
-						_, err := FilledCharacter.WriteBuffer(buf)
-						if err != nil {
-							log.Println(err)
-						}
-					}()
-				case <-FilledCharacter.BufferUnload:
-					return
+					go Script(FilledCharacter, cmd)
+				case msg, ok := <-FilledCharacter.MsgBuffer:
+					_, err := FilledCharacter.WriteBuffer(msg)
+					if err != nil {
+						log.Println(err)
+					}
+					if !ok {
+						return
+					}
+
 				}
 			}
 		}()
@@ -364,9 +363,8 @@ func (c *Character) SingSong(song string, tickRate int) {
 }
 
 func (c *Character) Unload() {
+	close(c.MsgBuffer)
 	c.CharTicker.Stop()
-	c.FlagOff("load_complete", "")
-	c.BufferUnload <- true
 	c.CharTickerUnload <- true
 }
 

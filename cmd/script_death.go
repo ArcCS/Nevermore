@@ -101,14 +101,14 @@ func (scriptDeath) process(s *state) {
 		s.actor.Mana.Current = s.actor.Mana.Max
 
 		totalExpNeeded := config.MaxLoss(s.actor.Tier)
-		finalMin := config.TierExpLevels[s.actor.Tier+1] - int(float64(totalExpNeeded)*1.2)
+		finalMin := config.TierExpLevels[s.actor.Tier] - int(float64(totalExpNeeded))
 		// Determine the death penalty
 		if s.actor.Tier > config.FreeDeathTier {
 			deathRoll := utils.Roll(100, 1, 0)
 			switch {
 			case deathRoll <= 20: // Light Passage
 				s.actor.Write([]byte(text.Green + "You've pass through this death with minimal effects. (10% xp loss) \n\n" + text.Reset))
-				s.actor.Experience.SubMax(int(float64(totalExpNeeded)*.10), finalMin)
+				s.actor.Experience.SubMax(int(float64(totalExpNeeded)*.15), finalMin)
 				break
 			case deathRoll <= 100: // Medium Passage
 				s.actor.Write([]byte(text.Green + "The death did not come easy. (30% xp loss)\n\n" + text.Reset))
