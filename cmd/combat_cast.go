@@ -184,7 +184,7 @@ func (cast) process(s *state) {
 			msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
 			s.actor.FlagOff("casting", "cast")
 			s.actor.Mana.Subtract(cost)
-			if (s.actor.Class == 5 || s.actor.Class == 4) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+			if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
 				s.actor.SetTimer("combat", config.CombatCooldown)
 			}
 			s.actor.SetTimer("cast", config.CombatCooldown)
@@ -250,7 +250,7 @@ func (cast) process(s *state) {
 		s.actor.FlagOn("casting", "cast")
 		msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 		s.actor.FlagOff("casting", "cast")
-		if (s.actor.Class == 5 || s.actor.Class == 4) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+		if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
 			s.actor.SetTimer("combat", config.CombatCooldown)
 		}
 		s.actor.SetTimer("cast", config.CombatCooldown)

@@ -234,10 +234,11 @@ func (c *client) close() {
 			c.frontend.GetCharacter().PurgeEffects()
 			//log.Println("Force Close from Client: Clean Room")
 			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
-			//log.Println("Force Close from Client: Unload Char Ticker")
-			c.frontend.GetCharacter().Unload()
 			//log.Println("Force Close from Client: Clean Activate Char container")
 			objects.ActiveCharacters.Remove(c.frontend.GetCharacter())
+			//log.Println("Force Close from Client: Unload Char Ticker")
+			c.frontend.GetCharacter().Unload()
+
 		}
 
 		c.frontend.Close()
