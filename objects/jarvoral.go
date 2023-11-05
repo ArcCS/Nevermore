@@ -44,7 +44,9 @@ func StartJarvoral() {
 }
 
 func StopJarvoral() {
-	DiscordSession.Close()
+	if DiscordSession != nil {
+		DiscordSession.Close()
+	}
 }
 
 // This function will be called (due to AddHandler above) every time a new

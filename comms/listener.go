@@ -63,7 +63,6 @@ func Listen(host, port string) {
 		runtime.Gosched()
 	}
 
-	log.Println("Shutting down the server...")
 	data.DRIVER.Close()
 	objects.StopJarvoral()
 	os.Exit(0)

@@ -96,7 +96,6 @@ func (sell_confirm) process(s *state) {
 		targetPrice = val
 	} else {
 		s.msg.Actor.SendInfo("Issue completing sell.")
-		log.Println("Error converting target price to int: ", err)
 		return
 	}
 

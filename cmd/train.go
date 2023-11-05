@@ -4,7 +4,6 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -105,8 +104,7 @@ func (train) process(s *state) {
 		}
 	}
 
-	for count, val := range s.input {
-		log.Println(count)
+	for _, val := range s.input {
 		if message != "" {
 			message += " and "
 		}

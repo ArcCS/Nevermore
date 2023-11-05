@@ -18,9 +18,7 @@ func init() {
 
 func ActivateRoom(roomId int) {
 	if !utils.IntIn(roomId, ActiveRooms) {
-		log.Println("Adding room to active rooms: ", roomId)
 		ActiveRooms = append(ActiveRooms, roomId)
-		log.Println(ActiveRooms)
 	}
 }
 
@@ -48,10 +46,8 @@ func LoopRooms() {
 	for _, r := range ActiveRooms {
 		objects.Rooms[r].Lock()
 		if len(objects.Rooms[r].Chars.Contents) <= 0 {
-			log.Println("Entering cleanup phase.")
 			if !time.Time.IsZero(objects.Rooms[r].EvacuateTime) &&
 				time.Now().Sub(objects.Rooms[r].EvacuateTime).Seconds() > float64(config.RoomClearTimer) {
-				log.Println("Clear timer invoked for room: ", r)
 				DeactivateRoom(r)
 				objects.Rooms[r].CleanRoom()
 			}

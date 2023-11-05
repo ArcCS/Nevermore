@@ -362,9 +362,18 @@ func (c *Character) SingSong(song string, tickRate int) {
 }
 
 func (c *Character) Unload() {
-	close(c.MsgBuffer)
 	c.CharTicker.Stop()
 	c.CharTickerUnload <- true
+	close(c.MsgBuffer)
+}
+
+func (c *Character) PrepareUnload() {
+	c.Save()
+	c.Unfollow()
+	c.LoseParty()
+	c.PurgeEffects()
+	ActiveCharacters.Remove(c)
+	Rooms[c.ParentId].Chars.Remove(c)
 }
 
 func (c *Character) ToggleFlag(flagName string, provider string) {
@@ -970,7 +979,6 @@ func (c *Character) ReceiveDamage(damage int) (int, int, int) {
 		stamDamage = finalDamage
 		vitalDamage = 0
 	}
-	log.Println(c.Name+"Receives Damage: ", damage, "Resist: ", resist, "Final Damage: ", finalDamage, "Stam Damage: ", stamDamage, "Vital Damage: ", vitalDamage)
 	return stamDamage, vitalDamage, resist
 }
 

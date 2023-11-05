@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
-	"log"
 	"strconv"
 )
 
@@ -39,7 +38,6 @@ func (additem) process(s *state) {
 			}
 		}
 
-		log.Println(targetStr, strconv.Itoa(targetNum), strconv.Itoa(priceStr))
 		whatItem := s.actor.Inventory.Search(targetStr, targetNum)
 		if whatItem != nil {
 			if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {

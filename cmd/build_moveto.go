@@ -4,7 +4,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 	"strconv"
 )
 
@@ -36,7 +35,6 @@ func (moveto) process(s *state) {
 				s.ok = false
 				return
 			} else {
-				log.Println("Trying to teleport...")
 				objects.Rooms[who.ParentId].Chars.Remove(who)
 				to.Chars.Add(who)
 				who.ParentId = to.RoomId

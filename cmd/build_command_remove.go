@@ -20,7 +20,6 @@ func (remove_command) process(s *state) {
 		return
 	}
 
-	//log.Println("Trying to edit: " + strings.ToLower(s.words[0]))
 	switch strings.ToLower(s.words[0]) {
 	// Handle Rooms
 	case "room":

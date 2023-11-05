@@ -5,7 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -76,7 +75,7 @@ func (peek) process(s *state) {
 			curChance = 100
 		}
 
-		log.Println(s.actor.Name+"Peek Chance Roll: ", curChance)
+		//log.Println(s.actor.Name+"Peek Chance Roll: ", curChance)
 		if utils.Roll(100, 1, 0) > curChance {
 			s.msg.Actor.SendBad("You fail to peek into their inventory.")
 			s.msg.Observers.SendInfo(s.actor.Name + " tries to peek into " + whatMob.Name + "'s inventory.")

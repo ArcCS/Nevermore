@@ -5,7 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
-	"log"
 	"sort"
 	"strings"
 )
@@ -48,7 +47,6 @@ func (i *ItemInventory) Add(o *Item) {
 func (i *ItemInventory) Remove(o *Item) (err error) {
 	defer func() (err error) {
 		if r := recover(); r != nil {
-			log.Println("Item inventory removal recovery, failed to process", r)
 			return r.(error)
 		}
 		return nil

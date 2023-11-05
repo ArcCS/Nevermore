@@ -12,7 +12,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/jinzhu/copier"
-	"log"
 )
 
 // game embeds a frontend instance adding fields and methods specific to
@@ -111,15 +110,10 @@ func (g *game) gameProcess() {
 }
 
 func (g *game) CharUnloader() {
-	log.Println("Account Cleanup...")
 	g.AccountCleanup()
-	log.Println("Character Unload...")
 	g.character.Unload()
-	log.Println("Character Nullify....")
 	g.character = nil
-	log.Println("Message Buffer Acquire...")
 	g.buf = message.AcquireBuffer()
 	g.buf.OmitLF(true)
-	log.Println("trying to setup a new start")
 	NewStart(g.frontend)
 }

@@ -4,7 +4,6 @@ package intelligence
 
 import (
 	"github.com/ArcCS/Nevermore/objects"
-	"log"
 )
 
 var ActiveMobs []*objects.Mob
@@ -14,7 +13,6 @@ func init() {
 }
 
 func ActivateMob(mob *objects.Mob) {
-	log.Println("Adding mob to active mobs: ", mob.MobId)
 	ActiveMobs = append(ActiveMobs, mob)
 }
 

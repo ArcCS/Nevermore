@@ -7,9 +7,9 @@ import (
 
 func init() {
 	addHandler(list_command{},
-	"Usage: list_command room|mob|item (name)\n  Lists all of the commands for this object \n example:  list_command mob dragon",
-	permissions.Builder,
-	"list_commands", "list_command", "lc")
+		"Usage: list_command room|mob|item (name)\n  Lists all of the commands for this object \n example:  list_command mob dragon",
+		permissions.Builder,
+		"list_commands", "list_command", "lc")
 }
 
 type list_command cmd
@@ -20,7 +20,6 @@ func (list_command) process(s *state) {
 		return
 	}
 
-	//log.Println("Trying to edit: " + strings.ToLower(s.words[0]))
 	switch strings.ToLower(s.words[0]) {
 	// Handle Rooms
 	case "room":
@@ -30,7 +29,7 @@ func (list_command) process(s *state) {
 				s.msg.Actor.SendInfo(key, " | ", val.Command)
 			}
 			return
-		}else{
+		} else {
 			s.msg.Actor.SendInfo("There are no commands attached to this room")
 		}
 	// Handle Items
@@ -50,7 +49,7 @@ func (list_command) process(s *state) {
 					s.msg.Actor.SendInfo(key, " | ", val.Command)
 				}
 				return
-			}else{
+			} else {
 				s.msg.Actor.SendInfo("There are no commands attached to this item")
 			}
 		} else {
@@ -75,7 +74,7 @@ func (list_command) process(s *state) {
 					s.msg.Actor.SendInfo(key, " | ", val.Command)
 				}
 				return
-			}else{
+			} else {
 				s.msg.Actor.SendInfo("There are no commands attached to this mob")
 			}
 		} else {

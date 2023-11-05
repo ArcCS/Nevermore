@@ -6,7 +6,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 	"math"
 	"strconv"
 )
@@ -136,7 +135,7 @@ func (steal) process(s *state) {
 					curChance = 100
 				}
 
-				log.Println(s.actor.Name+"Peek Chance Roll: ", curChance)
+				//log.Println(s.actor.Name+"Steal Chance Roll: ", curChance)
 
 				if utils.Roll(100, 1, 0) <= curChance {
 					whatMob.Inventory.Remove(what)

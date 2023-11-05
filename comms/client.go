@@ -8,7 +8,6 @@ package comms
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"log"
@@ -48,18 +47,12 @@ type client struct {
 		Parse([]byte) error
 		Close()
 		GetCharacter() *objects.Character
-		AccountCleanup()
 	}
 }
 
 // Create a way to direct a network error from lower in the stack directly to the client to kill it
 func (c *client) WriteError(err error) {
 	c.err = err
-}
-
-func (c *client) DisconnectResumeError() {
-	log.Println("Issuing disconnect resume error")
-	c.err = fmt.Errorf("character cisconnect issued from lower in stack")
 }
 
 // newClient returns an initialised client for the passed connection.
@@ -82,7 +75,7 @@ func newClient(conn *net.TCPConn) *client {
 	c.leaseAcquire()
 
 	// Setup frontend if no error acquiring a lease
-	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError, c.DisconnectResumeError)
+	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError)
 	c.frontend.Parse([]byte(""))
 
 	return c
@@ -100,7 +93,7 @@ func (c *client) process() {
 				log.Printf("%s: %s", err, debug.Stack())
 			}
 		}
-		log.Println("Post process, ending game loop")
+		log.Println("Post process, ending player loop")
 		if c != nil {
 			c.close()
 		}
@@ -223,22 +216,9 @@ func (c *client) close() {
 	if c.frontend != nil {
 		// Sometimes these disconnects are a little messy,  need to add some extra cleanup
 		if c.frontend.GetCharacter() != nil {
-			c.frontend.AccountCleanup()
 			log.Println("Force Close from Client")
-			c.frontend.GetCharacter().Save()
-			//log.Println("Force Close from Client: Remove Follow")
-			c.frontend.GetCharacter().Unfollow()
-			//log.Println("Force Close from Client: Lose Party")
-			c.frontend.GetCharacter().LoseParty()
-			//log.Println("Force Close from Client: Purge Effects")
-			c.frontend.GetCharacter().PurgeEffects()
-			//log.Println("Force Close from Client: Clean Room")
-			objects.Rooms[c.frontend.GetCharacter().ParentId].Chars.Remove(c.frontend.GetCharacter())
-			//log.Println("Force Close from Client: Clean Activate Char container")
-			objects.ActiveCharacters.Remove(c.frontend.GetCharacter())
-			//log.Println("Force Close from Client: Unload Char Ticker")
+			c.frontend.GetCharacter().PrepareUnload()
 			c.frontend.GetCharacter().Unload()
-
 		}
 
 		c.frontend.Close()

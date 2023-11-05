@@ -80,7 +80,6 @@ func DeserializeCommands(jsonVals string) map[string]prompt.MenuItem {
 	obj := make(map[string]string, 0)
 	err := json.Unmarshal([]byte(jsonVals), &obj)
 	if err != nil {
-		//log.Println("Error deserializing Command list" + err.Error())
 		return commandList
 	}
 	for key, cmdString := range obj {

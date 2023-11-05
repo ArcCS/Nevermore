@@ -6,7 +6,6 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/jinzhu/copier"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -66,7 +65,6 @@ func (i *MobInventory) AddWithMessage(o *Mob, message string, silent bool) {
 
 // Pass mob as a pointer, compare and remove
 func (i *MobInventory) Remove(o *Mob) {
-	log.Println("Unloading mob from inventory: " + o.Name)
 	go func() { o.MobTickerUnload <- true }()
 	for c, p := range i.Contents {
 		if p == o {
@@ -89,13 +87,11 @@ func (i *MobInventory) RemoveNonPerms() {
 		if mob.Flags["permanent"] != true {
 			contentRef = append(contentRef, mob)
 		} else {
-			log.Println("Unload mob: " + mob.Name + " ticker, but do not delete")
 			mob.MobTickerUnload <- true
 		}
 	}
 	// Check if we should continue to empty, this is only relevant if mobs have been thinking and we have to back out of this loop entirely
 	//Check if we should empty the room
-	log.Println("For Loop to Empty")
 	for i.ContinueEmpty() && len(contentRef) > 0 {
 		for index, mob := range contentRef {
 			if !mob.IsThinking {

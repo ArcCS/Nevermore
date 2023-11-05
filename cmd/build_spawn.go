@@ -31,13 +31,11 @@ func (spawn) process(s *state) {
 	switch strings.ToLower(s.words[0]) {
 	// Handle Rooms
 	case "mob":
-		//log.Println("Trying to do a spawn...")
 		mobId, err := strconv.Atoi(s.words[1])
 		if err != nil {
 			s.msg.Actor.SendBad("What mob ID do you want to spawn?")
 			return
 		}
-		//log.Println("Copying mob")
 		newMob := objects.Mob{}
 		copier.CopyWithOption(&newMob, objects.Mobs[mobId], copier.Option{DeepCopy: true})
 		if newMob.Placement <= 0 {

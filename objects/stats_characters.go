@@ -39,7 +39,6 @@ func (c *characterStats) Add(character *Character, address string) {
 
 // Pass character as a pointer, compare and remove
 func (c *characterStats) Remove(character *Character) {
-	log.Println("Starting character removal from active stats")
 	c.Lock()
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
 		c.MessageGMExcept("###:"+character.Name+" departs the realm.", character)
@@ -62,7 +61,7 @@ func (c *characterStats) Remove(character *Character) {
 	}
 
 	c.Unlock()
-	log.Println("Ending character removal from active stats")
+	log.Println("Completed Character removal from stats containers")
 }
 
 func (c *characterStats) Find(name string) *Character {

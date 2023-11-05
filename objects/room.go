@@ -362,7 +362,7 @@ func (r *Room) CleanRoom() {
 	// Verify that no one else is in here after a follow mob invocation
 
 	// This was the last character, invoke the whole cleaning routine now.
-	log.Println("Clearing Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")")
+	//log.Println("Clearing Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")")
 	r.Items.RemoveNonPerms()
 	go r.Mobs.RemoveNonPerms()
 

@@ -167,7 +167,6 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 
 func (m *Mob) StartTicking() {
 	if m.IsActive {
-		log.Println("mob active, not restarting")
 		return
 	}
 	log.Println(m.Name + " not active starting ticking")
@@ -1050,7 +1049,6 @@ func (m *Mob) ReceiveDamage(damage int) (int, int, int) {
 	if finalDamage > m.WimpyValue && m.CheckFlag("flees") {
 		m.MobCommands <- "flee"
 	}
-	log.Println(m.Name+" Receives Damage: ", damage, "Resist: ", resist, "Final Damage: ", finalDamage)
 	return finalDamage, 0, resist
 }
 

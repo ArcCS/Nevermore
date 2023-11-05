@@ -81,7 +81,6 @@ func newState(o *objects.Character, input string) *state {
 	s := &state{actor: o}
 
 	s.tokenizeInput(input)
-	//log.Println("Received command ", input)
 	s.where = objects.Rooms[o.ParentId]
 	s.AddLocks(s.where.RoomId)
 
@@ -157,7 +156,6 @@ func (s *state) sync() (inSync bool) {
 }
 
 func (s *state) script(actor, participant, observers bool, inputs ...string) {
-	//log.Println("Scripted input..." + strings.Join(inputs, " ") )
 	input := strings.Join(inputs, " ")
 
 	i, w, c, sc := s.input, s.words, s.cmd, s.scripting // Save state
@@ -251,9 +249,7 @@ func (s *state) AddLocks(r int) {
 			s.rLocks[x] = r
 			break
 		}
-		//log.Println(s.actor.Name + " locking Room" + strconv.Itoa(r))
 		objects.Rooms[r].Lock()
-		//log.Println(s.actor.Name + " locking Successful" + strconv.Itoa(r))
 	}
 }
 
@@ -264,19 +260,14 @@ func (s *state) TotalLocks() int {
 func (s *state) LockAll() {
 	s.AcquireLockPriority()
 	for _, l := range s.rLocks {
-		//log.Println(s.actor.Name + " locking Room" + strconv.Itoa(l))
 		objects.Rooms[l].Lock()
-		//log.Println(s.actor.Name + " successful locking Room" + strconv.Itoa(l))
 	}
 }
 
 func (s *state) UnlockAll() {
 	s.RemoveLockPriority()
 	for _, l := range s.rLocks {
-		//log.Println(s.actor.Name + " unlocking rooms" + strconv.Itoa(l))
 		objects.Rooms[l].Unlock()
-		//log.Println(s.actor.Name + " successful unlocking Room" + strconv.Itoa(l))
-
 	}
 }
 
@@ -285,7 +276,6 @@ func (s *state) AcquireLockPriority() {
 	for !ready {
 		ready = true
 		for _, l := range s.rLocks {
-			//log.Println(s.actor.Name + " acquiring lock priority" + strconv.Itoa(l))
 			if objects.Rooms[l].LockPriority == "" {
 				objects.Rooms[l].LockPriority = s.actor.Name
 			} else if objects.Rooms[l].LockPriority != s.actor.Name {
@@ -294,12 +284,10 @@ func (s *state) AcquireLockPriority() {
 		}
 		if !ready {
 			for _, l := range s.rLocks {
-				//log.Println(s.actor.Name + " releasing incomplete priority" + strconv.Itoa(l))
 				if objects.Rooms[l].LockPriority == s.actor.Name {
 					objects.Rooms[l].LockPriority = ""
 				}
 			}
-			//log.Println("Temporary Sleep before trying to acquire again")
 			rand.Seed(time.Now().UnixNano())
 			r := rand.Int()
 			t, _ := time.ParseDuration(string(r) + "ms")
