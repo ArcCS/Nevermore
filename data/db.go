@@ -58,21 +58,6 @@ func ClearItemSales() {
 	ItemSalesCapture = make([]ItemSales, 0)
 }
 
-func StoreItemTotals(ItemId int, TotalSold int, TotalValue int) {
-	if item, ok := ItemTotalsCapture[ItemId]; ok {
-		item.TotalSold += TotalSold
-		item.TotalValue += TotalValue
-		item.LastSold = time.Now()
-		ItemTotalsCapture[ItemId] = item
-	} else {
-		ItemTotalsCapture[ItemId] = ItemTotals{ItemId: ItemId, TotalSold: TotalSold, TotalValue: TotalValue, LastSold: time.Now()}
-	}
-}
-
-func ClearItemTotals() {
-	ItemTotalsCapture = make(map[int]ItemTotals)
-}
-
 func StoreCombatMetric(Action string, ActionType int, Mode int, TotalDamage int, Resisted int, FinalDamage int, AttackerType int, AttackerId int, AttackerTier int, VictimType int, VictimId int) {
 	CombatMetricsCapture = append(CombatMetricsCapture, CombatMetric{Action: Action, ActionType: ActionType, Mode: Mode, TotalDamage: TotalDamage, Resisted: Resisted, FinalDamage: FinalDamage, AttackerType: AttackerType, AttackerId: AttackerId, AttackerTier: AttackerTier, VictimType: VictimType, VictimId: VictimId, CombatTime: time.Now()})
 }

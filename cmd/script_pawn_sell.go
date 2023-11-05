@@ -104,7 +104,6 @@ func (sell_confirm) process(s *state) {
 		if ok := s.actor.Inventory.Remove(target); ok == nil {
 			s.actor.Gold.Add(targetPrice)
 			data.StoreItemSale(target.ItemId, s.actor.CharId, s.actor.Tier, targetPrice)
-			data.StoreItemTotals(target.ItemId, 1, targetPrice)
 			s.msg.Actor.SendGood("The pawn broker gives you ", strconv.Itoa(targetPrice), " for ", target.Name, ".")
 		} else {
 			s.msg.Actor.SendBad("Issue completing sell.")

@@ -131,7 +131,6 @@ func (sellchest_confirm) process(s *state) {
 			}
 
 			data.StoreItemSale(target.ItemId, s.actor.CharId, s.actor.Tier, itemValue)
-			data.StoreItemTotals(target.ItemId, 1, itemValue)
 		}
 
 		if s.actor.PartyFollow == "" && len(s.actor.PartyFollowers) == 0 {

@@ -44,7 +44,6 @@ func StartSync() {
 				objects.FlushRoomUpdates()
 				data.FlushChatLogs()
 				data.FlushItemSales()
-				data.FlushItemTotals()
 				data.FlushCombatMetrics()
 			}
 		}
