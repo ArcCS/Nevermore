@@ -136,6 +136,7 @@ func (sellchest_confirm) process(s *state) {
 		if s.actor.PartyFollow == "" && len(s.actor.PartyFollowers) == 0 {
 			s.actor.Gold.Add(finalValue)
 			s.msg.Actor.SendGood("The pawn broker gives you ", strconv.Itoa(finalValue), " for the contents of ", target.Name, ".")
+			return
 		}
 		if s.actor.PartyFollow != "" {
 			leadChar := objects.ActiveCharacters.Find(s.actor.PartyFollow)

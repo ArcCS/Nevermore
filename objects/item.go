@@ -1,10 +1,12 @@
 package objects
 
 import (
+	"strconv"
+
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
-	"strconv"
 )
 
 type Item struct {
@@ -101,7 +103,7 @@ func (i *Item) DisplayName() string {
 	typeReturn := 0
 	preName := ""
 	if i.Flags["magic"] {
-		preName += "magic "
+		preName += text.Blue + "magic " + text.Info
 	}
 	// Mapping value definitions
 	switch i.ItemType {
