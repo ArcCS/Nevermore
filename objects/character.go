@@ -260,7 +260,6 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 
 		go func() {
 			for {
-				log.Println("Entering select loop")
 				select {
 				case cmd := <-FilledCharacter.CharCommands:
 					// This function call will immediately call a command off the stack and push it to script
