@@ -103,7 +103,7 @@ func (i *Item) DisplayName() string {
 	typeReturn := 0
 	preName := ""
 	if i.Flags["magic"] {
-		preName += text.Cyan + "magic " + text.Good
+		preName += "magic "
 	}
 	// Mapping value definitions
 	switch i.ItemType {
