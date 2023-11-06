@@ -17,7 +17,7 @@ func init() {
 type redeem cmd
 
 func (redeem) process(s *state) {
-	if len(s.words) < 1 {
+	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("Redeem how much?")
 		return
 	}
