@@ -130,6 +130,7 @@ func (c *client) process() {
 
 				if err != bufio.ErrBufferFull {
 					log.Println("Client Error " + err.Error())
+					c.frontend.GetCharacter().SuppressWrites()
 					c.WriteError(err)
 					continue
 				}

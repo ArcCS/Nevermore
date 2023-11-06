@@ -286,7 +286,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 		FilledCharacter.Equipment.ReturnToInventory = FilledCharacter.ReturnToInventory
 		FilledCharacter.Equipment.CheckEquipment()
 		FilledCharacter.Equipment.PostEquipmentLight()
-		go func() { FilledCharacter.Flags["load_complete"] = true }()
+		go FilledCharacter.EnableWrites()
 		return FilledCharacter, false
 	}
 }
@@ -294,6 +294,15 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 // GetCurrentWeight returns the current carrying weight of the character.
 func (c *Character) GetCurrentWeight() int {
 	return c.Inventory.GetTotalWeight() + c.Equipment.GetWeight()
+}
+
+// SuppressWrites Used when erroring a character out, or when we don't want to put anything on the write buffer
+func (c *Character) SuppressWrites() {
+	c.Flags["allow_writes"] = false
+}
+
+func (c *Character) EnableWrites() {
+	c.Flags["allow_writes"] = true
 }
 
 func (c *Character) SetTimer(timer string, seconds int) {
@@ -666,7 +675,7 @@ func (c *Character) Write(b []byte) (n int, err error) {
 	if c == nil {
 		return
 	}
-	if !c.CheckFlag("load_complete") {
+	if !c.CheckFlag("allow_writes") {
 		return
 	}
 
