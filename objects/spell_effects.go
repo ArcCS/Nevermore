@@ -519,7 +519,7 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 			spellType = 3
 		}
 		actualDamage = elementalDamage(magnitude, intel)
-		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[6].Value, caller.Class)]
+		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[8].Value, caller.Class)]
 		damage = int((float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod) * (1 + float64(affinityLevel)*.01))
 	case *Mob:
 		name = caller.Name
@@ -643,7 +643,7 @@ func airdamage(caller interface{}, target interface{}, magnitude int) string {
 			spellType = 3
 		}
 		actualDamage = elementalDamage(magnitude, intel)
-		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[6].Value, caller.Class)]
+		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[7].Value, caller.Class)]
 		damage = int((float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod) * (1 + float64(affinityLevel)*.01))
 	case *Mob:
 		name = caller.Name
@@ -740,7 +740,7 @@ func waterdamage(caller interface{}, target interface{}, magnitude int) string {
 			spellType = 3
 		}
 		actualDamage = elementalDamage(magnitude, intel)
-		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[6].Value, caller.Class)]
+		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[9].Value, caller.Class)]
 		damage = int((float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod) * (1 + float64(affinityLevel)*.01))
 	case *Mob:
 		name = caller.Name
