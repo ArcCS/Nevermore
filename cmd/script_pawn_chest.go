@@ -103,6 +103,7 @@ func (sellchest_confirm) process(s *state) {
 		itemValue := 0
 
 		for _, item := range target.Storage.ListItems() {
+			itemId := item.ItemId
 			log.Println("Item: ", item.Name, " Value: ", item.Value, " MaxUses: ", objects.Items[item.ItemId].MaxUses)
 			if target.MaxUses != objects.Items[target.ItemId].MaxUses {
 				s.msg.Actor.SendInfo("The pawn broker places your ", item.Name, " back in the ", target.Name, " and says, 'I don't buy used items.'")
@@ -130,7 +131,7 @@ func (sellchest_confirm) process(s *state) {
 				finalValue += itemValue
 			}
 
-			data.StoreItemSale(target.ItemId, s.actor.CharId, s.actor.Tier, itemValue)
+			data.StoreItemSale(itemId, s.actor.CharId, s.actor.Tier, itemValue)
 		}
 
 		if s.actor.PartyFollow == "" && len(s.actor.PartyFollowers) == 0 {

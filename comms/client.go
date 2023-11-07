@@ -115,7 +115,7 @@ func (c *client) process() {
 				_ = c.Close()
 			}
 			useTime := config.Server.IdleTimeout
-			if ok := c.frontend.GetCharacter(); ok != nil {
+			if ok := c.frontend.GetCharacter(); ok != (*objects.Character)(nil) {
 				if c.frontend.GetCharacter().Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					useTime = 30 * time.Minute
 				} else if c.frontend.GetCharacter().Flags["AFK"] {
@@ -130,6 +130,9 @@ func (c *client) process() {
 
 				if err != bufio.ErrBufferFull {
 					log.Println("Client Error " + err.Error())
+					if c.frontend.GetCharacter() != (*objects.Character)(nil) {
+						c.frontend.GetCharacter().SuppressWrites()
+					}
 					c.WriteError(err)
 					continue
 				}
@@ -215,7 +218,7 @@ func (c *client) close() {
 	// Deallocate current frontend if we have one
 	if c.frontend != nil {
 		// Sometimes these disconnects are a little messy,  need to add some extra cleanup
-		if c.frontend.GetCharacter() != nil {
+		if c.frontend.GetCharacter() != (*objects.Character)(nil) {
 			log.Println("Force Close from Client")
 			c.frontend.GetCharacter().PrepareUnload()
 			c.frontend.GetCharacter().Unload()
