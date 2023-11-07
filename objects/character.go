@@ -264,14 +264,6 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 				case cmd := <-FilledCharacter.CharCommands:
 					// This function call will immediately call a command off the stack and push it to script
 					go Script(FilledCharacter, cmd)
-				case msg, ok := <-FilledCharacter.MsgBuffer:
-					if _, err := FilledCharacter.WriteBuffer(msg); err != nil {
-						log.Println(err)
-					}
-					if !ok {
-						return
-					}
-
 				}
 			}
 		}()
@@ -679,25 +671,12 @@ func (c *Character) buildPrompt() []byte {
 	}
 }
 
-// Write writes the specified byte slice to the associated client.
-func (c *Character) Write(b []byte) (n int, err error) {
-	if c == nil {
-		return
-	}
-	if !c.CheckFlag("allow_writes") {
-		return
-	}
-
-	// Push text to a channel buffer
-	if len(b) > 0 {
-		c.MsgBuffer <- b
-	}
-	return len(b), nil
-}
-
 // WriteBuffer writes the specified byte slice to the associated client.
-func (c *Character) WriteBuffer(b []byte) (n int, err error) {
+func (c *Character) Write(b []byte) (n int, err error) {
 
+	if !c.CheckFlag("allow_writes") {
+		return 0, nil
+	}
 	if c == nil {
 		return
 	}
