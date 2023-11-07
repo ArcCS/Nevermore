@@ -297,6 +297,8 @@ func (c *Character) EnableWrites() {
 }
 
 func (c *Character) SetTimer(timer string, seconds int) {
+	// Looks like Sub on timers only accounts for seconds and not milliseconds, so folks are still blazing past a timer here add one second to increase to 8.
+	seconds += 1
 	if c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		return
 	}
