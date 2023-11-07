@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Rooms contains all of the world rooms tagged with their room_id
+// Rooms contains all the world rooms tagged with their room_id
 // This makes it very simple to move people by room_id and retain their connecting exit
 var (
 	Rooms = map[int]*Room{}
@@ -27,7 +27,7 @@ var (
 	DayTime = false
 )
 
-// Create a bind variable so we can send scripting events up the state chain
+// Create a bind variable
 var (
 	Script             func(o *Character, input string) string
 	RoomsPendingUpdate []int

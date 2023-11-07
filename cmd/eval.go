@@ -100,59 +100,59 @@ func (evaluate) process(s *state) {
 
 		age := (config.ImperialYearStart + objects.YearPlus) - s.actor.Birthyear
 
-		char_template := "{{.Charname}}, the {{.Tier}} tier {{.Race}} {{.Title}}\n" +
+		charTemplate := "{{.Charname}}, the {{.Tier}} tier {{.Race}} {{.Title}}\n" +
 			"----------------------------------------------------------------------\n" +
-			"Str: {{.Str}}/{{.Max_str}}, Dex: {{.Dex}}/{{.Max_dex}}, Con: {{.Con}}/{{.Max_con}}, Int: {{.Int}}/{{.Max_int}}, Piety: {{.Pie}}/{{.Max_pie}}.\n" +
-			"They have an armor resistance of {{.Armor_resistance}}.\n" +
+			"Str: {{.Str}}/{{.MaxStr}}, Dex: {{.Dex}}/{{.MaxDex}}, Con: {{.Con}}/{{.MaxCon}}, Int: {{.Int}}/{{.MaxInt}}, Piety: {{.Pie}}/{{.MaxPie}}.\n" +
+			"They have an armor resistance of {{.ArmorResistance}}.\n" +
 			"{{if .God}} You bear the mark of a devotee of {{.God}}.\n{{end}}" +
 			"{{if .Berz}}" + text.Red + "They are in the throes of the red rage!\n" + text.Good +
-			"{{else}}They have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
-			"They require {{.Next_level}} additional experience pts for their next tier.\n" +
+			"{{else}}They have {{.Stamina}}/{{.MaxStamina}} stamina, {{.Health}}/{{.MaxHealth}} health, and {{.Mana}}/{{.MaxMana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
+			"They require {{.NextLevel}} additional experience pts for their next tier.\n" +
 			"They are carrying {{.Gold}} gold marks in their coin purse.\n" +
 			"{{if .Poisoned}}" + text.Red + "They have poison coursing through their veins.\n{{end}}" + text.Good +
 			"{{if .Diseased}}" + text.Brown + "They are suffering from affliction.\n{{end}}" + text.Good +
 			"{{if .Blind}}" + text.Blue + "They have been blinded!!\n{{end}}" + text.Good +
-			"{{if .Dark_vision}}They can see in the dark naturally. \n{{end}}" +
-			"They were born on {{.Day}}, the {{.Day_number}} of the month of {{.Month}}\n" +
+			"{{if .DarkVision}}They can see in the dark naturally. \n{{end}}" +
+			"They were born on {{.Day}}, the {{.DayNumber}} of the month of {{.Month}}\n" +
 			"in the year {{.GodsYear}} since the Godswar, and year {{.EmpYear}} of the Empire.\n"
 
 		data := struct {
-			Charname         string
-			Tier             string
-			Race             string
-			Title            string
-			Str              int
-			Max_str          int
-			Dex              int
-			Max_dex          int
-			Con              int
-			Max_con          int
-			Int              int
-			Max_int          int
-			Pie              int
-			Max_pie          int
-			Armor_resistance int
-			God              string
-			Stamina          int
-			Max_stamina      int
-			Health           int
-			Max_health       int
-			Mana             int
-			Max_mana         int
-			Monk             bool
-			Next_level       int
-			Gold             int
-			Poisoned         bool
-			Diseased         bool
-			Blind            bool
-			Dark_vision      bool
-			Day              string
-			Day_number       string
-			Month            string
-			Age              int
-			GodsYear         int
-			EmpYear          int
-			Berz             bool
+			Charname        string
+			Tier            string
+			Race            string
+			Title           string
+			Str             int
+			MaxStr          int
+			Dex             int
+			MaxDex          int
+			Con             int
+			MaxCon          int
+			Int             int
+			MaxInt          int
+			Pie             int
+			MaxPie          int
+			ArmorResistance int
+			God             string
+			Stamina         int
+			MaxStamina      int
+			Health          int
+			MaxHealth       int
+			Mana            int
+			MaxMana         int
+			Monk            bool
+			NextLevel       int
+			Gold            int
+			Poisoned        bool
+			Diseased        bool
+			Blind           bool
+			DarkVision      bool
+			Day             string
+			DayNumber       string
+			Month           string
+			Age             int
+			GodsYear        int
+			EmpYear         int
+			Berz            bool
 		}{
 			whatChar.Name,
 			config.TextTiers[whatChar.Tier],
@@ -192,7 +192,7 @@ func (evaluate) process(s *state) {
 			berz,
 		}
 
-		tmpl, _ := template.New("char_info").Parse(char_template)
+		tmpl, _ := template.New("char_info").Parse(charTemplate)
 		var output bytes.Buffer
 		err := tmpl.Execute(&output, data)
 		if err != nil {

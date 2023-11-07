@@ -1,6 +1,5 @@
 package config
 
-// Caps
 var LevelCap = 14
 var SkillCap = 3000000
 

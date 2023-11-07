@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 	"strconv"
 )
 
@@ -50,7 +51,11 @@ func (drop) process(s *state) {
 	s.actor.RunHook("act")
 	where := s.where.Items
 
-	s.actor.Inventory.Remove(target)
+	if err := s.actor.Inventory.Remove(target); err != nil {
+		s.msg.Actor.SendBad("Game eror when removing item from inventory.")
+		log.Println(err)
+		return
+	}
 	target.Placement = s.actor.Placement
 	where.Add(target)
 	if target.Flags["permanent"] {

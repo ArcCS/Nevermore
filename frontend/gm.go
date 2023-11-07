@@ -188,7 +188,6 @@ func (a *newPCharacter) helpDisplay(subject string) {
 
 func validateFastPStep(choiceInput string) bool {
 	inputs := strings.Split(choiceInput, " ")
-	//gender (m|f), race, and class separated by spaces"
 	if inputs[0] != "f" {
 		if inputs[0] != "m" {
 			return false

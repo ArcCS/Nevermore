@@ -6,15 +6,7 @@
 package message
 
 // Msg is a collection of buffers for gathering messages to send back as a
-// result of processing a command. Before use a Msg should have Allocate called
-// on it to allocate and setup the buffers internally. After use Deallocate
-// should be called to free up the buffers. The Allocate and Deallocate methods
-// are kept separate so that a Msg can be reused by repeated calls to
-// Allocate/Deallocate.
-//
-// NOTE: Observer is setup as an 'alias' for Observers[s.where] - Observer and
-// Observers[s.where] point to the same Buffer. See the Allocate method for
-// more details.
+// result of processing a command.
 type Msg struct {
 	Actor              *Buffer
 	GM                 *Buffer
@@ -28,18 +20,8 @@ type Msg struct {
 }
 
 // Allocate sets up the message buffers for the actor, participant and
-// observers. The 'where' passed in should be the current location so that
-// Observer can be linked to the correct Observers element. The locks passed in
-// are used to setup a Buffer for observers in each of the locations being
-// locked.
-//
-// The actor's Buffer is initially set to half a page (half of 80 columns by 24
-// lines) as it is common to be sending location descriptions back to the
-// actor. Half a page is arbitrary but seems to be reasonable.
-//
-// NOTE: For crowded locations buffers of observers are automatically put in
-// silent mode.
-func (m *Msg) Allocate(where int, obsRooms []int) {
+// observers.
+func (m *Msg) Allocate(obsRooms []int) {
 	if m.Actor == nil {
 		m.Actor = AcquireBuffer()
 		m.Actor.omitLF = true

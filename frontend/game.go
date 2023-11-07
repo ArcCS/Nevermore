@@ -12,6 +12,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/jinzhu/copier"
+	"log"
 )
 
 // game embeds a frontend instance adding fields and methods specific to
@@ -20,8 +21,6 @@ type game struct {
 	*frontend
 }
 
-// NewGame returns a game with the specified frontend embedded. The returned
-// game can be used for processing communication to the actual game.
 func StartGame(f *frontend, charName string) (g *game) {
 	accounts.inuse[f.account] = struct{}{}
 	g = &game{frontend: f}
@@ -30,24 +29,21 @@ func StartGame(f *frontend, charName string) (g *game) {
 	return
 }
 
-// NewGame returns a game with the specified frontend embedded. The returned
-// game can be used for processing communication to the actual game.
 func FirstTimeStartGame(f *frontend, charName string) (g *game) {
 	g = &game{frontend: f}
 	g.character, _ = objects.LoadCharacter(charName, f.output, f.Disconnect)
-	for _, item_id := range config.StartingGear[g.character.Class] {
+	for _, itemId := range config.StartingGear[g.character.Class] {
 		newItem := objects.Item{}
-		copier.CopyWithOption(&newItem, objects.Items[item_id], copier.Option{DeepCopy: true})
+		if err := copier.CopyWithOption(&newItem, objects.Items[itemId], copier.Option{DeepCopy: true}); err != nil {
+			log.Println("Error copying character: ", err)
+		}
 		g.character.Inventory.Add(&newItem)
 	}
 	g.gameInit()
 	return
 }
 
-// gameInit is used to place the player into the game world. As the game
-// backend has it's own output handling we remove the frontend.buf buffer to
-// prevent duplicate output. The buffer is restored by gameProcess when the
-// player quits the game world.
+// gameInit is used to place the player into the game world.
 func (g *game) gameInit() {
 
 	message.ReleaseBuffer(g.buf)
@@ -75,8 +71,6 @@ func (g *game) gameInit() {
 	g.nextFunc = g.gameProcess
 }
 
-// NewGame returns a game with the specified frontend embedded. The returned
-// game can be used for processing communication to the actual game.
 func ResumeGame(f *frontend, charRef *objects.Character) (g *game) {
 	g = &game{frontend: f}
 	g.character = charRef
@@ -84,10 +78,7 @@ func ResumeGame(f *frontend, charRef *objects.Character) (g *game) {
 	return
 }
 
-// gameInit is used to place the player into the game world. As the game
-// backend has it's own output handling we remove the frontend.buf buffer to
-// prevent duplicate output. The buffer is restored by gameProcess when the
-// player quits the game world.
+// gameInit is used to place the player into the game world.
 func (g *game) gameResumeInit() {
 	message.ReleaseBuffer(g.buf)
 	g.buf = nil

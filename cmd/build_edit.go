@@ -200,7 +200,7 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendGood("Changed max_uses")
 				case "armor_class":
 					value, _ := strconv.Atoi(s.words[3])
-					item.Armor_Class = value
+					item.ArmorClass = value
 					s.msg.Actor.SendGood("Changed armor class")
 				/*case "placement":
 				intKey, _ :=  strconv.Atoi(s.words[3])

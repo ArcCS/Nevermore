@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -117,7 +118,11 @@ func (use) process(s *state) {
 					what.MaxUses -= 1
 					if what.MaxUses <= 0 {
 						s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
-						s.actor.Inventory.Remove(what)
+						if err := s.actor.Inventory.Remove(what); err != nil {
+							s.msg.Actor.SendBad("Game Error when attempting to remove item from inventory.")
+							log.Println("Error removing item from inventory: ", err)
+							return
+						}
 					}
 					return
 				}
@@ -146,7 +151,11 @@ func (use) process(s *state) {
 					what.MaxUses -= 1
 					if what.MaxUses <= 0 {
 						s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
-						s.actor.Inventory.Remove(what)
+						if err := s.actor.Inventory.Remove(what); err != nil {
+							s.msg.Actor.SendBad("Game Error when attempting to remove item from inventory.")
+							log.Println("Error removing item from inventory: ", err)
+							return
+						}
 					}
 					return
 				}
@@ -163,7 +172,11 @@ func (use) process(s *state) {
 				what.MaxUses -= 1
 				if what.MaxUses <= 0 {
 					s.msg.Actor.SendBad("Your " + what.Name + " disintegrates.")
-					s.actor.Inventory.Remove(what)
+					if err := s.actor.Inventory.Remove(what); err != nil {
+						s.msg.Actor.SendBad("Game Error when attempting to remove item from inventory.")
+						log.Println("Error removing item from inventory: ", err)
+						return
+					}
 				}
 				return
 			}

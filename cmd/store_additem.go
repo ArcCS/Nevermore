@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 	"strconv"
 )
 
@@ -41,12 +42,20 @@ func (additem) process(s *state) {
 		whatItem := s.actor.Inventory.Search(targetStr, targetNum)
 		if whatItem != nil {
 			if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-				s.actor.Inventory.Remove(whatItem)
+				if err := s.actor.Inventory.Remove(whatItem); err != nil {
+					s.msg.Actor.SendBad("You can't remove that item from your inventory.")
+					log.Println("Error removing item from inventory: ", err)
+					return
+				}
 				s.where.AddStoreItem(whatItem, priceStr, true)
 				s.where.Save()
 				s.msg.Actor.SendGood("You add " + whatItem.Name + " to the store.")
 			} else {
-				s.actor.Inventory.Remove(whatItem)
+				if err := s.actor.Inventory.Remove(whatItem); err != nil {
+					s.msg.Actor.SendBad("You can't remove that item from your inventory.")
+					log.Println("Error removing item from inventory: ", err)
+					return
+				}
 				s.where.AddStoreItem(whatItem, priceStr, false)
 				s.where.Save()
 				s.msg.Actor.SendGood("You add " + whatItem.Name + " to the store.")

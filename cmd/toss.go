@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 	"strconv"
 )
 
@@ -10,7 +11,7 @@ func init() {
 		"Usage:  toss itemName # \n \n Toss an item away, this is a permanent deletion.",
 		permissions.Player,
 		"toss")
-	addHandler(confirm_toss{},
+	addHandler(confirmToss{},
 		"",
 		permissions.Player,
 		"$confirm_toss")
@@ -50,9 +51,9 @@ func (j toss) process(s *state) {
 	s.ok = true
 }
 
-type confirm_toss cmd
+type confirmToss cmd
 
-func (j confirm_toss) process(s *state) {
+func (j confirmToss) process(s *state) {
 	if len(s.words) == 0 {
 		s.msg.Actor.SendInfo("What do you want to toss?")
 		return
@@ -76,7 +77,11 @@ func (j confirm_toss) process(s *state) {
 		return
 	}
 
-	s.actor.Inventory.Remove(what)
+	if err := s.actor.Inventory.Remove(what); err != nil {
+		s.msg.Actor.SendBad("You can't remove that item from your inventory.")
+		log.Println("Error removing item from inventory: ", err)
+		return
+	}
 
 	s.msg.Actor.SendGood("You toss away ", what.Name, ".")
 	s.msg.Observers.SendInfo("You see ", s.actor.Name, " toss away ", what.Name, ".")

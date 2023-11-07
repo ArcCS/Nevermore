@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
+	"log"
 	"strings"
 )
 
@@ -27,7 +28,9 @@ func (tell) process(s *state) {
 	if who != nil {
 		objects.ActiveCharacters.Lock()
 		who.LastMessenger = s.actor.Name
-		who.Write([]byte(text.White + s.actor.Name + " flashes#, \"" + message + "\"" + text.Reset + "\n"))
+		if _, err := who.Write([]byte(text.White + s.actor.Name + " flashes#, \"" + message + "\"" + text.Reset + "\n")); err != nil {
+			log.Println("Error writing to player: ", err)
+		}
 		objects.ActiveCharacters.Unlock()
 		if !who.Flags["invisible"] {
 			s.msg.Actor.SendGood("You sent#, \"" + message + "\", to " + who.Name)

@@ -14,7 +14,7 @@ type Exit struct {
 	KeyId    int
 }
 
-func NewExit(room_id int, exitData map[string]interface{}) *Exit {
+func NewExit(roomId int, exitData map[string]interface{}) *Exit {
 	placement := 3
 	if exitData["placement"] == nil {
 		placement = 3
@@ -36,7 +36,7 @@ func NewExit(room_id int, exitData map[string]interface{}) *Exit {
 			placement,
 			make(map[string]prompt.MenuItem),
 		},
-		room_id,
+		roomId,
 		int(exitData["dest"].(int64)),
 		make(map[string]bool),
 		int(exitData["key_id"].(int64)),

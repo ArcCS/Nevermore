@@ -8,6 +8,7 @@ package comms
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"log"
@@ -27,11 +28,6 @@ const (
 	inputBuffer = 1024
 )
 
-// This interface lets us assert network or our own errors
-type temporary interface {
-	Temporary() bool
-}
-
 // client contains state information about a client connection. The err field
 // should not be manipulated directly. Instead call Error() and SetError().
 //
@@ -47,10 +43,10 @@ type client struct {
 		Parse([]byte) error
 		Close()
 		GetCharacter() *objects.Character
+		AccountCleanup()
 	}
 }
 
-// Create a way to direct a network error from lower in the stack directly to the client to kill it
 func (c *client) WriteError(err error) {
 	c.err = err
 }
@@ -59,12 +55,24 @@ func (c *client) WriteError(err error) {
 func newClient(conn *net.TCPConn) *client {
 
 	// Setup connection parameters
-	conn.SetKeepAlive(true)
-	conn.SetKeepAlivePeriod(5 * time.Second)
-	conn.SetLinger(10)
-	conn.SetNoDelay(false)
-	conn.SetWriteBuffer(termColumns * termLines)
-	conn.SetReadBuffer(inputBuffer)
+	if cerr := conn.SetKeepAlive(true); cerr != nil {
+		log.Printf("Error setting keep alive: %s", cerr)
+	}
+	if cerr := conn.SetKeepAlivePeriod(5 * time.Second); cerr != nil {
+		log.Printf("Error setting keep alive period: %s", cerr)
+	}
+	if cerr := conn.SetLinger(10); cerr != nil {
+		log.Printf("Error setting linger: %s", cerr)
+	}
+	if cerr := conn.SetNoDelay(false); cerr != nil {
+		log.Printf("Error setting no delay: %s", cerr)
+	}
+	if cerr := conn.SetWriteBuffer(termColumns * termLines); cerr != nil {
+		log.Printf("Error setting write buffer: %s", cerr)
+	}
+	if cerr := conn.SetReadBuffer(inputBuffer); cerr != nil {
+		log.Printf("Error setting read buffer: %s", cerr)
+	}
 
 	c := &client{
 		TCPConn:    conn,
@@ -76,7 +84,9 @@ func newClient(conn *net.TCPConn) *client {
 
 	// Setup frontend if no error acquiring a lease
 	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError)
-	c.frontend.Parse([]byte(""))
+	if err := c.frontend.Parse([]byte("")); err != nil {
+		return nil
+	}
 
 	return c
 }
@@ -128,7 +138,7 @@ func (c *client) process() {
 			if in, err = s.ReadSlice('\n'); err != nil {
 				frontend.Zero(in)
 
-				if err != bufio.ErrBufferFull {
+				if !errors.Is(err, bufio.ErrBufferFull) {
 					log.Println("Client Error " + err.Error())
 					if c.frontend.GetCharacter() != (*objects.Character)(nil) {
 						c.frontend.GetCharacter().SuppressWrites()
@@ -137,11 +147,13 @@ func (c *client) process() {
 					continue
 				}
 
-				for err == bufio.ErrBufferFull {
+				for errors.Is(err, bufio.ErrBufferFull) {
 					in, err = s.ReadSlice('\n')
 					frontend.Zero(in)
 				}
-				_, _ = c.Write([]byte(text.Bad + "\nYou type too much.\n" + text.Prompt + ">"))
+				if _, werr := c.Write([]byte(text.Bad + "\nYou type too much.\n" + text.Prompt + ">")); werr != nil {
+					log.Println("Error writing to player: ", werr)
+				}
 				continue
 			}
 
@@ -222,6 +234,7 @@ func (c *client) close() {
 			log.Println("Force Close from Client")
 			c.frontend.GetCharacter().PrepareUnload()
 			c.frontend.GetCharacter().Unload()
+			c.frontend.AccountCleanup()
 		}
 
 		c.frontend.Close()
@@ -241,7 +254,6 @@ func (c *client) close() {
 
 // Write handles output for the network connection.
 func (c *client) Write(d []byte) (n int, err error) {
-
 	if n, err = c.TCPConn.Write(d); err != nil {
 		log.Println("TCP Error" + err.Error())
 	}

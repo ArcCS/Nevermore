@@ -6,15 +6,15 @@ import (
 )
 
 func init() {
-	addHandler(remove_command{},
+	addHandler(removeCommand{},
 		"Usage: remove_command room|mob|item (name) command_name \n  Deletes a command from the list of commands available \n",
 		permissions.Builder,
 		"remove_command")
 }
 
-type remove_command cmd
+type removeCommand cmd
 
-func (remove_command) process(s *state) {
+func (removeCommand) process(s *state) {
 	if len(s.words) < 2 {
 		s.msg.Actor.SendBad("Not enough arguments to process the command.")
 		return

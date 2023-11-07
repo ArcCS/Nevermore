@@ -11,9 +11,8 @@ import (
 	"strconv"
 )
 
-// account embeds a frontend instance adding fields and methods specific to
-// account and player creation.
-type account struct {
+// Account embeds a frontend instance adding fields and methods specific to
+type Account struct {
 	*frontend
 	account    string
 	password   [16]byte
@@ -23,8 +22,8 @@ type account struct {
 // NewAccount returns an account with the specified frontend embedded. The
 // returned account can be used for processing the creation of new accounts and
 // players.
-func NewAccount(f *frontend) (a *account) {
-	a = &account{frontend: f, permission: 1}
+func NewAccount(f *frontend) (a *Account) {
+	a = &Account{frontend: f, permission: 1}
 	a.explainAccountDisplay()
 	return
 }
@@ -32,21 +31,21 @@ func NewAccount(f *frontend) (a *account) {
 // explainAccountDisplay displays the requirements for new account IDs. It is
 // separated from newAccountDisplay so that if there is a problem we can ask
 // for the new account ID again without having to have the explanation as well.
-func (a *account) explainAccountDisplay() {
+func (a *Account) explainAccountDisplay() {
 	l := strconv.Itoa(config.Login.AccountLength)
 	a.buf.Send("Your account ID can be anything you can remember: an email address, a book title, a film title, a quote. You can use upper and lower case characters, numbers and symbols. The only restriction is it has to be at least ", l, " characters long.\n\nThis is NOT your character's name it is for your account ID for logging in only.\n")
 	a.newAccountDisplay()
 }
 
 // newAccountDisplay asks the player for a new account ID
-func (a *account) newAccountDisplay() {
+func (a *Account) newAccountDisplay() {
 	a.buf.Send("Enter text to use for your new account ID or just press enter to cancel:")
 	a.nextFunc = a.newAccountProcess
 }
 
 // newAccountProcess takes the current input and stores it as an account ID
 // hash. We don't know if it's already taken yet, we are just storing it.
-func (a *account) newAccountProcess() {
+func (a *Account) newAccountProcess() {
 	switch l := len(a.input); {
 	case l == 0:
 		a.buf.Send(text.Info, "Account creation cancelled.\n", text.Reset)
@@ -62,7 +61,7 @@ func (a *account) newAccountProcess() {
 }
 
 // newPasswordDisplay asks for a password to associate with the account ID.
-func (a *account) newPasswordDisplay() {
+func (a *Account) newPasswordDisplay() {
 	a.buf.Send("Enter a password to use for your account ID or just press enter to cancel:")
 	a.nextFunc = a.newPasswordProcess
 }
@@ -70,7 +69,7 @@ func (a *account) newPasswordDisplay() {
 // newPasswordProcess takes the current input and stores it in the current
 // state as a hash. The hash is calculated with a random salt that is also
 // stored in the current state.
-func (a *account) newPasswordProcess() {
+func (a *Account) newPasswordProcess() {
 	switch l := len(a.input); {
 	case l == 0:
 		a.buf.Send(text.Info, "Account creation cancelled.\n", text.Reset)
@@ -86,14 +85,14 @@ func (a *account) newPasswordProcess() {
 }
 
 // confirmPasswordDisplay asks for the password to be typed again for confirmation.
-func (a *account) confirmPasswordDisplay() {
+func (a *Account) confirmPasswordDisplay() {
 	a.buf.Send("Enter your password again to confirm or just press enter to cancel:")
 	a.nextFunc = a.confirmPasswordProcess
 }
 
 // confirmPasswordProcess verifies that the confirmation password matches the
 // new password already stored in the current state.
-func (a *account) confirmPasswordProcess() {
+func (a *Account) confirmPasswordProcess() {
 	switch l := len(a.input); {
 	case l == 0:
 		a.buf.Send(text.Info, "Account creation cancelled.\n", text.Reset)
@@ -108,7 +107,7 @@ func (a *account) confirmPasswordProcess() {
 	}
 }
 
-func (a *account) write() {
+func (a *Account) write() {
 
 	// Check if account ID is already registered
 	if data.AccountExists(a.account) {

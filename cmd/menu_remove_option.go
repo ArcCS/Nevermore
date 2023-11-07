@@ -3,15 +3,15 @@ package cmd
 import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
-	addHandler(remove_option{},
+	addHandler(removeOption{},
 		"",
 		permissions.Builder,
 		"remove_option")
 }
 
-type remove_option cmd
+type removeOption cmd
 
-func (remove_option) process(s *state) {
+func (removeOption) process(s *state) {
 	s.msg.Actor.SendInfo("WIP, coming soon.")
 
 }

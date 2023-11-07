@@ -14,7 +14,7 @@ func init() {
 		"",
 		permissions.Player,
 		"$SELLCHEST")
-	addHandler(sellchest_confirm{},
+	addHandler(sellchestConfirm{},
 		"",
 		permissions.Player,
 		"$SELLCHEST_CONFIRM")
@@ -69,9 +69,9 @@ func (sellchest) process(s *state) {
 
 }
 
-type sellchest_confirm cmd
+type sellchestConfirm cmd
 
-func (sellchest_confirm) process(s *state) {
+func (sellchestConfirm) process(s *state) {
 	log.Println("length of words: ", len(s.words))
 	if len(s.words) < 1 {
 		s.msg.Actor.SendInfo("Not enough arguements on sellchest command.")
@@ -147,11 +147,13 @@ func (sellchest_confirm) process(s *state) {
 				msg := "The pawn broker gives you " + strconv.Itoa(goldSplit) + " for the contents of " + target.Name + "."
 				s.participant.Gold.Add(goldSplit)
 				s.msg.Participant.Send(msg)
-				leadChar.MessageParty(msg, s.actor)
 				// Give the gold...
 				for _, follower := range leadChar.PartyFollowers {
 					followerChar := objects.ActiveCharacters.Find(follower)
 					if followerChar != nil {
+						if _, err := followerChar.Write([]byte(msg)); err != nil {
+							log.Println("Error writing to player: ", err)
+						}
 						followerChar.Gold.Add(goldSplit)
 					}
 				}
@@ -163,11 +165,13 @@ func (sellchest_confirm) process(s *state) {
 			msg := "The pawn broker gives you " + strconv.Itoa(goldSplit) + " for the contents of " + target.Name + "."
 			s.actor.Gold.Add(goldSplit)
 			s.msg.Actor.Send(msg)
-			s.actor.MessageParty(msg, s.actor)
 			// Give the gold...
 			for _, follower := range s.actor.PartyFollowers {
 				followerChar := objects.ActiveCharacters.Find(follower)
 				if followerChar != nil {
+					if _, err := followerChar.Write([]byte(msg)); err != nil {
+						log.Println("Error writing to player: ", err)
+					}
 					followerChar.Gold.Add(goldSplit)
 				}
 			}

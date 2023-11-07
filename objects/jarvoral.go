@@ -45,7 +45,9 @@ func StartJarvoral() {
 
 func StopJarvoral() {
 	if DiscordSession != nil {
-		DiscordSession.Close()
+		if err := DiscordSession.Close(); err != nil {
+			fmt.Println("error closing discord connection,", err)
+		}
 	}
 }
 
@@ -54,7 +56,6 @@ func StopJarvoral() {
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
@@ -66,7 +67,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if len(players) == 0 {
 			//log.Println(m.ChannelID)
-			s.ChannelMessageSend(m.ChannelID, "There is currently no one visibly playing.")
+			if _, err := s.ChannelMessageSend(m.ChannelID, "There is currently no one visibly playing."); err != nil {
+				fmt.Println("error sending message,", err)
+			}
 			return
 		}
 
@@ -80,6 +83,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			message += "	" + player + " \n"
 		}
 
-		s.ChannelMessageSend(m.ChannelID, message)
+		if _, err := s.ChannelMessageSend(m.ChannelID, message); err != nil {
+			fmt.Println("error sending message,", err)
+		}
 	}
 }

@@ -24,19 +24,19 @@ func (health) process(s *state) {
 		return
 	}
 
-	char_template := "You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.\n" +
+	charTemplate := "You have {{.Stamina}}/{{.MaxStamina}} stamina, {{.Health}}/{{.MaxHealth}} health, and {{.Mana}}/{{.MaxMana}} mana pts.\n" +
 		"{{if .Poisoned}}" + text.Red + "You have poison coursing through your veins.\n{{end}}" + text.Good +
 		"{{if .Diseased}}" + text.Brown + "You are suffering from affliction.\n{{end}}" + text.Good
 
 	data := struct {
-		Stamina     int
-		Max_stamina int
-		Health      int
-		Max_health  int
-		Mana        int
-		Max_mana    int
-		Poisoned    bool
-		Diseased    bool
+		Stamina    int
+		MaxStamina int
+		Health     int
+		MaxHealth  int
+		Mana       int
+		MaxMana    int
+		Poisoned   bool
+		Diseased   bool
 	}{
 		s.actor.Stam.Current,
 		s.actor.Stam.Max,
@@ -48,7 +48,7 @@ func (health) process(s *state) {
 		s.actor.CheckFlag("disease"),
 	}
 
-	tmpl, _ := template.New("char_info").Parse(char_template)
+	tmpl, _ := template.New("char_info").Parse(charTemplate)
 	var output bytes.Buffer
 	err := tmpl.Execute(&output, data)
 	if err != nil {

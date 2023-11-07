@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 )
 
 func init() {
@@ -61,7 +62,11 @@ func (read) process(s *state) {
 			s.msg.Actor.SendGood("You study ", what.Name, " and learn the spell "+what.Spell)
 			s.actor.Spells = append(s.actor.Spells, what.Spell)
 			s.msg.Observers.SendInfo("You see ", s.actor.Name, " study a ", what.Name, ".")
-			s.actor.Inventory.Remove(what)
+			if err := s.actor.Inventory.Remove(what); err != nil {
+				s.msg.Actor.SendBad("You can't seem to remove the ", what.Name, " from your inventory.")
+				log.Println("Error removing item from inventory: ", err)
+				return
+			}
 			s.msg.Actor.SendInfo("The " + what.Name + " disintegrates.")
 			return
 		} else {

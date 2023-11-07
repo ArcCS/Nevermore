@@ -6,19 +6,19 @@ import (
 )
 
 func init() {
-	addHandler(add_command{},
-		"Usage: add_command room|mob|item (name) command_name command_string \n  Adds a command to the list of commands available \n"+
-			"example:  add_command mob dragon talk $TELEPORTTO room_id "+
+	addHandler(addCommand{},
+		"Usage: addCommand room|mob|item (name) command_name command_string \n  Adds a command to the list of commands available \n"+
+			"example:  addCommand mob dragon talk $TELEPORTTO room_id "+
 			"$TELEPORTTO is from the list of script commands"+
 			"The word talk is what will be processed as a command when the user, and the room_id is where the teleport will send them. "+
 			"Use of the room option, will add the command to the current room",
 		permissions.Builder,
-		"add_command")
+		"addCommand")
 }
 
-type add_command cmd
+type addCommand cmd
 
-func (add_command) process(s *state) {
+func (addCommand) process(s *state) {
 	if len(s.words) < 3 {
 		s.msg.Actor.SendBad("Not enough arguments to process the command.")
 		return

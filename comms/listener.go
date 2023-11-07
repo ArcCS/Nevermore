@@ -20,10 +20,7 @@ var (
 	ServerErr      error
 )
 
-// Listen sets up a socket to listen for client connections. When a client
-// connects the connection made is passed to newClient to setup a client
-// instance for housekeeping. client.Process is then launched as a new
-// goroutine to handle the main I/O processing for the client.
+// Listen sets up a socket to listen for client connections.
 func Listen(host, port string) {
 
 	addr, err := net.ResolveTCPAddr("tcp", net.JoinHostPort(host, port))
@@ -63,7 +60,9 @@ func Listen(host, port string) {
 		runtime.Gosched()
 	}
 
-	data.DRIVER.Close()
+	if err := data.DRIVER.Close(); err != nil {
+		return
+	}
 	objects.StopJarvoral()
 	os.Exit(0)
 }

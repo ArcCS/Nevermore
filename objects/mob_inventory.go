@@ -6,6 +6,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/jinzhu/copier"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -16,25 +17,6 @@ type MobInventory struct {
 	Flags         map[string]bool
 	ContinueEmpty func() bool
 	JsonRepr      string
-}
-
-var (
-	ActivateMob   func(mob *Mob)
-	DeactivateMob func(mob *Mob)
-)
-
-// NewMobInventory returns a new basic MobInventory structure
-func NewMobInventory(ParentID int, o ...*Mob) *MobInventory {
-	i := &MobInventory{
-		ParentId: ParentID,
-		Contents: make([]*Mob, 0, len(o)),
-	}
-
-	for _, ob := range o {
-		i.Add(ob, false)
-	}
-
-	return i
 }
 
 // Add adds the specified Mob to the Contents.
@@ -50,7 +32,7 @@ func (i *MobInventory) Add(o *Mob, silent bool) {
 	}
 }
 
-// Add adds the specified Mob to the Contents.
+// AddWithMessage Add adds the specified Mob to the Contents.
 func (i *MobInventory) AddWithMessage(o *Mob, message string, silent bool) {
 	o.ParentId = i.ParentId
 	i.Contents = append(i.Contents, o)
@@ -63,7 +45,7 @@ func (i *MobInventory) AddWithMessage(o *Mob, message string, silent bool) {
 	}
 }
 
-// Pass mob as a pointer, compare and remove
+// Remove Pass mob as a pointer, compare and remove
 func (i *MobInventory) Remove(o *Mob) {
 	go func() { o.MobTickerUnload <- true }()
 	for c, p := range i.Contents {
@@ -80,7 +62,7 @@ func (i *MobInventory) Remove(o *Mob) {
 	}
 }
 
-// Clear all non permanent
+// RemoveNonPerms Clear all non-permanent
 func (i *MobInventory) RemoveNonPerms() {
 	var contentRef []*Mob
 	for _, mob := range i.Contents {
@@ -90,7 +72,7 @@ func (i *MobInventory) RemoveNonPerms() {
 			mob.MobTickerUnload <- true
 		}
 	}
-	// Check if we should continue to empty, this is only relevant if mobs have been thinking and we have to back out of this loop entirely
+	// Check if we should continue to empty, this is only relevant if mobs have been thinking, and we have to back out of this loop entirely
 	//Check if we should empty the room
 	for i.ContinueEmpty() && len(contentRef) > 0 {
 		for index, mob := range contentRef {
@@ -180,7 +162,7 @@ func (i *MobInventory) List(observer *Character) []string {
 	return items
 }
 
-// List the items in this MobInventory
+// ListHostile List the items in this MobInventory
 func (i *MobInventory) ListHostile() []string {
 	items := make([]string, 0)
 
@@ -192,7 +174,7 @@ func (i *MobInventory) ListHostile() []string {
 	return items
 }
 
-// List the items in this MobInventory
+// ListMobs List the items in this MobInventory
 func (i *MobInventory) ListMobs(observer *Character) []*Mob {
 	items := make([]*Mob, 0)
 
@@ -212,9 +194,9 @@ func (i *MobInventory) ListMobs(observer *Character) []*Mob {
 	return items
 }
 
-// ListChars the items in this CharInventory
+// ListHiddenMobs ListChars the items in this CharInventory
 func (i *MobInventory) ListHiddenMobs(observer *Character) []*Mob {
-	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
 	items := make([]*Mob, 0)
 
 	for _, m := range i.Contents {
@@ -228,7 +210,7 @@ func (i *MobInventory) ListHiddenMobs(observer *Character) []*Mob {
 	return items
 }
 
-// List the items in this MobInventory
+// ListAttackers List the items in this MobInventory
 func (i *MobInventory) ListAttackers(observer *Character) string {
 	items := ""
 	victim := ""
@@ -259,9 +241,9 @@ func (i *MobInventory) ListAttackers(observer *Character) string {
 	return items
 }
 
-// List the items in this MobInventory
+// ReducedList List the items in this MobInventory
 func (i *MobInventory) ReducedList(observer *Character) string {
-	items := make(map[string]int, 0)
+	items := make(map[string]int)
 
 	for _, c := range i.Contents {
 		_, inMap := items[c.Name]
@@ -321,7 +303,7 @@ func (i *MobInventory) Jsonify() {
 func RestoreMobs(ParentID int, jsonString string) *MobInventory {
 	NewInventory := &MobInventory{
 		ParentId: ParentID,
-		Contents: make([]*Mob, 0, 0),
+		Contents: make([]*Mob, 0),
 	}
 	obj := make([]map[string]interface{}, 0)
 	err := json.Unmarshal([]byte(jsonString), &obj)
@@ -330,7 +312,9 @@ func RestoreMobs(ParentID int, jsonString string) *MobInventory {
 	}
 	for _, mob := range obj {
 		newMob := Mob{}
-		copier.CopyWithOption(&newMob, Mobs[int(mob["mobId"].(float64))], copier.Option{DeepCopy: true})
+		if err := copier.CopyWithOption(&newMob, Mobs[int(mob["mobId"].(float64))], copier.Option{DeepCopy: true}); err != nil {
+			log.Println("Error copying mob during restore: ", err)
+		}
 		newMob.Placement = int(mob["placement"].(float64))
 		newMob.Inventory = RestoreInventory(mob["inventory"].(string))
 		NewInventory.Add(&newMob, true)

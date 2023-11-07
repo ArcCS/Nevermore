@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 	"strings"
 )
 
@@ -24,7 +25,9 @@ func (appeal) process(s *state) {
 	message := "### " + s.actor.Name + " appeals: " + strings.Join(s.input, " ")
 	objects.ActiveCharacters.MessageGM(message)
 	if objects.DiscordSession != nil {
-		objects.DiscordSession.ChannelMessageSend("854733587018416138", message)
+		if _, err := objects.DiscordSession.ChannelMessageSend("854733587018416138", message); err != nil {
+			log.Println("Error sending message to discord: ", err)
+		}
 	}
 
 	s.ok = true

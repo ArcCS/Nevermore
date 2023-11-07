@@ -76,7 +76,6 @@ type Mob struct {
 	IsThinking bool
 }
 
-// Pop the mob data
 func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 	description := ""
 	var ok bool
@@ -221,7 +220,7 @@ func (m *Mob) CheckThreatTable(charName string) bool {
 	return false
 }
 
-// The mob brain is this ticker
+// Tick The mob brain is this ticker
 func (m *Mob) Tick() {
 	// It appears sometimes that mobs get a second wind round if they try to lock at the sametime they die, lets prevent that.
 	if m.Stam.Current <= 0 {
@@ -239,12 +238,14 @@ func (m *Mob) Tick() {
 		} else {
 			// Picking up treasure
 			if m.Flags["takes_treasure"] {
-				// Roll to see if I'm gonna pick it up
+				// Roll to see if mob is picking it up
 				if utils.Roll(100, 1, 0) <= config.MobTakeChance {
 					// Loop inventory, and take the first thing they find
 					for _, item := range Rooms[m.ParentId].Items.Contents {
 						if m.Placement == item.Placement && !item.Flags["hidden"] {
-							Rooms[m.ParentId].Items.Remove(item)
+							if err := Rooms[m.ParentId].Items.Remove(item); err != nil {
+								log.Println("Error mob removing item", err)
+							}
 							m.Inventory.Add(item)
 							Rooms[m.ParentId].MessageAll(m.Name + " picks up " + item.DisplayName() + text.Reset + "\n")
 							break
@@ -322,19 +323,27 @@ func (m *Mob) Tick() {
 						if utils.StringIn(m.BreathWeapon, []string{"fire", "air", "earth", "water"}) {
 							t.RunHook("attacked")
 							stamDam, vitDam, resisted := t.ReceiveMagicDamage(damageTotal, m.BreathWeapon)
-							t.Write([]byte(text.Bad + m.Name + "'s breath  struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+							if _, err := t.Write([]byte(text.Bad + m.Name + "'s breath  struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n")); err != nil {
+								log.Println("Error writing to player:", err)
+							}
 							if target.CheckFlag("reflection") {
 								reflectDamage = int(float64(damageTotal) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 								m.ReceiveDamage(reflectDamage)
-								target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset))
+								if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset)); err != nil {
+									log.Println("Error writing to player:", err)
+								}
 								m.DeathCheck(target)
 							}
 							t.DeathCheck("was slain by a " + m.Name + ".")
 						} else if m.BreathWeapon == "paralytic" {
-							t.Write([]byte(text.Gray + m.Name + " breathes paralytic gas on to you.\n"))
+							if _, err := t.Write([]byte(text.Gray + m.Name + " breathes paralytic gas on to you.\n")); err != nil {
+								log.Println("Error writing to player:", err)
+							}
 							target.SetTimer("global", 24)
 						} else if m.BreathWeapon == "pestilence" {
-							t.Write([]byte(text.Gray + m.Name + " breathes infectious gas on to you.\n"))
+							if _, err := t.Write([]byte(text.Gray + m.Name + " breathes infectious gas on to you.\n")); err != nil {
+								log.Println("Error writing to player:", err)
+							}
 							Effects["disease"](m, target, m.Level)
 						}
 					}
@@ -397,7 +406,9 @@ func (m *Mob) Tick() {
 				}
 				missChance += target.GetStat("dex") * config.MissPerDex
 				if utils.Roll(100, 1, 0) <= missChance {
-					target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset))
+					if _, err := target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset)); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 					return
 				}
 				// If we made it here, default out and do a range hit.
@@ -422,7 +433,9 @@ func (m *Mob) Tick() {
 				if vitalStrike {
 					vitDamage, resisted = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 					data.StoreCombatMetric("range_vital", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
-					target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
+					if _, err := target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset)); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				} else {
 					stamDamage, vitDamage, resisted = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 					data.StoreCombatMetric("range", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
@@ -439,17 +452,25 @@ func (m *Mob) Tick() {
 					buildString += strconv.Itoa(vitDamage) + " vitality"
 				}
 				if criticalStrike {
-					target.Write([]byte(text.Red + "Critical Strike!!!\n" + text.Reset))
+					if _, err := target.Write([]byte(text.Red + "Critical Strike!!!\n" + text.Reset)); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				}
 				if doubleDamage {
-					target.Write([]byte(text.Red + "Double Damage!!!\n" + text.Reset))
+					if _, err := target.Write([]byte(text.Red + "Double Damage!!!\n" + text.Reset)); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				}
-				target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
+				if _, err := target.Write([]byte(text.Red + "Thwwip!! " + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				if target.CheckFlag("reflection") {
 					reflectDamage = int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 					mobFin, _, mobResisted := m.ReceiveDamage(reflectDamage)
 					data.StoreCombatMetric("range_player_reflect", 0, 1, reflectDamage, mobResisted, mobFin, 0, target.CharId, target.Tier, 1, m.MobId)
-					target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset))
+					if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset)); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 					m.DeathCheck(target)
 				}
 				target.RunHook("attacked")
@@ -475,7 +496,7 @@ func (m *Mob) Tick() {
 			} else if m.CurrentTarget != "" &&
 				m.Placement == Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement {
 				// Check to see if the mob misses:
-				// Am I against a fighter and they succeed in a parry roll?
+				// Am I against a fighter, and they succeed in a parry roll?
 				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
 				missChance := 0
 				lvlDiff := target.Tier - m.Level
@@ -484,7 +505,9 @@ func (m *Mob) Tick() {
 				}
 				missChance += target.GetStat("dex") * config.HitPerDex
 				if utils.Roll(100, 1, 0) <= missChance {
-					target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset))
+					if _, err := target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset)); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 					return
 				}
 				target.RunHook("attacked")
@@ -494,13 +517,17 @@ func (m *Mob) Tick() {
 						// It's a riposte
 						actualDamage, _, resisted := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
 						data.StoreCombatMetric("melee_player_riposte", 0, 1, actualDamage+resisted, resisted, actualDamage, 0, target.CharId, target.Tier, 1, m.MobId)
-						target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset))
+						if _, err := target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 						if m.DeathCheck(target) {
 							return
 						}
 						m.Stun(config.ParryStuns * 8)
 					} else {
-						target.Write([]byte(text.Green + "You parry the attack from " + m.Name + "\n" + text.Reset))
+						if _, err := target.Write([]byte(text.Green + "You parry the attack from " + m.Name + "\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 						m.Stun(config.ParryStuns * 8)
 					}
 				} else {
@@ -525,7 +552,9 @@ func (m *Mob) Tick() {
 					if vitalStrike {
 						vitDamage, resisted = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 						data.StoreCombatMetric("melee_vital", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
-						target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset))
+						if _, err := target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 					} else {
 						stamDamage, vitDamage, resisted = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 						data.StoreCombatMetric("melee", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, stamDamage+vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
@@ -542,21 +571,31 @@ func (m *Mob) Tick() {
 						buildString += strconv.Itoa(vitDamage) + " vitality"
 					}
 					if stamDamage == 0 && vitDamage == 0 {
-						target.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset))
+						if _, err := target.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 					} else {
 						if criticalStrike {
-							target.Write([]byte(text.Red + "Critical Strike!!!\n" + text.Reset))
+							if _, err := target.Write([]byte(text.Red + "Critical Strike!!!\n" + text.Reset)); err != nil {
+								log.Println("Error writing to player:", err)
+							}
 						}
 						if doubleDamage {
-							target.Write([]byte(text.Red + "Double Damage!!!\n" + text.Reset))
+							if _, err := target.Write([]byte(text.Red + "Double Damage!!!\n" + text.Reset)); err != nil {
+								log.Println("Error writing to player:", err)
+							}
 						}
-						target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset))
+						if _, err := target.Write([]byte(text.Red + m.Name + " attacks you for " + buildString + " points of damage!" + "\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 					}
 					if target.CheckFlag("reflection") {
 						reflectDamage = int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 						mobFin, _, mobResisted := m.ReceiveDamage(reflectDamage)
 						data.StoreCombatMetric("melee_player_reflect", 0, 1, reflectDamage, mobResisted, mobFin, 0, target.CharId, target.Tier, 1, m.MobId)
-						target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset))
+						if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 						m.DeathCheck(target)
 					}
 					target.DeathCheck("was slain by a " + m.Name + ".")
@@ -615,9 +654,15 @@ func (m *Mob) DeathCheck(target *Character) bool {
 				}
 				if charClean == target {
 					buildActorString += text.Green + m.DropInventory() + "\n"
-					target.Write([]byte(buildActorString))
+					if _, err := target.Write([]byte(buildActorString)); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				} else {
-					go charClean.Write([]byte(buildActorString + "\n" + text.Reset))
+					go func() {
+						if _, err := charClean.Write([]byte(buildActorString + "\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
+					}()
 				}
 				if charClean.Victim == m {
 					charClean.Victim = nil
@@ -635,7 +680,9 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 
 	if m.Flags["blinds"] {
 		if utils.Roll(100, 1, 0) > 80 {
-			target.Write([]byte(text.Red + m.Name + " blinds you!" + "\n" + text.Reset))
+			if _, err := target.Write([]byte(text.Red + m.Name + " blinds you!" + "\n" + text.Reset)); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 			Effects["blind"](m, target, 0)
 			return
 		}
@@ -643,28 +690,38 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 
 	if m.Flags["diseases"] {
 		if utils.Roll(100, 1, 0) > 50 {
-			target.Write([]byte(text.Red + m.Name + " tries to spread disease on to you!" + "\n" + text.Reset))
+			if _, err := target.Write([]byte(text.Red + m.Name + " tries to spread disease on to you!" + "\n" + text.Reset)); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 			Effects["disease"](m, target, m.Level)
 			return
 		}
 	}
 	if m.Flags["poisons"] {
 		if utils.Roll(100, 1, 0) > 50 {
-			target.Write([]byte(text.Red + m.Name + " injects you with venom!" + "\n" + text.Reset))
+			if _, err := target.Write([]byte(text.Red + m.Name + " injects you with venom!" + "\n" + text.Reset)); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 			Effects["poison"](m, target, m.Level)
 			return
 		}
 	}
 	if m.Flags["spits_acid"] {
 		if target.CheckFlag("resilient-aura") {
-			target.Write([]byte(text.Red + m.Name + " spits acid on you, but your aura protects your gear!" + "\n" + text.Reset))
+			if _, err := target.Write([]byte(text.Red + m.Name + " spits acid on you, but your aura protects your gear!" + "\n" + text.Reset)); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 			return
 		}
 		if utils.Roll(100, 1, 0) > 50 {
-			target.Write([]byte(text.Red + m.Name + " spits acid on you, damaging your armor !" + "\n" + text.Reset))
+			if _, err := target.Write([]byte(text.Red + m.Name + " spits acid on you, damaging your armor !" + "\n" + text.Reset)); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 			msg := target.Equipment.DamageRandomArmor()
 			if msg != "" {
-				target.Write([]byte(text.Info + msg + "\n" + text.Reset))
+				if _, err := target.Write([]byte(text.Info + msg + "\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 			}
 			return
 		}
@@ -692,7 +749,6 @@ func (m *Mob) Follow(params []string) {
 				neededLocks[1] = targetChar.ParentId
 				ready := false
 				previousRoom := m.ParentId
-				// Lets not compete with other mobs for the same locks by using names
 				//log.Println("Mob is trying to gain lock priority")
 				tempName := utils.RandString(10)
 				for !ready {
@@ -706,15 +762,13 @@ func (m *Mob) Follow(params []string) {
 					}
 					if !ready {
 						for _, l := range neededLocks {
-							//log.Println(s.actor.Name + " releasing incomplete priority" + strconv.Itoa(l))
 							if Rooms[l].LockPriority == tempName {
 								Rooms[l].LockPriority = ""
 							}
 						}
-						//log.Println("Mob is sleeping before trying to acquire again")
 						rand.Seed(time.Now().UnixNano())
 						r := rand.Int()
-						t, _ := time.ParseDuration(string(r) + "ms")
+						t, _ := time.ParseDuration(string(rune(r)) + "ms")
 						time.Sleep(t)
 					}
 				}
@@ -724,7 +778,9 @@ func (m *Mob) Follow(params []string) {
 				Rooms[m.ParentId].Lock()
 				//log.Println("Processing New Room Lock")
 				Rooms[targetChar.ParentId].Lock()
-				targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n"))
+				if _, err := targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				//log.Println("Remove mob")
 				Rooms[m.ParentId].Mobs.Remove(m)
 				//log.Println("Add the mob")
@@ -735,10 +791,16 @@ func (m *Mob) Follow(params []string) {
 					data.StoreCombatMetric("follow_vital", 0, 1, vitDamage, resisted, vitDamage, 1, m.MobId, m.Level, 0, targetChar.CharId)
 
 					if vitDamage == 0 {
-						targetChar.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset))
+						if _, err := targetChar.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 					} else {
-						targetChar.Write([]byte(text.Red + "Vital Strike!!!!\n" + text.Reset))
-						targetChar.Write([]byte(text.Red + m.Name + " attacks you for " + strconv.Itoa(vitDamage) + " points of vital damage!" + "\n" + text.Reset))
+						if _, err := targetChar.Write([]byte(text.Red + "Vital Strike!!!!\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
+						if _, err := targetChar.Write([]byte(text.Red + m.Name + " attacks you for " + strconv.Itoa(vitDamage) + " points of vital damage!" + "\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 					}
 					targetChar.DeathCheck("was slain by a " + m.Name + ".")
 				}
@@ -764,7 +826,7 @@ func (m *Mob) Follow(params []string) {
 }
 
 func (m *Mob) Flee(params []string) {
-	// Roll a dice and see if I'm going to flee...
+	log.Println("I'm gonna try to flee", params)
 	if m.Stam.Current > 0 && !m.CheckFlag("sweet_comfort") {
 		if utils.Roll(100, 1, 0) <= 50 {
 			go Rooms[m.ParentId].FleeMob(m)
@@ -804,7 +866,7 @@ func (m *Mob) Stun(amt int) {
 	}
 }
 
-// Special handler for handling a mobs cast of a teleport spell
+// Teleport Special handler for handling a mobs cast of a teleport spell
 func (m *Mob) Teleport(target string) {
 	rand.Seed(time.Now().Unix())
 	newRoom := Rooms[TeleportTable[rand.Intn(len(TeleportTable))]]
@@ -817,21 +879,27 @@ func (m *Mob) Teleport(target string) {
 			diff := (m.Level - targetChar.Tier) * 5
 			chance := 10 + diff
 			if utils.Roll(100, 1, 0) > chance {
-				targetChar.Write([]byte(m.Name + " failed to teleport you.\n"))
+				if _, err := targetChar.Write([]byte(m.Name + " failed to teleport you.\n")); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				return
 			}
 		}
-		targetChar.Write([]byte(m.Name + " teleported you.\n"))
+		if _, err := targetChar.Write([]byte(m.Name + " teleported you.\n")); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 		newRoom.Lock()
 		workingRoom.Chars.Remove(targetChar)
 		newRoom.Chars.Add(targetChar)
 		targetChar.ParentId = newRoom.RoomId
-		targetChar.Write([]byte(newRoom.Look(targetChar)))
+		if _, err := targetChar.Write([]byte(newRoom.Look(targetChar))); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 		newRoom.Unlock()
 	}
 }
 
-// On copy to a room calculate the inventory
+// CalculateInventory On copy to a room calculate the inventory
 func (m *Mob) CalculateInventory() {
 	m.Inventory = nil
 	m.Inventory = NewItemInventory()
@@ -840,7 +908,9 @@ func (m *Mob) CalculateInventory() {
 			if utils.Roll(100, 1, 0) <= v {
 				// Successful roll!  Add this item to the inventory!
 				newItem := Item{}
-				copier.CopyWithOption(&newItem, Items[k], copier.Option{DeepCopy: true})
+				if err := copier.CopyWithOption(&newItem, Items[k], copier.Option{DeepCopy: true}); err != nil {
+					log.Println("Error copying item:", err)
+				}
 				m.Inventory.Add(&newItem)
 			}
 		}
@@ -884,7 +954,9 @@ func (m *Mob) DropInventory() string {
 	}
 	if m.Gold > 0 {
 		newGold := Item{}
-		copier.CopyWithOption(&newGold, Items[3456], copier.Option{DeepCopy: true})
+		if err := copier.CopyWithOption(&newGold, Items[3456], copier.Option{DeepCopy: true}); err != nil {
+			log.Println("Error copying item:", err)
+		}
 		newGold.Name = strconv.Itoa(m.Gold) + " gold marks"
 		newGold.Value = m.Gold
 		newGold.Placement = m.Placement
@@ -927,9 +999,9 @@ func (m *Mob) ApplyHook(hook string, hookName string, executions int, length str
 func (m *Mob) RemoveHook(hook string, hookName string) {
 	m.Hooks[hook][hookName].effectOff()
 	valPresent := false
-	for k, _ := range m.Hooks {
+	for k := range m.Hooks {
 		valPresent = false
-		for hName, _ := range m.Hooks[k] {
+		for hName := range m.Hooks[k] {
 			if hName == hookName {
 				valPresent = true
 			}
@@ -1129,6 +1201,7 @@ func (m *Mob) InflictDamage() int {
 }
 
 func (m *Mob) CastSpell(spell string) bool {
+	log.Println("Casting spell: ", spell)
 	return true
 }
 
@@ -1141,7 +1214,7 @@ func (m *Mob) Look() string {
 	return buildText
 }
 
-// Function to return only the modifiable properties
+// ReturnMobInstanceProps Function to return only the modifiable properties
 func ReturnMobInstanceProps(mob *Mob) map[string]interface{} {
 	serialList := map[string]interface{}{
 		"mobId":     mob.MobId,

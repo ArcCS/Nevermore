@@ -23,32 +23,32 @@ func (moddrop) process(s *state) {
 		return
 	}
 
-	var mob_id, item_id, drop_rate int
-	mob_id, err := strconv.Atoi(s.words[0])
+	var mobId, itemId, dropRate int
+	mobId, err := strconv.Atoi(s.words[0])
 	if err != nil {
 		log.Println(err)
 	}
 
-	item_id, err2 := strconv.Atoi(s.words[1])
+	itemId, err2 := strconv.Atoi(s.words[1])
 	if err2 != nil {
 		log.Println(err2)
 	}
 
-	drop_rate, err3 := strconv.Atoi(s.words[2])
+	dropRate, err3 := strconv.Atoi(s.words[2])
 	if err2 != nil {
 		log.Println(err3)
 	}
 
-	if mob, ok := objects.Mobs[mob_id]; ok {
-		if _, ok := objects.Items[item_id]; ok {
-			if drop_rate > 100 {
+	if mob, ok := objects.Mobs[mobId]; ok {
+		if _, ok := objects.Items[itemId]; ok {
+			if dropRate > 100 {
 				s.msg.Actor.SendBad("The sum of the drop rates is more than 100% with the new value")
 			} else {
-				mob.ItemList[item_id] = drop_rate
+				mob.ItemList[itemId] = dropRate
 				data.UpdateDrop(map[string]interface{}{
-					"mob_id":  mob_id,
-					"item_id": item_id,
-					"chance":  drop_rate})
+					"mob_id":  mobId,
+					"item_id": itemId,
+					"chance":  dropRate})
 				s.msg.Actor.SendGood("Drop rate updated")
 			}
 		} else {

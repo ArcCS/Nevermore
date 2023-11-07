@@ -3,14 +3,14 @@ package cmd
 import "github.com/ArcCS/Nevermore/permissions"
 
 func init() {
-	addHandler(create_menu{}, "",
+	addHandler(createMenu{}, "",
 		permissions.Builder,
 		"create_menu")
 }
 
-type create_menu cmd
+type createMenu cmd
 
-func (create_menu) process(s *state) {
+func (createMenu) process(s *state) {
 	s.msg.Actor.SendInfo("WIP, coming soon.")
 
 }

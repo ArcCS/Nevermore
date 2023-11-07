@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 )
 
@@ -123,7 +124,9 @@ func CelebrationNight(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Character:
 		damage := (utils.Roll(singer.Equipment.Off.SidesDice, singer.Equipment.Off.NumDice, singer.Equipment.Off.PlusDice) + singer.Equipment.Off.Adjustment) / len(Rooms[target.ParentId].Chars.Contents)
-		singer.Write([]byte(text.Red + "Your song healed " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset))
+		if _, err := singer.Write([]byte(text.Red + "Your song healed " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset)); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 		target.Heal(damage)
 	}
 }
@@ -145,7 +148,9 @@ func BansheesLament(target interface{}, singer *Character) {
 	switch target := target.(type) {
 	case *Mob:
 		damage := ((utils.Roll(singer.Equipment.Off.SidesDice, singer.Equipment.Off.NumDice, singer.Equipment.Off.PlusDice) + singer.Equipment.Off.Adjustment) / 2) / len(Rooms[target.ParentId].Mobs.Contents)
-		singer.Write([]byte(text.Red + "Your song caused " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset))
+		if _, err := singer.Write([]byte(text.Red + "Your song caused " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset)); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 		actualDamage, resisted := target.ReceiveDamageNoArmor(damage)
 		data.StoreCombatMetric("banshees_lament", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, singer.CharId, singer.Tier, 1, target.MobId)
 		target.AddThreatDamage(damage, singer)

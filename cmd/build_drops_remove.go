@@ -23,20 +23,20 @@ func (remdrop) process(s *state) {
 		return
 	}
 
-	var mob_id, item_id int
-	mob_id, err := strconv.Atoi(s.words[0])
+	var mobId, itemId int
+	mobId, err := strconv.Atoi(s.words[0])
 	if err != nil {
 		log.Println(err)
 	}
-	item_id, err2 := strconv.Atoi(s.words[1])
+	itemId, err2 := strconv.Atoi(s.words[1])
 	if err2 != nil {
 		log.Println(err2)
 	}
 
-	if mob, ok := objects.Mobs[mob_id]; ok {
-		if _, ok := mob.ItemList[item_id]; ok {
-			delete(mob.ItemList, item_id)
-			data.DeleteDrop(mob_id, item_id)
+	if mob, ok := objects.Mobs[mobId]; ok {
+		if _, ok := mob.ItemList[itemId]; ok {
+			delete(mob.ItemList, itemId)
+			data.DeleteDrop(mobId, itemId)
 			s.msg.Actor.SendGood("Item removed from this mobs encounter table.")
 		}
 	} else {

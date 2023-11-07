@@ -2,7 +2,6 @@ package config
 
 // Combat values
 
-// Max Damage
 var MaxWeaponDamage = map[int]int{
 	1:  15,
 	2:  20,
@@ -32,7 +31,6 @@ var MaxWeaponDamage = map[int]int{
 	26: 140,
 }
 
-// Quick Function to check if character can wield
 func CanWield(tier int, class int, max int) bool {
 	if class == 0 {
 		tier += 1
@@ -43,7 +41,6 @@ func CanWield(tier int, class int, max int) bool {
 	return false
 }
 
-// Exp to level weapon classes
 var WeaponExpLevels = map[int]int{
 	0:  0,
 	1:  3000,
@@ -56,18 +53,6 @@ var WeaponExpLevels = map[int]int{
 	8:  7500000,
 	9:  15000000,
 	10: 45000000,
-}
-
-var SkillAdvancement = map[int]float32{
-	0: 1,
-	1: .7,
-	2: .7,
-	3: .7,
-	6: .7,
-	8: .5,
-	7: .5,
-	5: .4,
-	4: .4,
 }
 
 var WeaponTitles = []string{
@@ -413,7 +398,7 @@ func WeaponExpNext(exp int, class int) int {
 	}
 }
 
-func WeaponMissChance(exp int, class int) int {
+func WeaponMissChance(exp int) int {
 	switch {
 	case exp >= WeaponExpLevels[0] && exp < WeaponExpLevels[1]:
 		return 30

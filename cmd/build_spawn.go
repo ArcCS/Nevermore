@@ -37,7 +37,10 @@ func (spawn) process(s *state) {
 			return
 		}
 		newMob := objects.Mob{}
-		copier.CopyWithOption(&newMob, objects.Mobs[mobId], copier.Option{DeepCopy: true})
+		if err := copier.CopyWithOption(&newMob, objects.Mobs[mobId], copier.Option{DeepCopy: true}); err != nil {
+			s.msg.Actor.SendBad("Mob cannot be copied.")
+			return
+		}
 		if newMob.Placement <= 0 {
 			newMob.Placement = 5
 		} else if newMob.Placement >= 6 {
@@ -52,7 +55,10 @@ func (spawn) process(s *state) {
 			return
 		}
 		newItem := objects.Item{}
-		copier.CopyWithOption(&newItem, objects.Items[itemId], copier.Option{DeepCopy: true})
+		if err := copier.CopyWithOption(&newItem, objects.Items[itemId], copier.Option{DeepCopy: true}); err != nil {
+			s.msg.Actor.SendBad("Item cannot be copied.")
+			return
+		}
 		s.actor.Inventory.Add(&newItem)
 		s.msg.Actor.SendGood(newItem.Name + " added to your inventory.")
 	default:

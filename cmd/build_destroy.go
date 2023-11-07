@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -36,7 +37,9 @@ func (destroy) process(s *state) {
 			if s.actor.Permission.HasFlag(permissions.Builder) || room.Creator == s.actor.Name {
 				data.DeleteRoom(objectRef)
 				for _, item := range objects.Rooms[objectRef].Items.Contents {
-					objects.Rooms[objectRef].Items.Remove(item)
+					if err := objects.Rooms[objectRef].Items.Remove(item); err != nil {
+						log.Println("Error removing item from room: ", err)
+					}
 				}
 				for _, mob := range objects.Rooms[objectRef].Mobs.Contents {
 					objects.Rooms[objectRef].ClearMob(mob)

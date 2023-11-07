@@ -9,14 +9,14 @@ import (
 )
 
 func init() {
-	addHandler(build_copy{}, "Usage: copy (mob|item) (SubjectID) \n \n Use this to copy an existing item in the database \n",
+	addHandler(buildCopy{}, "Usage: copy (mob|item) (SubjectID) \n \n Use this to copy an existing item in the database \n",
 		permissions.Builder,
 		"copy", "duplicate")
 }
 
-type build_copy cmd
+type buildCopy cmd
 
-func (build_copy) process(s *state) {
+func (buildCopy) process(s *state) {
 
 	if len(s.words) < 2 {
 		s.msg.Actor.SendInfo("Spawn what?")
@@ -36,7 +36,7 @@ func (build_copy) process(s *state) {
 			objects.Mobs[newMobId], _ = objects.LoadMob(data.LoadMob(newMobId))
 			s.msg.Actor.SendGood("Created New mob with id: " + strconv.Itoa(newMobId))
 			return
-		}else{
+		} else {
 			s.msg.Actor.SendBad("Failed to copy the mob.")
 			return
 		}
@@ -52,7 +52,7 @@ func (build_copy) process(s *state) {
 			objects.Items[newItemId], _ = objects.LoadItem(data.LoadItem(newItemId))
 			s.msg.Actor.SendGood("Created New mob with id: " + strconv.Itoa(newItemId))
 			return
-		}else{
+		} else {
 			s.msg.Actor.SendBad("Failed to copy the item.")
 			return
 		}

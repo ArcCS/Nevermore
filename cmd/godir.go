@@ -6,6 +6,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -233,7 +234,7 @@ func (godir) process(s *state) {
 						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
 					}
 
-					// Character has been removed, invoke any follows for them..  this should be fine as the mob should take over locks
+					// Character has been removed, invoke any follows for them.  this should be fine as the mob should take over locks
 					for _, mob := range followList {
 						mobProc := mob
 						go func() { mobProc.MobCommands <- "follow " + s.actor.Name }()
@@ -249,12 +250,16 @@ func (godir) process(s *state) {
 								if !follChar.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 									ready, msg := follChar.TimerReady("evade")
 									if !ready {
-										follChar.Write([]byte(text.Bad + msg))
+										if _, err := follChar.Write([]byte(text.Bad + msg)); err != nil {
+											log.Println("Error writing to player: ", err)
+										}
 										break
 									}
 
 									if s.actor.Stam.Current <= 0 {
-										follChar.Write([]byte(text.Bad + "You are far too tired to follow."))
+										if _, err := follChar.Write([]byte(text.Bad + "You are far too tired to follow.")); err != nil {
+											log.Println("Error writing to player: ", err)
+										}
 										break
 									}
 
@@ -264,27 +269,37 @@ func (godir) process(s *state) {
 									followList = make([]*objects.Mob, 0)
 
 									if !objects.Rooms[toE.ToId].Flags["active"] {
-										follChar.Write([]byte(text.Bad + "Go where?"))
+										if _, err := follChar.Write([]byte(text.Bad + "Go where?")); err != nil {
+											log.Println("Error writing to player: ", err)
+										}
 										break
 									}
 
 									if toE.Flags["invisible"] && !follChar.CheckFlag("detect-invisible") {
-										follChar.Write([]byte(text.Bad + "Go where?"))
+										if _, err := follChar.Write([]byte(text.Bad + "Go where?")); err != nil {
+											log.Println("Error writing to player: ", err)
+										}
 										break
 									}
 
 									if toE.Flags["placement_dependent"] && follChar.Placement != toE.Placement {
-										follChar.Write([]byte(text.Bad + "You must be next to the exit to use it."))
+										if _, err := follChar.Write([]byte(text.Bad + "You must be next to the exit to use it.")); err != nil {
+											log.Println("Error writing to player: ", err)
+										}
 										break
 									}
 
 									if follChar.Equipment.GetWeight() > follChar.MaxWeight() {
-										follChar.Write([]byte(text.Bad + "You are carrying too much to move."))
+										if _, err := follChar.Write([]byte(text.Bad + "You are carrying too much to move.")); err != nil {
+											log.Println("Error writing to player: ", err)
+										}
 										break
 									}
 
 									if objects.Rooms[toE.ToId].Crowded() {
-										follChar.Write([]byte("That area is crowded."))
+										if _, err := follChar.Write([]byte("That area is crowded.")); err != nil {
+											log.Println("Error writing to player: ", err)
+										}
 										s.ok = true
 										return
 									}
@@ -327,7 +342,9 @@ func (godir) process(s *state) {
 												}
 												buildStr += " damage in the fall."
 											}
-											follChar.Write([]byte(text.Bad + "You fall while trying to go that way! " + buildStr))
+											if _, err := follChar.Write([]byte(text.Bad + "You fall while trying to go that way! " + buildStr)); err != nil {
+												log.Println("Error writing to player: ", err)
+											}
 											go follChar.DeathCheck("fell to their death.")
 											break
 										}
@@ -343,7 +360,9 @@ func (godir) process(s *state) {
 													curChance = 85
 												}
 												if utils.Roll(100, 1, 0) <= curChance {
-													follChar.Write([]byte(mob.Name + " blocks you from following." + "\n"))
+													if _, err := follChar.Write([]byte(mob.Name + " blocks you from following." + "\n")); err != nil {
+														log.Println("Error writing to player: ", err)
+													}
 													follChar.SetTimer("global", 8)
 													endFollProc = true
 													break
@@ -377,7 +396,9 @@ func (godir) process(s *state) {
 									s.msg.Actor.SendBad("You can't see anything!")
 									return
 								} else {
-									follChar.Write([]byte(objects.Rooms[to.RoomId].Look(follChar)))
+									if _, err := follChar.Write([]byte(objects.Rooms[to.RoomId].Look(follChar))); err != nil {
+										log.Println("Error writing to player: ", err)
+									}
 								}
 
 								// Broadcast leaving and arrival notifications

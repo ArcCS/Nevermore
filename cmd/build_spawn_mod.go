@@ -37,34 +37,34 @@ func (modspawn) process(s *state) {
 		return
 	}
 
-	var mob_id, mob_rate int
+	var mobId, mobRate int
 	val, err := strconv.Atoi(s.words[0])
 	if err != nil {
 		log.Println(err)
 	}
-	mob_id = val
+	mobId = val
 
 	val2, err2 := strconv.Atoi(s.words[1])
 	if err2 != nil {
 		log.Println(err2)
 	}
-	mob_rate = val2
+	mobRate = val2
 
-	if _, ok := s.where.EncounterTable[mob_id]; ok {
-		previousRate := s.where.EncounterTable[mob_id]
-		s.where.EncounterTable[mob_id] = mob_rate
+	if _, ok := s.where.EncounterTable[mobId]; ok {
+		previousRate := s.where.EncounterTable[mobId]
+		s.where.EncounterTable[mobId] = mobRate
 		var sumVals int
 		for _, v := range s.where.EncounterTable {
 			sumVals += v
 		}
 		if sumVals > 100 {
-			s.where.EncounterTable[mob_id] = previousRate
+			s.where.EncounterTable[mobId] = previousRate
 			s.msg.Actor.SendBad("The sum of the encounter rates is more than 100% with the new value")
 		} else {
 			data.UpdateEncounter(map[string]interface{}{
-				"mobId":  mob_id,
+				"mobId":  mobId,
 				"roomId": s.where.RoomId,
-				"chance": mob_rate})
+				"chance": mobRate})
 			s.msg.Actor.SendGood("Mob spawn rate updated")
 		}
 

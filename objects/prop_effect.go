@@ -64,7 +64,7 @@ func (e *Effect) LastTriggerInterval() int {
 	return calc
 }
 
-// Function to return only the modifiable properties
+// ReturnEffectProps Function to return only the modifiable properties
 func (e *Effect) ReturnEffectProps() map[string]interface{} {
 	serialList := map[string]interface{}{
 		"timeRemaining": e.TimeRemaining(),

@@ -3,6 +3,7 @@ package objects
 import (
 	"encoding/json"
 	"github.com/jinzhu/copier"
+	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -799,7 +800,9 @@ func RestoreEquipment(jsonString string) *Equipment {
 	}
 	for _, item := range obj {
 		newItem := Item{}
-		copier.CopyWithOption(&newItem, Items[int(item["itemId"].(float64))], copier.Option{DeepCopy: true})
+		if err := copier.CopyWithOption(&newItem, Items[int(item["itemId"].(float64))], copier.Option{DeepCopy: true}); err != nil {
+			log.Println("Error copying item during restore: ", err)
+		}
 		newItem.Name = item["name"].(string)
 		newItem.MaxUses = int(item["uses"].(float64))
 		newItem.Flags["magic"] = int(item["magic"].(float64)) != 0

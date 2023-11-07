@@ -54,14 +54,18 @@ func (scriptDeath) process(s *state) {
 			}
 
 			newItem := objects.Item{}
-			copier.CopyWithOption(&newItem, objects.Items[1], copier.Option{DeepCopy: true})
+			if err := copier.CopyWithOption(&newItem, objects.Items[1], copier.Option{DeepCopy: true}); err != nil {
+				log.Println("Error copying item: ", err)
+			}
 			newItem.Name = "corpse of " + s.actor.Name
 			newItem.Description = "It's the corpse of " + s.actor.Name + "."
 			newItem.Placement = s.actor.Placement
 			if len(tempStore) != 0 {
 				for _, item := range tempStore {
 					if !item.Flags["permanent"] {
-						s.actor.Inventory.Remove(item)
+						if err := s.actor.Inventory.Remove(item); err != nil {
+							log.Println("Error removing item: ", err)
+						}
 						newItem.Storage.Add(item)
 					}
 				}
@@ -75,7 +79,9 @@ func (scriptDeath) process(s *state) {
 			}
 			if s.actor.Gold.Value > 0 {
 				newGold := objects.Item{}
-				copier.CopyWithOption(&newGold, objects.Items[3456], copier.Option{DeepCopy: true})
+				if err := copier.CopyWithOption(&newGold, objects.Items[3456], copier.Option{DeepCopy: true}); err != nil {
+					log.Println("Error copying item: ", err)
+				}
 				newGold.Name = strconv.Itoa(s.actor.Gold.Value) + " gold marks"
 				newGold.Value = s.actor.Gold.Value
 				newItem.Storage.Add(&newGold)
@@ -92,7 +98,8 @@ func (scriptDeath) process(s *state) {
 		s.actor.Placement = 3
 		s.actor.ParentId = healingHand.RoomId
 
-		s.actor.Write([]byte(text.Cyan + "In what seems like a dream, an imposing black gate shrouded in fog speeds into view.. There is nothing else here to greet you, except a sorrowful sense of loneliness and longing... A chilling thought claws at the inside of your skull, behind your eyes, that this scene isn't right.. and just as swiftly as you arrived, the gate races past... and you awaken in another place..\n\n\n " + text.Reset))
+		s.msg.Actor.Send("In what seems like a dream, an imposing black gate shrouded in fog speeds into view.. There is nothing else here to greet you, except a sorrowful sense of loneliness and longing... A chilling thought claws at the inside of your skull, behind your eyes, that this scene isn't right.. and just as swiftly as you arrived, the gate races past... and you awaken in another place..\n\n\n " + text.Reset)
+
 		s.actor.RemoveEffect("blind")
 		s.actor.RemoveEffect("poison")
 		s.actor.RemoveEffect("disease")
@@ -107,11 +114,11 @@ func (scriptDeath) process(s *state) {
 			deathRoll := utils.Roll(100, 1, 0)
 			switch {
 			case deathRoll <= 20: // Light Passage
-				s.actor.Write([]byte(text.Green + "You've pass through this death with minimal effects. (10% xp loss) \n\n" + text.Reset))
+				s.msg.Actor.Send(text.Green + "You've pass through this death with minimal effects. (10% xp loss) \n\n" + text.Reset)
 				s.actor.Experience.SubMax(int(float64(totalExpNeeded)*.15), finalMin)
 				break
 			case deathRoll <= 100: // Medium Passage
-				s.actor.Write([]byte(text.Green + "The death did not come easy. (30% xp loss)\n\n" + text.Reset))
+				s.msg.Actor.Send(text.Green + "The death did not come easy. (30% xp loss)\n\n" + text.Reset)
 				s.actor.Experience.SubMax(int(float64(totalExpNeeded)*.30), finalMin)
 				break
 			}

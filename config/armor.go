@@ -1,6 +1,6 @@
 package config
 
-// Max Damage
+// MaxArmor Max Damage Reduction for level group and armor type
 var MaxArmor = map[int]map[int]int{
 	// Level int ref is cap
 	4:  {5: 50, 20: 40, 21: 15, 19: 15, 25: 30, 22: 15, 26: 15, 23: 20, 24: 4},

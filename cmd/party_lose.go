@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
+	"log"
 	"strings"
 )
 
@@ -37,7 +38,9 @@ func (lose) process(s *state) {
 					s.actor.PartyFollowers = append(s.actor.PartyFollowers[:c], s.actor.PartyFollowers[c+1:]...)
 					whatChar.PartyFollow = ""
 					s.msg.Actor.SendInfo("You lose " + player + ".")
-					whatChar.Write([]byte(text.Info + s.actor.Name + " loses you."))
+					if _, err := whatChar.Write([]byte(text.Info + s.actor.Name + " loses you.")); err != nil {
+						log.Println("Error writing to player: ", err)
+					}
 					return
 				} else {
 					s.msg.Actor.SendInfo("That person isn't in your party.")

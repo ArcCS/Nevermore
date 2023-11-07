@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"log"
 	"math"
 	"os"
 	"sort"
@@ -88,8 +89,11 @@ func ReadLines(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
-
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Println("error closing file", err)
+		}
+	}()
 	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -134,7 +138,9 @@ func WhereAt(subLoc int, charLoc int) string {
 func RandString(n int) string {
 	const alphanum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	var bytes = make([]byte, n)
-	rand.Read(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		log.Println("rando error", err)
+	}
 	for i, b := range bytes {
 		bytes[i] = alphanum[b%byte(len(alphanum))]
 	}
