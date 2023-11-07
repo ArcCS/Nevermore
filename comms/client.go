@@ -43,6 +43,7 @@ type client struct {
 		Parse([]byte) error
 		Close()
 		GetCharacter() *objects.Character
+		AccountCleanup()
 	}
 }
 
@@ -233,6 +234,7 @@ func (c *client) close() {
 			log.Println("Force Close from Client")
 			c.frontend.GetCharacter().PrepareUnload()
 			c.frontend.GetCharacter().Unload()
+			c.frontend.AccountCleanup()
 		}
 
 		c.frontend.Close()
