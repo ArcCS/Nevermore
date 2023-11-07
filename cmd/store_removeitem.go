@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 	"strconv"
 )
 
@@ -32,7 +33,11 @@ func (removeitem) process(s *state) {
 
 	whatItem := s.where.StoreInventory.Search(name, nameNum)
 	if whatItem != nil {
-		s.where.StoreInventory.Remove(whatItem)
+		if err := s.where.StoreInventory.Remove(whatItem); err != nil {
+			s.msg.Actor.SendBad("You can't remove that item from the store.")
+			log.Println("Error removing item from store: ", err)
+			return
+		}
 		s.actor.Inventory.Add(whatItem)
 		s.where.Save()
 		s.msg.Actor.SendGood("You remove " + whatItem.Name + " from the store front.")

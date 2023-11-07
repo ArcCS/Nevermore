@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/jinzhu/copier"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -45,10 +46,14 @@ func (buy) process(s *state) {
 					s.actor.Gold.Subtract(purchaseItem.StorePrice)
 					if purchaseItem.Flags["infinite"] {
 						newItem := objects.Item{}
-						copier.CopyWithOption(&newItem, objects.Items[purchaseItem.ItemId], copier.Option{DeepCopy: true})
+						if err := copier.CopyWithOption(&newItem, objects.Items[purchaseItem.ItemId], copier.Option{DeepCopy: true}); err != nil {
+							log.Println("Error copying item: ", err)
+						}
 						s.actor.Inventory.Add(&newItem)
 					} else {
-						s.where.StoreInventory.Remove(purchaseItem)
+						if err := s.where.StoreInventory.Remove(purchaseItem); err != nil {
+							log.Println("Error removing item from store: ", err)
+						}
 						s.actor.Inventory.Add(purchaseItem)
 					}
 					s.msg.Actor.SendGood("You purchase ", purchaseItem.Name, ".")

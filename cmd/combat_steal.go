@@ -6,6 +6,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"math"
 	"strconv"
 )
@@ -118,7 +119,7 @@ func (steal) process(s *state) {
 				//curChance += s.actor.Dex.Current * config.StealChancePerPoint
 
 				curChance := config.StealChance + (s.actor.Dex.Current * config.StealChancePerPoint) + (config.StealthLevel(s.actor.Skills[11].Value) * config.StealChancePerSkillLevel)
-				curChance -= int(what.Weight / 2)
+				curChance -= what.Weight / 2
 				lvlDiff := float64(whatMob.Level - s.actor.Tier)
 				if lvlDiff > 2 {
 					lvlDiff = (lvlDiff - 2) * 0.2
@@ -138,7 +139,11 @@ func (steal) process(s *state) {
 				//log.Println(s.actor.Name+"Steal Chance Roll: ", curChance)
 
 				if utils.Roll(100, 1, 0) <= curChance {
-					whatMob.Inventory.Remove(what)
+					if err := whatMob.Inventory.Remove(what); err != nil {
+						s.msg.Actor.SendBad("Game Error when attempting to steal item from mob.")
+						log.Println("Error removing item from mob: ", err)
+						return
+					}
 					s.actor.Inventory.Add(what)
 					s.actor.AdvanceStealthExp(int(float64(what.Value) * 0.5))
 					s.msg.Actor.SendGood("You steal a ", what.Name, " from ", whatMob.Name, ".")

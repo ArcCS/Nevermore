@@ -130,17 +130,25 @@ func poison(caller interface{}, target interface{}, magnitude int) string {
 					damage -= (target.GetStat("con") / config.SickConBonus) * config.ReduceSickCon
 					if damage >= 1 {
 						target.ReceiveDamageNoArmor(damage)
-						target.Write([]byte(text.Red + "The poison courses through your veins for " + strconv.Itoa(damage) + " damage!\n"))
+						if _, err := target.Write([]byte(text.Red + "The poison courses through your veins for " + strconv.Itoa(damage) + " damage!\n")); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 					} else {
-						target.Write([]byte(text.Cyan + "You persevere through the poison and it has no effect!\n"))
+						if _, err := target.Write([]byte(text.Cyan + "You persevere through the poison and it has no effect!\n")); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 					}
 				},
 				func() {
 					target.FlagOff("poisoned", "mob_poisoned")
-					target.Write([]byte(text.Cyan + "The effects of the poison subside...\n"))
+					if _, err := target.Write([]byte(text.Cyan + "The effects of the poison subside...\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				})
 		} else {
-			target.Write([]byte(text.Cyan + "The poison has no effect on you!\n"))
+			if _, err := target.Write([]byte(text.Cyan + "The poison has no effect on you!\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 		}
 		return ""
 	case *Mob:
@@ -171,17 +179,25 @@ func disease(caller interface{}, target interface{}, magnitude int) string {
 					if damage >= 1 {
 						target.ReceiveDamageNoArmor(damage)
 						target.FlagOn("disease", "mob_disease")
-						target.Write([]byte(text.Red + "The disease progresses, racking your body for " + strconv.Itoa(damage) + " damage!\n"))
+						if _, err := target.Write([]byte(text.Red + "The disease progresses, racking your body for " + strconv.Itoa(damage) + " damage!\n")); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 					} else {
-						target.Write([]byte(text.Cyan + "You persevere through the disease and it has no effect!\n"))
+						if _, err := target.Write([]byte(text.Cyan + "You persevere through the disease and it has no effect!\n")); err != nil {
+							log.Println("Error writing to player:", err)
+						}
 					}
 				},
 				func() {
 					target.FlagOff("disease", "mob_disease")
-					target.Write([]byte(text.Cyan + "The disease subsides...\n"))
+					if _, err := target.Write([]byte(text.Cyan + "The disease subsides...\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				})
 		} else {
-			target.Write([]byte(text.Cyan + "You resist the disease!\n"))
+			if _, err := target.Write([]byte(text.Cyan + "You resist the disease!\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 		}
 		return ""
 	case *Mob:
@@ -430,18 +446,24 @@ func firedamage(caller interface{}, target interface{}, magnitude int) string {
 				stamDamage, vitDamage, resisted := caller.ReceiveMagicDamage(reflectDamage, "fire")
 				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 0, target.CharId, target.Tier, 0, caller.CharId)
 				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
-				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
+				if _, err := caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				caller.DeathCheck(" was slain by reflection!")
 			}
 			return returnString
 		case *Mob:
-			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+			if _, err := target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				stamDamage, _, resisted := caller.ReceiveMagicDamage(reflectDamage, "fire")
 				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+resisted, resisted, stamDamage, 0, target.CharId, target.Tier, 1, caller.MobId)
-				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
+				if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				caller.DeathCheck(target)
 			}
 			return ""
@@ -521,18 +543,24 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 				stamDamage, vitDamage, resisted := caller.ReceiveMagicDamage(reflectDamage, "earth")
 				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 0, target.CharId, target.Tier, 0, caller.CharId)
 				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
-				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
+				if _, err := caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				caller.DeathCheck(" was slain by reflection!")
 			}
 			return returnString
 		case *Mob:
-			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+			if _, err := target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				stamDamage, _, resisted := caller.ReceiveMagicDamage(reflectDamage, "earth")
 				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+resisted, resisted, stamDamage, 0, target.CharId, target.Tier, 1, caller.MobId)
-				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
+				if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				caller.DeathCheck(target)
 			}
 			return ""
@@ -639,18 +667,24 @@ func airdamage(caller interface{}, target interface{}, magnitude int) string {
 				stamDamage, vitDamage, resisted := caller.ReceiveMagicDamage(reflectDamage, "air")
 				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 0, target.CharId, target.Tier, 0, caller.CharId)
 				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
-				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
+				if _, err := caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				caller.DeathCheck(" was slain by reflection!")
 			}
 			return returnString
 		case *Mob:
-			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+			if _, err := target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				stamDamage, _, resisted := caller.ReceiveMagicDamage(reflectDamage, "air")
 				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+resisted, resisted, stamDamage, 0, target.CharId, target.Tier, 1, caller.MobId)
-				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
+				if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				caller.DeathCheck(target)
 			}
 			return ""
@@ -730,18 +764,24 @@ func waterdamage(caller interface{}, target interface{}, magnitude int) string {
 				stamDamage, vitDamage, resisted := caller.ReceiveMagicDamage(reflectDamage, "water")
 				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 0, target.CharId, target.Tier, 0, caller.CharId)
 				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
-				caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset))
+				if _, err := caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				caller.DeathCheck(" was slain by reflection!")
 			}
 			return returnString
 		case *Mob:
-			target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n"))
+			if _, err := target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
 				stamDamage, _, resisted := caller.ReceiveMagicDamage(reflectDamage, "water")
 				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+resisted, resisted, stamDamage, 0, target.CharId, target.Tier, 1, caller.MobId)
-				target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset))
+				if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				caller.DeathCheck(target)
 			}
 			return ""
@@ -804,7 +844,9 @@ func curepoison(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		target.RemoveEffect("poison")
-		target.Write([]byte(text.Bad + "Your fever subsides." + text.Reset + "\n"))
+		if _, err := target.Write([]byte(text.Bad + "Your fever subsides." + text.Reset + "\n")); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 		return ""
 	case *Mob:
 		target.RemoveEffect("poison")
@@ -974,13 +1016,17 @@ func stun(caller interface{}, target interface{}, magnitude int) string {
 			diff := (caller.Level - target.Tier) * 5
 			chance := 10 + diff
 			if utils.Roll(100, 1, 0) > chance {
-				target.Write([]byte(text.Info + caller.Name + " failed to stun you." + text.Reset + "\n"))
+				if _, err := target.Write([]byte(text.Info + caller.Name + " failed to stun you." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 			} else {
-				target.Write([]byte(text.Bad + caller.Name + " stunned you." + text.Reset + "\n"))
+				if _, err := target.Write([]byte(text.Bad + caller.Name + " stunned you." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				target.SetTimer("global", 20)
 			}
 		case *Mob:
-			// Mobs stun mobs?  Meh maybe
+			// Mobs stun mobs?
 			return ""
 		}
 	}
@@ -1220,7 +1266,9 @@ func removedisease(caller interface{}, target interface{}, magnitude int) string
 	switch target := target.(type) {
 	case *Character:
 		target.RemoveEffect("disease")
-		target.Write([]byte(text.Bad + "The affliction is purged." + text.Reset + "\n"))
+		if _, err := target.Write([]byte(text.Bad + "The affliction is purged." + text.Reset + "\n")); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 		return ""
 	case *Mob:
 		target.RemoveEffect("disease")
@@ -1233,7 +1281,9 @@ func cureblindness(caller interface{}, target interface{}, magnitude int) string
 	switch target := target.(type) {
 	case *Character:
 		target.RemoveEffect("blind")
-		target.Write([]byte(text.Bad + "Your vision returns." + text.Reset + "\n"))
+		if _, err := target.Write([]byte(text.Bad + "Your vision returns." + text.Reset + "\n")); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 		return ""
 	case *Mob:
 		target.RemoveEffect("blind")
@@ -1446,7 +1496,9 @@ func disruptmagic(caller interface{}, target interface{}, magnitude int) string 
 		if target.CheckFlag("resist-magic") {
 			// 50:50 chance to resist the disrupt spell
 			if utils.Roll(100, 1, 0) > 50 {
-				target.Write([]byte(text.Info + "You resist the disruption to your magic.\n"))
+				if _, err := target.Write([]byte(text.Info + "You resist the disruption to your magic.\n")); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 				return ""
 			}
 		}
@@ -1460,10 +1512,14 @@ func disruptmagic(caller interface{}, target interface{}, magnitude int) string 
 			rand.Seed(time.Now().Unix())
 			chosenSpell := spellEffects[rand.Intn(len(spellEffects))]
 			target.RemoveEffect(chosenSpell)
-			target.Write([]byte(text.Bad + "The disruptive magic removes " + chosenSpell + " from you.\n"))
+			if _, err := target.Write([]byte(text.Bad + "The disruptive magic removes " + chosenSpell + " from you.\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 			return ""
 		}
-		target.Write([]byte(text.Info + "The disruptive magic has no effect on you.\n"))
+		if _, err := target.Write([]byte(text.Info + "The disruptive magic has no effect on you.\n")); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 	case *Mob:
 		if target.CheckFlag("resist-magic") {
 			// 50:50 chance to resist the disrupt spell
@@ -1483,13 +1539,17 @@ func disruptmagic(caller interface{}, target interface{}, magnitude int) string 
 			target.RemoveEffect(chosenSpell)
 			switch caller := caller.(type) {
 			case *Character:
-				caller.Write([]byte(text.Bad + "Your disruptive magic removes " + chosenSpell + " from " + target.Name + " .\n"))
+				if _, err := caller.Write([]byte(text.Bad + "Your disruptive magic removes " + chosenSpell + " from " + target.Name + " .\n")); err != nil {
+					log.Println("Error writing to player:", err)
+				}
 			}
 			return ""
 		}
 		switch caller := caller.(type) {
 		case *Character:
-			caller.Write([]byte(text.Bad + "Your disruptive magic has no effect on " + target.Name + " .\n"))
+			if _, err := caller.Write([]byte(text.Bad + "Your disruptive magic has no effect on " + target.Name + " .\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 		}
 	}
 

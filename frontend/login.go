@@ -36,12 +36,7 @@ func (l *login) accountDisplay() {
 	l.nextFunc = l.accountProcess
 }
 
-// accountProcess processes the current input as an account ID. If an account
-// ID of 'quit' is entered we close the frontend to signal the fact the player
-// wants to quit. If no account ID is entered we proceed to creating a new
-// account ID and player. Otherwise the entered account ID is stored as an
-// account ID hash. At this point the account ID is not validated yet, just
-// stored and we proceed to ask for the account ID's password.
+// accountProcess processes the current input as an account ID.
 func (l *login) accountProcess() {
 	//log.Printf("String from: %s", string(l.input))
 	switch {

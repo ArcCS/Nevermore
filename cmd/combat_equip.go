@@ -60,7 +60,10 @@ func (equip) process(s *state) {
 		if s.actor.Equipment.Equip(what) {
 			s.msg.Actor.SendGood("You equip " + what.DisplayName())
 			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.DisplayName())
-			s.actor.Inventory.Remove(what)
+			if err := s.actor.Inventory.Remove(what); err != nil {
+				s.msg.Actor.SendBad("Failure to equip item.")
+				return
+			}
 			s.actor.SetTimer("combat", config.CombatCooldown)
 		} else {
 			s.msg.Actor.SendBad("You cannot equip that.")

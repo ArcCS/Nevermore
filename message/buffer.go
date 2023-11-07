@@ -38,11 +38,7 @@ type Buffer struct {
 // pool by calling AcquireBuffer and returned by calling ReleaseBuffer. The
 // pool is large enough for four buffers - actor, participant and two observers
 // (common case for moving between locations) - per 128 players, per CPU
-// available. However the pool size is arbitrary and a typical compromise
-// between space and performance. We don't need a huge pool as there are only
-// so many goroutines that can be running on so many CPUs at any given time.
-// Extra buffers will be allocated if needed and dropped again when the pool is
-// full.
+// available.
 var pool = make(
 	chan *Buffer,
 	config.Server.MaxPlayers/128*4*runtime.GOMAXPROCS(-1),
@@ -106,11 +102,7 @@ func (b *Buffer) Send(s ...string) {
 	return
 }
 
-// sendColor is the same as Send but it also writes a color string such as
-// text.Bad or text.Red before the given strings of the message.
-//
-// The code of this method is copied from Send to avoid allocations prefixing
-// the color string to the strings of the message and then calling Send.
+// sendColor is the same as Send
 func (b *Buffer) sendColor(c string, s ...string) {
 	if b == nil || b.silentMode {
 		return
@@ -199,9 +191,7 @@ func (b *Buffer) Len() int {
 
 var resetLen = len(text.Reset)
 
-// Deliver writes all of the messages in the Buffer to the passed Writers.
-// After the messages have been delivered the messages and message count will
-// be cleared.
+// Deliver writes the messages in the Buffer to the passed Writers.
 func (b *Buffer) Deliver(w ...io.Writer) {
 
 	// If there are no messages and Buffer isn't the actor's make sure the Buffer

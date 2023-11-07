@@ -9,7 +9,7 @@ import (
 var ActiveMobs []*objects.Mob
 
 func init() {
-	objects.ActivateMob = ActivateMob
+	//objects.ActivateMob = ActivateMob
 }
 
 func ActivateMob(mob *objects.Mob) {

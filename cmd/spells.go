@@ -20,7 +20,7 @@ func init() {
 type spell cmd
 
 func (spell) process(s *state) {
-	spell_template := `Your spellbook contains the following spell incantations:
+	spellTemplate := `Your spellbook contains the following spell incantations:
 ----------------------------------------------------------------------
 {{.Spells}}
 
@@ -29,10 +29,10 @@ You sense the following enchantments bound to your lifeforce:
 {{.SpellEffects}}
 `
 
-	var spell_effects []string
+	var spellEffects []string
 	for k := range s.actor.Effects {
 		if _, ok := objects.Spells[k]; ok {
-			spell_effects = append(spell_effects, k)
+			spellEffects = append(spellEffects, k)
 		}
 	}
 
@@ -41,9 +41,9 @@ You sense the following enchantments bound to your lifeforce:
 		SpellEffects string
 	}{
 		strings.Join(s.actor.Spells, ", "),
-		strings.Join(spell_effects, ", "),
+		strings.Join(spellEffects, ", "),
 	}
-	tmpl, _ := template.New("stat_info").Parse(spell_template)
+	tmpl, _ := template.New("stat_info").Parse(spellTemplate)
 	var output bytes.Buffer
 	err := tmpl.Execute(&output, data)
 	if err != nil {

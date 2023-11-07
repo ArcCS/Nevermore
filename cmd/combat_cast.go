@@ -222,11 +222,8 @@ func (cast) process(s *state) {
 				s.actor.SetTimer("combat", 8)
 			}
 			s.actor.SetTimer("cast", 8)
-
-			if (s.actor.Class == 7 || s.actor.Class == 4) && s.actor.Tier <= 15 {
-				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
-				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
-			}
+			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
+			s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatMob.Name)
 			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatMob.Name)
 			if strings.Contains(msg, "$CRIPT") {

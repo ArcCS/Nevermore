@@ -29,8 +29,6 @@ type start struct {
 	pwChange       [16]byte
 }
 
-// NewMenu returns a menu with the specified frontend embedded. The returned
-// menu can be used for processing the main menu and it's options.
 func NewStart(f *frontend) (m *start) {
 	m = &start{frontend: f}
 	m.startDisplay()
@@ -94,9 +92,7 @@ func (m *start) startDisplay() {
 	m.nextFunc = m.startProcess
 }
 
-// menuProcess takes the current input and processes it as a menu option. If
-// the option is valid the corresponding action is taken. If the option is not
-// valid the player is notified and we wait for another option to be chosen.
+// menuProcess takes the current input and processes it as a menu option.
 func (m *start) startProcess() {
 	switch string(m.input) {
 	case "":
@@ -109,9 +105,13 @@ func (m *start) startProcess() {
 		}
 	case "0":
 		// Say goodbye to client
-		_, _ = m.Write([]byte(text.Info + "\nBye bye...\n\n"))
+		if _, err := m.Write([]byte(text.Info + "\nBye bye...\n\n")); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 		// Revert to default colors
-		_, _ = m.Write([]byte(text.Reset))
+		if _, err := m.Write([]byte(text.Reset)); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 		m.Close()
 	case "2":
 		m.buf.Send(text.Info, "Enter your new password:")
@@ -202,45 +202,6 @@ func (m *start) characterList() string {
 	var charList strings.Builder
 	charList.WriteString("-----------------------------\n  ")
 	charList.Write([]byte(strings.Join(m.characters, ", ")))
-
-	/*
-			// Width of gutter between columns
-		const gutter = 4
-
-		// Find longest key extracted
-		maxWidth := 0
-		for _, cmd:= range m.characters {
-			if l := len(cmd)+4; l > maxWidth {
-				maxWidth = l
-			}
-		}
-
-		var (
-			columnWidth = maxWidth + gutter
-			columnCount = 80 / columnWidth
-			rowCount    = len(m.characters) / columnCount
-		)
-
-		// If we have a partial row we need to account for it
-		if len(m.characters) > rowCount*columnCount {
-			rowCount++
-		}
-
-		// NOTE: cell is not (row * columnCount) + column as we are pivoting the
-		// table so that the commands are alphabetical DOWN the rows not across the
-		// columns.
-		for row := 0; row < rowCount; row++ {
-			line := []byte{}
-			for column := 0; column < columnCount; column++ {
-				cell := (column * rowCount) + row
-				if cell < len(m.characters) {
-					line = append(line, m.characters[cell]...)
-					line = append(line, strings.Repeat(" ", columnWidth-len(m.characters[cell]))...)
-				}
-			}
-			charList.Write(line)
-		}
-	*/
 	return charList.String()
 
 }

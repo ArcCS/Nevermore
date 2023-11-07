@@ -2,7 +2,7 @@ package config
 
 var AvailableRaces = make([]string, 14)
 
-var AllRaces = []string{"human", "half-giant", "troll", "ogre", "dwarf", "elf", "dark-elf", "half-elf", "half-orc", "orc", "hobbit", "gnome", "sprite", "renis", "god"}
+//var AllRaces = []string{"human", "half-giant", "troll", "ogre", "dwarf", "elf", "dark-elf", "half-elf", "half-orc", "orc", "hobbit", "gnome", "sprite", "renis", "god"}
 
 func init() {
 	AvailableRaces[0] = "human"

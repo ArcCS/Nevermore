@@ -64,7 +64,6 @@ var (
 	DodgeDamagePerDex     = .01
 	FullDodgeChancePerDex = .01
 
-	// Thief & Ranger
 	PeekCD                      = 8
 	StealCD                     = 8
 	HideChance                  = 20
@@ -73,7 +72,6 @@ var (
 	StealChance                 = 20
 	StealChancePerSkillLevel    = 4
 	BackStabChance              = 20
-	BackStabChancePerLevel      = 5
 	BackStabChancePerSkillLevel = 3
 	SnipeChance                 = 15
 	HideChancePerPoint          = 3
@@ -89,7 +87,6 @@ var (
 	VitalStrikeScale            = 2
 	BackstabCooldown            = 30
 
-	// Monk
 	TodMax            = 5
 	TodScaleDown      = 10
 	MonkArmorPerLevel = 15
@@ -98,7 +95,6 @@ var (
 	VitalChance       = 15
 	MeditateTime      = 600
 
-	// Paladin/Cleri
 	TurnMax            = 50
 	TurnScaleDown      = 10
 	DisintegrateChance = 5
@@ -107,11 +103,9 @@ var (
 	ShieldDamage       = 3
 	ShieldStun         = .4
 
-	// Bard Stuff
 	ScalePerPiety  = 1
 	DurationPerCon = 10
 
-	// Mob Stuns:
 	ParryStuns  = 2
 	CircleStuns = 1
 	CircleTimer = 16
@@ -119,19 +113,16 @@ var (
 	BashStuns   = 16
 	BashTimer   = 45
 
-	// Mob Things
 	MobBlock          = 25
 	MobBlockPerLevel  = 5
 	MobFollow         = 25
 	MobFollowPerLevel = 2
 	MobTakeChance     = 20 // Percent
 
-	// Str Mods
 	StrCarryMod     = 10 // Per Point
 	BaseCarryWeight = 40
 	StatDamageMod   = .01 // Per Point
 
-	// Con Mods
 	ReduceSickCon     = 1
 	SickConBonus      = 2
 	ConBonusHealthDiv = 5
@@ -140,15 +131,12 @@ var (
 	ConFallDamageMod  = 1
 	ConArmorMod       = .01
 
-	// Dex Mods
 	HitPerDex        = 1
 	MissPerDex       = 1
-	DexDodgeMod      = .0025 //Chance to dodge
 	DexFallDamageMod = 1
 
 	FallDamage = .20
 
-	// Int Mods
 	IntResistMagicBase     = 10
 	IntResistMagicPerPoint = 1
 	IntManaPool            = 2  // Number of points of mana to add
@@ -160,17 +148,14 @@ var (
 	BaseBroads             = 5
 	FizzleSave             = 50
 
-	// Piety Mods
 	PieRegenMod = .4 // Regen Mana per tick
 	PieHealMod  = .7 // Per point
 
-	// Armor Values
 	ArmorReduction       = .007
 	ArmorReductionPoints = 10
 
 	MobArmorReduction = .5
 
-	// Party
 	ExperienceReduction = map[int]float64{
 		1: .9,
 		2: .7,
@@ -216,7 +201,6 @@ func CalcHaste(tier int) int {
 	return 0
 }
 
-// Double Damage is out of 100
 var Parry = []int{
 	0,
 	2,
@@ -241,7 +225,6 @@ func RollParry(skill int) bool {
 	return false
 }
 
-// Double Damage is out of 100
 var DoubleDamage = []int{
 	0,
 	1,
@@ -266,7 +249,6 @@ func RollDouble(skill int) bool {
 	return false
 }
 
-// Criticals are out of 1000
 var CriticalDamage = []int{
 	0,
 	1,
@@ -291,8 +273,7 @@ func RollCritical(skill int) bool {
 	return false
 }
 
-// Lethals are 1000000 chance rolls.
-var LethalDamage = []int{
+var LethalDamage = []int{ // Lethals are 1000000 chance rolls.
 	0,
 	125,
 	250,

@@ -6,15 +6,15 @@ import (
 )
 
 func init() {
-	addHandler(list_command{},
+	addHandler(listCommand{},
 		"Usage: list_command room|mob|item (name)\n  Lists all of the commands for this object \n example:  list_command mob dragon",
 		permissions.Builder,
 		"list_commands", "list_command", "lc")
 }
 
-type list_command cmd
+type listCommand cmd
 
-func (list_command) process(s *state) {
+func (listCommand) process(s *state) {
 	if len(s.words) < 1 {
 		s.msg.Actor.SendBad("Not enough arguments to process the command.")
 		return

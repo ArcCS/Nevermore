@@ -47,7 +47,6 @@ func (help) process(s *state) {
 		// Reslice to remove omitted slots
 		cmds = cmds[0 : len(cmds)-ommit]
 
-		// Find longest key extracted
 		maxWidth := 0
 		for _, cmd := range cmds {
 			if l := len(cmd); l > maxWidth {
@@ -72,7 +71,7 @@ func (help) process(s *state) {
 		// table so that the commands are alphabetical DOWN the rows not across the
 		// columns.
 		for row := 0; row < rowCount; row++ {
-			line := []byte{}
+			var line []byte
 			for column := 0; column < columnCount; column++ {
 				cell := (column * rowCount) + row
 				if cell < len(cmds) {
@@ -88,7 +87,7 @@ func (help) process(s *state) {
 		// Here we return the help text
 		subject := s.words[0]
 
-		// Lets shortcut the help text to add emotes, spells and song lists
+		// shortcut the help text to add emotes, spells and song lists
 		if subject == "EMOTES" {
 			s.msg.Actor.SendGood("All Emotes:\n" +
 				"(Type help emote for more details)\n" +
@@ -102,7 +101,6 @@ func (help) process(s *state) {
 				pos++
 			}
 
-			// Find longest key extracted
 			maxWidth := 0
 			for _, spell := range cmds {
 				if l := len(spell); l > maxWidth {
@@ -123,7 +121,7 @@ func (help) process(s *state) {
 			}
 
 			for row := 0; row < rowCount; row++ {
-				line := []byte{}
+				var line []byte
 				for column := 0; column < columnCount; column++ {
 					cell := (column * rowCount) + row
 					if cell < len(cmds) {
@@ -151,7 +149,6 @@ func (help) process(s *state) {
 				pos++
 			}
 
-			// Find longest key extracted
 			maxWidth := 0
 			for _, spell := range cmds {
 				if l := len(spell); l > maxWidth {
@@ -172,7 +169,7 @@ func (help) process(s *state) {
 			}
 
 			for row := 0; row < rowCount; row++ {
-				line := []byte{}
+				var line []byte
 				for column := 0; column < columnCount; column++ {
 					cell := (column * rowCount) + row
 					if cell < len(cmds) {
@@ -200,7 +197,6 @@ func (help) process(s *state) {
 				pos++
 			}
 
-			// Find longest key extracted
 			maxWidth := 0
 			for _, song := range cmds {
 				if l := len(song); l > maxWidth {
@@ -221,7 +217,7 @@ func (help) process(s *state) {
 			}
 
 			for row := 0; row < rowCount; row++ {
-				line := []byte{}
+				var line []byte
 				for column := 0; column < columnCount; column++ {
 					cell := (column * rowCount) + row
 					if cell < len(cmds) {

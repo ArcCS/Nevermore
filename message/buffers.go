@@ -92,7 +92,7 @@ func (b buffers) Len() (l map[int]int) {
 	return
 }
 
-// Filter takes a list of Room Id's and filter them out
+// Filter takes a list of RoomId's and filter them out
 func (b buffers) Filter(limit ...int) (filtered buffers) {
 	filtered = make(map[int]*Buffer)
 	for _, l := range limit {

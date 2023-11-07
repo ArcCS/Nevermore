@@ -23,36 +23,36 @@ func (adddrop) process(s *state) {
 		return
 	}
 
-	var mob_id, item_id, drop_rate int
-	mob_id, err := strconv.Atoi(s.words[0])
+	var mobId, itemId, dropRate int
+	mobId, err := strconv.Atoi(s.words[0])
 	if err != nil {
 		log.Println(err)
 	}
 
-	item_id, err2 := strconv.Atoi(s.words[1])
+	itemId, err2 := strconv.Atoi(s.words[1])
 	if err != nil {
 		log.Println(err2)
 	}
 
-	drop_rate, err3 := strconv.Atoi(s.words[2])
+	dropRate, err3 := strconv.Atoi(s.words[2])
 	if err != nil {
 		log.Println(err3)
 	}
 
-	if _, ok := objects.Mobs[mob_id]; ok {
-		if _, ok := objects.Items[item_id]; ok {
-			if len(objects.Mobs[mob_id].ItemList) < 10 {
-				if drop_rate <= 100 {
+	if _, ok := objects.Mobs[mobId]; ok {
+		if _, ok := objects.Items[itemId]; ok {
+			if len(objects.Mobs[mobId].ItemList) < 10 {
+				if dropRate <= 100 {
 					data.CreateDrop(map[string]interface{}{
-						"mobId":  mob_id,
-						"itemId": item_id,
-						"chance": drop_rate})
-					objects.Mobs[mob_id].ItemList[item_id] = drop_rate
+						"mobId":  mobId,
+						"itemId": itemId,
+						"chance": dropRate})
+					objects.Mobs[mobId].ItemList[itemId] = dropRate
 					s.msg.Actor.SendGood("Drop added to mob drops")
 				} else {
 					s.msg.Actor.SendBad("You can't set a drop to more than 100%")
 				}
-			}else{
+			} else {
 				s.msg.Actor.SendBad("There are already 10 items in this mobs drop list.")
 			}
 

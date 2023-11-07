@@ -37,7 +37,7 @@ func (c *characterStats) Add(character *Character, address string) {
 	c.Unlock()
 }
 
-// Pass character as a pointer, compare and remove
+// Remove Pass character as a pointer, compare and remove
 func (c *characterStats) Remove(character *Character) {
 	c.Lock()
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
@@ -113,7 +113,7 @@ func (c *characterStats) List() []string {
 	return list
 }
 
-// List returns the names of all characters in the character list. The omit parameter
+// GMList returns the names of all characters in the character list. The omit parameter
 // may be used to specify a character that should be omitted from the list.
 func (c *characterStats) GMList() []string {
 	c.Lock()
@@ -148,12 +148,14 @@ func (c *characterStats) GMList() []string {
 
 func (c *characterStats) MessageExcept(msg string, except *Character) {
 	if DiscordSession != nil {
-		DiscordSession.ChannelMessageSend("854733320474329088", msg)
+		if _, err := DiscordSession.ChannelMessageSend("854733320474329088", msg); err != nil {
+			log.Println("Error sending message to discord:", err)
+		}
 	}
 	// Setup buffer
 	msgbuf := message.AcquireBuffer()
 	msgbuf.Send(text.White, msg)
-	players := []io.Writer{}
+	var players []io.Writer
 	for _, p := range c.list {
 		if p != except {
 			players = append(players, p)
@@ -166,14 +168,16 @@ func (c *characterStats) MessageExcept(msg string, except *Character) {
 
 func (c *characterStats) MessageAll(msg string) {
 	if DiscordSession != nil {
-		DiscordSession.ChannelMessageSend("854733320474329088", msg)
+		if _, err := DiscordSession.ChannelMessageSend("854733320474329088", msg); err != nil {
+			log.Println("Error sending message to discord:", err)
+		}
 	}
 	c.Lock()
 
 	// Setup buffer
 	msgbuf := message.AcquireBuffer()
 	msgbuf.Send(text.White, msg)
-	players := []io.Writer{}
+	var players []io.Writer
 	for _, p := range c.list {
 		players = append(players, p)
 	}
@@ -187,9 +191,9 @@ func (c *characterStats) MessageGMExcept(msg string, except *Character) {
 	// Setup buffer
 	msgbuf := message.AcquireBuffer()
 	msgbuf.Send(text.White, "[GM] ", msg)
-	players := []io.Writer{}
+	var players []io.Writer
 	for _, p := range c.list {
-		if p.Permission.HasAnyFlags(permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster, permissions.Builder) {
+		if p != except && p.Permission.HasAnyFlags(permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster, permissions.Builder) {
 			players = append(players, p)
 		}
 	}
@@ -204,7 +208,7 @@ func (c *characterStats) MessageGM(msg string) {
 	// Setup buffer
 	msgbuf := message.AcquireBuffer()
 	msgbuf.Send(text.White, "[GM] ", msg)
-	players := []io.Writer{}
+	var players []io.Writer
 	for _, p := range c.list {
 		if p.Permission.HasAnyFlags(permissions.God, permissions.NPC, permissions.Dungeonmaster, permissions.Gamemaster, permissions.Builder) {
 			players = append(players, p)

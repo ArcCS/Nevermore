@@ -36,7 +36,10 @@ func (create) process(s *state) {
 		} else {
 			objects.Items[itemId], _ = objects.LoadItem(data.LoadItem(itemId))
 			newItem := objects.Item{}
-			copier.CopyWithOption(&newItem, objects.Items[itemId], copier.Option{DeepCopy: true})
+			if err := copier.CopyWithOption(&newItem, objects.Items[itemId], copier.Option{DeepCopy: true}); err != nil {
+				s.msg.Actor.SendBad("Failed to copy item.")
+				return
+			}
 			s.actor.Inventory.Add(&newItem)
 			s.msg.Actor.SendGood(newItem.Name + " added to your inventory.")
 		}
@@ -48,7 +51,10 @@ func (create) process(s *state) {
 		} else {
 			objects.Mobs[mobId], _ = objects.LoadMob(data.LoadMob(mobId))
 			newMob := objects.Mob{}
-			copier.CopyWithOption(&newMob, objects.Mobs[mobId], copier.Option{DeepCopy: true})
+			if err := copier.CopyWithOption(&newMob, objects.Mobs[mobId], copier.Option{DeepCopy: true}); err != nil {
+				s.msg.Actor.SendBad("Failed to copy mob.")
+				return
+			}
 			s.where.Mobs.Add(&newMob, false)
 			newMob.StartTicking()
 			s.msg.Actor.SendGood(newMob.Name + " added to the room.")

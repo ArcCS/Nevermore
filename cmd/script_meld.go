@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/objects"
+	"log"
 	"strconv"
 
 	"github.com/ArcCS/Nevermore/config"
@@ -83,7 +84,7 @@ func (scriptMeld) process(s *state) {
 			if meldValue > baseValue {
 				baseValue = meldValue
 			}
-			cost := int(baseValue * meld.MaxUses)
+			cost := baseValue * meld.MaxUses
 			s.msg.Actor.SendInfo("The cost to meld this item will be " + strconv.Itoa(cost) + ".  Do you want to meld it? (Type yes to meld)")
 			s.actor.AddCommands("yes", "$CONFIRMMELD "+targetStr+" "+strconv.Itoa(targetNum)+" "+meldStr+" "+strconv.Itoa(meldNum))
 			s.actor.AddCommands("y", "$CONFIRMMELD "+targetStr+" "+strconv.Itoa(targetNum)+" "+meldStr+" "+strconv.Itoa(meldNum))
@@ -138,7 +139,7 @@ func (confirmMeld) process(s *state) {
 			if meldValue > baseValue {
 				baseValue = meldValue
 			}
-			cost := int(baseValue * meld.MaxUses)
+			cost := baseValue * meld.MaxUses
 			if s.actor.Gold.Value < cost {
 				s.msg.Actor.SendBad("You do not have enough money to meld this item.")
 				return
@@ -146,7 +147,11 @@ func (confirmMeld) process(s *state) {
 				s.actor.Gold.Subtract(cost)
 			}
 			target.MaxUses += meld.MaxUses
-			s.actor.Inventory.Remove(meld)
+			if err := s.actor.Inventory.Remove(meld); err != nil {
+				s.msg.Actor.SendBad("Meld error")
+				log.Println("Error removing item: ", err)
+				return
+			}
 			s.msg.Actor.SendGood("Meld completed. You now have " + strconv.Itoa(target.MaxUses) + " uses on this item.")
 			meld = nil
 		} else {

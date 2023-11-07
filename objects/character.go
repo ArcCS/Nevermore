@@ -265,8 +265,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 					// This function call will immediately call a command off the stack and push it to script
 					go Script(FilledCharacter, cmd)
 				case msg, ok := <-FilledCharacter.MsgBuffer:
-					_, err := FilledCharacter.WriteBuffer(msg)
-					if err != nil {
+					if _, err := FilledCharacter.WriteBuffer(msg); err != nil {
 						log.Println(err)
 					}
 					if !ok {
@@ -442,17 +441,23 @@ func (c *Character) FlagOff(flagName string, provider string) {
 
 func (c *Character) FlagOnAndMsg(flagName string, provider string, msg string) {
 	c.FlagOn(flagName, provider)
-	c.Write([]byte(msg))
+	if _, err := c.Write([]byte(msg)); err != nil {
+		log.Println("Error writing to player: ", err)
+	}
 }
 
 func (c *Character) FlagOffAndMsg(flagName string, provider string, msg string) {
 	c.FlagOff(flagName, provider)
-	c.Write([]byte(msg))
+	if _, err := c.Write([]byte(msg)); err != nil {
+		log.Println("Error writing to player: ", err)
+	}
 }
 
 func (c *Character) ToggleFlagAndMsg(flagName string, provider string, msg string) {
 	c.ToggleFlag(flagName, provider)
-	c.Write([]byte(msg))
+	if _, err := c.Write([]byte(msg)); err != nil {
+		log.Println("Error writing to player: ", err)
+	}
 }
 
 func (c *Character) FindFlagProviders(flagName string) []string {
@@ -489,7 +494,7 @@ func (c *Character) SerialSaveEffects() string {
 }
 
 func (c *Character) SerialRestoreEffects(effectsBlob string) {
-	obj := make(map[string]map[string]interface{}, 0)
+	obj := make(map[string]map[string]interface{})
 	err := json.Unmarshal([]byte(effectsBlob), &obj)
 	if err != nil {
 		return
@@ -516,16 +521,16 @@ func (c *Character) SerialSaveTimers() string {
 		timerList[efN] = math.Ceil(effect.Sub(time.Now()).Seconds())
 	}
 
-	data, err := json.Marshal(timerList)
+	dataStr, err := json.Marshal(timerList)
 	if err != nil {
 		return "[]"
 	} else {
-		return string(data)
+		return string(dataStr)
 	}
 }
 
 func (c *Character) SerialRestoreTimers(timerBlob string) {
-	obj := make(map[string]float64, 0)
+	obj := make(map[string]float64)
 	err := json.Unmarshal([]byte(timerBlob), &obj)
 	if err != nil {
 		return
@@ -639,9 +644,13 @@ func (c *Character) Save() {
 
 func (c *Character) TickSaveWrapper() {
 	Rooms[c.ParentId].Lock()
-	c.Write([]byte(text.Info + "Saving...." + text.Reset))
+	if _, err := c.Write([]byte(text.Info + "Saving...." + text.Reset)); err != nil {
+		log.Println("Error writing to player: ", err)
+	}
 	c.Save()
-	c.Write([]byte(text.Info + "Saved!" + text.Reset))
+	if _, err := c.Write([]byte(text.Info + "Saved!" + text.Reset)); err != nil {
+		log.Println("Error writing to player: ", err)
+	}
 	Rooms[c.ParentId].Unlock()
 }
 
@@ -686,7 +695,7 @@ func (c *Character) Write(b []byte) (n int, err error) {
 	return len(b), nil
 }
 
-// Write writes the specified byte slice to the associated client.
+// WriteBuffer writes the specified byte slice to the associated client.
 func (c *Character) WriteBuffer(b []byte) (n int, err error) {
 
 	if c == nil {
@@ -695,7 +704,10 @@ func (c *Character) WriteBuffer(b []byte) (n int, err error) {
 
 	b = append(b, c.buildPrompt()...)
 	if c != nil {
-		n, err = c.Writer.Write(b)
+		if n, err := c.Writer.Write(b); err != nil {
+			log.Println(err)
+			return n, err
+		}
 	}
 	return
 }
@@ -843,7 +855,7 @@ func (c *Character) CanEquip(item *Item) (bool, string) {
 		if !config.CheckArmor(item.ItemType, c.Tier, item.Armor) {
 			return false, "You are unsure of how to maximize the benefit of this armor and cannot wear it."
 		}
-		if !utils.IntIn(item.Armor_Class, config.ArmorRestrictions[c.Class]) {
+		if !utils.IntIn(item.ArmorClass, config.ArmorRestrictions[c.Class]) {
 			return false, "You cannot equip armor of this class."
 		}
 
@@ -872,9 +884,9 @@ func (c *Character) ApplyHook(hook string, hookName string, executions int, leng
 func (c *Character) RemoveHook(hook string, hookName string) {
 	c.Hooks[hook][hookName].effectOff()
 	valPresent := false
-	for k, _ := range c.Hooks {
+	for k := range c.Hooks {
 		valPresent = false
-		for hName, _ := range c.Hooks[k] {
+		for hName := range c.Hooks[k] {
 			if hName == hookName {
 				valPresent = true
 			}
@@ -967,7 +979,9 @@ func (c *Character) ReceiveDamage(damage int) (int, int, int) {
 	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
-		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
+		if _, err := c.Write([]byte(text.Info + msg + "\n" + text.Reset)); err != nil {
+			log.Println("Error writing to player: ", err)
+		}
 	}
 	finalDamage := damage - resist
 	if finalDamage < 0 {
@@ -1018,7 +1032,9 @@ func (c *Character) ReceiveDamageNoArmor(damage int) (int, int) {
 func (c *Character) ReceiveVitalDamage(damage int) (int, int) {
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
-		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
+		if _, err := c.Write([]byte(text.Info + msg + "\n" + text.Reset)); err != nil {
+			log.Println("Error writing to player: ", err)
+		}
 	}
 	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
 
@@ -1038,7 +1054,9 @@ func (c *Character) ReceiveVitalDamage(damage int) (int, int) {
 func (c *Character) ReceiveVitalDamageNoArmor(damage int) int {
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
-		c.Write([]byte(text.Info + msg + "\n" + text.Reset))
+		if _, err := c.Write([]byte(text.Info + msg + "\n" + text.Reset)); err != nil {
+			log.Println("Error writing to player: ", err)
+		}
 	}
 	if damage < 0 {
 		damage = 0
@@ -1058,10 +1076,14 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 	if c.CheckFlag("dodge") {
 		// Did they dodge completely?
 		if utils.Roll(100, 1, 0) <= (int(float64(c.GetStat("dex")) * config.FullDodgeChancePerDex)) {
-			c.Write([]byte(text.Info + "You dodge the spell completely!\n" + text.Reset))
+			if _, err := c.Write([]byte(text.Info + "You dodge the spell completely!\n" + text.Reset)); err != nil {
+				log.Println("Error writing to player: ", err)
+			}
 			return 0, 0, 0
 		} else {
-			c.Write([]byte(text.Info + "Your magically quickened reflexes allow you to lessen the effect of the magic!\n" + text.Reset))
+			if _, err := c.Write([]byte(text.Info + "Your magically quickened reflexes allow you to lessen the effect of the magic!\n" + text.Reset)); err != nil {
+				log.Println("Error writing to player: ", err)
+			}
 			resisting = math.Ceil(float64(c.GetStat("dex")) * config.DodgeDamagePerDex)
 		}
 	}
@@ -1222,32 +1244,36 @@ func (c *Character) Refresh() {
 func (c *Character) WriteMovement(previous int, new int, subject string) {
 	mvAmnt := math.Abs(float64(previous - new))
 	color := text.Yellow
+	message := ""
 	// Moving backwards
 	if (previous > new) && (mvAmnt == 1) && (new > c.Placement) {
-		c.Write([]byte(color + subject + " moves backwards, towards you." + text.Reset + "\n"))
+		message = " moves backwards, towards you." + text.Reset + "\n"
 	} else if (previous > new) && (mvAmnt == 1) && (new < c.Placement) {
-		c.Write([]byte(color + subject + " moves backwards, away from you." + text.Reset + "\n"))
+		message = " moves backwards, away from you." + text.Reset + "\n"
 	} else if (previous > new) && (mvAmnt == 1) && (new == c.Placement) {
-		c.Write([]byte(color + subject + " moves backwards, next to you." + text.Reset + "\n"))
+		message = " moves backwards, next to you." + text.Reset + "\n"
 	} else if (previous > new) && (mvAmnt == 2) && (new > c.Placement) {
-		c.Write([]byte(color + subject + " sprints backwards, towards you." + text.Reset + "\n"))
+		message = " sprints backwards, towards you." + text.Reset + "\n"
 	} else if (previous > new) && (mvAmnt == 2) && (new < c.Placement) {
-		c.Write([]byte(color + subject + " sprints backwards, away from you." + text.Reset + "\n"))
+		message = " sprints backwards, away from you." + text.Reset + "\n"
 	} else if (previous > new) && (mvAmnt == 2) && (new == c.Placement) {
-		c.Write([]byte(color + subject + " sprints backwards, next to you." + text.Reset + "\n"))
+		message = " sprints backwards, next to you." + text.Reset + "\n"
 		// Moving forwards
 	} else if (previous < new) && (mvAmnt == 1) && (new < c.Placement) {
-		c.Write([]byte(color + subject + " moves forwards, towards you." + text.Reset + "\n"))
+		message = " moves forwards, towards you." + text.Reset + "\n"
 	} else if (previous < new) && (mvAmnt == 1) && (new > c.Placement) {
-		c.Write([]byte(color + subject + " moves forwards, away from you." + text.Reset + "\n"))
+		message = " moves forwards, away from you." + text.Reset + "\n"
 	} else if (previous < new) && (mvAmnt == 1) && (new == c.Placement) {
-		c.Write([]byte(color + subject + " moves forwards, next to you." + text.Reset + "\n"))
+		message = " moves forwards, next to you." + text.Reset + "\n"
 	} else if (previous < new) && (mvAmnt == 2) && (new < c.Placement) {
-		c.Write([]byte(color + subject + " sprints forwards, towards you." + text.Reset + "\n"))
+		message = " sprints forwards, towards you." + text.Reset + "\n"
 	} else if (previous < new) && (mvAmnt == 2) && (new > c.Placement) {
-		c.Write([]byte(color + subject + " sprints forwards, away from you." + text.Reset + "\n"))
+		message = " sprints forwards, away from you." + text.Reset + "\n"
 	} else if (previous < new) && (mvAmnt == 2) && (new == c.Placement) {
-		c.Write([]byte(color + subject + " sprints forwards, next to you." + text.Reset + "\n"))
+		message = " sprints forwards, next to you." + text.Reset + "\n"
+	}
+	if _, err := c.Write([]byte(color + subject + message)); err != nil {
+		log.Println("Error writing to player: ", err)
 	}
 }
 
@@ -1257,7 +1283,9 @@ func (c *Character) LoseParty() {
 			char := ActiveCharacters.Find(player)
 			if char != nil {
 				char.PartyFollow = ""
-				char.Write([]byte(text.Info + c.Name + " loses you." + text.Reset + "\n"))
+				if _, err := char.Write([]byte(text.Info + c.Name + " loses you." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player: ", err)
+				}
 			}
 
 		}
@@ -1275,7 +1303,9 @@ func (c *Character) Unfollow() {
 					leadChar.PartyFollowers = append(leadChar.PartyFollowers[:i], leadChar.PartyFollowers[i+1:]...)
 					if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 						if utils.StringIn(leadChar.Name, ActiveCharacters.List()) {
-							leadChar.Write([]byte(text.Info + c.Name + " stops following you." + text.Reset + "\n"))
+							if _, err := leadChar.Write([]byte(text.Info + c.Name + " stops following you." + text.Reset + "\n")); err != nil {
+								log.Println("Error writing to player: ", err)
+							}
 						}
 					}
 					break
@@ -1283,7 +1313,9 @@ func (c *Character) Unfollow() {
 			}
 
 		}
-		c.Write([]byte(text.Info + "You stop following " + c.PartyFollow + text.Reset + "\n"))
+		if _, err := c.Write([]byte(text.Info + "You stop following " + c.PartyFollow + text.Reset + "\n")); err != nil {
+			log.Println("Error writing to player: ", err)
+		}
 		c.PartyFollow = ""
 	}
 }
@@ -1293,7 +1325,9 @@ func (c *Character) MessageParty(msg string, exclude *Character) {
 		for _, findChar := range c.PartyFollowers {
 			char := ActiveCharacters.Find(findChar)
 			if char != nil && char != exclude {
-				char.Write([]byte(msg))
+				if _, err := char.Write([]byte(msg)); err != nil {
+					log.Println("Error writing to player: ", err)
+				}
 			}
 		}
 	}

@@ -22,7 +22,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer logFile.Close()
+	defer func() {
+		if err := logFile.Close(); err != nil {
+			log.Println("Error closing log file:", err)
+		}
+	}()
 	mw := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(mw)
 	stats.Start()

@@ -24,15 +24,15 @@ func (stat) process(s *state) {
 		}
 	}
 
-	stat_template := "You have {{.Stamina}}/{{.Max_stamina}} stamina, {{.Health}}/{{.Max_health}} health, and {{.Mana}}/{{.Max_mana}} mana pts.\n"
+	statTemplate := "You have {{.Stamina}}/{{.MaxStamina}} stamina, {{.Health}}/{{.MaxHealth}} health, and {{.Mana}}/{{.MaxMana}} mana pts.\n"
 
 	data := struct {
-		Stamina     int
-		Max_stamina int
-		Health      int
-		Max_health  int
-		Mana        int
-		Max_mana    int
+		Stamina    int
+		MaxStamina int
+		Health     int
+		MaxHealth  int
+		Mana       int
+		MaxMana    int
 	}{
 		s.actor.Stam.Current,
 		s.actor.Stam.Max,
@@ -42,7 +42,7 @@ func (stat) process(s *state) {
 		s.actor.Mana.Max,
 	}
 
-	tmpl, _ := template.New("stat_info").Parse(stat_template)
+	tmpl, _ := template.New("stat_info").Parse(statTemplate)
 	var output bytes.Buffer
 	err := tmpl.Execute(&output, data)
 	if err != nil {

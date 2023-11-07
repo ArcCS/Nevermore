@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/data"
+	"log"
 	"math"
 	"strconv"
 
@@ -124,7 +125,7 @@ func (kill) process(s *state) {
 		if s.actor.Class != 8 {
 			skillLevel = config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
 		}
-		// Kill is really the fighters realm for specialty..
+		// Kill is really the fighters realm for specialty.
 		if s.actor.Permission.HasAnyFlags(permissions.Fighter) {
 			// mob lethal?
 			if config.RollLethal(skillLevel) {
@@ -272,7 +273,11 @@ func DeathCheck(s *state, m *objects.Mob) {
 					buildActorString += text.Green + m.DropInventory() + "\n"
 					s.msg.Actor.Send(buildActorString)
 				} else {
-					go charClean.Write([]byte(buildActorString + "\n" + text.Reset))
+					go func() {
+						if _, err := charClean.Write([]byte(buildActorString + "\n" + text.Reset)); err != nil {
+							log.Println("Error writing to player: ", err)
+						}
+					}()
 				}
 				if charClean.Victim == m {
 					charClean.Victim = nil
@@ -284,13 +289,13 @@ func DeathCheck(s *state, m *objects.Mob) {
 	}
 }
 
-// Determine Miss Chance based on weapon Skills
+// DetermineMissChance Determine Miss Chance based on weapon Skills
 func DetermineMissChance(s *state, lvlDiff int) int {
 	missChance := 0
 	if s.actor.Class == 8 {
-		missChance = config.WeaponMissChance(s.actor.Skills[5].Value, s.actor.Class)
+		missChance = config.WeaponMissChance(s.actor.Skills[5].Value)
 	} else {
-		missChance = config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)
+		missChance = config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value)
 	}
 	if lvlDiff >= 2 {
 		missChance += lvlDiff * config.MissPerLevel

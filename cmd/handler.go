@@ -25,7 +25,7 @@ type helpTextStruct struct {
 }
 
 // handlers is a list of commands and their handlers. addHandler should be used
-// to add new handlers. dispatchHandler then uses this list to lookup the
+// to add new handlers. dispatchHandler then uses this list to look up the
 // correct handler to invoke for a given command.
 var handlers = map[string]handler{}
 var handlerPermission = map[string]permissions.Permissions{}

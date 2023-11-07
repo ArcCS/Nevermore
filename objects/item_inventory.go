@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
+	"log"
 	"sort"
 	"strings"
 )
@@ -45,11 +46,10 @@ func (i *ItemInventory) Add(o *Item) {
 
 // Remove Pass item as a pointer to be removed
 func (i *ItemInventory) Remove(o *Item) (err error) {
-	defer func() (err error) {
+	defer func() {
 		if r := recover(); r != nil {
-			return r.(error)
+			log.Println(r.(error))
 		}
-		return nil
 	}()
 	for c, p := range i.Contents {
 		if p == o {
@@ -60,7 +60,7 @@ func (i *ItemInventory) Remove(o *Item) (err error) {
 		}
 	}
 	if len(i.Contents) == 0 {
-		i.Contents = make([]*Item, 0, 0)
+		i.Contents = make([]*Item, 0)
 	}
 	return nil
 }
@@ -78,7 +78,9 @@ func (i *ItemInventory) RemoveNonPerms() {
 		}
 	}
 	for _, item := range newItems {
-		i.Remove(item)
+		if err := i.Remove(item); err != nil {
+			log.Println("Error removing item", err)
+		}
 	}
 }
 
@@ -120,9 +122,9 @@ func (i *ItemInventory) List() []string {
 	return items
 }
 
-// ListChars the items in this CharInventory
-func (i *ItemInventory) ListHiddenItems(observer *Character) []*Item {
-	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+// ListHiddenItems the items in this CharInventory
+func (i *ItemInventory) ListHiddenItems() []*Item {
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
 	items := make([]*Item, 0)
 
 	for _, item := range i.Contents {
@@ -174,7 +176,7 @@ func (i *ItemInventory) Jsonify() string {
 
 // PermanentReducedList the items in this inventory
 func (i *ItemInventory) PermanentReducedList() string {
-	items := make(map[string]int, 0)
+	items := make(map[string]int)
 
 	for _, o := range i.Contents {
 		if o.Flags["permanent"] {
@@ -206,7 +208,7 @@ func (i *ItemInventory) PermanentReducedList() string {
 
 // RoomReducedList the items in this inventory
 func (i *ItemInventory) RoomReducedList() string {
-	items := make(map[string]int, 0)
+	items := make(map[string]int)
 
 	for _, o := range i.Contents {
 		if !o.Flags["permanent"] {
@@ -238,8 +240,7 @@ func (i *ItemInventory) RoomReducedList() string {
 
 // ReducedList the items in this inventory
 func (i *ItemInventory) ReducedList() string {
-	items := make(map[string]int, 0)
-
+	items := make(map[string]int)
 	for _, o := range i.Contents {
 		// List all
 		_, inMap := items[o.DisplayName()]

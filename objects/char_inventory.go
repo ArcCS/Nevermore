@@ -12,7 +12,6 @@ type CharInventory struct {
 	Flags    map[string]bool
 }
 
-// New CharInventory returns a new basic CharInventory structure
 func NewCharInventory(roomID int, o ...*Character) *CharInventory {
 	i := &CharInventory{
 		ParentId: roomID,
@@ -34,7 +33,6 @@ func (i *CharInventory) Add(o *Character) {
 	i.Contents = append(i.Contents, o)
 }
 
-// Pass character as a pointer, compare and remove
 func (i *CharInventory) Remove(o *Character) {
 	for c, p := range i.Contents {
 		if p == o {
@@ -52,7 +50,7 @@ func (i *CharInventory) Remove(o *Character) {
 	}
 }
 
-// Search the CharInventory to return a specific instance of something
+// SearchAll the CharInventory to return a specific instance of something
 func (i *CharInventory) SearchAll(alias string) *Character {
 	if i == nil {
 		return nil
@@ -88,7 +86,7 @@ func (i *CharInventory) Search(alias string, observer *Character) *Character {
 	return nil
 }
 
-// List Chars attacking in the room
+// ListAttackers List Chars attacking in the room
 func (i *CharInventory) ListAttackers(observer *Character) string {
 	items := ""
 	var victim *Mob
@@ -116,7 +114,7 @@ func (i *CharInventory) ListAttackers(observer *Character) string {
 	return items
 }
 
-// Search the CharInventory to return a specific instance of something
+// MobSearch Search the CharInventory to return a specific instance of something
 func (i *CharInventory) MobSearch(alias string, observer *Mob) *Character {
 	if i == nil {
 		return nil
@@ -138,7 +136,7 @@ func (i *CharInventory) MobSearch(alias string, observer *Mob) *Character {
 
 // List the items in this CharInventory
 func (i *CharInventory) List(observer *Character) []string {
-	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
 	items := make([]string, 0)
 
 	for _, c := range i.Contents {
@@ -168,7 +166,7 @@ func (i *CharInventory) List(observer *Character) []string {
 
 // ListChars the items in this CharInventory
 func (i *CharInventory) ListChars(observer *Character) []*Character {
-	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
 	items := make([]*Character, 0)
 
 	for _, c := range i.Contents {
@@ -191,9 +189,9 @@ func (i *CharInventory) ListChars(observer *Character) []*Character {
 	return items
 }
 
-// ListChars the items in this CharInventory
+// ListPeoChars ListChars the items in this CharInventory
 func (i *CharInventory) ListPeoChars(observer *Character) []*Character {
-	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
 	items := make([]*Character, 0)
 
 	for _, c := range i.Contents {
@@ -214,9 +212,9 @@ func (i *CharInventory) ListPeoChars(observer *Character) []*Character {
 	return items
 }
 
-// ListChars the items in this CharInventory
+// ListHiddenChars ListChars the items in this CharInventory
 func (i *CharInventory) ListHiddenChars(observer *Character) []*Character {
-	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
 	items := make([]*Character, 0)
 
 	for _, c := range i.Contents {
@@ -234,7 +232,7 @@ func (i *CharInventory) ListHiddenChars(observer *Character) []*Character {
 
 // MobList lists characters for a mobs point of view
 func (i *CharInventory) MobList(observer *Mob) []string {
-	// Determine how many items we need if this is an all request.. and we have only one entry.  Return nothing
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
 	items := make([]string, 0)
 
 	// List all

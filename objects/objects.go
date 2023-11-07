@@ -11,21 +11,12 @@ import (
 
 /*
 Object is a base level instantiation of any world item.
-It includes a name, a description, and a handful of properties
-to determine how it functions in the world.
-The rest of the the world constructs from this
 */
 type Object struct {
 	Name        string
 	Description string
 	Placement   int
 	Commands    map[string]prompt.MenuItem
-}
-
-var ObjectCount chan uint
-
-func init() {
-	ObjectCount = make(chan uint)
 }
 
 func (o *Object) EmptyCommands() {
@@ -57,7 +48,7 @@ func (o *Object) ChangePlacement(place int) bool {
 }
 
 func (o *Object) SerializeCommands() string {
-	cmdList := make(map[string]string, 0)
+	cmdList := make(map[string]string)
 
 	if len(o.Commands) == 0 {
 		return "[]"
@@ -77,7 +68,7 @@ func (o *Object) SerializeCommands() string {
 
 func DeserializeCommands(jsonVals string) map[string]prompt.MenuItem {
 	commandList := make(map[string]prompt.MenuItem)
-	obj := make(map[string]string, 0)
+	obj := make(map[string]string)
 	err := json.Unmarshal([]byte(jsonVals), &obj)
 	if err != nil {
 		return commandList

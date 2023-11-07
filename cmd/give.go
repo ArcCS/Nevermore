@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -93,7 +94,11 @@ func (give) process(s *state) {
 
 	if (who.GetCurrentWeight() + target.GetWeight()) <= who.MaxWeight() {
 		s.actor.RunHook("act")
-		s.actor.Inventory.Remove(target)
+		if err := s.actor.Inventory.Remove(target); err != nil {
+			s.msg.Actor.SendBad("Game eror when removing item from inventory.")
+			log.Println(err)
+			return
+		}
 		who.Inventory.Add(target)
 	} else {
 		s.msg.Actor.SendInfo("They can't carry anymore.")

@@ -18,7 +18,7 @@ import (
 // of the connecting player quicker which would be more advantageous than
 // actually setting up a client instance only to tear it down again.
 //
-// However by having the control in the client we can use the clients logic for
+// B having the control in the client we can use the clients logic for
 // error handling and data formatting when sending data back to the connecting
 // player. This would allow, for example, to send coloured text back. It also
 // gives us a mechanism for the future to add maintenance messages, notices and
@@ -26,19 +26,6 @@ import (
 // allow for dynamic control of the leases such as specific open/closing times,
 // only allowing beta testers or not allowing new players for a period.
 var leases = make(chan struct{}, config.Server.MaxPlayers)
-
-// noLeaseError represents the fact that a lease is currently unavailable.
-type noLeaseError struct{}
-
-// Error implements the error interface.
-func (noLeaseError) Error() string {
-	return "Server Full"
-}
-
-// Temporary indicates that a noLeaseError is always a temporary error.
-func (noLeaseError) Temporary() bool {
-	return true
-}
 
 // leaseAcquire is used to try and get a lease for a client. If a lease is
 // available calling Error on the client will return nil otherwise Error will

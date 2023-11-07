@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
+	"log"
 	"strconv"
 )
 
@@ -103,7 +104,11 @@ func (put) process(s *state) {
 
 	s.actor.RunHook("act")
 
-	s.actor.Inventory.Remove(target)
+	if err := s.actor.Inventory.Remove(target); err != nil {
+		s.msg.Actor.SendBad("You can't put that there.")
+		log.Println("Error removing item from inventory: ", err)
+		return
+	}
 	where.Storage.Add(target)
 
 	s.msg.Actor.SendGood("You put ", target.Name, " into ", where.Name, ".")

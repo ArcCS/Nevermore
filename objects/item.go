@@ -20,7 +20,7 @@ type Item struct {
 	PlusDice     int
 	SidesDice    int
 	Armor        int
-	Armor_Class  int
+	ArmorClass   int
 	MaxUses      int
 	Value        int
 	Spell        string
@@ -31,7 +31,6 @@ type Item struct {
 	Weight  int
 }
 
-// Pop the room data
 func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 	description := ""
 	var ok bool
@@ -87,7 +86,7 @@ func (i *Item) Look() string {
 		resString = "It is a " + config.ItemTypes[i.ItemType] + " weapon, and it" + i.ReturnState() + "\n" + resString
 	}
 	if utils.IntIn(i.ItemType, config.ArmorTypes) {
-		resString = "It is a " + config.ArmorClass[i.Armor_Class] + " " + config.ItemTypes[i.ItemType] + " armor, and it" + i.ReturnState() + "\n" + resString
+		resString = "It is a " + config.ArmorClass[i.ArmorClass] + " " + config.ItemTypes[i.ItemType] + " armor, and it" + i.ReturnState() + "\n" + resString
 	}
 	if i.ItemType == 9 {
 		items := i.Storage.ReducedList()
@@ -170,7 +169,7 @@ func (i *Item) Save() {
 	itemData["type"] = i.ItemType
 	itemData["pdice"] = i.PlusDice
 	itemData["armor"] = i.Armor
-	itemData["armor_class"] = i.Armor_Class
+	itemData["armor_class"] = i.ArmorClass
 	itemData["max_uses"] = i.MaxUses
 	itemData["name"] = i.Name
 	itemData["sdice"] = i.SidesDice
@@ -204,7 +203,7 @@ func (i *Item) ReturnState() string {
 	return " looks " + stamStatus
 }
 
-// Function to return only the modifiable properties
+// ReturnItemInstanceProps Function to return only the modifiable properties
 func ReturnItemInstanceProps(item *Item) map[string]interface{} {
 	serialList := map[string]interface{}{
 		"itemId":     item.ItemId,
@@ -237,7 +236,7 @@ func (i *Item) Eval() string {
 			"It deals between " + strconv.Itoa(utils.RollMin(i.NumDice, i.PlusDice)+i.Adjustment) + " and " + strconv.Itoa(utils.RollMax(i.SidesDice, i.NumDice, i.PlusDice)+i.Adjustment) + " damage. \n" +
 			"It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks \n."
 	} else if utils.IntIn(i.ItemType, []int{5, 26, 25, 24, 23, 22, 21, 20, 19}) { // Armor
-		stringOut += "It is a " + config.ArmorClass[i.Armor_Class] + " " + config.ItemTypes[i.ItemId] + " armor. \n" +
+		stringOut += "It is a " + config.ArmorClass[i.ArmorClass] + " " + config.ItemTypes[i.ItemId] + " armor. \n" +
 			"It has " + strconv.Itoa(i.MaxUses) + " uses before it breaks. \n"
 	} else if i.ItemType == 17 { // Beverage
 		stringOut += "It is a beverage. \n" +

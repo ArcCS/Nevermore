@@ -57,9 +57,6 @@ func init() {
 }
 
 // closedError represents the fact that Close has been called on a frontend
-// instance releasing it's resources and that the instance should be discarded.
-// As interaction with the error is via the standard error and comms.temporary
-// interfaces it does not need to be exported.
 type closedError struct{}
 
 // Error implements the error interface for errors and returns descriptive text
@@ -125,8 +122,6 @@ func (f *frontend) AccountCleanup() {
 }
 
 // Close makes sure the player is no longer 'in game' and frees up resources
-// held the the instance of frontent. If the player is 'in game' a "QUIT"
-// command will be issued.
 func (f *frontend) Close() {
 
 	// Just return if we already have an error
@@ -179,14 +174,7 @@ func (f *frontend) Parse(input []byte) error {
 }
 
 // greetingDisplay displays the welcome message to players when they first
-// connect to the server. The text displayed is stored in the server
-// configuration file free text area. For more information on specifying the
-// welcome message see the config package.
-//
-// The greeting does not have it's own source file or a NewGreeting function
-// like other frontend helpers such as account or login as might be expected.
-// This is due to the fact that frontend needs to initialise nextFunc with a
-// func() type and greetingDisplay seems a logical choice.
+// connect to the server.
 func (f *frontend) greetingDisplay() {
 	f.buf.Send(config.DragonAscii)
 	NewLogin(f)
@@ -198,7 +186,7 @@ func (f *frontend) Write(b []byte) (n int, err error) {
 	b = append(b, '>')
 	n, err = f.output.Write(b)
 	if err != nil {
-		// This might be a broken pipe..  if so, we need to close the connection
+		// This might be a broken pipe. if so, we need to close the connection
 		f.writeError(err)
 	}
 	return

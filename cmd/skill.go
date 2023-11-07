@@ -20,11 +20,11 @@ func init() {
 type skills cmd
 
 func (skills) process(s *state) {
-	skill_header :=
+	skillHeader :=
 		`Weapon Skills   |    Level of Mastery (Experience/NextLevel)
 ----------------------------------------------------------------
 `
-	standard_skills :=
+	standardSkills :=
 		`Sharp Weapons        {{.Sharp}} ({{.SharpTotal}}/{{.SharpNext}})
 Thrust Weapons       {{.Thrust}} ({{.ThrustTotal}}/{{.ThrustNext}})
 Blunt Weapons        {{.Blunt}} ({{.BluntTotal}}/{{.BluntNext}})
@@ -32,10 +32,10 @@ Pole Weapons         {{.Pole}} ({{.PoleTotal}}/{{.PoleNext}})
 Missile Weapons      {{.Missile}} ({{.MissileTotal}}/{{.MissileNext}})
 `
 
-	monk_skills :=
+	monkSkills :=
 		`Hand-to-Hand combat  {{.Unarmed}}    {{.UnarmedTotal}}/{{.UnarmedNext}}`
 
-	mage_skills :=
+	mageSkills :=
 		`
 Elemental Affinity  |   Level of Attunement (Experience/NextLevel)
 -----------------------------------------------------------------
@@ -45,7 +45,7 @@ Earth Affinity          {{.Earth}} ({{.EarthTotal}}/{{.EarthNext}})
 Water Affinity          {{.Water}} ({{.WaterTotal}}/{{.WaterNext}})
 `
 
-	healer_skills :=
+	healerSkills :=
 		`
 Divinity        |    Level of Devotion (Experience/NextLevel)
 -----------------------------------------------------------------
@@ -53,7 +53,7 @@ Curative Arts        {{.Divinity}} ({{.DivinityTotal}}/{{.DivinityNext}})
 
 `
 
-	thief_skills :=
+	thiefSkills :=
 		`
 Clandestine Skills    |    Level of Skill (Experience/NextLevel)
 -----------------------------------------------------------------
@@ -137,20 +137,20 @@ Covert Arts              {{.Stealth}} ({{.StealthTotal}}/{{.StealthNext}})
 	}
 
 	if s.actor.Class == 8 {
-		skill_header += monk_skills
+		skillHeader += monkSkills
 	} else {
-		skill_header += standard_skills
+		skillHeader += standardSkills
 	}
 	if s.actor.Class == 4 {
-		skill_header += mage_skills
+		skillHeader += mageSkills
 	}
 	if s.actor.Class == 2 {
-		skill_header += thief_skills
+		skillHeader += thiefSkills
 	}
 	if s.actor.Class == 5 || s.actor.Class == 6 {
-		skill_header += healer_skills
+		skillHeader += healerSkills
 	}
-	tmpl, _ := template.New("stat_info").Parse(skill_header)
+	tmpl, _ := template.New("stat_info").Parse(skillHeader)
 	var output bytes.Buffer
 	err := tmpl.Execute(&output, data)
 	if err != nil {

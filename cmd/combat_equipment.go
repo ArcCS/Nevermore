@@ -24,36 +24,36 @@ func (equipment) process(s *state) {
 		return
 	}
 
-	equip_template := " You take a look at your equipment..." +
-		" {{if .Chest}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Chest}} about {{.Pos_pronoun}} body{{end}}" +
-		" {{if .Neck}}\n{{.Sub_pronoun}} {{.Isare}} wearing a {{.Neck}} around {{.Pos_pronoun}} neck.{{end}}" +
-		" {{if .Main}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Main}} in {{.Pos_pronoun}} main hand.{{end}}" +
-		" {{if .Offhand}}\n{{.Sub_pronoun}} {{.Isare}} holding a {{.Offhand}} in {{.Pos_pronoun}} off hand.{{end}}" +
-		" {{if .Arms}}\n{{.Sub_pronoun}} {{.Isare}} wearing some {{.Arms}} on {{.Pos_pronoun}} arms.{{end}}" +
-		" {{if .Finger1}}\n{{.Sub_pronoun}} {{.HasHave}} a {{.Finger1}} on {{.Pos_pronoun}} finger.{{end}}" +
-		" {{if .Finger2}}\n{{.Sub_pronoun}} {{.HasHave}} a {{.Finger2}} on {{.Pos_pronoun}} finger.{{end}}" +
-		" {{if .Legs}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Legs}} on {{.Pos_pronoun}} legs.{{end}}" +
-		" {{if .Hands}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Hands}} on {{.Pos_pronoun}} hands.{{end}}" +
-		" {{if .Feet}}\n{{.Sub_pronoun}} {{.HasHave}} {{.Feet}} on {{.Pos_pronoun}} feet.{{end}}" +
-		" {{if .Head}}\n{{.Sub_pronoun}} {{.Isare}} wearing {{.Head}}.{{end}}" +
+	equipTemplate := " You take a look at your equipment..." +
+		" {{if .Chest}}\n{{.SubPronoun}} {{.Isare}} wearing {{.Chest}} about {{.PosPronoun}} body{{end}}" +
+		" {{if .Neck}}\n{{.SubPronoun}} {{.Isare}} wearing a {{.Neck}} around {{.PosPronoun}} neck.{{end}}" +
+		" {{if .Main}}\n{{.SubPronoun}} {{.Isare}} holding a {{.Main}} in {{.PosPronoun}} main hand.{{end}}" +
+		" {{if .Offhand}}\n{{.SubPronoun}} {{.Isare}} holding a {{.Offhand}} in {{.PosPronoun}} off hand.{{end}}" +
+		" {{if .Arms}}\n{{.SubPronoun}} {{.Isare}} wearing some {{.Arms}} on {{.PosPronoun}} arms.{{end}}" +
+		" {{if .Finger1}}\n{{.SubPronoun}} {{.HasHave}} a {{.Finger1}} on {{.PosPronoun}} finger.{{end}}" +
+		" {{if .Finger2}}\n{{.SubPronoun}} {{.HasHave}} a {{.Finger2}} on {{.PosPronoun}} finger.{{end}}" +
+		" {{if .Legs}}\n{{.SubPronoun}} {{.HasHave}} {{.Legs}} on {{.PosPronoun}} legs.{{end}}" +
+		" {{if .Hands}}\n{{.SubPronoun}} {{.HasHave}} {{.Hands}} on {{.PosPronoun}} hands.{{end}}" +
+		" {{if .Feet}}\n{{.SubPronoun}} {{.HasHave}} {{.Feet}} on {{.PosPronoun}} feet.{{end}}" +
+		" {{if .Head}}\n{{.SubPronoun}} {{.Isare}} wearing {{.Head}}.{{end}}" +
 		text.Reset
 
 	data := struct {
-		Sub_pronoun string
-		Pos_pronoun string
-		Isare       string
-		HasHave     string
-		Chest       string
-		Neck        string
-		Main        string
-		Offhand     string
-		Arms        string
-		Finger1     string
-		Finger2     string
-		Legs        string
-		Hands       string
-		Feet        string
-		Head        string
+		SubPronoun string
+		PosPronoun string
+		Isare      string
+		HasHave    string
+		Chest      string
+		Neck       string
+		Main       string
+		Offhand    string
+		Arms       string
+		Finger1    string
+		Finger2    string
+		Legs       string
+		Hands      string
+		Feet       string
+		Head       string
 	}{
 		"You",
 		"your",
@@ -72,7 +72,7 @@ func (equipment) process(s *state) {
 		s.actor.Equipment.GetText("head"),
 	}
 
-	tmpl, _ := template.New("char_info").Parse(equip_template)
+	tmpl, _ := template.New("char_info").Parse(equipTemplate)
 
 	var output bytes.Buffer
 	err := tmpl.Execute(&output, data)

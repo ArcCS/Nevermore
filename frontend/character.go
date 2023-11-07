@@ -644,7 +644,6 @@ func parseStats(statInput string) []int {
 
 func validateFastStep(choiceInput string) bool {
 	inputs := strings.Split(choiceInput, " ")
-	//gender (m|f), race, and class separated by spaces"
 	if len(inputs) < 3 {
 		return false
 	}

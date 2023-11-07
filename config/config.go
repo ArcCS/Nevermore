@@ -24,7 +24,7 @@ var Server = struct {
 	IdleTimeout       time.Duration // Idle connection disconnect time
 	AFKTimeout        time.Duration
 	OOCTimeout        time.Duration
-	MaxPlayers        int    // Max number of players allowed to login at once
+	MaxPlayers        int    // Max number of players at once
 	DataDir           string // Main data directory
 	MaxCharacters     int    // Maximum number of characters
 	SearchResults     int    // Max search results
@@ -111,7 +111,6 @@ var Login = struct {
 	SaltLength:     32,
 }
 
-// configuration
 var Debug = struct {
 	LongLog    bool // Long log with microseconds & filename?
 	Panic      bool // Let goroutines panic and stop server?

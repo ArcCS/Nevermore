@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 )
 
 func init() {
@@ -56,7 +57,9 @@ func (hide) process(s *state) {
 		s.actor.ApplyHook("act", "hide", -1, "10", -1,
 			func() {
 				s.actor.Flags["hidden"] = false
-				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
+				if _, err := s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player: ", err)
+				}
 				s.actor.RemoveHook("act", "hide")
 				return
 			},
@@ -67,7 +70,9 @@ func (hide) process(s *state) {
 		s.actor.ApplyHook("say", "hide", -1, "10", -1,
 			func() {
 				s.actor.Flags["hidden"] = false
-				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
+				if _, err := s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player: ", err)
+				}
 				s.actor.RemoveHook("say", "hide")
 				return
 			},
@@ -79,7 +84,9 @@ func (hide) process(s *state) {
 		s.actor.ApplyHook("use", "hide", -1, "10", -1,
 			func() {
 				s.actor.Flags["hidden"] = false
-				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
+				if _, err := s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player: ", err)
+				}
 				s.actor.RemoveHook("use", "hide")
 				return
 			},
@@ -91,7 +98,9 @@ func (hide) process(s *state) {
 		s.actor.ApplyHook("combat", "hide", -1, "10", -1,
 			func() {
 				s.actor.Flags["hidden"] = false
-				s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n"))
+				if _, err := s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player: ", err)
+				}
 				s.actor.RemoveHook("combat", "hide")
 				return
 			},
@@ -123,11 +132,15 @@ func (hide) process(s *state) {
 				curChance += s.actor.Dex.Current * config.HideChancePerPoint
 				if utils.Roll(100, 1, 0) >= curChance {
 					s.actor.Flags["hidden"] = false
-					s.actor.Write([]byte(text.Bad + "You stumble out of the shadows while changing your position." + text.Reset + "\n"))
+					if _, err := s.actor.Write([]byte(text.Bad + "You stumble out of the shadows while changing your position." + text.Reset + "\n")); err != nil {
+						log.Println("Error writing to player: ", err)
+					}
 					s.actor.RemoveHook("gridmove", "hide")
 					return
 				} else {
-					s.actor.Write([]byte(text.Good + "You stay in the shadows while moving." + text.Reset + "\n"))
+					if _, err := s.actor.Write([]byte(text.Good + "You stay in the shadows while moving." + text.Reset + "\n")); err != nil {
+						log.Println("Error writing to player: ", err)
+					}
 					return
 				}
 			},
@@ -139,7 +152,9 @@ func (hide) process(s *state) {
 		s.actor.ApplyHook("attacked", "hide", -1, "10", -1,
 			func() {
 				s.actor.Flags["hidden"] = false
-				s.actor.Write([]byte(text.Info + "You lose your hiding place while being attacked." + text.Reset + "\n"))
+				if _, err := s.actor.Write([]byte(text.Info + "You lose your hiding place while being attacked." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player: ", err)
+				}
 				s.actor.RemoveHook("attacked", "hide")
 				return
 			},

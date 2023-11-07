@@ -62,9 +62,7 @@ func Parse(o *objects.Character, input string) string {
 	return s.cmd
 }
 
-// Script processes the input string the same as Parse. However Script runs
-// with the state.scripting flag set to true, permitting scripting specific
-// commands to be executed.
+// Script processes the input string the same as Parse.
 func Script(o *objects.Character, input string) string {
 	s := newState(o, input)
 	s.scripting = true
@@ -103,7 +101,7 @@ func (s *state) tokenizeInput(input string) {
 		input = strings.ReplaceAll(input, match, strings.ReplaceAll(match, " ", "%_R%"))
 	}
 	s.input = strings.Fields(input)
-	for wordInt, _ := range s.input {
+	for wordInt := range s.input {
 		// No quotes
 		s.input[wordInt] = strings.ReplaceAll(s.input[wordInt], "\\^", "")
 		// Restore spaces
@@ -143,7 +141,7 @@ func (s *state) sync() (inSync bool) {
 	s.LockAll()
 	defer s.UnlockAll()
 
-	s.msg.Allocate(s.where.RoomId, s.rLocks)
+	s.msg.Allocate(s.rLocks)
 	l := s.TotalLocks()
 
 	dispatchHandler(s)
@@ -219,7 +217,7 @@ func (s *state) messenger() {
 		if buffer.Len() == 0 {
 			continue
 		}
-		players := []io.Writer{}
+		var players []io.Writer
 		for _, c := range objects.Rooms[where].Chars.Contents {
 			if c != s.actor && c != s.participant {
 				players = append(players, c)
@@ -290,7 +288,7 @@ func (s *state) AcquireLockPriority() {
 			}
 			rand.Seed(time.Now().UnixNano())
 			r := rand.Int()
-			t, _ := time.ParseDuration(string(r) + "ms")
+			t, _ := time.ParseDuration(string(rune(r)) + "ms")
 			time.Sleep(t)
 		}
 	}

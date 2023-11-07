@@ -46,7 +46,6 @@ var (
 	ActivateRoom func(roomId int)
 )
 
-// Pop the room data
 func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 	newRoom := &Room{
 		Object{
@@ -106,7 +105,7 @@ func LoadRoom(roomData map[string]interface{}) (*Room, bool) {
 	return newRoom, true
 }
 
-// Evaluate if there are too many players in this rooms inventory
+// Crowded Evaluate if there are too many players in this rooms inventory
 func (r *Room) Crowded() (crowded bool) {
 	if r != nil {
 		crowded = len(r.Chars.Contents) >= config.Inventory.CrowdSize
@@ -114,7 +113,7 @@ func (r *Room) Crowded() (crowded bool) {
 	return
 }
 
-// Drop out the description of this room
+// Look Drop out the description of this room
 func (r *Room) Look(looker *Character) (buildText string) {
 	invis := ""
 	hidden := ""
@@ -125,7 +124,7 @@ func (r *Room) Look(looker *Character) (buildText string) {
 			exitText := make([]string, 0)
 			longExit := make([]string, 0)
 			for _, exiti := range r.Exits {
-				// Clean up just in case a delete didn't get cleaned up...
+				// Clean up just in case delete didn't get cleaned up...
 				if nextRoom, ok := Rooms[exiti.ToId]; !ok {
 					delete(r.Exits, exiti.Name)
 				} else {
@@ -219,7 +218,6 @@ func (r *Room) ContinueEmpty() bool {
 
 func (r *Room) CleanExits() {
 	for _, exiti := range r.Exits {
-		// Clean up just in case a delete didn't get cleaned up...
 		if _, ok := Rooms[exiti.ToId]; !ok {
 			delete(r.Exits, exiti.Name)
 		}
@@ -244,7 +242,7 @@ func (r *Room) ToggleFlag(flagName string) bool {
 	}
 }
 
-// Actions to be taken on the first person entering a room
+// FirstPerson Actions to be taken on the first person entering a room
 func (r *Room) FirstPerson() {
 	// Construct and institute the ticker
 	ActivateRoom(r.RoomId)
@@ -294,7 +292,9 @@ func (r *Room) Encounter() {
 							if mobPick <= mobCalc {
 								// This is the mob!  Put it in the room!
 								newMob := Mob{}
-								copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true})
+								if err := copier.CopyWithOption(&newMob, Mobs[mob], copier.Option{DeepCopy: true}); err != nil {
+									log.Println("Error copying mob during encounter: ", err)
+								}
 								if newMob.Placement <= 0 {
 									newMob.Placement = 5
 								} else if newMob.Placement >= 6 {
@@ -318,35 +318,51 @@ func (r *Room) ElementalDamage() {
 		if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			if r.Flags["earth"] {
 				if !c.Flags["resist-earth"] {
-					c.Write([]byte(text.Brown + "The earth swells up around you." + "\n"))
+					if _, err := c.Write([]byte(text.Brown + "The earth swells up around you." + "\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 					c.ReceiveMagicDamage(20, "earth")
 					c.DeathCheck("was swallowed by the earth.")
 				} else {
-					c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n"))
+					if _, err := c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				}
 			} else if r.Flags["fire"] {
 				if !c.Flags["resist-fire"] {
-					c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n"))
+					if _, err := c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 					c.ReceiveMagicDamage(20, "fire")
 					c.DeathCheck("was burned alive.")
 				} else {
-					c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n"))
+					if _, err := c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				}
 			} else if r.Flags["water"] {
 				if !c.Flags["resist-water"] {
-					c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n"))
+					if _, err := c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 					c.DeathCheck("drowned.")
 					c.ReceiveMagicDamage(20, "water")
 				} else {
-					c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n"))
+					if _, err := c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				}
 			} else if r.Flags["air"] {
 				if !c.Flags["resist-air"] {
-					c.Write([]byte(text.Brown + "The icy air buffets you." + "\n"))
+					if _, err := c.Write([]byte(text.Brown + "The icy air buffets you." + "\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 					c.DeathCheck("was frozen solid.")
 					c.ReceiveMagicDamage(20, "air")
 				} else {
-					c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n"))
+					if _, err := c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n")); err != nil {
+						log.Println("Error writing to player:", err)
+					}
 				}
 			}
 		}
@@ -386,7 +402,9 @@ func (r *Room) CleanRoom() {
 func (r *Room) MessageAll(Message string) {
 	// Message all the characters in this room
 	for _, chara := range r.Chars.Contents {
-		chara.Write([]byte(Message))
+		if _, err := chara.Write([]byte(Message)); err != nil {
+			log.Println("Error writing to player:", err)
+		}
 	}
 }
 
@@ -399,7 +417,9 @@ func (r *Room) MessageVisible(Message string) {
 			continue
 		}
 		if visDetect || chara.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-			chara.Write([]byte(Message + "\n"))
+			if _, err := chara.Write([]byte(Message + "\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
 		}
 	}
 }

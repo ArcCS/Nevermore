@@ -50,9 +50,7 @@ type stats struct {
 	MaxPlayers  int
 }
 
-// Start begins collection and reporting of statistics. The interval between
-// updates is controlled via config.StatsRate which if set to zero disables
-// collection and reporting.
+// Start begins collection and reporting of statistics.
 func Start() {
 
 	if config.Stats.Rate == 0 {
@@ -87,16 +85,16 @@ func (s *stats) collect() {
 	g := runtime.NumGoroutine()
 
 	// Calculate difference in resources since last run
-	Δu := int64(u - s.Inuse)
-	Δo := int(m.HeapObjects - s.HeapObjects)
-	Δg := g - s.Goroutines
+	deltu := int64(u - s.Inuse)
+	delto := int(m.HeapObjects - s.HeapObjects)
+	deltg := g - s.Goroutines
 
 	// Calculate scaled numeric and prefix parts of Inuse and Inuse change
 	un, up := uscale(u)
-	Δun, Δup := scale(Δu)
+	deltun, deltup := scale(deltu)
 
 	log.Printf("U[%4d%-2s %+5d%-2s] O[%14d %+9d] G[%6d %+6d]",
-		un, up, Δun, Δup, m.HeapObjects, Δo, g, Δg,
+		un, up, deltun, deltup, m.HeapObjects, delto, g, deltg,
 	)
 
 	// Save current stats

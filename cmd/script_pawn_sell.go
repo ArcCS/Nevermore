@@ -14,7 +14,7 @@ func init() {
 		"",
 		permissions.Player,
 		"$SELL")
-	addHandler(sell_confirm{},
+	addHandler(sellConfirm{},
 		"",
 		permissions.Player,
 		"$SELL_CONFIRM")
@@ -74,9 +74,9 @@ func (sell) process(s *state) {
 
 }
 
-type sell_confirm cmd
+type sellConfirm cmd
 
-func (sell_confirm) process(s *state) {
+func (sellConfirm) process(s *state) {
 	if len(s.words) < 3 {
 		s.msg.Actor.SendInfo("Issue completing sell.")
 		return
