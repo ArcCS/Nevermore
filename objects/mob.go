@@ -409,6 +409,7 @@ func (m *Mob) Tick() {
 					if _, err := target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset)); err != nil {
 						log.Println("Error writing to player:", err)
 					}
+					data.StoreCombatMetric("range-miss", 0, 1, 0, 0, 0, 1, m.MobId, m.Level, 0, target.CharId)
 					return
 				}
 				// If we made it here, default out and do a range hit.
@@ -508,6 +509,7 @@ func (m *Mob) Tick() {
 					if _, err := target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset)); err != nil {
 						log.Println("Error writing to player:", err)
 					}
+					data.StoreCombatMetric("melee-miss", 0, 1, 0, 0, 0, 1, m.MobId, m.Level, 0, target.CharId)
 					return
 				}
 				target.RunHook("attacked")

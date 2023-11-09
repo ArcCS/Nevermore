@@ -117,6 +117,7 @@ func (snipe) process(s *state) {
 		} else {
 			s.msg.Actor.SendBad("You failed to snipe ", whatMob.Name, "!")
 			s.msg.Observers.SendBad(s.actor.Name+" failed to snipe ", whatMob.Name, "!")
+			data.StoreCombatMetric("snipe-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 			if utils.Roll(100, 1, 0) < config.SnipeFumbleChance {
 				s.msg.Actor.SendBad("You fumbled your weapon!")
 				s.msg.Observer.SendInfo(s.actor.Name + " fails to snipe and fumbles their weapon. ")

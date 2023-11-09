@@ -92,6 +92,7 @@ func (bash) process(s *state) {
 			s.msg.Actor.SendBad("You missed!!")
 			s.msg.Observers.SendBad(s.actor.Name + " fails to bash " + whatMob.Name)
 			s.actor.SetTimer("combat", config.CombatCooldown)
+			data.StoreCombatMetric("bash-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 			return
 		}
 

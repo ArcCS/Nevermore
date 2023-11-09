@@ -5,7 +5,7 @@ import (
 
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
-	"github.com/ArcCS/Nevermore/text"
+	//"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 )
 
@@ -102,7 +102,7 @@ func (i *Item) DisplayName() string {
 	typeReturn := 0
 	preName := ""
 	if i.Flags["magic"] {
-		preName += "magic " + text.Good
+		preName += "magic "
 	}
 	// Mapping value definitions
 	switch i.ItemType {
