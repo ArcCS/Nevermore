@@ -35,9 +35,9 @@ const (
 // what type frontend is - even though we don't have access to the unexported
 // frontend struct from the frontend package.
 type client struct {
-	*net.TCPConn        // The client's network connection
-	remoteAddr   string // Client's remote address
-	err          error  // Last error encountered
+	TCPConn    *net.TCPConn // The client's network connection
+	remoteAddr string       // Client's remote address
+	err        error        // Last error encountered
 
 	frontend interface { // The current frontend in use
 		Parse([]byte) error
@@ -114,15 +114,15 @@ func (c *client) process() {
 	{
 		// Variables for use in the loop only hence the scoping outer braces
 		var (
-			s   = bufio.NewReaderSize(c, inputBuffer) // Sized network read buffer
-			err error                                 // Local Error
-			in  []byte                                // Input string from buffer
+			s   = bufio.NewReaderSize(c.TCPConn, inputBuffer) // Sized network read buffer
+			err error                                         // Local Error
+			in  []byte                                        // Input string from buffer
 		)
 
-		log.Print("Starting game loop: ", c.RemoteAddr())
+		log.Print("Starting game loop: ", c.TCPConn.RemoteAddr())
 		for c.err == nil {
 			if config.Server.Running == false {
-				_ = c.Close()
+				_ = c.TCPConn.Close()
 			}
 			useTime := config.Server.IdleTimeout
 			if ok := c.frontend.GetCharacter(); ok != (*objects.Character)(nil) {
@@ -134,7 +134,7 @@ func (c *client) process() {
 					useTime = config.Server.OOCTimeout
 				}
 			}
-			c.err = c.SetReadDeadline(time.Now().Add(useTime))
+			c.err = c.TCPConn.SetReadDeadline(time.Now().Add(useTime))
 			if in, err = s.ReadSlice('\n'); err != nil {
 				frontend.Zero(in)
 
@@ -242,7 +242,7 @@ func (c *client) close() {
 	}
 
 	// Make sure connection closed down and deallocated
-	if err := c.Close(); err != nil {
+	if err := c.TCPConn.Close(); err != nil {
 		log.Printf("Error closing connection: %s", err)
 	} else {
 		log.Printf("Connection closed: %s", c.remoteAddr)
@@ -254,8 +254,10 @@ func (c *client) close() {
 
 // Write handles output for the network connection.
 func (c *client) Write(d []byte) (n int, err error) {
-	if n, err = c.TCPConn.Write(d); err != nil {
-		log.Println("TCP Error" + err.Error())
+	if c.TCPConn != nil {
+		if n, err = c.TCPConn.Write(d); err != nil {
+			log.Println("TCP Error" + err.Error())
+		}
 	}
 	return
 }
