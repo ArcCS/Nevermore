@@ -174,20 +174,24 @@ func (kill) process(s *state) {
 			// Check for a miss
 			if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
 				s.msg.Actor.SendBad("You missed!!")
+				data.StoreCombatMetric("kill-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 				whatMob.AddThreatDamage(1, s.actor)
 				continue
 			} else {
+				action := "kill"
 				if config.RollCritical(skillLevel) || alwaysCrit {
 					mult *= float64(config.CombatModifiers["critical"])
 					s.msg.Actor.SendGood("Critical Strike!")
 					weaponDamage = 10
+					action = "kill-critical"
 				} else if config.RollDouble(skillLevel) {
 					mult *= float64(config.CombatModifiers["double"])
 					s.msg.Actor.SendGood("Double Damage!")
+					action = "kill-double"
 				}
 
 				actualDamage, _, resisted := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult)))
-				data.StoreCombatMetric("kill", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
+				data.StoreCombatMetric(action, 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 				whatMob.AddThreatDamage(actualDamage, s.actor)
 				s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 				s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)

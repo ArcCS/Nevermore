@@ -171,6 +171,8 @@ func (backstab) process(s *state) {
 					}
 				}
 				s.actor.DeathCheck("was slain while trying to backstab a " + utils.Title(whatMob.Name))
+			} else {
+				data.StoreCombatMetric("backstab-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 			}
 			s.ok = true
 			return
