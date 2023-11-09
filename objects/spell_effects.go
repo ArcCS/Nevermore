@@ -258,9 +258,12 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			healAmount := target.HealStam(damage)
+			mode := 3
 			if caller.CheckFlag("casting") {
 				caller.AdvanceDivinity(healAmount*2, caller.Class)
+				mode = 2
 			}
+			data.StoreCombatMetric("vigor", 0, mode, damage, damage-healAmount, healAmount, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
 				/*
 					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
@@ -300,9 +303,12 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			healAmount := target.HealVital(damage)
+			mode := 3
 			if caller.CheckFlag("casting") {
-				caller.AdvanceDivinity(healAmount*5, caller.Class)
+				caller.AdvanceDivinity(healAmount*2, caller.Class)
+				mode = 2
 			}
+			data.StoreCombatMetric("mend", 0, mode, damage, damage-healAmount, healAmount, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
 				/*
 					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
@@ -329,10 +335,13 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 
 func heal(caller interface{}, target interface{}, magnitude int) string {
 	damage := 0
+	action := ""
 	if magnitude == 1 {
 		damage = 20
+		action = "detraumatize"
 	} else {
 		damage = 40
+		action = "renewal"
 	}
 	switch caller := caller.(type) {
 	case *Character:
@@ -347,9 +356,12 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			stam, vit := target.Heal(damage)
+			mode := 3
 			if caller.CheckFlag("casting") {
-				caller.AdvanceDivinity((stam*5)+(vit*5), caller.Class)
+				caller.AdvanceDivinity((stam*2)+(vit*2), caller.Class)
+				mode = 2
 			}
+			data.StoreCombatMetric(action, 0, mode, damage, damage-(stam+vit), stam+vit, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
 				/*
 					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
@@ -391,7 +403,12 @@ func healall(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			stam, vit := target.Heal(2000)
-			caller.AdvanceDivinity((stam*5)+(vit*5), caller.Class)
+			mode := 3
+			if caller.CheckFlag("casting") {
+				caller.AdvanceDivinity((stam*2)+(vit*2), caller.Class)
+				mode = 2
+			}
+			data.StoreCombatMetric("heal", 0, mode, stam+vit, 0, stam+vit, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
 		case *Mob:
 			stamDam, vitDam := target.Heal(2000)
