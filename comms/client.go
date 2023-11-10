@@ -67,7 +67,7 @@ func newClient(conn *net.TCPConn) *client {
 	if cerr := conn.SetNoDelay(false); cerr != nil {
 		log.Printf("Error setting no delay: %s", cerr)
 	}
-	if cerr := conn.SetWriteBuffer(termColumns * termLines); cerr != nil {
+	if cerr := conn.SetWriteBuffer((termColumns * termLines) * 5); cerr != nil {
 		log.Printf("Error setting write buffer: %s", cerr)
 	}
 	if cerr := conn.SetReadBuffer(inputBuffer); cerr != nil {
@@ -124,7 +124,8 @@ func (c *client) process() {
 			if config.Server.Running == false {
 				_ = c.TCPConn.Close()
 			}
-			useTime := config.Server.IdleTimeout
+			// Time in seconds to wait for input
+			useTime := 45 * time.Second
 			if ok := c.frontend.GetCharacter(); ok != (*objects.Character)(nil) {
 				if c.frontend.GetCharacter().Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					useTime = 30 * time.Minute
@@ -135,8 +136,31 @@ func (c *client) process() {
 				}
 			}
 			c.err = c.TCPConn.SetReadDeadline(time.Now().Add(useTime))
+
 			if in, err = s.ReadSlice('\n'); err != nil {
 				frontend.Zero(in)
+
+				// Check if this is a timeout error
+				if err != nil {
+					var netErr net.Error
+					ok := errors.As(err, &netErr)
+					if ok && netErr.Timeout() {
+						_, err = c.Write([]byte(">"))
+						if err == nil {
+							if c.frontend.GetCharacter() != (*objects.Character)(nil) {
+								log.Println(time.Now().Sub(c.frontend.GetCharacter().LastAction).Seconds())
+								if time.Now().Sub(c.frontend.GetCharacter().LastAction).Seconds() > config.Server.IdleTimeout {
+									c.err = errors.New("idle Timeout")
+									continue
+								}
+							}
+							c.err = nil
+							continue
+						} else {
+							log.Println("Failed to write to client, client actually DC'd?: ", err)
+						}
+					}
+				}
 
 				if !errors.Is(err, bufio.ErrBufferFull) {
 					log.Println("Client Error " + err.Error())

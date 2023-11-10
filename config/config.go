@@ -12,16 +12,16 @@ import (
 
 // Server default configuration
 var Server = struct {
-	Host              string        // Host for server to listen on
-	NEOUname          string        // The Username for the neo4j instance
-	NEOPword          string        // The Password for the neo4j instance
-	NEOAddress        string        // The address of the neo4j server
-	PGUname           string        // The Username for the neo4j instance
-	PGPword           string        // The Password for the neo4j instance
-	PGAddress         string        // The address of the neo4j server
-	PGPort            int           // The port of the postgres server
-	Port              string        // Port for server to listen on
-	IdleTimeout       time.Duration // Idle connection disconnect time
+	Host              string  // Host for server to listen on
+	NEOUname          string  // The Username for the neo4j instance
+	NEOPword          string  // The Password for the neo4j instance
+	NEOAddress        string  // The address of the neo4j server
+	PGUname           string  // The Username for the neo4j instance
+	PGPword           string  // The Password for the neo4j instance
+	PGAddress         string  // The address of the neo4j server
+	PGPort            int     // The port of the postgres server
+	Port              string  // Port for server to listen on
+	IdleTimeout       float64 // Idle connection disconnect time in seconds
 	AFKTimeout        time.Duration
 	OOCTimeout        time.Duration
 	MaxPlayers        int    // Max number of players at once
@@ -41,7 +41,7 @@ var Server = struct {
 	PGPword:           "PASSWORD",
 	PGAddress:         "127.0.0.1",
 	PGPort:            5432,
-	IdleTimeout:       15 * time.Minute,
+	IdleTimeout:       15, // Minutes
 	AFKTimeout:        30 * time.Minute,
 	OOCTimeout:        20 * time.Minute,
 	MaxPlayers:        1024,
