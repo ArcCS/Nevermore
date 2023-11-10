@@ -22,8 +22,8 @@ var Server = struct {
 	PGPort            int     // The port of the postgres server
 	Port              string  // Port for server to listen on
 	IdleTimeout       float64 // Idle connection disconnect time in seconds
-	AFKTimeout        time.Duration
-	OOCTimeout        time.Duration
+	AFKTimeout        float64
+	OOCTimeout        float64
 	MaxPlayers        int    // Max number of players at once
 	DataDir           string // Main data directory
 	MaxCharacters     int    // Maximum number of characters
@@ -42,8 +42,8 @@ var Server = struct {
 	PGAddress:         "127.0.0.1",
 	PGPort:            5432,
 	IdleTimeout:       15, // Minutes
-	AFKTimeout:        30 * time.Minute,
-	OOCTimeout:        20 * time.Minute,
+	AFKTimeout:        30,
+	OOCTimeout:        20,
 	MaxPlayers:        1024,
 	DataDir:           ".",
 	MaxCharacters:     100,
