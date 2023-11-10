@@ -125,17 +125,18 @@ func (c *client) process() {
 				_ = c.TCPConn.Close()
 			}
 			// Time in seconds to wait for input
-			useTime := 45 * time.Second
+			pingTime := 45 * time.Second
+			idleTime := config.Server.IdleTimeout
 			if ok := c.frontend.GetCharacter(); ok != (*objects.Character)(nil) {
 				if c.frontend.GetCharacter().Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-					useTime = 30 * time.Minute
+					idleTime = 30
 				} else if c.frontend.GetCharacter().Flags["AFK"] {
-					useTime = config.Server.AFKTimeout
+					idleTime = config.Server.AFKTimeout
 				} else if c.frontend.GetCharacter().Flags["OOC"] {
-					useTime = config.Server.OOCTimeout
+					idleTime = config.Server.OOCTimeout
 				}
 			}
-			c.err = c.TCPConn.SetReadDeadline(time.Now().Add(useTime))
+			c.err = c.TCPConn.SetReadDeadline(time.Now().Add(pingTime))
 
 			if in, err = s.ReadSlice('\n'); err != nil {
 				frontend.Zero(in)
@@ -149,7 +150,7 @@ func (c *client) process() {
 						if err == nil {
 							if c.frontend.GetCharacter() != (*objects.Character)(nil) {
 								log.Println(time.Now().Sub(c.frontend.GetCharacter().LastAction).Seconds())
-								if time.Now().Sub(c.frontend.GetCharacter().LastAction).Minutes() > config.Server.IdleTimeout {
+								if time.Now().Sub(c.frontend.GetCharacter().LastAction).Minutes() > idleTime {
 									c.err = errors.New("idle Timeout")
 									continue
 								}
