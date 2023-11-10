@@ -263,7 +263,7 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 				caller.AdvanceDivinity(healAmount*2, caller.Class)
 				mode = 2
 			}
-			data.StoreCombatMetric("vigor", 0, mode, damage, damage-healAmount, healAmount, 0, caller.CharId, caller.Tier, 0, target.CharId)
+			data.StoreCombatMetric("vigor", 1, mode, damage, damage-healAmount, healAmount, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
 				/*
 					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
@@ -308,7 +308,7 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 				caller.AdvanceDivinity(healAmount*2, caller.Class)
 				mode = 2
 			}
-			data.StoreCombatMetric("mend", 0, mode, damage, damage-healAmount, healAmount, 0, caller.CharId, caller.Tier, 0, target.CharId)
+			data.StoreCombatMetric("mend", 1, mode, damage, damage-healAmount, healAmount, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
 				/*
 					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
@@ -361,7 +361,7 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 				caller.AdvanceDivinity((stam*2)+(vit*2), caller.Class)
 				mode = 2
 			}
-			data.StoreCombatMetric(action, 0, mode, damage, damage-(stam+vit), stam+vit, 0, caller.CharId, caller.Tier, 0, target.CharId)
+			data.StoreCombatMetric(action, 1, mode, damage, damage-(stam+vit), stam+vit, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
 				/*
 					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
@@ -408,7 +408,7 @@ func healall(caller interface{}, target interface{}, magnitude int) string {
 				caller.AdvanceDivinity((stam*2)+(vit*2), caller.Class)
 				mode = 2
 			}
-			data.StoreCombatMetric("heal", 0, mode, stam+vit, 0, stam+vit, 0, caller.CharId, caller.Tier, 0, target.CharId)
+			data.StoreCombatMetric("heal", 1, mode, stam+vit, 0, stam+vit, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
 		case *Mob:
 			stamDam, vitDam := target.Heal(2000)
