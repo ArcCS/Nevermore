@@ -222,23 +222,20 @@ func dispatchHandler(s *state) {
 			return
 		}
 
-		/*
-			for _, i := range s.where.Items.Contents {
-				// Check the room stack for a command second:
-				if i.Flags["permanent"] {
-					if i.Placement == s.actor.Placement {
-						if val, ok := i.Commands[completeCommand]; ok {
-							s.scriptAll(val.Command)
-							return
-						} else if val, ok := i.Commands[s.cmd]; ok {
-							s.scriptAll(val.Command, strings.Join(s.input, " "))
-							return
-						}
+		for _, i := range s.where.Items.Contents {
+			// Check the room stack for a command second:
+			if i.Flags["permanent"] {
+				if i.Placement == s.actor.Placement {
+					if val, ok := i.Commands[completeCommand]; ok {
+						s.scriptAll(val.Command)
+						return
+					} else if val, ok := i.Commands[s.cmd]; ok {
+						s.scriptAll(val.Command, strings.Join(s.input, " "))
+						return
 					}
 				}
 			}
-
-		*/
+		}
 
 		for _, i := range s.where.Mobs.Contents {
 			// Check the room stack for a command second:
