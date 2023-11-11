@@ -83,7 +83,6 @@ type Character struct {
 
 	CharTicker       *time.Ticker
 	CharTickerUnload chan bool
-	CharCommands     chan string
 	MsgBuffer        chan []byte
 	SongTicker       *time.Ticker
 	SongTickerUnload chan bool
@@ -180,7 +179,6 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 				"air":   {0}},
 			nil,
 			make(chan bool),
-			make(chan string),
 			make(chan []byte, 100),
 			nil,
 			make(chan bool),
@@ -254,16 +252,6 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 					return
 				case <-FilledCharacter.CharTicker.C:
 					FilledCharacter.Tick()
-				}
-			}
-		}()
-
-		go func() {
-			for {
-				select {
-				case cmd := <-FilledCharacter.CharCommands:
-					// This function call will immediately call a command off the stack and push it to script
-					go Script(FilledCharacter, cmd)
 				}
 			}
 		}()
