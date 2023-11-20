@@ -187,7 +187,11 @@ func (m *Mob) StartTicking() {
 		}
 	}
 	// Execute Immediately - Do not wrap locks, this is called from an existing lock
-	go m.Tick()
+	go func() {
+		Rooms[m.ParentId].Lock()
+		m.Tick()
+		Rooms[m.ParentId].Unlock()
+	}()
 	go func() {
 		for {
 			select {
