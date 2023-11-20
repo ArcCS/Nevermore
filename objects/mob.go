@@ -260,11 +260,17 @@ func (m *Mob) Tick() {
 			if m.CurrentTarget == "" && m.Flags["hostile"] {
 				for m.CurrentTarget == "" {
 					for i := 0; i < 4; i++ {
+						if m.CurrentTarget != "" {
+							break
+						}
 						potentials := Rooms[m.ParentId].Chars.MobListAt(m, i)
 						if len(potentials) > 0 {
-							if utils.Roll(100, 1, 0) <= config.ProximityChance-(i*config.ProximityStep) {
-								m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m))
-								Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
+							for _, potential := range potentials {
+								if utils.Roll(100, 1, 0) <= config.ProximityChance-(i*config.ProximityStep) {
+									m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(potential, m))
+									Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
+									break
+								}
 							}
 						}
 					}

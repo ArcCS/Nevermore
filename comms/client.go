@@ -149,7 +149,6 @@ func (c *client) process() {
 						_, err = c.Write([]byte(">"))
 						if err == nil {
 							if c.frontend.GetCharacter() != (*objects.Character)(nil) {
-								log.Println(time.Now().Sub(c.frontend.GetCharacter().LastAction).Seconds())
 								if time.Now().Sub(c.frontend.GetCharacter().LastAction).Minutes() > idleTime {
 									c.err = errors.New("idle Timeout")
 									continue
