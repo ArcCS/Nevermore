@@ -2,6 +2,7 @@ package objects
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -233,7 +234,7 @@ func (i *CharInventory) ListHiddenChars(observer *Character) []*Character {
 // MobList lists characters for a mobs point of view
 func (i *CharInventory) MobList(observer *Mob) []string {
 	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
-	items := make([]string, 0)
+	var items []string
 
 	// List all
 	for _, c := range i.Contents {
@@ -242,6 +243,27 @@ func (i *CharInventory) MobList(observer *Mob) []string {
 				(c.Flags["invisible"] == true &&
 					observer.Flags["detect-invisible"]) {
 				items = append(items, c.Name)
+			}
+		}
+	}
+	return items
+}
+
+// MobListAt lists characters for a mobs point of view
+func (i *CharInventory) MobListAt(observer *Mob, placement int) []string {
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
+	var items []string
+
+	// List all
+	for _, c := range i.Contents {
+		if c.Flags["hidden"] == false {
+			if c.Flags["invisible"] == false ||
+				(c.Flags["invisible"] == true &&
+					observer.Flags["detect-invisible"]) {
+				stepCalc := int(math.Abs(float64(observer.Placement - c.Placement)))
+				if stepCalc == placement {
+					items = append(items, c.Name)
+				}
 			}
 		}
 	}

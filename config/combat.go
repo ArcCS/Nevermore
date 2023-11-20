@@ -21,6 +21,9 @@ var CombatModifiers = map[string]int{
 }
 
 var (
+	ProximityChance = 80
+	ProximityStep   = 10
+
 	BerserkCooldown = 60 * 5
 	CombatCooldown  = 8
 	UnequipCooldown = 2

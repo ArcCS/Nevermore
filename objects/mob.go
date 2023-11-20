@@ -258,12 +258,16 @@ func (m *Mob) Tick() {
 
 			// Am I hostile?  Should I pick a target?
 			if m.CurrentTarget == "" && m.Flags["hostile"] {
-				potentials := Rooms[m.ParentId].Chars.MobList(m)
-				if len(potentials) > 0 {
-					rand.Seed(time.Now().Unix())
-					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-					m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m))
-					Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
+				for m.CurrentTarget == "" {
+					for i := 0; i < 4; i++ {
+						potentials := Rooms[m.ParentId].Chars.MobListAt(m, i)
+						if len(potentials) > 0 {
+							if utils.Roll(100, 1, 0) <= config.ProximityChance-(i*config.ProximityStep) {
+								m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m))
+								Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
+							}
+						}
+					}
 				}
 			}
 
