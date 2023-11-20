@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	//	"log"
 	//"strconv"
 	"strings"
@@ -131,7 +132,7 @@ func (slot) process(s *state) {
 			{
 				s.msg.Actor.SendGood("Jackpot!!!!")
 				s.actor.Gold.Add(jackpot.Armor)
-				objects.ActiveCharacters.MessageAll("###: You hear the distinctive Cha-Ching of the slot machine and know somebody has won the jackpot!")
+				objects.ActiveCharacters.MessageAll("###: You hear the distinctive Cha-Ching of the slot machine and know somebody has won the jackpot!", config.BroadcastChannel)
 				jackpot.Armor = 10000
 			}
 		case 2:

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
@@ -22,7 +23,7 @@ func (msgall) process(s *state) {
 	}
 
 	message := "###: " + strings.Join(s.input, " ")
-	objects.ActiveCharacters.MessageAll(message)
+	objects.ActiveCharacters.MessageAll(message, config.BroadcastChannel)
 
 	s.ok = true
 	return

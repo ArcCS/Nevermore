@@ -19,6 +19,7 @@ func init() {
 func ActivateRoom(roomId int) {
 	if !utils.IntIn(roomId, ActiveRooms) {
 		ActiveRooms = append(ActiveRooms, roomId)
+		InitialRoom(roomId)
 	}
 }
 
@@ -70,4 +71,20 @@ func LoopRooms() {
 		}
 		objects.Rooms[r].Unlock()
 	}
+}
+
+func InitialRoom(r int) {
+	objects.Rooms[r].Lock()
+	if len(objects.Rooms[r].Chars.Contents) >= 0 {
+		if objects.Rooms[r].Flags["encounters_on"] {
+			objects.Rooms[r].Encounter()
+		}
+	}
+	if objects.Rooms[r].Flags["fire"] ||
+		objects.Rooms[r].Flags["earth"] ||
+		objects.Rooms[r].Flags["wind"] ||
+		objects.Rooms[r].Flags["water"] {
+		objects.Rooms[r].ElementalDamage()
+	}
+	objects.Rooms[r].Unlock()
 }

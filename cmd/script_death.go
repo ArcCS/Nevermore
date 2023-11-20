@@ -37,8 +37,8 @@ func (scriptDeath) process(s *state) {
 			deathString = "### " + s.actor.Name + " " + strings.Join(s.input[0:], " ")
 		}
 
-		objects.ActiveCharacters.MessageAll("### An otherworldly bell sounds once, the note echoing in your soul")
-		objects.ActiveCharacters.MessageAll(deathString)
+		objects.ActiveCharacters.MessageAll("### An otherworldly bell sounds once, the note echoing in your soul", config.BroadcastChannel)
+		objects.ActiveCharacters.MessageAll(deathString, config.BroadcastChannel)
 
 		if s.actor.Tier > config.FreeDeathTier {
 
@@ -130,8 +130,8 @@ func (scriptDeath) process(s *state) {
 	} else {
 		deathString := "### " + s.actor.Name + " died a lag death."
 
-		objects.ActiveCharacters.MessageAll("### An otherworldly bell attempts to ring but is abruptly muffled.")
-		objects.ActiveCharacters.MessageAll(deathString)
+		objects.ActiveCharacters.MessageAll("### An otherworldly bell attempts to ring but is abruptly muffled.", config.BroadcastChannel)
+		objects.ActiveCharacters.MessageAll(deathString, config.BroadcastChannel)
 
 		s.actor.DeathInProgress = false
 

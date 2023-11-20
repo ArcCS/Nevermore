@@ -1088,6 +1088,11 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 	return stamDam, vitDam, resisted
 }
 
+func (c *Character) ReceiveEnvironmentalDamage(damage int, element string) (int, int, int) {
+	stamDam, vitDam := c.ReceiveDamageNoArmor(damage)
+	return stamDam, vitDam, 0
+}
+
 func (c *Character) Heal(damage int) (int, int) {
 	stamHeal, vitalHeal := 0, 0
 	if damage > (c.Vit.Max - c.Vit.Current) {

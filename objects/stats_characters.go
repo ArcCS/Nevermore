@@ -4,6 +4,7 @@ package objects
 
 import (
 	"fmt"
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/message"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
@@ -29,7 +30,7 @@ func (c *characterStats) Add(character *Character, address string) {
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster, permissions.God) {
 		c.MessageGM("###: " + character.Name + "[" + address + "] joins the realm.")
 	} else {
-		c.MessageAll("###: " + character.Name + " joins the realm.")
+		c.MessageAll("###: "+character.Name+" joins the realm.", config.JarvoralChannel)
 	}
 	c.Lock()
 	c.list = append(c.list, character)
@@ -43,7 +44,7 @@ func (c *characterStats) Remove(character *Character) {
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
 		c.MessageGMExcept("###:"+character.Name+" departs the realm.", character)
 	} else {
-		c.MessageExcept("###: "+character.Name+" departs the realm.", character)
+		c.MessageExcept("###: "+character.Name+" departs the realm.", character, config.JarvoralChannel)
 	}
 
 	for i, p := range c.list {
@@ -146,9 +147,9 @@ func (c *characterStats) GMList() []string {
 	return list
 }
 
-func (c *characterStats) MessageExcept(msg string, except *Character) {
+func (c *characterStats) MessageExcept(msg string, except *Character, channel string) {
 	if DiscordSession != nil {
-		if _, err := DiscordSession.ChannelMessageSend("854733320474329088", msg); err != nil {
+		if _, err := DiscordSession.ChannelMessageSend(channel, msg); err != nil {
 			log.Println("Error sending message to discord:", err)
 		}
 	}
@@ -166,9 +167,9 @@ func (c *characterStats) MessageExcept(msg string, except *Character) {
 	return
 }
 
-func (c *characterStats) MessageAll(msg string) {
+func (c *characterStats) MessageAll(msg string, channel string) {
 	if DiscordSession != nil {
-		if _, err := DiscordSession.ChannelMessageSend("854733320474329088", msg); err != nil {
+		if _, err := DiscordSession.ChannelMessageSend(channel, msg); err != nil {
 			log.Println("Error sending message to discord:", err)
 		}
 	}

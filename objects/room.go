@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
 	"log"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -316,12 +317,13 @@ func (r *Room) ElementalDamage() {
 	r.LastEffectTime = time.Now()
 	for _, c := range r.Chars.Contents {
 		if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			envDamage := math.Ceil(.20 * float64(c.Stam.Max+c.Vit.Max))
 			if r.Flags["earth"] {
 				if !c.Flags["resist-earth"] {
 					if _, err := c.Write([]byte(text.Brown + "The earth swells up around you." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
 					}
-					c.ReceiveMagicDamage(20, "earth")
+					c.ReceiveEnvironmentalDamage(int(envDamage), "earth")
 					c.DeathCheck("was swallowed by the earth.")
 				} else {
 					if _, err := c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n")); err != nil {
@@ -333,7 +335,7 @@ func (r *Room) ElementalDamage() {
 					if _, err := c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
 					}
-					c.ReceiveMagicDamage(20, "fire")
+					c.ReceiveEnvironmentalDamage(int(envDamage), "fire")
 					c.DeathCheck("was burned alive.")
 				} else {
 					if _, err := c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n")); err != nil {
@@ -345,8 +347,8 @@ func (r *Room) ElementalDamage() {
 					if _, err := c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
 					}
+					c.ReceiveEnvironmentalDamage(int(envDamage), "water")
 					c.DeathCheck("drowned.")
-					c.ReceiveMagicDamage(20, "water")
 				} else {
 					if _, err := c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
@@ -357,8 +359,8 @@ func (r *Room) ElementalDamage() {
 					if _, err := c.Write([]byte(text.Brown + "The icy air buffets you." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
 					}
+					c.ReceiveEnvironmentalDamage(int(envDamage), "air")
 					c.DeathCheck("was frozen solid.")
-					c.ReceiveMagicDamage(20, "air")
 				} else {
 					if _, err := c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
