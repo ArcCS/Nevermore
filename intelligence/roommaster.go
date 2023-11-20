@@ -19,7 +19,7 @@ func init() {
 func ActivateRoom(roomId int) {
 	if !utils.IntIn(roomId, ActiveRooms) {
 		ActiveRooms = append(ActiveRooms, roomId)
-		InitialRoom(roomId)
+		go InitialRoom(roomId)
 	}
 }
 

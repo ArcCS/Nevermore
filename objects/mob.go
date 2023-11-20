@@ -187,7 +187,7 @@ func (m *Mob) StartTicking() {
 		}
 	}
 	// Execute Immediately - Do not wrap locks, this is called from an existing lock
-	m.Tick()
+	go m.Tick()
 	go func() {
 		for {
 			select {
