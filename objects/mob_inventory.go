@@ -47,7 +47,10 @@ func (i *MobInventory) AddWithMessage(o *Mob, message string, silent bool) {
 
 // Remove Pass mob as a pointer, compare and remove
 func (i *MobInventory) Remove(o *Mob) {
-	go func() { o.MobTickerUnload <- true }()
+	go func() {
+		o.MobTickerUnload <- true
+		close(o.MobCommands)
+	}()
 	for c, p := range i.Contents {
 		if p == o {
 			copy(i.Contents[c:], i.Contents[c+1:])
@@ -70,6 +73,7 @@ func (i *MobInventory) RemoveNonPerms() {
 			contentRef = append(contentRef, mob)
 		} else {
 			mob.MobTickerUnload <- true
+			close(mob.MobCommands)
 		}
 	}
 	// Check if we should continue to empty, this is only relevant if mobs have been thinking, and we have to back out of this loop entirely

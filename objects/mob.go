@@ -195,10 +195,6 @@ func (m *Mob) StartTicking() {
 	go func() {
 		for {
 			select {
-			case msg := <-m.MobCommands:
-				// This function call will immediately call a command off the stack and run it, ideally to decouple state
-				var params = strings.Split(msg, " ")
-				go m.ProcessCommand(params[0], params[1:])
 			case <-m.MobTickerUnload:
 				log.Println("Unloading Mob Ticker for ", m.Name)
 				m.MobTicker.Stop()
@@ -213,6 +209,20 @@ func (m *Mob) StartTicking() {
 			}
 		}
 	}()
+	go func() {
+		for {
+			select {
+			case msg := <-m.MobCommands:
+				// This function call will immediately call a command off the stack and run it, ideally to decouple state
+				if msg == "" {
+					return
+				}
+				var params = strings.Split(msg, " ")
+				go m.ProcessCommand(params[0], params[1:])
+			}
+		}
+	}()
+
 }
 
 func (m *Mob) GetSpellMultiplier() float32 {
@@ -263,7 +273,7 @@ func (m *Mob) Tick() {
 			// Am I hostile?  Should I pick a target?
 			if m.CurrentTarget == "" && m.Flags["hostile"] && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
 				for m.CurrentTarget == "" {
-					for i := 0; i < 4; i++ {
+					for i := 0; i <= 4; i++ {
 						if m.CurrentTarget != "" {
 							break
 						}
