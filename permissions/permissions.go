@@ -34,6 +34,7 @@ func (f *Permissions) ClearFlag(flag Permissions)   { *f &= ^flag }
 func (f *Permissions) ToggleFlag(flag Permissions)  { *f ^= flag }
 
 const (
+	None          Permissions = 0
 	Anyone        Permissions = 1 << iota
 	Player                    //2
 	Builder                   //4

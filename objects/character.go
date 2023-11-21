@@ -333,6 +333,7 @@ func (c *Character) SingSong(song string, tickRate int) {
 				c.FlagOffAndMsg("singing", "sing", "You stop singing.")
 				return
 			case <-c.SongTicker.C:
+				Rooms[c.ParentId].Lock()
 				if SongEffects[song].target == "mobs" {
 					for _, mob := range Rooms[c.ParentId].Mobs.Contents {
 						if mob.CheckFlag("hostile") {
@@ -345,7 +346,7 @@ func (c *Character) SingSong(song string, tickRate int) {
 						SongEffects[song].effect(player, c)
 					}
 				}
-
+				Rooms[c.ParentId].Unlock()
 			}
 		}
 	}()
