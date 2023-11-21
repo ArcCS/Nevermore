@@ -31,7 +31,7 @@ var handlers = map[string]handler{}
 var handlerPermission = map[string]permissions.Permissions{}
 var helpText = map[string]helpTextStruct{}
 var oocCommands = []string{"SAY", "QUIT", "HELP", "WHO", "LOOK", "IC", "$POOF", "AFK", "GO", "ACT"}
-var excludeFromLogs = []string{"SAYTO", "SAY", "TELL", "OSAY", "SEND", "R", "REPLY", "REP", "PARTYTELL", "PTELL"}
+var excludeFromLogs = []string{"SAYTO", "SAY", "TELL", "OSAY", "SEND", "R", "REPLY", "REP", "PARTYTELL", "PTELL", "K", "KILL"}
 var reverseLookup = map[string]string{}
 var emotes = []string{"ACT", "BLINK", "BLUSH", "BOW", "BURP", "CACKLE", "CHEER", "CHUCKLE", "CLAP", "CONFUSED", "COUGH", "CROSSARMS", "CROSSFINGERS", "CRY",
 	"DANCE", "EMOTE", "FLEX", "FLINCH", "FROWN", "GASP", "GIGGLE", "GRIN", "GROAN", "HICCUP", "JUMP", "KNEEL", "LAUGH", "NOD", "PONDER", "SALUTE", "SHAKE", "SHIVER", "SHRUG",

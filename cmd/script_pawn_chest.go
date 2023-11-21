@@ -72,7 +72,6 @@ func (sellchest) process(s *state) {
 }
 
 func (sellchestConfirm) process(s *state) {
-	log.Println("length of words: ", len(s.words))
 	if len(s.words) < 1 {
 		s.msg.Actor.SendInfo("Not enough arguements on sellchest command.")
 		return

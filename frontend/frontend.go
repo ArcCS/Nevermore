@@ -99,7 +99,7 @@ func (f *frontend) GetCharacter() *objects.Character {
 // The io.Writer is used to send responses back from calling Parse. The new
 // frontend is initialised with a message buffer and nextFunc setup to call
 // greetingDisplay.
-func New(output io.Writer, address string, errorWriter func(error)) *frontend {
+func New(output io.Writer, address string, errorWriter func(error), clientclose func()) *frontend {
 	f := &frontend{
 		buf:        message.AcquireBuffer(),
 		output:     output,
@@ -108,6 +108,7 @@ func New(output io.Writer, address string, errorWriter func(error)) *frontend {
 	}
 	f.buf.OmitLF(true)
 	f.nextFunc = f.greetingDisplay
+	f.ClientClose = clientclose
 	return f
 }
 

@@ -83,7 +83,7 @@ func newClient(conn *net.TCPConn) *client {
 	c.leaseAcquire()
 
 	// Setup frontend if no error acquiring a lease
-	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError)
+	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError, c.close)
 	if err := c.frontend.Parse([]byte("")); err != nil {
 		return nil
 	}
