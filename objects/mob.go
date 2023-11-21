@@ -261,7 +261,7 @@ func (m *Mob) Tick() {
 			}
 
 			// Am I hostile?  Should I pick a target?
-			if m.CurrentTarget == "" && m.Flags["hostile"] {
+			if m.CurrentTarget == "" && m.Flags["hostile"] && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
 				for m.CurrentTarget == "" {
 					for i := 0; i < 4; i++ {
 						if m.CurrentTarget != "" {
