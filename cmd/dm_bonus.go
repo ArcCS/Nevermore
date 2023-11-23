@@ -29,7 +29,7 @@ func (bonus) process(s *state) {
 			if targetChar == nil {
 				targetChar = objects.ActiveCharacters.Find(s.words[1])
 			}
-			
+
 			if targetChar != nil {
 				targetChar.BonusPoints.Add(amt)
 				s.participant = targetChar
