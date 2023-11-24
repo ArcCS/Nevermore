@@ -88,7 +88,6 @@ type Character struct {
 	SongTickerUnload chan bool
 	Hooks            map[string]map[string]*Hook
 	LastRefresh      time.Time
-	LastAction       time.Time
 	LoginTime        time.Time
 	//Party Stuff
 	PartyFollow     string
@@ -193,7 +192,6 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 				"attacked": make(map[string]*Hook),
 			},
 			lastRefresh,
-			time.Now(),
 			time.Now(),
 			"",
 			[]string{},

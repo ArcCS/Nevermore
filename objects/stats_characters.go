@@ -22,8 +22,17 @@ type characterStats struct {
 	list []*Character
 }
 
+var LastActivity = map[string]time.Time{}
 var ActiveCharacters = &characterStats{}
 var IpMap = make(map[string]string)
+
+func GetLastActivity(name string) time.Time {
+	if val, ok := LastActivity[name]; ok {
+		return val
+	}
+	// If there's an error return over an hour to ensure that everyone hits an AFK
+	return time.Now().Add(-1 * time.Hour)
+}
 
 // Add adds the specified character to the list of characters.
 func (c *characterStats) Add(character *Character, address string) {
@@ -57,6 +66,8 @@ func (c *characterStats) Remove(character *Character) {
 		}
 	}
 
+	delete(LastActivity, character.Name)
+
 	if len(c.list) == 0 {
 		c.list = make([]*Character, 0, 10)
 	}
@@ -89,7 +100,7 @@ func (c *characterStats) List() []string {
 			continue
 		}
 
-		calc := time.Now().Sub(character.LastAction)
+		calc := time.Now().Sub(LastActivity[character.Name])
 		charState := ""
 		if calc.Minutes() > 2 {
 			charState = fmt.Sprintf("[idle: %s]", strconv.Itoa(int(calc.Minutes())))
@@ -122,7 +133,7 @@ func (c *characterStats) GMList() []string {
 	list := make([]string, 0, len(c.list))
 
 	for _, character := range c.list {
-		calc := time.Now().Sub(character.LastAction)
+		calc := time.Now().Sub(LastActivity[character.Name])
 		charState := ""
 		if character.Flags["ooc"] {
 			charState += " [OOC] "

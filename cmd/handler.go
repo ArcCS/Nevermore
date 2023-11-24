@@ -7,6 +7,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
@@ -65,7 +66,7 @@ func dispatchHandler(s *state) {
 		//if !s.scripting {
 		if !utils.StringIn(strings.ToUpper(s.cmd), emotes) && !utils.StringIn(strings.ToUpper(s.cmd), excludeFromLogs) {
 			log.Println(s.actor.Name + " sent " + s.cmd + " " + strings.Join(s.input, " "))
-			s.actor.LastAction = time.Now()
+			objects.LastActivity[s.actor.Name] = time.Now()
 		}
 		//}
 
