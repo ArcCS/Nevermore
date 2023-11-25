@@ -61,10 +61,10 @@ func (g *game) gameInit() {
 	}
 	g.character.Unloader = g.CharUnloader
 	g.character.Disconnect = g.Disconnect
-	objects.Rooms[g.character.ParentId].Lock()
+	objects.Rooms[g.character.ParentId].LockRoom("GameInit", false)
 	objects.Rooms[g.character.ParentId].Chars.Add(g.character)
 	objects.ActiveCharacters.Add(g.character, g.remoteAddr)
-	objects.Rooms[g.character.ParentId].Unlock()
+	objects.Rooms[g.character.ParentId].UnlockRoom("GameInit", false)
 
 	cmd.Script(g.character, "$POOF")
 	// Initialize this characters ticker

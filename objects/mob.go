@@ -188,24 +188,21 @@ func (m *Mob) StartTicking() {
 	}
 	// Execute Immediately - Do not wrap locks, this is called from an existing lock
 	go func() {
-		Rooms[m.ParentId].Lock()
+		Rooms[m.ParentId].LockRoom(m.Name+"MobInitTick", false)
 		m.Tick()
-		Rooms[m.ParentId].Unlock()
+		Rooms[m.ParentId].UnlockRoom(m.Name+"MobInitTick", false)
 	}()
 	go func() {
 		for {
 			select {
 			case <-m.MobTickerUnload:
-				log.Println("Unloading Mob Ticker for ", m.Name)
 				m.MobTicker.Stop()
 				m.IsActive = false
 				return
 			case <-m.MobTicker.C:
-				log.Println("Locking Room for tick ", m.Name)
-				Rooms[m.ParentId].Lock()
+				Rooms[m.ParentId].LockRoom(m.Name+" MobTick", false)
 				m.Tick()
-				log.Println("Unlocking Room post tick ", m.Name)
-				Rooms[m.ParentId].Unlock()
+				Rooms[m.ParentId].UnlockRoom(m.Name+" MobTick", false)
 			}
 		}
 	}()
@@ -771,13 +768,11 @@ func (m *Mob) Follow(params []string) {
 			}
 			if utils.Roll(100, 1, 0) <= curChance {
 				log.Println("I'm gonna follow")
-				// Halt processing
 				neededLocks := make([]int, 2)
 				neededLocks[0] = m.ParentId
 				neededLocks[1] = targetChar.ParentId
 				ready := false
 				previousRoom := m.ParentId
-				//log.Println("Mob is trying to gain lock priority")
 				tempName := utils.RandString(10)
 				for !ready {
 					ready = true
@@ -800,20 +795,14 @@ func (m *Mob) Follow(params []string) {
 						time.Sleep(t)
 					}
 				}
-				//log.Println("Let everyone know there is a follow")
 				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name + "\n\n")
-				//log.Println("Processing Previous Room Lock")
-				Rooms[m.ParentId].Lock()
-				//log.Println("Processing New Room Lock")
-				Rooms[targetChar.ParentId].Lock()
+				Rooms[m.ParentId].LockRoom(m.Name+":follow:exitR-"+strconv.Itoa(previousRoom)+":"+targetChar.Name, false)
+				Rooms[targetChar.ParentId].LockRoom(m.Name+":follow:enterR-"+strconv.Itoa(targetChar.ParentId)+":"+targetChar.Name, false)
 				if _, err := targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n")); err != nil {
 					log.Println("Error writing to player:", err)
 				}
-				//log.Println("Remove mob")
 				Rooms[m.ParentId].Mobs.Remove(m)
-				//log.Println("Add the mob")
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
-				//log.Println("Check for Vital")
 				if utils.Roll(100, 1, 0) <= config.MobFollowVital {
 					vitDamage, resisted := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()))))
 					data.StoreCombatMetric("follow_vital", 0, 1, vitDamage, resisted, vitDamage, 1, m.MobId, m.Level, 0, targetChar.CharId)
@@ -832,11 +821,8 @@ func (m *Mob) Follow(params []string) {
 					}
 					targetChar.DeathCheck("was slain by a " + m.Name + ".")
 				}
-				//log.Println("Previous room Unlock")
-				Rooms[previousRoom].Unlock()
-				//log.Println("New Room Unlock")
-				Rooms[targetChar.ParentId].Unlock()
-				//log.Println("Release lock priorities")
+				Rooms[previousRoom].UnlockRoom(m.Name+":follow:exitR-"+strconv.Itoa(previousRoom)+":"+targetChar.Name, false)
+				Rooms[targetChar.ParentId].UnlockRoom(m.Name+":follow:enterR-"+strconv.Itoa(targetChar.ParentId)+":"+targetChar.Name, false)
 				for _, l := range neededLocks {
 					Rooms[l].LockPriority = ""
 				}
@@ -916,14 +902,14 @@ func (m *Mob) Teleport(target string) {
 		if _, err := targetChar.Write([]byte(m.Name + " teleported you.\n")); err != nil {
 			log.Println("Error writing to player:", err)
 		}
-		newRoom.Lock()
+		newRoom.LockRoom(m.Name+":teleport:enterR-"+strconv.Itoa(m.ParentId)+":"+targetChar.Name, false)
 		workingRoom.Chars.Remove(targetChar)
 		newRoom.Chars.Add(targetChar)
 		targetChar.ParentId = newRoom.RoomId
 		if _, err := targetChar.Write([]byte(newRoom.Look(targetChar))); err != nil {
 			log.Println("Error writing to player:", err)
 		}
-		newRoom.Unlock()
+		newRoom.UnlockRoom(m.Name+":teleport:enterR-"+strconv.Itoa(m.ParentId)+":"+targetChar.Name, false)
 	}
 }
 

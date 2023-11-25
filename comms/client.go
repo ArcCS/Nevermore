@@ -164,8 +164,10 @@ func (c *client) process() {
 
 				if !errors.Is(err, bufio.ErrBufferFull) {
 					log.Println("Client Error " + err.Error())
-					if c.frontend.GetCharacter() != (*objects.Character)(nil) {
-						c.frontend.GetCharacter().SuppressWrites()
+					if c.frontend != nil {
+						if c.frontend.GetCharacter() != (*objects.Character)(nil) {
+							c.frontend.GetCharacter().SuppressWrites()
+						}
 					}
 					c.WriteError(err)
 					continue

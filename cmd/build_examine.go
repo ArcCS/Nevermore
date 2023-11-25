@@ -251,7 +251,7 @@ func (examine) process(s *state) {
 		t.AppendHeader(table.Row{"Type", "Variable Name", "Value", "Description"})
 		if character == nil {
 			charData, err := data.LoadChar(charName)
-			if err {
+			if err || charData == nil {
 				s.msg.Actor.SendBad("Could not load the character from the database.")
 				return
 			}

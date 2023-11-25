@@ -331,7 +331,7 @@ func (c *Character) SingSong(song string, tickRate int) {
 				c.FlagOffAndMsg("singing", "sing", "You stop singing.")
 				return
 			case <-c.SongTicker.C:
-				Rooms[c.ParentId].Lock()
+				Rooms[c.ParentId].LockRoom(c.Name+":SongTick", false)
 				if SongEffects[song].target == "mobs" {
 					for _, mob := range Rooms[c.ParentId].Mobs.Contents {
 						if mob.CheckFlag("hostile") {
@@ -344,7 +344,7 @@ func (c *Character) SingSong(song string, tickRate int) {
 						SongEffects[song].effect(player, c)
 					}
 				}
-				Rooms[c.ParentId].Unlock()
+				Rooms[c.ParentId].UnlockRoom(c.Name+":SongTick", false)
 			}
 		}
 	}()
@@ -624,7 +624,7 @@ func (c *Character) Save() {
 }
 
 func (c *Character) TickSaveWrapper() {
-	Rooms[c.ParentId].Lock()
+	Rooms[c.ParentId].LockRoom(c.Name+":SaveWrap", false)
 	if _, err := c.Write([]byte(text.Info + "Saving...." + text.Reset)); err != nil {
 		log.Println("Error writing to player: ", err)
 	}
@@ -632,7 +632,7 @@ func (c *Character) TickSaveWrapper() {
 	if _, err := c.Write([]byte(text.Info + "Saved!" + text.Reset)); err != nil {
 		log.Println("Error writing to player: ", err)
 	}
-	Rooms[c.ParentId].Unlock()
+	Rooms[c.ParentId].UnlockRoom(c.Name+":SaveWrap", false)
 }
 
 func (c *Character) SetPromptStyle(new PromptStyle) (old PromptStyle) {
