@@ -462,7 +462,7 @@ func (r *Room) WanderMob(o *Mob) {
 	}
 	r.Mobs.Remove(o)
 	o = nil
-	r.UnlockRoom(strconv.Itoa(r.RoomId)+":WanderMob:"+o.Name, false)
+	r.UnlockRoom(strconv.Itoa(r.RoomId)+":WanderMob", false)
 }
 
 func (r *Room) FleeMob(o *Mob) {
@@ -474,7 +474,7 @@ func (r *Room) FleeMob(o *Mob) {
 	}
 	r.Mobs.Remove(o)
 	o = nil
-	r.UnlockRoom(strconv.Itoa(r.RoomId)+":FleeMob:"+o.Name, false)
+	r.UnlockRoom(strconv.Itoa(r.RoomId)+":FleeMob", false)
 }
 
 func (r *Room) ClearMob(o *Mob) {
