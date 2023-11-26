@@ -142,27 +142,58 @@ func (i *CharInventory) List(observer *Character) []string {
 
 	for _, c := range i.Contents {
 		// List all
-		if strings.ToLower(c.Name) != strings.ToLower(observer.Name) {
-			if c.Flags["hidden"] == false ||
-				(c.Flags["hidden"] == true &&
-					observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) {
+		if c.Pose == "" {
+			if strings.ToLower(c.Name) != strings.ToLower(observer.Name) {
+				if c.Flags["hidden"] == false ||
+					(c.Flags["hidden"] == true &&
+						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) {
 
-				if c.Flags["invisible"] == false ||
-					(c.Flags["invisible"] == true &&
-						observer.Flags["detect-invisible"] &&
-						!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
-					observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
-					if c.CheckFlag("singing") {
-						items = append(items, c.Name+" (singing)")
-					} else {
-						items = append(items, c.Name)
+					if c.Flags["invisible"] == false ||
+						(c.Flags["invisible"] == true &&
+							observer.Flags["detect-invisible"] &&
+							!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
+						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+						if c.CheckFlag("singing") {
+							items = append(items, c.Name+" (singing)")
+						} else {
+							items = append(items, c.Name)
 
+						}
 					}
 				}
 			}
 		}
 	}
 	return items
+}
+
+// ListPoses the items in this CharInventory with poses activated
+func (i *CharInventory) ListPoses(observer *Character) (poseLines []string) {
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
+	for _, c := range i.Contents {
+		if c.Pose != "" {
+			// List all
+			if strings.ToLower(c.Name) != strings.ToLower(observer.Name) {
+				if c.Flags["hidden"] == false ||
+					(c.Flags["hidden"] == true &&
+						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) {
+
+					if c.Flags["invisible"] == false ||
+						(c.Flags["invisible"] == true &&
+							observer.Flags["detect-invisible"] &&
+							!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
+						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+						if c.CheckFlag("singing") {
+							poseLines = append(poseLines, c.Name+" is "+c.Pose+" and singing.")
+						} else {
+							poseLines = append(poseLines, c.Name+" is "+c.Pose)
+						}
+					}
+				}
+			}
+		}
+	}
+	return poseLines
 }
 
 // ListChars the items in this CharInventory

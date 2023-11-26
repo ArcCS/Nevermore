@@ -101,6 +101,7 @@ type Character struct {
 	DeathInProgress bool
 	Rerolls         int
 	Disconnect      func()
+	Pose            string
 }
 
 func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Character, bool) {
@@ -204,6 +205,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			false,
 			int(charData["rerolls"].(int64)),
 			disconnect,
+			"",
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {

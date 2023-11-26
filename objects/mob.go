@@ -189,7 +189,7 @@ func (m *Mob) StartTicking() {
 	// Execute Immediately - Do not wrap locks, this is called from an existing lock
 	go func() {
 		Rooms[m.ParentId].LockRoom(m.Name+"MobInitTick", false)
-		m.Tick()
+		m.PickTarget()
 		Rooms[m.ParentId].UnlockRoom(m.Name+"MobInitTick", false)
 	}()
 	go func() {
@@ -267,26 +267,7 @@ func (m *Mob) Tick() {
 				}
 			}
 
-			// Am I hostile?  Should I pick a target?
-			if m.CurrentTarget == "" && m.Flags["hostile"] && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
-				for m.CurrentTarget == "" {
-					for i := 0; i <= 4; i++ {
-						if m.CurrentTarget != "" {
-							break
-						}
-						potentials := Rooms[m.ParentId].Chars.MobListAt(m, i)
-						if len(potentials) > 0 {
-							for _, potential := range potentials {
-								if utils.Roll(100, 1, 0) <= config.ProximityChance-(i*config.ProximityStep) {
-									m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(potential, m))
-									Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
-									break
-								}
-							}
-						}
-					}
-				}
-			}
+			m.PickTarget()
 
 			if m.CurrentTarget != "" {
 				if Rooms[m.ParentId].Chars.SearchAll(m.CurrentTarget) == nil {
@@ -376,12 +357,13 @@ func (m *Mob) Tick() {
 
 			if m.CurrentTarget != "" && m.ChanceCast > 0 {
 				// Try to cast a spell first
-				log.Println("High chance to cast, trying to cast a spell")
-				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
+				log.Println("Trying to cast a spell")
+				// Select a random person on the threat table
+				target := Rooms[m.ParentId].Chars.MobSearch(utils.RandMapKeySelection(m.ThreatTable), m)
 				spellSelected := false
 				selectSpell := ""
 				if utils.Roll(100, 1, 0) <= m.ChanceCast {
-					log.Println("Successful Roll, trying to cast a spell")
+					log.Println("Successful Roll, Selecting a spell")
 					for range m.Spells {
 						rand.Seed(time.Now().Unix())
 						selectSpell = m.Spells[rand.Intn(len(m.Spells))]
@@ -754,6 +736,29 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 	return
 }
 
+func (m *Mob) PickTarget() {
+	// Am I hostile?  Should I pick a target?
+	if m.CurrentTarget == "" && m.Flags["hostile"] && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
+		for m.CurrentTarget == "" {
+			for i := 0; i <= 4; i++ {
+				if m.CurrentTarget != "" {
+					break
+				}
+				potentials := Rooms[m.ParentId].Chars.MobListAt(m, i)
+				if len(potentials) > 0 {
+					for _, potential := range potentials {
+						if utils.Roll(100, 1, 0) <= config.ProximityChance-(i*config.ProximityStep) {
+							m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(potential, m))
+							Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 func (m *Mob) Follow(params []string) {
 	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
 	m.IsThinking = true
@@ -804,7 +809,7 @@ func (m *Mob) Follow(params []string) {
 				Rooms[m.ParentId].Mobs.Remove(m)
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
 				if utils.Roll(100, 1, 0) <= config.MobFollowVital {
-					vitDamage, resisted := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()))))
+					vitDamage, resisted := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage() * config.MobFollMult))))
 					data.StoreCombatMetric("follow_vital", 0, 1, vitDamage, resisted, vitDamage, 1, m.MobId, m.Level, 0, targetChar.CharId)
 
 					if vitDamage == 0 {
