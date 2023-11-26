@@ -360,7 +360,7 @@ func (m *Mob) Tick() {
 				log.Println("Trying to cast a spell")
 				// Select a random person on the threat table
 				var target *Character
-				for target != nil && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
+				for target == nil && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
 					target = Rooms[m.ParentId].Chars.MobSearch(utils.RandMapKeySelection(m.ThreatTable), m)
 				}
 				spellSelected := false
