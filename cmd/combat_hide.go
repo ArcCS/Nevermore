@@ -53,6 +53,7 @@ func (hide) process(s *state) {
 
 	if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
 		s.msg.Actor.SendGood("You slip into the shadows.")
+		s.actor.Pose = ""
 		s.actor.Flags["hidden"] = true
 		s.actor.ApplyHook("act", "hide", -1, "10", -1,
 			func() {

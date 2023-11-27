@@ -4,6 +4,7 @@ package objects
 
 import (
 	"fmt"
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/message"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
@@ -21,15 +22,24 @@ type characterStats struct {
 	list []*Character
 }
 
+var LastActivity = map[string]time.Time{}
 var ActiveCharacters = &characterStats{}
 var IpMap = make(map[string]string)
+
+func GetLastActivity(name string) time.Time {
+	if val, ok := LastActivity[name]; ok {
+		return val
+	}
+	// If there's an error return over an hour to ensure that everyone hits an AFK
+	return time.Now().Add(-1 * time.Hour)
+}
 
 // Add adds the specified character to the list of characters.
 func (c *characterStats) Add(character *Character, address string) {
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster, permissions.God) {
 		c.MessageGM("###: " + character.Name + "[" + address + "] joins the realm.")
 	} else {
-		c.MessageAll("###: " + character.Name + " joins the realm.")
+		c.MessageAll("###: "+character.Name+" joins the realm.", config.JarvoralChannel)
 	}
 	c.Lock()
 	c.list = append(c.list, character)
@@ -43,7 +53,7 @@ func (c *characterStats) Remove(character *Character) {
 	if character.Flags["invisible"] || character.Permission.HasAnyFlags(permissions.God, permissions.Builder, permissions.Gamemaster, permissions.Dungeonmaster) {
 		c.MessageGMExcept("###:"+character.Name+" departs the realm.", character)
 	} else {
-		c.MessageExcept("###: "+character.Name+" departs the realm.", character)
+		c.MessageExcept("###: "+character.Name+" departs the realm.", character, config.JarvoralChannel)
 	}
 
 	for i, p := range c.list {
@@ -55,6 +65,8 @@ func (c *characterStats) Remove(character *Character) {
 			break
 		}
 	}
+
+	delete(LastActivity, character.Name)
 
 	if len(c.list) == 0 {
 		c.list = make([]*Character, 0, 10)
@@ -88,7 +100,7 @@ func (c *characterStats) List() []string {
 			continue
 		}
 
-		calc := time.Now().Sub(character.LastAction)
+		calc := time.Now().Sub(LastActivity[character.Name])
 		charState := ""
 		if calc.Minutes() > 2 {
 			charState = fmt.Sprintf("[idle: %s]", strconv.Itoa(int(calc.Minutes())))
@@ -121,7 +133,7 @@ func (c *characterStats) GMList() []string {
 	list := make([]string, 0, len(c.list))
 
 	for _, character := range c.list {
-		calc := time.Now().Sub(character.LastAction)
+		calc := time.Now().Sub(LastActivity[character.Name])
 		charState := ""
 		if character.Flags["ooc"] {
 			charState += " [OOC] "
@@ -146,9 +158,9 @@ func (c *characterStats) GMList() []string {
 	return list
 }
 
-func (c *characterStats) MessageExcept(msg string, except *Character) {
+func (c *characterStats) MessageExcept(msg string, except *Character, channel string) {
 	if DiscordSession != nil {
-		if _, err := DiscordSession.ChannelMessageSend("854733320474329088", msg); err != nil {
+		if _, err := DiscordSession.ChannelMessageSend(channel, msg); err != nil {
 			log.Println("Error sending message to discord:", err)
 		}
 	}
@@ -166,9 +178,9 @@ func (c *characterStats) MessageExcept(msg string, except *Character) {
 	return
 }
 
-func (c *characterStats) MessageAll(msg string) {
+func (c *characterStats) MessageAll(msg string, channel string) {
 	if DiscordSession != nil {
-		if _, err := DiscordSession.ChannelMessageSend("854733320474329088", msg); err != nil {
+		if _, err := DiscordSession.ChannelMessageSend(channel, msg); err != nil {
 			log.Println("Error sending message to discord:", err)
 		}
 	}

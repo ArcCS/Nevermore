@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"log"
@@ -25,7 +26,7 @@ func (errorReport) process(s *state) {
 	message := "### " + s.actor.Name + " reporting bug: " + strings.Join(s.input, " ")
 	objects.ActiveCharacters.MessageGM(message)
 	if objects.DiscordSession != nil {
-		if _, err := objects.DiscordSession.ChannelMessageSend("729467777416691712", message); err != nil {
+		if _, err := objects.DiscordSession.ChannelMessageSend(config.BugChannel, message); err != nil {
 			log.Println("Error sending message to discord: ", err)
 		}
 	}

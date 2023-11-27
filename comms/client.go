@@ -83,7 +83,7 @@ func newClient(conn *net.TCPConn) *client {
 	c.leaseAcquire()
 
 	// Setup frontend if no error acquiring a lease
-	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError)
+	c.frontend = frontend.New(c, c.remoteAddr, c.WriteError, c.close)
 	if err := c.frontend.Parse([]byte("")); err != nil {
 		return nil
 	}
@@ -149,8 +149,7 @@ func (c *client) process() {
 						_, err = c.Write([]byte(">"))
 						if err == nil {
 							if c.frontend.GetCharacter() != (*objects.Character)(nil) {
-								log.Println(time.Now().Sub(c.frontend.GetCharacter().LastAction).Seconds())
-								if time.Now().Sub(c.frontend.GetCharacter().LastAction).Minutes() > idleTime {
+								if time.Now().Sub(objects.LastActivity[c.frontend.GetCharacter().Name]).Minutes() > idleTime {
 									c.err = errors.New("idle Timeout")
 									continue
 								}
@@ -165,8 +164,10 @@ func (c *client) process() {
 
 				if !errors.Is(err, bufio.ErrBufferFull) {
 					log.Println("Client Error " + err.Error())
-					if c.frontend.GetCharacter() != (*objects.Character)(nil) {
-						c.frontend.GetCharacter().SuppressWrites()
+					if c.frontend != nil {
+						if c.frontend.GetCharacter() != (*objects.Character)(nil) {
+							c.frontend.GetCharacter().SuppressWrites()
+						}
 					}
 					c.WriteError(err)
 					continue
@@ -267,12 +268,14 @@ func (c *client) close() {
 	}
 
 	// Make sure connection closed down and deallocated
-	if err := c.TCPConn.Close(); err != nil {
-		log.Printf("Error closing connection: %s", err)
-	} else {
-		log.Printf("Connection closed: %s", c.remoteAddr)
+	if c.TCPConn != nil {
+		if err := c.TCPConn.Close(); err != nil {
+			log.Printf("Error closing connection: %s", err)
+		} else {
+			log.Printf("Connection closed: %s", c.remoteAddr)
+		}
+		c.TCPConn = nil
 	}
-	c.TCPConn = nil
 	c.leaseRelease()
 
 }

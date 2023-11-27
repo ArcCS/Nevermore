@@ -186,27 +186,40 @@ func (m *Mob) StartTicking() {
 			Cast(m, m, spell, 0)
 		}
 	}
+	// Execute Immediately - Do not wrap locks, this is called from an existing lock
+	go func() {
+		Rooms[m.ParentId].LockRoom(m.Name+"MobInitTick", false)
+		m.PickTarget()
+		Rooms[m.ParentId].UnlockRoom(m.Name+"MobInitTick", false)
+	}()
+	go func() {
+		for {
+			select {
+			case <-m.MobTickerUnload:
+				m.MobTicker.Stop()
+				m.IsActive = false
+				return
+			case <-m.MobTicker.C:
+				Rooms[m.ParentId].LockRoom(m.Name+" MobTick", false)
+				m.Tick()
+				Rooms[m.ParentId].UnlockRoom(m.Name+" MobTick", false)
+			}
+		}
+	}()
 	go func() {
 		for {
 			select {
 			case msg := <-m.MobCommands:
 				// This function call will immediately call a command off the stack and run it, ideally to decouple state
+				if msg == "" {
+					return
+				}
 				var params = strings.Split(msg, " ")
 				go m.ProcessCommand(params[0], params[1:])
-			case <-m.MobTickerUnload:
-				log.Println("Unloading Mob Ticker for ", m.Name)
-				m.MobTicker.Stop()
-				m.IsActive = false
-				return
-			case <-m.MobTicker.C:
-				log.Println("Locking Room for tick ", m.Name)
-				Rooms[m.ParentId].Lock()
-				m.Tick()
-				log.Println("Unlocking Room post tick ", m.Name)
-				Rooms[m.ParentId].Unlock()
 			}
 		}
 	}()
+
 }
 
 func (m *Mob) GetSpellMultiplier() float32 {
@@ -254,16 +267,7 @@ func (m *Mob) Tick() {
 				}
 			}
 
-			// Am I hostile?  Should I pick a target?
-			if m.CurrentTarget == "" && m.Flags["hostile"] {
-				potentials := Rooms[m.ParentId].Chars.MobList(m)
-				if len(potentials) > 0 {
-					rand.Seed(time.Now().Unix())
-					m.CurrentTarget = potentials[rand.Intn(len(potentials))]
-					m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m))
-					Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
-				}
-			}
+			m.PickTarget()
 
 			if m.CurrentTarget != "" {
 				if Rooms[m.ParentId].Chars.SearchAll(m.CurrentTarget) == nil {
@@ -353,12 +357,16 @@ func (m *Mob) Tick() {
 
 			if m.CurrentTarget != "" && m.ChanceCast > 0 {
 				// Try to cast a spell first
-				log.Println("High chance to cast, trying to cast a spell")
-				target := Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m)
+				log.Println("Trying to cast a spell")
+				// Select a random person on the threat table
+				var target *Character
+				for target == nil && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
+					target = Rooms[m.ParentId].Chars.MobSearch(utils.RandMapKeySelection(m.ThreatTable), m)
+				}
 				spellSelected := false
 				selectSpell := ""
 				if utils.Roll(100, 1, 0) <= m.ChanceCast {
-					log.Println("Successful Roll, trying to cast a spell")
+					log.Println("Successful Roll, Selecting a spell")
 					for range m.Spells {
 						rand.Seed(time.Now().Unix())
 						selectSpell = m.Spells[rand.Intn(len(m.Spells))]
@@ -731,6 +739,29 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 	return
 }
 
+func (m *Mob) PickTarget() {
+	// Am I hostile?  Should I pick a target?
+	if m.CurrentTarget == "" && m.Flags["hostile"] && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
+		for m.CurrentTarget == "" {
+			for i := 0; i <= 4; i++ {
+				if m.CurrentTarget != "" {
+					break
+				}
+				potentials := Rooms[m.ParentId].Chars.MobListAt(m, i)
+				if len(potentials) > 0 {
+					for _, potential := range potentials {
+						if utils.Roll(100, 1, 0) <= config.ProximityChance-(i*config.ProximityStep) {
+							m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(potential, m))
+							Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 func (m *Mob) Follow(params []string) {
 	// Am I still the most mad at the guy who left?  I could have gotten bored with that...
 	m.IsThinking = true
@@ -745,13 +776,11 @@ func (m *Mob) Follow(params []string) {
 			}
 			if utils.Roll(100, 1, 0) <= curChance {
 				log.Println("I'm gonna follow")
-				// Halt processing
 				neededLocks := make([]int, 2)
 				neededLocks[0] = m.ParentId
 				neededLocks[1] = targetChar.ParentId
 				ready := false
 				previousRoom := m.ParentId
-				//log.Println("Mob is trying to gain lock priority")
 				tempName := utils.RandString(10)
 				for !ready {
 					ready = true
@@ -774,22 +803,16 @@ func (m *Mob) Follow(params []string) {
 						time.Sleep(t)
 					}
 				}
-				//log.Println("Let everyone know there is a follow")
 				Rooms[m.ParentId].MessageAll(m.Name + " follows " + targetChar.Name + "\n\n")
-				//log.Println("Processing Previous Room Lock")
-				Rooms[m.ParentId].Lock()
-				//log.Println("Processing New Room Lock")
-				Rooms[targetChar.ParentId].Lock()
+				Rooms[m.ParentId].LockRoom(m.Name+":follow:exitR-"+strconv.Itoa(previousRoom)+":"+targetChar.Name, false)
+				Rooms[targetChar.ParentId].LockRoom(m.Name+":follow:enterR-"+strconv.Itoa(targetChar.ParentId)+":"+targetChar.Name, false)
 				if _, err := targetChar.Write([]byte(text.Bad + m.Name + " follows you." + text.Reset + "\n")); err != nil {
 					log.Println("Error writing to player:", err)
 				}
-				//log.Println("Remove mob")
 				Rooms[m.ParentId].Mobs.Remove(m)
-				//log.Println("Add the mob")
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
-				//log.Println("Check for Vital")
 				if utils.Roll(100, 1, 0) <= config.MobFollowVital {
-					vitDamage, resisted := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage()))))
+					vitDamage, resisted := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage() * config.MobFollMult))))
 					data.StoreCombatMetric("follow_vital", 0, 1, vitDamage, resisted, vitDamage, 1, m.MobId, m.Level, 0, targetChar.CharId)
 
 					if vitDamage == 0 {
@@ -806,11 +829,8 @@ func (m *Mob) Follow(params []string) {
 					}
 					targetChar.DeathCheck("was slain by a " + m.Name + ".")
 				}
-				//log.Println("Previous room Unlock")
-				Rooms[previousRoom].Unlock()
-				//log.Println("New Room Unlock")
-				Rooms[targetChar.ParentId].Unlock()
-				//log.Println("Release lock priorities")
+				Rooms[previousRoom].UnlockRoom(m.Name+":follow:exitR-"+strconv.Itoa(previousRoom)+":"+targetChar.Name, false)
+				Rooms[targetChar.ParentId].UnlockRoom(m.Name+":follow:enterR-"+strconv.Itoa(targetChar.ParentId)+":"+targetChar.Name, false)
 				for _, l := range neededLocks {
 					Rooms[l].LockPriority = ""
 				}
@@ -890,14 +910,14 @@ func (m *Mob) Teleport(target string) {
 		if _, err := targetChar.Write([]byte(m.Name + " teleported you.\n")); err != nil {
 			log.Println("Error writing to player:", err)
 		}
-		newRoom.Lock()
+		newRoom.LockRoom(m.Name+":teleport:enterR-"+strconv.Itoa(m.ParentId)+":"+targetChar.Name, false)
 		workingRoom.Chars.Remove(targetChar)
 		newRoom.Chars.Add(targetChar)
 		targetChar.ParentId = newRoom.RoomId
 		if _, err := targetChar.Write([]byte(newRoom.Look(targetChar))); err != nil {
 			log.Println("Error writing to player:", err)
 		}
-		newRoom.Unlock()
+		newRoom.UnlockRoom(m.Name+":teleport:enterR-"+strconv.Itoa(m.ParentId)+":"+targetChar.Name, false)
 	}
 }
 

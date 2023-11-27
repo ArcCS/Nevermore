@@ -247,7 +247,7 @@ func (s *state) AddLocks(r int) {
 			s.rLocks[x] = r
 			break
 		}
-		objects.Rooms[r].Lock()
+		objects.Rooms[r].LockRoom("StateHandler("+s.actor.Name+":"+s.cmd+")", false)
 	}
 }
 
@@ -258,14 +258,14 @@ func (s *state) TotalLocks() int {
 func (s *state) LockAll() {
 	s.AcquireLockPriority()
 	for _, l := range s.rLocks {
-		objects.Rooms[l].Lock()
+		objects.Rooms[l].LockRoom("StateHandler("+s.actor.Name+":"+s.cmd+")", false)
 	}
 }
 
 func (s *state) UnlockAll() {
 	s.RemoveLockPriority()
 	for _, l := range s.rLocks {
-		objects.Rooms[l].Unlock()
+		objects.Rooms[l].UnlockRoom("StateHandler("+s.actor.Name+":"+s.cmd+")", false)
 	}
 }
 

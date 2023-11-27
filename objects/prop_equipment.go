@@ -119,38 +119,61 @@ func (e *Equipment) GetText(ref string) string {
 	return ""
 }
 
-func (e *Equipment) DamageRandomArmor() string {
+func (e *Equipment) DamageRandomArmor() (retString string) {
 	armorList := make([]string, 0)
 	if e.Head != nil {
-		armorList = append(armorList, "head")
+		if e.Head.Armor > 0 {
+			armorList = append(armorList, "head")
+		}
 	}
 	if e.Chest != nil {
-		armorList = append(armorList, "chest")
+		if e.Chest.Armor > 0 {
+			armorList = append(armorList, "chest")
+		}
 	}
 	if e.Neck != nil {
-		armorList = append(armorList, "neck")
+		if e.Neck.Armor > 0 {
+			armorList = append(armorList, "neck")
+		}
 	}
 	if e.Legs != nil {
-		armorList = append(armorList, "legs")
+		if e.Legs.Armor > 0 {
+			armorList = append(armorList, "legs")
+		}
 	}
 	if e.Feet != nil {
-		armorList = append(armorList, "feet")
+		if e.Feet.Armor > 0 {
+			armorList = append(armorList, "feet")
+		}
 	}
 	if e.Arms != nil {
-		armorList = append(armorList, "arms")
+		if e.Arms.Armor > 0 {
+			armorList = append(armorList, "arms")
+		}
 	}
 	if e.Hands != nil {
-		armorList = append(armorList, "hands")
+		if e.Hands.Armor > 0 {
+			armorList = append(armorList, "hands")
+		}
 	}
 	if e.Ring1 != nil {
-		armorList = append(armorList, "ring1")
+		if e.Ring1.Armor > 0 {
+			armorList = append(armorList, "ring1")
+		}
 	}
 	if e.Ring2 != nil {
-		armorList = append(armorList, "ring2")
+		if e.Ring2.Armor > 0 {
+			armorList = append(armorList, "ring2")
+		}
 	}
 	if e.Off != nil {
-		if e.Off.ItemType == 23 {
-			armorList = append(armorList, "shield")
+		if e.Off.ItemType == 23 || e.Off.Armor > 0 {
+			armorList = append(armorList, "off")
+		}
+	}
+	if e.Main != nil {
+		if e.Main.Armor > 0 {
+			armorList = append(armorList, "main")
 		}
 	}
 
@@ -160,74 +183,93 @@ func (e *Equipment) DamageRandomArmor() string {
 		if damageItem == "head" {
 			e.Head.MaxUses -= 1
 			if e.Head.MaxUses <= 0 {
+				retString = "Your " + e.Head.DisplayName() + " falls apart."
 				e.UnequipSpecific("head")
-				return "Your head armor falls apart."
+				return
 			}
 			return ""
 		} else if damageItem == "chest" {
 			e.Chest.MaxUses -= 1
 			if e.Chest.MaxUses <= 0 {
+				retString = "Your " + e.Chest.DisplayName() + " falls apart."
 				e.UnequipSpecific("chest")
-				return "Your chest armor falls apart."
+				return
 			}
 			return ""
 		} else if damageItem == "neck" {
 			e.Neck.MaxUses -= 1
 			if e.Neck.MaxUses <= 0 {
+				retString = "Your " + e.Neck.DisplayName() + " falls apart."
 				e.UnequipSpecific("neck")
-				return "The armor attached at your neck falls apart."
+				return
 			}
 			return ""
 		} else if damageItem == "legs" {
 			e.Legs.MaxUses -= 1
 			if e.Legs.MaxUses <= 0 {
+				retString = "Your " + e.Legs.DisplayName() + " falls apart."
 				e.UnequipSpecific("legs")
-				return "Your leg armor falls apart."
+				return
 			}
 			return ""
 		} else if damageItem == "feet" {
 			e.Feet.MaxUses -= 1
 			if e.Feet.MaxUses <= 0 {
+				retString = "Your " + e.Feet.DisplayName() + " falls apart."
 				e.UnequipSpecific("feet")
-				return "Your foot armor falls apart."
+				return
 			}
 			return ""
 		} else if damageItem == "arms" {
 			e.Arms.MaxUses -= 1
 			if e.Arms.MaxUses <= 0 {
+				retString = "Your " + e.Arms.DisplayName() + " falls apart."
 				e.UnequipSpecific("arms")
-				return "The armor on your arms falls apart."
+				return
 			}
 			return ""
 		} else if damageItem == "hands" {
 			e.Hands.MaxUses -= 1
 			if e.Hands.MaxUses <= 0 {
+				retString = "Your " + e.Hands.DisplayName() + " falls apart."
 				e.UnequipSpecific("hands")
-				return "Your hand armor falls apart."
+				return
 			}
 			return ""
 		} else if damageItem == "ring1" {
 			e.Ring1.MaxUses -= 1
 			if e.Ring1.MaxUses <= 0 {
+				retString = "Your " + e.Ring1.DisplayName() + " falls apart."
 				e.UnequipSpecific("ring1")
-				return "Your first ring falls apart."
+				return
 			}
 			return ""
 		} else if damageItem == "ring2" {
 			e.Ring2.MaxUses -= 1
 			if e.Ring2.MaxUses <= 0 {
+				retString = "Your " + e.Ring2.DisplayName() + " falls apart."
 				e.UnequipSpecific("ring2")
-				return "Your second ring falls apart."
+				return
 			}
 			return ""
-		} else if damageItem == "shield" {
+		} else if damageItem == "off" {
 			e.Off.MaxUses -= 1
 			if e.Off.MaxUses <= 0 {
-				e.UnequipSpecific("shield")
-				return "Your shield shatters."
+				retString = "Your " + e.Off.DisplayName() + " falls apart."
+				e.UnequipSpecific("off")
+				return
+			}
+			return ""
+		} else if damageItem == "main" {
+			e.Main.MaxUses -= 1
+			if e.Main.MaxUses <= 0 {
+				retString = "Your " + e.Main.DisplayName() + " falls apart."
+				e.UnequipSpecific("main")
+				return
 			}
 			return ""
 		}
+
 	}
 
 	return ""
@@ -478,7 +520,7 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		} else {
 			return false
 		}
-	} else if alias == "shield" {
+	} else if alias == "off" {
 		if e.Off != (*Item)(nil) {
 			iArmor = e.Off.Armor
 			lightBearing = e.Off.Flags["light"]
@@ -486,6 +528,16 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 		} else {
 			return false
 		}
+	} else if alias == "main" {
+		if e.Main != (*Item)(nil) {
+			iArmor = e.Main.Armor
+			lightBearing = e.Main.Flags["light"]
+			e.Main = (*Item)(nil)
+		} else {
+			return false
+		}
+	} else {
+		return false
 	}
 
 	if lightBearing {

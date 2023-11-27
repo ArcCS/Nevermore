@@ -21,6 +21,9 @@ var CombatModifiers = map[string]int{
 }
 
 var (
+	ProximityChance = 80
+	ProximityStep   = 10
+
 	BerserkCooldown = 60 * 5
 	CombatCooldown  = 8
 	UnequipCooldown = 2
@@ -48,6 +51,7 @@ var (
 	MobCritical    = 4
 	MobDouble      = 10
 	MobFollowVital = 35
+	MobFollMult    = 3
 
 	BindCost   = 75000
 	RenameCost = 150000
@@ -116,7 +120,7 @@ var (
 
 	MobBlock          = 25
 	MobBlockPerLevel  = 5
-	MobFollow         = 25
+	MobFollow         = 40
 	MobFollowPerLevel = 2
 	MobTakeChance     = 20 // Percent
 

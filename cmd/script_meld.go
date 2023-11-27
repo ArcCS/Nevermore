@@ -134,8 +134,8 @@ func (confirmMeld) process(s *state) {
 		return
 	} else {
 		if utils.IntIn(target.ItemType, config.ArmorTypes) || utils.IntIn(meld.ItemType, config.WeaponTypes) || utils.IntIn(meld.ItemType, []int{6, 15}) {
-			baseValue := (objects.Items[target.ItemId].Value / objects.Items[target.ItemId].MaxUses) / 2
-			meldValue := (objects.Items[meld.ItemId].Value / objects.Items[meld.ItemId].MaxUses) / 2
+			baseValue := (objects.Items[target.ItemId].Value / objects.Items[target.ItemId].MaxUses) / 3
+			meldValue := (objects.Items[meld.ItemId].Value / objects.Items[meld.ItemId].MaxUses) / 3
 			if meldValue > baseValue {
 				baseValue = meldValue
 			}

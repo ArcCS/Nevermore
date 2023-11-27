@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
@@ -26,10 +27,10 @@ func (broadcast) process(s *state) {
 			s.msg.Actor.SendBad("You're out of broadcasts today.")
 		} else {
 			s.actor.Broadcasts -= 1
-			objects.ActiveCharacters.MessageAll(message)
+			objects.ActiveCharacters.MessageAll(message, config.BroadcastChannel)
 		}
 	} else {
-		objects.ActiveCharacters.MessageAll(message)
+		objects.ActiveCharacters.MessageAll(message, config.BroadcastChannel)
 	}
 
 	s.ok = true

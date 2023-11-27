@@ -8,6 +8,7 @@ import (
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
 	"log"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -111,6 +112,26 @@ func (r *Room) Crowded() (crowded bool) {
 		crowded = len(r.Chars.Contents) >= config.Inventory.CrowdSize
 	}
 	return
+}
+
+func (r *Room) LockRoom(lockRequester string, suppress bool) {
+	if config.DebugVerbose && !suppress {
+		log.Println("Locking Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")" + " by " + lockRequester)
+	}
+	r.Lock()
+	if config.DebugVerbose && !suppress {
+		log.Println("Success!! - Locking Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")" + " by " + lockRequester)
+	}
+}
+
+func (r *Room) UnlockRoom(lockRequester string, suppress bool) {
+	if config.DebugVerbose && !suppress {
+		log.Println("Unlocking Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")" + " by " + lockRequester)
+	}
+	r.Unlock()
+	if config.DebugVerbose && !suppress {
+		log.Println("Success!! - Unlocking Room: " + r.Name + " (" + strconv.Itoa(r.RoomId) + ")" + " by " + lockRequester)
+	}
 }
 
 // Look Drop out the description of this room
@@ -316,12 +337,13 @@ func (r *Room) ElementalDamage() {
 	r.LastEffectTime = time.Now()
 	for _, c := range r.Chars.Contents {
 		if !c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			envDamage := math.Ceil(.20 * float64(c.Stam.Max+c.Vit.Max))
 			if r.Flags["earth"] {
 				if !c.Flags["resist-earth"] {
 					if _, err := c.Write([]byte(text.Brown + "The earth swells up around you." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
 					}
-					c.ReceiveMagicDamage(20, "earth")
+					c.ReceiveEnvironmentalDamage(int(envDamage), "earth")
 					c.DeathCheck("was swallowed by the earth.")
 				} else {
 					if _, err := c.Write([]byte(text.Brown + "Your earth resistance protects you from the environment." + "\n")); err != nil {
@@ -333,7 +355,7 @@ func (r *Room) ElementalDamage() {
 					if _, err := c.Write([]byte(text.Brown + "Burning flames overwhelm you." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
 					}
-					c.ReceiveMagicDamage(20, "fire")
+					c.ReceiveEnvironmentalDamage(int(envDamage), "fire")
 					c.DeathCheck("was burned alive.")
 				} else {
 					if _, err := c.Write([]byte(text.Brown + "Your fire resistance protects you from the environment." + "\n")); err != nil {
@@ -345,8 +367,8 @@ func (r *Room) ElementalDamage() {
 					if _, err := c.Write([]byte(text.Brown + "The water overwhelms you, choking you." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
 					}
+					c.ReceiveEnvironmentalDamage(int(envDamage), "water")
 					c.DeathCheck("drowned.")
-					c.ReceiveMagicDamage(20, "water")
 				} else {
 					if _, err := c.Write([]byte(text.Brown + "Your water resistance protects you from the environment." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
@@ -357,8 +379,8 @@ func (r *Room) ElementalDamage() {
 					if _, err := c.Write([]byte(text.Brown + "The icy air buffets you." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
 					}
+					c.ReceiveEnvironmentalDamage(int(envDamage), "air")
 					c.DeathCheck("was frozen solid.")
-					c.ReceiveMagicDamage(20, "air")
 				} else {
 					if _, err := c.Write([]byte(text.Brown + "Your air protection protects you from the icy winds." + "\n")); err != nil {
 						log.Println("Error writing to player:", err)
@@ -432,7 +454,7 @@ func (r *Room) MessageMovement(previous int, new int, subject string) {
 }
 
 func (r *Room) WanderMob(o *Mob) {
-	r.Lock()
+	r.LockRoom(strconv.Itoa(r.RoomId)+":WanderMob:"+o.Name, false)
 	if o.Flags["invisible"] {
 		r.MessageVisible(o.Name + " wanders away. \n" + text.Reset)
 	} else if !o.Flags["hidden"] {
@@ -440,11 +462,11 @@ func (r *Room) WanderMob(o *Mob) {
 	}
 	r.Mobs.Remove(o)
 	o = nil
-	r.Unlock()
+	r.UnlockRoom(strconv.Itoa(r.RoomId)+":WanderMob", false)
 }
 
 func (r *Room) FleeMob(o *Mob) {
-	r.Lock()
+	r.LockRoom(strconv.Itoa(r.RoomId)+":FleeMob:"+o.Name, false)
 	if o.Flags["invisible"] {
 		r.MessageVisible(o.Name + " flees!! \n" + text.Reset)
 	} else if !o.Flags["hidden"] {
@@ -452,7 +474,7 @@ func (r *Room) FleeMob(o *Mob) {
 	}
 	r.Mobs.Remove(o)
 	o = nil
-	r.Unlock()
+	r.UnlockRoom(strconv.Itoa(r.RoomId)+":FleeMob", false)
 }
 
 func (r *Room) ClearMob(o *Mob) {

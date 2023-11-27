@@ -88,7 +88,6 @@ type Character struct {
 	SongTickerUnload chan bool
 	Hooks            map[string]map[string]*Hook
 	LastRefresh      time.Time
-	LastAction       time.Time
 	LoginTime        time.Time
 	//Party Stuff
 	PartyFollow     string
@@ -102,6 +101,7 @@ type Character struct {
 	DeathInProgress bool
 	Rerolls         int
 	Disconnect      func()
+	Pose            string
 }
 
 func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Character, bool) {
@@ -194,7 +194,6 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			},
 			lastRefresh,
 			time.Now(),
-			time.Now(),
 			"",
 			[]string{},
 			nil,
@@ -206,6 +205,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			false,
 			int(charData["rerolls"].(int64)),
 			disconnect,
+			"",
 		}
 
 		for _, spellN := range strings.Split(charData["spells"].(string), ",") {
@@ -333,6 +333,7 @@ func (c *Character) SingSong(song string, tickRate int) {
 				c.FlagOffAndMsg("singing", "sing", "You stop singing.")
 				return
 			case <-c.SongTicker.C:
+				Rooms[c.ParentId].LockRoom(c.Name+":SongTick", false)
 				if SongEffects[song].target == "mobs" {
 					for _, mob := range Rooms[c.ParentId].Mobs.Contents {
 						if mob.CheckFlag("hostile") {
@@ -345,7 +346,7 @@ func (c *Character) SingSong(song string, tickRate int) {
 						SongEffects[song].effect(player, c)
 					}
 				}
-
+				Rooms[c.ParentId].UnlockRoom(c.Name+":SongTick", false)
 			}
 		}
 	}()
@@ -625,7 +626,7 @@ func (c *Character) Save() {
 }
 
 func (c *Character) TickSaveWrapper() {
-	Rooms[c.ParentId].Lock()
+	Rooms[c.ParentId].LockRoom(c.Name+":SaveWrap", false)
 	if _, err := c.Write([]byte(text.Info + "Saving...." + text.Reset)); err != nil {
 		log.Println("Error writing to player: ", err)
 	}
@@ -633,7 +634,7 @@ func (c *Character) TickSaveWrapper() {
 	if _, err := c.Write([]byte(text.Info + "Saved!" + text.Reset)); err != nil {
 		log.Println("Error writing to player: ", err)
 	}
-	Rooms[c.ParentId].Unlock()
+	Rooms[c.ParentId].UnlockRoom(c.Name+":SaveWrap", false)
 }
 
 func (c *Character) SetPromptStyle(new PromptStyle) (old PromptStyle) {
@@ -1086,6 +1087,11 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 	}
 	stamDam, vitDam := c.ReceiveDamageNoArmor(damage - resisted)
 	return stamDam, vitDam, resisted
+}
+
+func (c *Character) ReceiveEnvironmentalDamage(damage int, element string) (int, int, int) {
+	stamDam, vitDam := c.ReceiveDamageNoArmor(damage)
+	return stamDam, vitDam, 0
 }
 
 func (c *Character) Heal(damage int) (int, int) {

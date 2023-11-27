@@ -82,6 +82,14 @@ var DragonAscii = text.Red + `
                                                                                                     
 ` + text.White
 
+// Flip to false to turn down verbose logs
+var DebugVerbose = true
+
+var JarvoralChannel = "815306102627106836"
+var BroadcastChannel = "854733320474329088"
+var AppealChannel = "854733587018416138"
+var BugChannel = "729467777416691712"
+
 // Stats default configuration
 var Stats = struct {
 	Rate time.Duration // Stats collection and display rate

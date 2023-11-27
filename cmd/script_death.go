@@ -31,14 +31,14 @@ func (scriptDeath) process(s *state) {
 		return
 	}
 
-	if time.Now().Sub(s.actor.LastAction).Seconds() < 60 {
+	if time.Now().Sub(objects.GetLastActivity(s.actor.Name)).Seconds() < 60 {
 		deathString := "### " + s.actor.Name + " has died."
 		if len(s.words[0]) > 0 {
 			deathString = "### " + s.actor.Name + " " + strings.Join(s.input[0:], " ")
 		}
 
-		objects.ActiveCharacters.MessageAll("### An otherworldly bell sounds once, the note echoing in your soul")
-		objects.ActiveCharacters.MessageAll(deathString)
+		objects.ActiveCharacters.MessageAll("### An otherworldly bell sounds once, the note echoing in your soul", config.BroadcastChannel)
+		objects.ActiveCharacters.MessageAll(deathString, config.BroadcastChannel)
 
 		if s.actor.Tier > config.FreeDeathTier {
 
@@ -115,10 +115,12 @@ func (scriptDeath) process(s *state) {
 			switch {
 			case deathRoll <= 20: // Light Passage
 				s.msg.Actor.Send(text.Green + "You've pass through this death with minimal effects. (10% xp loss) \n\n" + text.Reset)
+				log.Println(s.actor.Name + " has died with 10% loss.")
 				s.actor.Experience.SubMax(int(float64(totalExpNeeded)*.15), finalMin)
 				break
 			case deathRoll <= 100: // Medium Passage
 				s.msg.Actor.Send(text.Green + "The death did not come easy. (30% xp loss)\n\n" + text.Reset)
+				log.Println(s.actor.Name + " has died with 30% loss.")
 				s.actor.Experience.SubMax(int(float64(totalExpNeeded)*.30), finalMin)
 				break
 			}
@@ -130,8 +132,8 @@ func (scriptDeath) process(s *state) {
 	} else {
 		deathString := "### " + s.actor.Name + " died a lag death."
 
-		objects.ActiveCharacters.MessageAll("### An otherworldly bell attempts to ring but is abruptly muffled.")
-		objects.ActiveCharacters.MessageAll(deathString)
+		objects.ActiveCharacters.MessageAll("### An otherworldly bell attempts to ring but is abruptly muffled.", config.BroadcastChannel)
+		objects.ActiveCharacters.MessageAll(deathString, config.BroadcastChannel)
 
 		s.actor.DeathInProgress = false
 

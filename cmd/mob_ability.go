@@ -5,14 +5,14 @@ import (
 )
 
 func init() {
-	addHandler(mobMove{},
-		"Usage:  balance \n \n Displays the ",
+	addHandler(mobInvokeAbility{},
+		"",
 		permissions.None,
 		"$MMOVE")
 }
 
-type mobMove cmd
+type mobInvokeAbility cmd
 
-func (mobMove) process(s *state) {
+func (mobInvokeAbility) process(s *state) {
 	return
 }

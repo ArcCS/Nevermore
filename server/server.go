@@ -81,9 +81,9 @@ func SyncTime() {
 	}
 	objects.CurrentMonth = diffMonths % 12
 	if objects.CurrentHour != diffHours%24 && diffHours%24 == config.Months[objects.CurrentMonth]["sunrise"] {
-		objects.ActiveCharacters.MessageAll("### The suns rise over the mountains to the east.")
+		objects.ActiveCharacters.MessageAll("### The suns rise over the mountains to the east.", config.JarvoralChannel)
 	} else if objects.CurrentHour != diffHours%24 && diffHours%24 == config.Months[objects.CurrentMonth]["sunset"] {
-		objects.ActiveCharacters.MessageAll("### The suns dip below the horizon to the west.")
+		objects.ActiveCharacters.MessageAll("### The suns dip below the horizon to the west.", config.JarvoralChannel)
 	}
 	objects.CurrentHour = diffHours % 24
 	if objects.CurrentHour >= config.Months[objects.CurrentMonth]["sunrise"].(int) && objects.CurrentHour < config.Months[objects.CurrentMonth]["sunset"].(int) {

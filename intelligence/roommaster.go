@@ -7,6 +7,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -19,6 +20,7 @@ func init() {
 func ActivateRoom(roomId int) {
 	if !utils.IntIn(roomId, ActiveRooms) {
 		ActiveRooms = append(ActiveRooms, roomId)
+		go InitialRoom(roomId)
 	}
 }
 
@@ -44,7 +46,7 @@ func StartRoomAI() {
 
 func LoopRooms() {
 	for _, r := range ActiveRooms {
-		objects.Rooms[r].Lock()
+		objects.Rooms[r].LockRoom(strconv.Itoa(r)+":RoomTick", true)
 		if len(objects.Rooms[r].Chars.Contents) <= 0 {
 			if !time.Time.IsZero(objects.Rooms[r].EvacuateTime) &&
 				time.Now().Sub(objects.Rooms[r].EvacuateTime).Seconds() > float64(config.RoomClearTimer) {
@@ -68,6 +70,22 @@ func LoopRooms() {
 				objects.Rooms[r].ElementalDamage()
 			}
 		}
-		objects.Rooms[r].Unlock()
+		objects.Rooms[r].UnlockRoom(strconv.Itoa(r)+":RoomTick", true)
 	}
+}
+
+func InitialRoom(r int) {
+	objects.Rooms[r].LockRoom(strconv.Itoa(r)+":RoomInit", false)
+	if len(objects.Rooms[r].Chars.Contents) >= 0 {
+		if objects.Rooms[r].Flags["encounters_on"] {
+			objects.Rooms[r].Encounter()
+		}
+	}
+	if objects.Rooms[r].Flags["fire"] ||
+		objects.Rooms[r].Flags["earth"] ||
+		objects.Rooms[r].Flags["wind"] ||
+		objects.Rooms[r].Flags["water"] {
+		objects.Rooms[r].ElementalDamage()
+	}
+	objects.Rooms[r].UnlockRoom(strconv.Itoa(r)+":RoomInit", false)
 }
