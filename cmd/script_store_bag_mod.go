@@ -74,8 +74,12 @@ func (modbag) process(s *state) {
 			s.actor.AddCommands("y", "$MODCONFIRM "+targetStr+" "+actionStr)
 		case "CAPACITY":
 			if newCapacity, err := strconv.Atoi(s.words[2]); err == nil {
-				if newCapacity < target.MaxUses && newCapacity <= 30 {
+				if newCapacity < target.MaxUses {
 					s.msg.Actor.SendBad("You can't modify the bag to hold less than it already does.")
+					return
+				}
+				if newCapacity > 30 {
+					s.msg.Actor.SendBad("You can't modify the bag to hold more than 30 items.")
 					return
 				}
 				newCost := newCapacity * bagCapacity
