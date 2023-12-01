@@ -50,7 +50,7 @@ func (buildCopy) process(s *state) {
 		newItemId, succ := data.CopyItem(itemId)
 		if succ {
 			objects.Items[newItemId], _ = objects.LoadItem(data.LoadItem(newItemId))
-			s.msg.Actor.SendGood("Created New mob with id: " + strconv.Itoa(newItemId))
+			s.msg.Actor.SendGood("Created New item with id: " + strconv.Itoa(newItemId))
 			return
 		} else {
 			s.msg.Actor.SendBad("Failed to copy the item.")

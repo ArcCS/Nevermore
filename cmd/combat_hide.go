@@ -82,6 +82,20 @@ func (hide) process(s *state) {
 				return
 			},
 		)
+		s.actor.ApplyHook("ooc", "hide", -1, "10", -1,
+			func() {
+				s.actor.Flags["hidden"] = false
+				if _, err := s.actor.Write([]byte(text.Info + "You step out of the shadows." + text.Reset + "\n")); err != nil {
+					log.Println("Error writing to player: ", err)
+				}
+				s.actor.RemoveHook("ooc", "hide")
+				return
+			},
+			func() {
+				s.actor.Flags["hidden"] = false
+				return
+			},
+		)
 		s.actor.ApplyHook("use", "hide", -1, "10", -1,
 			func() {
 				s.actor.Flags["hidden"] = false

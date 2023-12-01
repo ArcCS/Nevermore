@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	addHandler(rename{}, "Usage:  rename name new_name \n \n Use this command to change the instance item name. (Does not overwrite DB) \n",
+	addHandler(rename{}, "Usage:  rename name new_name description \n \n Use this command to change the instance item name. (Does not overwrite DB) \n",
 		permissions.Builder,
 		"rename")
 }
@@ -15,7 +15,7 @@ type rename cmd
 
 func (rename) process(s *state) {
 	// Check arguments
-	if len(s.words) < 3 {
+	if len(s.words) < 4 {
 		s.msg.Actor.SendInfo("Rename what to what?")
 		return
 	}

@@ -32,6 +32,9 @@ var ScriptList = map[string]string{
 	"$RENAME":     "Usage: $RENAME, renames an item",
 	"$SELLCHEST":  "Usage: $SELLCHEST, sells the contents of a chest/container",
 	"$SLOT":       "Usage: $SLOT, adds slot machine",
+	"$LISTBAG":    "Usage: $LISTBAG, list bag purchasing options",
+	"$BUYBAG":     "Usage: $BUYBAG, buys a bag",
+	"$MODBAG":     "Usage: $MODBAG, modifies a bag",
 }
 
 func (scripts) process(s *state) {
