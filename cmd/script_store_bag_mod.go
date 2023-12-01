@@ -45,6 +45,10 @@ func (modbag) process(s *state) {
 					s.msg.Actor.SendBad("You can't make the bag heavier.")
 					return
 				}
+				if newWeight < 5 {
+					s.msg.Actor.SendBad("You can't make the bag lighter than 5 pounds.")
+					return
+				}
 				newCost := bagWeight[newWeight] - bagWeight[target.Weight]
 				s.msg.Actor.SendGood("It will cost you ", strconv.Itoa(newCost), " gold to make the bag ", strconv.Itoa(newWeight), " pounds.")
 				s.msg.Actor.SendGood("Accept offer? (y, yes to confirm)")
