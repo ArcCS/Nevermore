@@ -18,8 +18,8 @@ func init() {
 type sayto cmd
 
 func (sayto) process(s *state) {
-	if len(s.input) < 1 {
-		s.msg.Actor.SendInfo("What did you want to say?")
+	if len(s.input) < 2 {
+		s.msg.Actor.SendInfo("What did you want to say to who?")
 		return
 	}
 
