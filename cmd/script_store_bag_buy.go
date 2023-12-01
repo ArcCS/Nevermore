@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
@@ -32,6 +33,11 @@ func (buybag) process(s *state) {
 
 	name := s.input[0]
 	desc := strings.Join(s.input[1:], " ")
+
+	if len(name) > config.MaxPlayItemNameLength {
+		s.msg.Actor.SendBad("That name is too long.")
+		return
+	}
 
 	newItemId, succ := data.CopyItem(bagItem)
 	if succ {

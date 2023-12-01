@@ -10,6 +10,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/utils"
 	"io"
+	"log"
 	"math/rand"
 	"regexp"
 	"strings"
@@ -31,7 +32,8 @@ type state struct {
 	actor       *objects.Character // The Thing executing the command
 	where       *objects.Room      // Where the character currently is
 	participant *objects.Character // The other Character participating in the command
-	input       []string           // The original input of the actor minus cmd
+	original    string             // The original input string with command removed
+	input       []string           // The original input of the actor minus cmd, parsed and cleaned
 	cmd         string             // The current command being processed
 	words       []string           // Input as uppercased words, less stopwords
 	ok          bool               // Flag to indicate if command was successful
@@ -78,6 +80,7 @@ func newState(o *objects.Character, input string) *state {
 
 	s := &state{actor: o}
 
+	s.original = input
 	s.tokenizeInput(input)
 	s.where = objects.Rooms[o.ParentId]
 	s.AddLocks(s.where.RoomId)
@@ -96,17 +99,15 @@ func newState(o *objects.Character, input string) *state {
 //	s.input = []string{"I'm", "in", "need", "of", "help!"}
 //	s.words = []string{"I'M", "NEED", "HELP!"}
 func (s *state) tokenizeInput(input string) {
-	quoteReg := regexp.MustCompile("\\^(.*)\\^")
+	if len(strings.Fields(s.original)) > 1 {
+		s.original = strings.Join(strings.Fields(s.original)[1:], " ")
+	}
+	log.Println("Original: ", s.original)
+	quoteReg := regexp.MustCompile("`([^`]*)`")
 	for _, match := range quoteReg.FindStringSubmatch(input) {
 		input = strings.ReplaceAll(input, match, strings.ReplaceAll(match, " ", "%_R%"))
 	}
 	s.input = strings.Fields(input)
-	for wordInt := range s.input {
-		// No quotes
-		s.input[wordInt] = strings.ReplaceAll(s.input[wordInt], "\\^", "")
-		// Restore spaces
-		s.input[wordInt] = strings.ReplaceAll(s.input[wordInt], "%_R%", " ")
-	}
 	s.words = make([]string, 0)
 	if len(s.input) > 0 {
 		if len(s.input) == 0 {
@@ -120,6 +121,19 @@ func (s *state) tokenizeInput(input string) {
 
 		s.cmd, s.words = s.words[0], s.words[1:]
 		s.input = s.input[1:]
+	}
+	// Clean up words
+	for i, w := range s.words {
+		log.Println("Word: ", w)
+		s.words[i] = strings.ReplaceAll(s.words[i], "`", "")
+		s.words[i] = strings.ReplaceAll(s.words[i], "%_R%", " ")
+		log.Println("Clean Word: ", s.words[i])
+	}
+	for i, w := range s.input {
+		log.Println("Input: ", w)
+		s.input[i] = strings.ReplaceAll(s.input[i], "`", "")
+		s.input[i] = strings.ReplaceAll(s.input[i], "%_R%", " ")
+		log.Println("Clean Input: ", s.input[i])
 	}
 }
 

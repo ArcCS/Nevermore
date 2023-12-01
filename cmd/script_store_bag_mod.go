@@ -158,9 +158,10 @@ func (modconfirm) process(s *state) {
 			} else {
 				s.actor.Gold.Value -= weightLess
 				target.Flags["weightless_chest"] = true
+				target.Flags["permanent"] = true
 				target.Save()
 
-				s.msg.Actor.SendInfo("You pay ", strconv.Itoa(weightLess), " gold to make the bag weightless.")
+				s.msg.Actor.SendInfo("You pay ", strconv.Itoa(weightLess), " gold to make the bag weightless..")
 			}
 		case "CAPACITY":
 			if newCapacity, err := strconv.Atoi(s.words[2]); err == nil {

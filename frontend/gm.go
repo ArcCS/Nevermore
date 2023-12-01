@@ -164,8 +164,6 @@ func (a *newPCharacter) completeBuilder() {
 	charData["birthmonth"] = objects.CurrentMonth
 	charData["darkvision"] = config.RaceDefs[config.AvailableRaces[a.race]].Darkvision
 	rand.Seed(time.Now().Unix())
-	ageJitter := rand.Intn(10)
-	charData["birthyear"] = (config.ImperialYearStart + objects.YearPlus) - (config.RaceDefs[config.AvailableClasses[a.race]].MinAge + ageJitter)
 	if data.CreateChar(charData) {
 		a.buf.Send(text.Info, "New GM created,  entering Altin. \n", text.Reset)
 		StartGame(a.frontend, a.name)

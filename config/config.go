@@ -85,6 +85,8 @@ var DragonAscii = text.Red + `
 // Flip to false to turn down verbose logs
 var DebugVerbose = true
 
+var MaxPlayItemNameLength = 26
+
 var JarvoralChannel = "815306102627106836"
 var BroadcastChannel = "854733320474329088"
 var AppealChannel = "854733587018416138"

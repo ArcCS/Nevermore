@@ -44,7 +44,6 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"birthday: a.birthday, "+
 		"birthdate: a.birthdate, "+
 		"birthmonth: a.birthmonth, "+
-		"birthyear: a.birthyear, "+
 		"played: a.played, "+
 		"broadcasts: a.broadcasts, "+
 		"evals: a.evals, "+
@@ -126,7 +125,6 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.birthday = $birth_day,"+
 			"a.birthdate = $birth_date,"+
 			"a.birthmonth = $birth_month,"+
-			"a.birthyear = $birth_year,"+
 			"a.played = 0,"+
 			"a.broadcasts = 5,"+
 			"a.evals = 5,"+
@@ -173,7 +171,6 @@ func CreateChar(charData map[string]interface{}) bool {
 			"intcur":      charData["intel"],
 			"birth_day":   charData["birthday"],
 			"birth_date":  charData["birthdate"],
-			"birth_year":  charData["birthyear"],
 			"birth_month": charData["birthmonth"],
 			"lastrefresh": time.Now().String(),
 			"darkvision":  utils.Btoi(charData["darkvision"].(bool)),
