@@ -67,7 +67,6 @@ type Character struct {
 	Birthday   int
 	Birthdate  int
 	Birthmonth int
-	Birthyear  int
 
 	// Cool Downs
 	Timers map[string]time.Time
@@ -155,7 +154,6 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			int(charData["birthday"].(int64)),
 			int(charData["birthdate"].(int64)),
 			int(charData["birthmonth"].(int64)),
-			int(charData["birthyear"].(int64)),
 			map[string]time.Time{"global": time.Now(), "use": time.Now(), "combat": time.Now()},
 			int(charData["played"].(int64)),
 			make(map[string]int),
@@ -191,6 +189,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 				"say":      make(map[string]*Hook),
 				"use":      make(map[string]*Hook),
 				"attacked": make(map[string]*Hook),
+				"ooc":      make(map[string]*Hook),
 			},
 			lastRefresh,
 			time.Now(),

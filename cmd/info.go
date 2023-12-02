@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
@@ -60,8 +59,6 @@ func (information) process(s *state) {
 		restores = s.actor.ClassProps["restores"]
 	}
 
-	age := (config.ImperialYearStart + objects.YearPlus) - s.actor.Birthyear
-
 	charTemplate := "{{.Charname}}, the {{.Tier}} tier {{.Race}} {{.Title}}\n" +
 		"----------------------------------------------------------------------\n" +
 		"Str: {{.Str}}/{{.MaxStr}}, Dex: {{.Dex}}/{{.MaxDex}}, Con: {{.Con}}/{{.MaxCon}}, Int: {{.Int}}/{{.MaxInt}}, Piety: {{.Pie}}/{{.MaxPie}}.\n" +
@@ -84,9 +81,7 @@ func (information) process(s *state) {
 		"You have logged {{.Hours}} hours and {{.Minutes}} minutes with this character.\n" +
 		"You have {{.BonusPoints}} role-play bonus points.\n" +
 		"{{if .DispRerolls}}You can reroll your character {{.Rerolls}} more times.\n{{end}}" +
-		"You were born on {{.Day}}, the {{.DayNumber}} of the month of {{.Month}}\n" +
-		"in the year {{.GodsYear}} since the Godswar, and year {{.EmpYear}} of the Empire.\n"
-	//"You are {{.Age}} years old.\n\n"
+		"You were born on {{.Day}}, the {{.DayNumber}} of the month of {{.Month}}\n"
 
 	data := struct {
 		Charname        string
@@ -132,11 +127,8 @@ func (information) process(s *state) {
 		Day             string
 		DayNumber       string
 		Month           string
-		Age             int
 		Berz            bool
 		Singing         bool
-		GodsYear        int
-		EmpYear         int
 		DispRerolls     bool
 		Rerolls         int
 	}{
@@ -183,11 +175,8 @@ func (information) process(s *state) {
 		utils.Title(config.Days[s.actor.Birthday]),
 		config.PrintNumbers[s.actor.Birthdate],
 		utils.Title(config.Months[s.actor.Birthmonth]["name"].(string)),
-		age,
 		berz,
 		singing,
-		2705 - age,
-		2228 - age,
 		disprerolls,
 		s.actor.Rerolls,
 	}

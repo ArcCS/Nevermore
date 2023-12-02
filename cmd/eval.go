@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
@@ -98,8 +97,6 @@ func (evaluate) process(s *state) {
 			monk = true
 		}
 
-		age := (config.ImperialYearStart + objects.YearPlus) - s.actor.Birthyear
-
 		charTemplate := "{{.Charname}}, the {{.Tier}} tier {{.Race}} {{.Title}}\n" +
 			"----------------------------------------------------------------------\n" +
 			"Str: {{.Str}}/{{.MaxStr}}, Dex: {{.Dex}}/{{.MaxDex}}, Con: {{.Con}}/{{.MaxCon}}, Int: {{.Int}}/{{.MaxInt}}, Piety: {{.Pie}}/{{.MaxPie}}.\n" +
@@ -113,8 +110,7 @@ func (evaluate) process(s *state) {
 			"{{if .Diseased}}" + text.Brown + "They are suffering from affliction.\n{{end}}" + text.Good +
 			"{{if .Blind}}" + text.Blue + "They have been blinded!!\n{{end}}" + text.Good +
 			"{{if .DarkVision}}They can see in the dark naturally. \n{{end}}" +
-			"They were born on {{.Day}}, the {{.DayNumber}} of the month of {{.Month}}\n" +
-			"in the year {{.GodsYear}} since the Godswar, and year {{.EmpYear}} of the Empire.\n"
+			"They were born on {{.Day}}, the {{.DayNumber}} of the month of {{.Month}}\n"
 
 		data := struct {
 			Charname        string
@@ -149,9 +145,6 @@ func (evaluate) process(s *state) {
 			Day             string
 			DayNumber       string
 			Month           string
-			Age             int
-			GodsYear        int
-			EmpYear         int
 			Berz            bool
 		}{
 			whatChar.Name,
@@ -186,9 +179,6 @@ func (evaluate) process(s *state) {
 			utils.Title(config.Days[whatChar.Birthday]),
 			config.PrintNumbers[whatChar.Birthdate],
 			utils.Title(config.Months[whatChar.Birthmonth]["name"].(string)),
-			age,
-			2705 - age,
-			2228 - age,
 			berz,
 		}
 
