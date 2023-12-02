@@ -363,36 +363,38 @@ func (m *Mob) Tick() {
 				for target == nil && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
 					target = Rooms[m.ParentId].Chars.MobSearch(utils.RandMapKeySelection(m.ThreatTable), m)
 				}
-				spellSelected := false
-				selectSpell := ""
-				if utils.Roll(100, 1, 0) <= m.ChanceCast {
-					log.Println("Successful Roll, Selecting a spell")
-					for range m.Spells {
-						rand.Seed(time.Now().Unix())
-						selectSpell = m.Spells[rand.Intn(len(m.Spells))]
-						if selectSpell != "" {
-							if utils.StringIn(selectSpell, OffensiveSpells) {
-								if m.Mana.Current > Spells[selectSpell].Cost {
-									spellSelected = true
+				if target != nil {
+					spellSelected := false
+					selectSpell := ""
+					if utils.Roll(100, 1, 0) <= m.ChanceCast {
+						log.Println("Successful Roll, Selecting a spell")
+						for range m.Spells {
+							rand.Seed(time.Now().Unix())
+							selectSpell = m.Spells[rand.Intn(len(m.Spells))]
+							if selectSpell != "" {
+								if utils.StringIn(selectSpell, OffensiveSpells) {
+									if m.Mana.Current > Spells[selectSpell].Cost {
+										spellSelected = true
+									}
 								}
 							}
 						}
-					}
 
-					if spellSelected {
-						spellInstance, ok := Spells[selectSpell]
-						if !ok {
-							spellSelected = false
+						if spellSelected {
+							spellInstance, ok := Spells[selectSpell]
+							if !ok {
+								spellSelected = false
+							}
+							Rooms[m.ParentId].MessageAll(m.Name + " casts a " + spellInstance.Name + " spell on " + target.Name + "\n")
+							target.RunHook("attacked")
+							m.Mana.Subtract(spellInstance.Cost)
+							result := Cast(m, target, spellInstance.Effect, spellInstance.Magnitude)
+							if strings.Contains(result, "$SCRIPT") {
+								m.MobScript(result)
+							}
+							target.DeathCheck("was slain by a " + m.Name + ".")
+							return
 						}
-						Rooms[m.ParentId].MessageAll(m.Name + " casts a " + spellInstance.Name + " spell on " + target.Name + "\n")
-						target.RunHook("attacked")
-						m.Mana.Subtract(spellInstance.Cost)
-						result := Cast(m, target, spellInstance.Effect, spellInstance.Magnitude)
-						if strings.Contains(result, "$SCRIPT") {
-							m.MobScript(result)
-						}
-						target.DeathCheck("was slain by a " + m.Name + ".")
-						return
 					}
 				}
 			}

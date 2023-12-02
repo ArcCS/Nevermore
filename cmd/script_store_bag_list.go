@@ -10,7 +10,7 @@ func init() {
 	addHandler(listbag{},
 		"",
 		permissions.Player,
-		"$LISTBAG")
+		"$BAGLIST")
 }
 
 var baseBag = 15500

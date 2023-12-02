@@ -419,6 +419,103 @@ func healall(caller interface{}, target interface{}, magnitude int) string {
 	return ""
 }
 
+func spellDamage(caller interface{}, target interface{}, magnitude int, magicType string) string {
+	var name string
+	var intel int
+	var level int
+	var id int
+	var callerType int
+	var spellType = 2
+	actualDamage := 0
+	damage := 0
+	switch caller := caller.(type) {
+	case *Character:
+		name = caller.Name
+		intel = caller.Int.Current
+		level = caller.Tier
+		id = caller.CharId
+		callerType = 0
+		if !caller.CheckFlag("casting") {
+			spellType = 3
+		}
+		actualDamage = elementalDamage(magnitude, intel)
+		affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[6].Value, caller.Class)]
+		damage = int((float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod) * (1 + float64(affinityLevel)*.01))
+	case *Mob:
+		name = caller.Name
+		level = caller.Level
+		id = caller.MobId
+		callerType = 1
+		intel = caller.Int.Current
+		actualDamage = elementalDamage(magnitude, intel)
+		damage = actualDamage
+	}
+	switch target := target.(type) {
+	case *Character:
+		stamDam, vitDam, resisted := target.ReceiveMagicDamage(damage, magicType)
+		data.StoreCombatMetric("firespell_"+strconv.Itoa(magnitude), 0, spellType, actualDamage+resisted, resisted, actualDamage, callerType, id, level, 0, target.CharId)
+		returnString := text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset
+		// Reflect
+		switch caller := caller.(type) {
+		case *Character:
+			if target.CheckFlag("reflection") {
+				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
+				stamDamage, vitDamage, resisted := caller.ReceiveMagicDamage(reflectDamage, "fire")
+				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 0, target.CharId, target.Tier, 0, caller.CharId)
+				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
+				if _, err := caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
+				caller.DeathCheck(" was slain by reflection!")
+			}
+			return returnString
+		case *Mob:
+			if _, err := target.Write([]byte(text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n")); err != nil {
+				log.Println("Error writing to player:", err)
+			}
+
+			if target.CheckFlag("reflection") {
+				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
+				stamDamage, _, resisted := caller.ReceiveMagicDamage(reflectDamage, "fire")
+				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+resisted, resisted, stamDamage, 0, target.CharId, target.Tier, 1, caller.MobId)
+				if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset)); err != nil {
+					log.Println("Error writing to player:", err)
+				}
+				caller.DeathCheck(target)
+			}
+			return ""
+		}
+
+	case *Mob:
+		damage, _, resisted := target.ReceiveMagicDamage(damage, "fire")
+		data.StoreCombatMetric("firespell_"+strconv.Itoa(magnitude), 0, spellType, actualDamage+resisted, resisted, actualDamage, callerType, id, level, 0, target.MobId)
+		switch caller := caller.(type) {
+		case *Character:
+			target.AddThreatDamage(damage, caller)
+			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), "fire", caller.Class)
+		}
+		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " fire damage. They resisted " + strconv.Itoa(resisted) + "."
+		//add affinity xp
+
+		// Reflect
+		switch caller := caller.(type) {
+		case *Character:
+			if target.CheckFlag("reflection") {
+				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
+				stamDamage, vitDamage, resisted := caller.ReceiveMagicDamage(reflectDamage, "fire")
+				data.StoreCombatMetric("spell_mob_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, target.MobId, target.Level, 0, caller.CharId)
+				returnString += "\n" + text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!"
+				caller.DeathCheck(" was slain by reflection!")
+			}
+		case *Mob:
+			log.Println("mob on mob violence not implemented yet")
+		}
+
+		return returnString
+	}
+	return ""
+}
+
 func firedamage(caller interface{}, target interface{}, magnitude int) string {
 	var name string
 	var intel int
