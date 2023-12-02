@@ -90,7 +90,10 @@ var (
 	MobBSRevengeVitalChance     = 25
 	VitalStrikeScale            = 2
 	BackstabCooldown            = 30
-	TrackCooldown               = 60
+	TrackCooldown               = 16
+	TrackChance                 = 20
+	TrackChancePerLevel         = 5
+	TrackChancePerPoint         = 1
 
 	TodMax            = 5
 	TodScaleDown      = 10

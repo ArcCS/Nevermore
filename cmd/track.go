@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/utils"
 	"strconv"
 )
 
@@ -55,12 +56,14 @@ func (track) process(s *state) {
 		s.msg.Actor.SendGood("You are unable to find any tracks")
 	} else {
 		for k := range s.where.EncounterTable {
+			whatMob := objects.Mobs[k]
+			curChance := config.TrackChance + (s.actor.Int.Current * config.TrackChancePerPoint) + (config.TrackChancePerLevel * (s.actor.Tier - whatMob.Level))
 			if _, ok := objects.Mobs[k]; ok {
-				if objects.Mobs[k].Level > s.actor.Tier+4 {
-					unknownTracks += 1
-				} else {
+				if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
 					knownTracks += 1
 					s.msg.Actor.SendGood("You find the tracks of a ", objects.Mobs[k].Name)
+				} else {
+					unknownTracks += 1
 				}
 
 			}
