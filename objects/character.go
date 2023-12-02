@@ -190,6 +190,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 				"use":      make(map[string]*Hook),
 				"attacked": make(map[string]*Hook),
 				"ooc":      make(map[string]*Hook),
+				"hide":     make(map[string]*Hook),
 			},
 			lastRefresh,
 			time.Now(),

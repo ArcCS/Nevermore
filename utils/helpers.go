@@ -28,8 +28,10 @@ func RandMapKeySelection(mapList map[string]int) string {
 	for k := range mapList {
 		keys = append(keys, k)
 	}
-	returnKey := keys[rand.Intn(len(keys))]
-	return returnKey
+	if len(keys) > 0 {
+		return keys[rand.Intn(len(keys))]
+	}
+	return ""
 }
 
 func RandListSelection(stringList []string) string {

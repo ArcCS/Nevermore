@@ -34,7 +34,6 @@ var helpText = map[string]helpTextStruct{}
 var oocCommands = []string{"SAY", "QUIT", "HELP", "WHO", "LOOK", "IC", "$POOF", "AFK", "GO", "ACT"}
 var excludeFromLogs = []string{"SAYTO", "SAY", "TELL", "OSAY", "SEND", "R", "REPLY", "REP", "PARTYTELL", "PTELL", "K", "KILL"}
 var reverseLookup = map[string]string{}
-var keepPose = []string{"SAYTO", "SAY", "TELL", "OSAY", "SEND", "R", "REPLY", "REP", "PARTYTELL", "PTELL", "LOOK", "GET", "PUT", "DROP", "GIVE", "EQUIP", "UNEQUIP", "WEAR", "REMOVE"}
 var emotes = []string{"ACT", "BLINK", "BLUSH", "BOW", "BURP", "CACKLE", "CHEER", "CHUCKLE", "CLAP", "CONFUSED", "COUGH", "CROSSARMS", "CROSSFINGERS", "CRY",
 	"DANCE", "EMOTE", "FLEX", "FLINCH", "FROWN", "GASP", "GIGGLE", "GRIN", "GROAN", "HICCUP", "JUMP", "KNEEL", "LAUGH", "NOD", "PONDER", "SALUTE", "SHAKE", "SHIVER", "SHRUG",
 	"SIGH", "SNEEZE", "SNAP", "SMILE", "SMIRK", "SNICKER", "SPIT", "STARE", "STRETCH", "TAP", "THUMBSDOWN", "THUMBSUP", "WAVE", "WHISTLE", "WINK", "YAWN",
@@ -257,9 +256,6 @@ func dispatchHandler(s *state) {
 		switch handler, valid := handlers[s.cmd]; {
 		case valid:
 			if s.actor.Permission.HasFlag(handlerPermission[s.cmd]) || s.actor.Permission.HasAnyFlags(permissions.Dungeonmaster, permissions.Gamemaster) {
-				if !utils.StringIn(strings.ToUpper(s.cmd), keepPose) && !utils.StringIn(strings.ToUpper(s.cmd), emotes) {
-					s.actor.Pose = ""
-				}
 				handler.process(s)
 			} else {
 				s.msg.Actor.SendInfo("Unknown command, type HELP to get a list of commands")
