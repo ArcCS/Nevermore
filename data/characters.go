@@ -374,6 +374,36 @@ func DeleteChar(charName string) bool {
 	}
 }
 
+// PuppetChar Remove current ownership and set ownership to the PuppetMaster account
+func PuppetChar(charName string) bool {
+	results, err := execWrite("MATCH ()-[o:owns]->(c:character) WHERE toLower(c.name)=toLower($charName) DELETE o",
+		map[string]interface{}{
+			"charName": charName,
+		},
+	)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if results.Counters().RelationshipsDeleted() > 0 {
+		puppetRes, err := execWrite("MATCH (a:account), (c:character) WHERE toLower(c.name)=toLower($charName) AND a.name='PuppetMaster' CREATE (a)-[o:owns]->(c) RETURN o",
+			map[string]interface{}{
+				"charName": charName,
+			},
+		)
+		if err != nil {
+			log.Println(err)
+			return false
+		}
+		if puppetRes.Counters().RelationshipsCreated() > 0 {
+			return true
+		}
+		return true
+	} else {
+		return false
+	}
+}
+
 func SearchCharName(searchStr string, skip int) []interface{} {
 	results, err := execRead("MATCH (c:character) WHERE toLower(c.name) CONTAINS toLower($search) RETURN c ORDER BY c.name SKIP $skip LIMIT $limit",
 		map[string]interface{}{

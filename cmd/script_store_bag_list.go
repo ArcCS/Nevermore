@@ -17,7 +17,6 @@ var baseBag = 15500
 var bagCapacity = 1500
 var weightLess = 150000
 var bagWeight = map[int]int{
-	20: 0,
 	19: 1000,
 	18: 2000,
 	17: 3000,

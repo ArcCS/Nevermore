@@ -26,6 +26,7 @@ type start struct {
 	optionEnd      int
 	powerCharacter string
 	characters     []string
+	puppets        []string
 	pwChange       [16]byte
 }
 
@@ -46,6 +47,12 @@ func (m *start) startDisplay() {
 	}
 	sort.Strings(m.characters)
 	m.powerCharacter, _ = data.ListPowerChar(m.account)
+
+	if m.permissions.HasAnyFlags(permissions.Dungeonmaster, permissions.Gamemaster) {
+		m.puppets = data.ListPuppets()
+		sort.Strings(m.puppets)
+	}
+
 	var output strings.Builder
 	m.optionEnd = 2
 	charOption := ` X. Make a new character `
@@ -130,7 +137,7 @@ func (m *start) startProcess() {
 				}
 
 			}
-		} else if utils.StringInLower(string(m.input), m.characters) {
+		} else if utils.StringInLower(string(m.input), m.characters) || utils.StringInLower(string(m.input), m.puppets) {
 
 			if objects.ActiveCharacters.Find(string(m.input)) == nil {
 				if m.accountAllowed() {
@@ -202,6 +209,12 @@ func (m *start) characterList() string {
 	var charList strings.Builder
 	charList.WriteString("-----------------------------\n  ")
 	charList.Write([]byte(strings.Join(m.characters, ", ")))
+	if m.permissions.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		charList.WriteString("\n\n==== Puppet List ====\n")
+		charList.WriteString("(Enter the name of the puppet you wish to play)\n")
+		charList.WriteString("-----------------------------\n  ")
+		charList.Write([]byte(strings.Join(m.puppets, ", ")))
+	}
 	return charList.String()
 
 }

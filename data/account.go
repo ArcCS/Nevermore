@@ -96,6 +96,30 @@ func ListChars(acctName string) []string {
 	}
 }
 
+// ListPuppets Retrieve account characters attached to the PuppetMaster
+func ListPuppets() []string {
+	results, err := execRead("MATCH (a:account)-[o:owns]->(c:character) WHERE toLower(a.name)=toLower('puppetmaster') and "+
+		"c.class<>100 and c.active=true RETURN {name: c.name}",
+		map[string]interface{}{},
+	)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	if len(results) < 1 {
+		return nil
+	} else {
+		searchList := make([]string, 0)
+		for _, row := range results {
+			datum := row.Values[0].(map[string]interface{})["name"].(string)
+			if strings.TrimSpace(datum) != "" {
+				searchList = append(searchList, datum)
+			}
+		}
+		return searchList
+	}
+}
+
 // ListPowerChar Retrieve account power characters based on account name
 func ListPowerChar(acctName string) (string, bool) {
 	results, err := execRead("MATCH (a:account)-[o:owns]->(d:character) WHERE toLower(a.name)=toLower($acctName) and d.class=100 RETURN "+
