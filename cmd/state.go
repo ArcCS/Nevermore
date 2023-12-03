@@ -123,17 +123,13 @@ func (s *state) tokenizeInput(input string) {
 		s.input = s.input[1:]
 	}
 	// Clean up words
-	for i, w := range s.words {
-		log.Println("Word: ", w)
+	for i := range s.words {
 		s.words[i] = strings.ReplaceAll(s.words[i], "`", "")
 		s.words[i] = strings.ReplaceAll(s.words[i], "%_R%", " ")
-		log.Println("Clean Word: ", s.words[i])
 	}
-	for i, w := range s.input {
-		log.Println("Input: ", w)
+	for i := range s.input {
 		s.input[i] = strings.ReplaceAll(s.input[i], "`", "")
 		s.input[i] = strings.ReplaceAll(s.input[i], "%_R%", " ")
-		log.Println("Clean Input: ", s.input[i])
 	}
 }
 

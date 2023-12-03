@@ -55,28 +55,24 @@ var bagWeightOList = []int{
 type listbag cmd
 
 func (listbag) process(s *state) {
-	if len(s.where.StoreInventory.Contents) != 0 {
-		rowLength := 120
-		t := table.NewWriter()
-		t.SetAllowedRowLength(rowLength)
-		t.Style().Options.SeparateRows = false
-		t.AppendHeader(table.Row{"Bag Modification", "Cost"})
+	rowLength := 120
+	t := table.NewWriter()
+	t.SetAllowedRowLength(rowLength)
+	t.Style().Options.SeparateRows = false
+	t.AppendHeader(table.Row{"Bag Modification", "Cost"})
+	t.AppendRows([]table.Row{
+		{"Base Bag", strconv.Itoa(baseBag)}})
+	t.AppendRows([]table.Row{
+		{"Weightless Holding", strconv.Itoa(weightLess)}})
+	t.AppendRows([]table.Row{
+		{"Per Item Capacity", bagCapacity}})
+	t.AppendRows([]table.Row{
+		{"Weights:", ""}})
+	for _, bagW := range bagWeightOList {
 		t.AppendRows([]table.Row{
-			{"Base Bag", strconv.Itoa(baseBag)}})
-		t.AppendRows([]table.Row{
-			{"Weightless Holding", strconv.Itoa(weightLess)}})
-		t.AppendRows([]table.Row{
-			{"Per Item Capacity", bagCapacity}})
-		t.AppendRows([]table.Row{
-			{"Weights:", ""}})
-		for _, bagW := range bagWeightOList {
-			t.AppendRows([]table.Row{
-				{strconv.Itoa(bagW) + " Weight ", strconv.Itoa(bagWeight[bagW])}})
-		}
-
-		s.msg.Actor.SendGood(t.Render())
-	} else {
-		s.msg.Actor.SendInfo("There is nothing for sale here.")
+			{strconv.Itoa(bagW) + " Weight ", strconv.Itoa(bagWeight[bagW])}})
 	}
+
+	s.msg.Actor.SendGood(t.Render())
 
 }

@@ -250,7 +250,7 @@ func (m *Mob) Tick() {
 			}
 		} else {
 			// Picking up treasure
-			if m.Flags["takes_treasure"] {
+			if m.Flags["take_treasure"] {
 				// Roll to see if mob is picking it up
 				if utils.Roll(100, 1, 0) <= config.MobTakeChance {
 					// Loop inventory, and take the first thing they find
