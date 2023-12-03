@@ -57,8 +57,6 @@ func (drop) process(s *state) {
 		return
 	}
 	target.Placement = s.actor.Placement
-	// TODO: Repair later.
-	target.Value = 0
 	where.Add(target)
 	if target.Flags["permanent"] {
 		s.where.Save()

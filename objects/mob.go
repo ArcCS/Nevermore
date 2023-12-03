@@ -259,6 +259,7 @@ func (m *Mob) Tick() {
 							if err := Rooms[m.ParentId].Items.Remove(item); err != nil {
 								log.Println("Error mob removing item", err)
 							}
+							m.Flags["no_steal"] = true
 							m.Inventory.Add(item)
 							Rooms[m.ParentId].MessageAll(m.Name + " picks up " + item.DisplayName() + text.Reset + "\n")
 							break
