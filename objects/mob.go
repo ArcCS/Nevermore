@@ -268,13 +268,13 @@ func (m *Mob) Tick() {
 				}
 			}
 
-			m.PickTarget()
-
 			if m.CurrentTarget != "" {
 				if Rooms[m.ParentId].Chars.SearchAll(m.CurrentTarget) == nil {
 					m.CurrentTarget = ""
 				}
 			}
+
+			m.PickTarget()
 
 			// Do I want to change targets? 33% chance if the current target isn't the highest on the threat table
 			if len(m.ThreatTable) > 1 {
@@ -745,7 +745,7 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 func (m *Mob) PickTarget() {
 	// Am I hostile?  Should I pick a target?
 	if m.CurrentTarget == "" && m.Flags["hostile"] && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
-		for m.CurrentTarget == "" {
+		for m.CurrentTarget == "" && len(Rooms[m.ParentId].Chars.MobList(m)) > 0 {
 			for i := 0; i <= 4; i++ {
 				if m.CurrentTarget != "" {
 					break

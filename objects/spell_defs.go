@@ -72,7 +72,7 @@ var Spells = map[string]Spell{
 		Chant:       "Breeze, be gentle no more.",
 		Magnitude:   1,
 		Effect:      "air-damage",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2},
 	},
 	"rumble": {
 		Name:        "rumble",
@@ -81,7 +81,7 @@ var Spells = map[string]Spell{
 		Chant:       "Shaken, not stirred.",
 		Magnitude:   1,
 		Effect:      "earth-damage",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2},
 	},
 	"burn": {
 		Name:        "burn",
@@ -90,7 +90,7 @@ var Spells = map[string]Spell{
 		Chant:       "Fire, flicker, ignite!",
 		Magnitude:   1,
 		Effect:      "fire-damage",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2},
 	},
 	"blister": {
 		Name:        "blister",
@@ -99,7 +99,7 @@ var Spells = map[string]Spell{
 		Chant:       "Thy water rises and causes thee pain.",
 		Magnitude:   1,
 		Effect:      "water-damage",
-		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2, "monk": 3},
+		Classes:     map[string]int{"cleric": 1, "mage": 1, "bard": 2},
 	},
 	"dustgust": {
 		Name:        "dustgust",
@@ -360,7 +360,7 @@ var Spells = map[string]Spell{
 		Chant:       "Thy gods aid thee.",
 		Magnitude:   1,
 		Effect:      "bless",
-		Classes:     map[string]int{"cleric": 5, "paladin": 8, "monk": 10},
+		Classes:     map[string]int{"cleric": 5, "paladin": 8},
 	},
 	"protection": {
 		Name:        "protection",

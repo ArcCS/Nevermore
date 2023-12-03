@@ -2,6 +2,7 @@ package objects
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
@@ -81,7 +82,7 @@ func (i *Item) GetWeight() int {
 }
 
 func (i *Item) Look() string {
-	resString := i.Description + "\n\n"
+	resString := strings.ReplaceAll(i.Description, "\\n", "\n") + "\n\n"
 	if utils.IntIn(i.ItemType, config.WeaponTypes) {
 		resString = "It is a " + config.ItemTypes[i.ItemType] + " weapon, and it" + i.ReturnState() + "\n" + resString
 	}
