@@ -505,8 +505,6 @@ func spellDamage(caller interface{}, target interface{}, magnitude int, magicTyp
 			caller.AdvanceElementalExp(int(float64(damage)/float64(target.Stam.Max)*float64(target.Experience)), magicType, caller.Class)
 		}
 		returnString := "Your spell struck " + target.Name + " for " + strconv.Itoa(damage) + " " + magicType + " damage. They resisted " + strconv.Itoa(resisted) + "."
-		//add affinity xp
-
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
