@@ -752,12 +752,11 @@ func (m *Mob) PickTarget() {
 				}
 				potentials := Rooms[m.ParentId].Chars.MobListAt(m, i)
 				if len(potentials) > 0 {
-					for _, potential := range potentials {
-						if utils.Roll(100, 1, 0) <= config.ProximityChance-(i*config.ProximityStep) {
-							m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(potential, m))
-							Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
-							break
-						}
+					if utils.Roll(100, 1, 0) <= config.ProximityChance-(i*config.ProximityStep) {
+						potential := utils.RandListSelection(potentials)
+						m.AddThreatDamage(1, Rooms[m.ParentId].Chars.MobSearch(potential, m))
+						Rooms[m.ParentId].MessageAll(m.Name + " attacks " + m.CurrentTarget + text.Reset + "\n")
+						break
 					}
 				}
 			}
