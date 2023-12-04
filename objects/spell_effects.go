@@ -419,6 +419,13 @@ func healall(caller interface{}, target interface{}, magnitude int) string {
 	return ""
 }
 
+var magicSkillMap = map[string]int{
+	"fire":  6,
+	"air":   7,
+	"earth": 8,
+	"water": 9,
+}
+
 func spellDamage(caller interface{}, target interface{}, magnitude int, magicType string) string {
 	var name string
 	var intel int
@@ -441,7 +448,7 @@ func spellDamage(caller interface{}, target interface{}, magnitude int, magicTyp
 		actualDamage = elementalDamage(magnitude, intel)
 		damage = int(float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod)
 		if caller.Class == 4 {
-			affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[6].Value, caller.Class)]
+			affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[magicSkillMap[magicType]].Value, caller.Class)]
 			damage = int(float64(damage) * (1 + float64(affinityLevel)*.01))
 		}
 	case *Mob:
