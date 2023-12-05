@@ -77,7 +77,7 @@ func (use) process(s *state) {
 				s.msg.Actor.SendBad("Spell doesn't exist in this world. ")
 				return
 			}
-			if !utils.StringIn(spellInstance.Name, objects.HealingSpells) {
+			if utils.StringIn(spellInstance.Name, objects.OffensiveSpells) || what.ItemType == 8 {
 				if s.actor.GetStat("int") < config.IntMajorPenalty {
 					if utils.Roll(100, 1, 0) <= config.FizzleSave {
 						s.msg.Actor.SendBad("You tried to invoke the item but it fizzled out.")

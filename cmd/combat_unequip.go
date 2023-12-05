@@ -7,7 +7,7 @@ import (
 
 func init() {
 	addHandler(unequip{},
-		"Usage:  unequip item # \n\n Try to unequip something you're wearing",
+		"Usage:  unequip [<item>|all]  # \n\n Try to unequip something you're wearing, if you use 'all' it will remove everything as long as you are not singing.",
 		permissions.Player,
 		"unequip", "remove", "rem")
 }
@@ -36,11 +36,22 @@ func (unequip) process(s *state) {
 	s.actor.RunHook("combat")
 
 	if s.actor.CheckFlag("singing") {
-		if s.actor.Equipment.FindLocation(name) != "main" {
+		if s.actor.Equipment.FindLocation(name) != "main" || name == "all" {
 			s.msg.Actor.SendBad("You may only remove your main hand weapon while performing.")
 			s.ok = true
 			return
 		}
+	}
+
+	if name == "all" {
+		for _, item := range s.actor.Equipment.UnequipAll() {
+			s.actor.Inventory.Add(item)
+			s.msg.Actor.SendGood("You unequip " + item.Name)
+			s.msg.Observer.SendInfo(s.actor.Name + " unequips " + item.Name)
+		}
+		s.actor.SetTimer("combat", config.UnequipCooldown)
+		s.ok = true
+		return
 	}
 
 	_, what := s.actor.Equipment.Unequip(name)
