@@ -899,23 +899,8 @@ func (c *Character) AdvanceSkillExp(amount int) {
 
 func (c *Character) AdvanceElementalExp(amount int, element string, class int) {
 	if class == 4 {
-		switch element {
-		case "fire":
-			if c.Skills[6].Value < config.SkillCap {
-				c.Skills[6].Add(amount)
-			}
-		case "air":
-			if c.Skills[7].Value < config.SkillCap {
-				c.Skills[7].Add(amount)
-			}
-		case "earth":
-			if c.Skills[8].Value < config.SkillCap {
-				c.Skills[8].Add(amount)
-			}
-		case "water":
-			if c.Skills[9].Value < config.SkillCap {
-				c.Skills[9].Add(amount)
-			}
+		if c.Skills[magicSkillMap[element]].Value < config.SkillCap {
+			c.Skills[6].Add(amount)
 		}
 	}
 	return

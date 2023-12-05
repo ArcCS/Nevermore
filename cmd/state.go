@@ -10,7 +10,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/utils"
 	"io"
-	"log"
 	"math/rand"
 	"regexp"
 	"strings"
@@ -102,10 +101,9 @@ func (s *state) tokenizeInput(input string) {
 	if len(strings.Fields(s.original)) > 1 {
 		s.original = strings.Join(strings.Fields(s.original)[1:], " ")
 	}
-	log.Println("Original: ", s.original)
 	quoteReg := regexp.MustCompile("`([^`]*)`")
 	for _, match := range quoteReg.FindStringSubmatch(input) {
-		input = strings.ReplaceAll(input, match, strings.ReplaceAll(match, " ", "%_R%"))
+		input = strings.ReplaceAll(input, match, strings.ReplaceAll(strings.ReplaceAll(match, " ", "%_R%"), "`", ""))
 	}
 	s.input = strings.Fields(input)
 	s.words = make([]string, 0)
@@ -124,11 +122,9 @@ func (s *state) tokenizeInput(input string) {
 	}
 	// Clean up words
 	for i := range s.words {
-		s.words[i] = strings.ReplaceAll(s.words[i], "`", "")
 		s.words[i] = strings.ReplaceAll(s.words[i], "%_R%", " ")
 	}
 	for i := range s.input {
-		s.input[i] = strings.ReplaceAll(s.input[i], "`", "")
 		s.input[i] = strings.ReplaceAll(s.input[i], "%_R%", " ")
 	}
 }
