@@ -194,12 +194,6 @@ func (kill) process(s *state) {
 				data.StoreCombatMetric(action, 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 				whatMob.AddThreatDamage(actualDamage, s.actor)
 				s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
-				if s.actor.Class == 8 {
-					s.actor.Mana.Current += int(math.Ceil((float64(actualDamage) * config.ChiGainPerDmg * float64(s.actor.Pie.Current))))
-					if s.actor.Mana.Current >= s.actor.Mana.Max {
-						s.actor.Mana.Current = s.actor.Mana.Max
-					}
-				}
 				s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 				if whatMob.CheckFlag("reflection") {
 					reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)

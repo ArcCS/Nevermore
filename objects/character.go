@@ -758,15 +758,7 @@ func (c *Character) Tick() {
 		c.LastSave = time.Now()
 		c.TickSaveWrapper()
 	}
-	if c.Class == 8 {
-		flow, _ := c.TimerReady("combat_flow")
-		if flow {
-			c.Mana.Current -= 3
-			if c.Mana.Current <= 0 {
-				c.Mana.Current = 0
-			}
-		}
-	} else if Rooms[c.ParentId].Flags["heal_fast"] {
+	if Rooms[c.ParentId].Flags["heal_fast"] {
 		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod * 2)))
 		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod * 2)))
 	} else {
@@ -1188,8 +1180,8 @@ func (c *Character) InflictDamage() (damage int) {
 		// rng on the remaining 1/3rd
 		rngDamage := utils.Roll(baseMonkDamage, 1, 0)
 		damage = baseMonkDamage + strDamage + rngDamage
-		c.SetTimer("combat_flow", config.FlowTimer)
 	}
+
 	if c.CheckFlag("surge") {
 		damage += int(math.Ceil(float64(damage) * config.SurgeDamageBonus))
 	}
