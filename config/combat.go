@@ -102,10 +102,6 @@ var (
 	TodCost           = 10
 	VitalChance       = 15
 	MeditateTime      = 600
-	ChiGainPerDmg     = .01
-	ChiLossPerTick    = 3
-	FlowTimer         = 60
-	ChiStrikeCost     = 7
 
 	TurnMax            = 50
 	TurnScaleDown      = 10
