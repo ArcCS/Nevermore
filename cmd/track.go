@@ -27,7 +27,7 @@ func (track) process(s *state) {
 
 		return
 	}
-	if s.actor.Tier < config.SpecialAbilityTier {
+	if s.actor.Tier < config.MinorAbilityTier {
 		s.msg.Actor.SendBad("You must be at least tier " + strconv.Itoa(config.MinorAbilityTier) + " to use this skill.")
 		return
 	}
