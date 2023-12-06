@@ -255,7 +255,7 @@ func (m *Mob) Tick() {
 				if utils.Roll(100, 1, 0) <= config.MobTakeChance {
 					// Loop inventory, and take the first thing they find
 					for _, item := range Rooms[m.ParentId].Items.Contents {
-						if m.Placement == item.Placement && !item.Flags["hidden"] {
+						if m.Placement == item.Placement && !item.Flags["hidden"] && !item.Flags["permanent"] {
 							if err := Rooms[m.ParentId].Items.Remove(item); err != nil {
 								log.Println("Error mob removing item", err)
 							}
