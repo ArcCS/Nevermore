@@ -43,7 +43,7 @@ func (drop) process(s *state) {
 		return
 	}
 
-	if target.Flags["permament"] {
+	if target.Flags["permanent"] {
 		s.msg.Actor.SendBad("You cannot drop this item.. it is bound to you.")
 		return
 	}

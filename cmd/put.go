@@ -63,7 +63,7 @@ func (put) process(s *state) {
 		return
 	}
 
-	if target.Flags["permament"] {
+	if target.Flags["permanent"] {
 		s.msg.Actor.SendBad("You cannot get rid of this item.. it is bound to you.")
 		return
 	}
