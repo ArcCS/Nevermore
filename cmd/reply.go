@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/permissions"
-	"strings"
 )
 
 func init() {
@@ -25,7 +24,7 @@ func (reply) process(s *state) {
 		return
 	}
 
-	s.scriptActor("tell " + s.actor.LastMessenger + " " + strings.ToLower(strings.Join(s.words, " ")))
+	s.scriptActor("tell " + s.actor.LastMessenger + " " + s.original)
 
 	s.ok = true
 	return
