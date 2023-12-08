@@ -27,7 +27,7 @@ func (find) process(s *state) {
 	searchType := strings.ToLower(s.words[1])
 	searchText := strings.ToLower(s.words[2])
 	searchPage := 0
-	if len(s.words) == 4 {
+	if len(s.words) >= 4 {
 		page, _ := strconv.Atoi(s.words[3])
 		searchPage = page
 	}

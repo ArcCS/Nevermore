@@ -532,6 +532,14 @@ func earthdamage(caller interface{}, target interface{}, magnitude int) string {
 	return spellDamage(caller, target, magnitude, "earth")
 }
 
+func airdamage(caller interface{}, target interface{}, magnitude int) string {
+	return spellDamage(caller, target, magnitude, "air")
+}
+
+func waterdamage(caller interface{}, target interface{}, magnitude int) string {
+	return spellDamage(caller, target, magnitude, "water")
+}
+
 func elementalDamage(magnitude int, intel int) (damage int) {
 	power := 0
 	if magnitude == 1 {
@@ -557,14 +565,6 @@ func elementalDamage(magnitude int, intel int) (damage int) {
 		damage = 350 + power
 	}
 	return damage
-}
-
-func airdamage(caller interface{}, target interface{}, magnitude int) string {
-	return spellDamage(caller, target, magnitude, "air")
-}
-
-func waterdamage(caller interface{}, target interface{}, magnitude int) string {
-	return spellDamage(caller, target, magnitude, "water")
 }
 
 func light(caller interface{}, target interface{}, magnitude int) string {

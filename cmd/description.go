@@ -8,7 +8,7 @@ import (
 
 func init() {
 	addHandler(description{},
-		"Usage:  description Your super fancy description # \n \n If your description is empty you can set it the first time, otherwise after death you can change it while in the healing hand.",
+		"Usage:  description Your super fancy description \n \n If your description is empty you can set it the first time, otherwise after death you can change it while in the healing hand.",
 		permissions.Player,
 		"DESCRIPTION", "DESC")
 }

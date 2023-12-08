@@ -87,7 +87,7 @@ func (give) process(s *state) {
 		return
 	}
 
-	if target.Flags["permanent"] {
+	if target.Flags["permanent"] && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		s.msg.Actor.SendBad("You cannot get rid of this item.. it is bound to you.")
 		return
 	}

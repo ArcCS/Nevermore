@@ -1141,6 +1141,9 @@ func (m *Mob) ReceiveDamage(damage int) (int, int, int) {
 	if m.CheckFlag("inertial-barrier") {
 		finalDamage -= int(math.Ceil(float64(damage) * config.InertialDamageIgnore))
 	}
+	if m.Stam.Current < finalDamage {
+		finalDamage = m.Stam.Current
+	}
 	m.Stam.Subtract(finalDamage)
 	if finalDamage > m.WimpyValue && m.CheckFlag("flees") {
 		m.MobCommands <- "flee"
@@ -1150,6 +1153,9 @@ func (m *Mob) ReceiveDamage(damage int) (int, int, int) {
 
 func (m *Mob) ReceiveDamageNoArmor(damage int) (int, int) {
 	finalDamage := int(math.Ceil(float64(damage)))
+	if m.Stam.Current < finalDamage {
+		finalDamage = m.Stam.Current
+	}
 	m.Stam.Subtract(finalDamage)
 	if finalDamage > m.WimpyValue && m.CheckFlag("flees") {
 		m.MobCommands <- "flee"

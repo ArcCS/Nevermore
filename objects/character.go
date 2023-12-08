@@ -304,20 +304,22 @@ func (c *Character) ReturnToInventory(item *Item) {
 }
 
 func (c *Character) TimerReady(timer string) (bool, string) {
-	// Always check Global:
-	remaining := math.Ceil(float64(c.Timers["global"].Sub(time.Now()) / time.Second))
-	if remaining <= 0 {
-		if curTimer, ok := c.Timers[timer]; ok {
-			remaining = math.Ceil(float64(curTimer.Sub(time.Now()) / time.Second))
-			if remaining <= 0 {
-				return true, ""
-			}
-		} else {
+	remaining := 0.0
+	globalRemaining := math.Ceil(float64(c.Timers["global"].Sub(time.Now()) / time.Second))
+	timeCheck := timer
+	if curTimer, ok := c.Timers[timer]; ok {
+		remaining = math.Ceil(float64(curTimer.Sub(time.Now()) / time.Second))
+	}
+	if remaining <= 0 && globalRemaining <= 0 {
+		if remaining <= 0 {
 			return true, ""
 		}
-
+	} else if globalRemaining > remaining {
+		timeCheck = "global"
+		remaining = globalRemaining
 	}
-	return false, text.Gray + "You have " + strconv.Itoa(int(remaining)) + " seconds before you can perform this action."
+
+	return false, text.Gray + "You have " + strconv.Itoa(int(remaining)) + " seconds before you can perform this action. (" + timeCheck + ")"
 
 }
 
@@ -900,7 +902,7 @@ func (c *Character) AdvanceSkillExp(amount int) {
 func (c *Character) AdvanceElementalExp(amount int, element string, class int) {
 	if class == 4 {
 		if c.Skills[magicSkillMap[element]].Value < config.SkillCap {
-			c.Skills[6].Add(amount)
+			c.Skills[magicSkillMap[element]].Add(amount)
 		}
 	}
 	return
