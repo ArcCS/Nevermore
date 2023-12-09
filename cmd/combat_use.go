@@ -72,6 +72,10 @@ func (use) process(s *state) {
 	// It was on you the whole time
 	if what != nil {
 		if what.Spell != "" && what.MaxUses > 0 {
+			if objects.Rooms[s.actor.ParentId].Flags["no_magic"] {
+				s.msg.Actor.SendBad("An oppressive anti-magic aura prevents you from using magic here.")
+				return
+			}
 			spellInstance, ok := objects.Spells[strings.ToLower(what.Spell)]
 			if !ok {
 				s.msg.Actor.SendBad("Spell doesn't exist in this world. ")

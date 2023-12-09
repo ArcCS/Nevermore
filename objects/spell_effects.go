@@ -740,11 +740,15 @@ func teleport(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		switch target := target.(type) {
 		case *Character:
-			if caller == target {
-				return "$CRIPT $TELEPORT"
+			if !Rooms[caller.ParentId].Flags["no_teleport"] {
+				if caller == target {
+					return "$CRIPT $TELEPORT"
 
+				} else {
+					return "$CRIPT $TELEPORT " + target.Name
+				}
 			} else {
-				return "$CRIPT $TELEPORT " + target.Name
+				return "Oppressive magical energies prevent you from teleporting."
 			}
 		case *Mob:
 			return "$CRIPT $TELEPORT " + target.Name + " " + strconv.Itoa(Rooms[caller.ParentId].Mobs.GetNumber(target))

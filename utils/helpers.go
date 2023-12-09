@@ -21,6 +21,15 @@ func Sum(input []int) int {
 	return sum
 }
 
+func RemoveInt(slice []int, s int) []int {
+	for i, v := range slice {
+		if v == s {
+			return append(slice[:i], slice[i+1:]...)
+		}
+	}
+	return slice
+}
+
 func RandMapKeySelection(mapList map[string]int) string {
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())

@@ -97,6 +97,11 @@ func (cast) process(s *state) {
 		return
 	}
 
+	if objects.Rooms[s.actor.ParentId].Flags["no_magic"] {
+		s.msg.Actor.SendBad("An oppressive anti-magic aura prevents you from casting magic here.")
+		return
+	}
+
 	if len(s.words) > 1 {
 		name := s.input[1]
 		nameNum := 1
