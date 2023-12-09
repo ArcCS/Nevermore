@@ -13,8 +13,38 @@ import (
 )
 
 var (
-	TeleportTable = []int{117, 2567}
-	RecallRoom    = "77"
+	TeleportTable = []int{117, 2567,
+		2538, // Rymek Sewers
+		2530, //  Slimes
+		2761, //  Snake Pit
+		2740, //  Sink Hole
+		2508, //  Gars
+		2698, //  Beavers
+		1963, //  Plains
+		369,  //  Untended Crop Field
+		2483, //  Wild Garden
+		2913, //  Nexus Sewers
+		2130, //  Trolls
+		2253, //  NorthEast Eldane Marsh
+		2699, //  Crabs
+
+		//Non Hostile Teleport Rooms:
+		2696, //  Twisted Maze in Mandrake Farm
+		848,  //  SouthEast side of Rymek Island
+		1750, //  Odd Bush in Woods East of Rymek
+		1831, //  Woods between Rymek & Nexus
+		1864, //  Nexus Town Square
+		1858, //  Nexus Park middle
+		2104, //  Game Trail East of nexus
+		2182, //  Eldane Forest Oak Grove
+		2216, //  Clearing by IceWine river
+		2375, //  Beach NorthWest of Nexus
+		513,  //  BlackWoods boarder
+		2015, //  NorthWest Crystal Mountains Path
+		1991, //  Along Tilnar's Veign (right before Drow)
+		2868, //  UnderCity Grotto
+	}
+	RecallRoom = "77"
 )
 
 var Effects = map[string]func(caller interface{}, target interface{}, magnitude int) string{
