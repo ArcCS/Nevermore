@@ -12,15 +12,9 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-    - uses: actions/setup-ruby@v1
-    - name: Send Webhook Notification
-      if: always()
-      env:
-        JOB_STATUS: ${{ job.status }}
-        WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-        HOOK_OS_NAME: ${{ runner.os }}
-        WORKFLOW_NAME: ${{ github.workflow }}
-      run: |
-        git clone https://github.com/ArcCS/Nevermore.git
-        bash Nevermore/ci/discord_hook/send.sh $JOB_STATUS $WEBHOOK_URL
-      shell: bash
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: 'PR Patch Notes: \\n {{ EVENT_PAYLOAD.event.pull_request.body }}'
