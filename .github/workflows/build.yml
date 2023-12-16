@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-            cd /opt/mud/src/github.com/ArcCS/Nevermore
+            cd /opt/mud/src/github.com/ArcCS/Nevermore/server
             git pull
             go build -o server
             mv server /opt/game/
