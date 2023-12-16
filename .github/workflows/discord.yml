@@ -1,0 +1,23 @@
+name: Git Hook Message Discord
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.WEBHOOK_URL }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: 'Patch Notes: \\n {{ github.event.pull_request.body }}'
