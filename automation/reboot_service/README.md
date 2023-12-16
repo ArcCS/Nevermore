@@ -8,7 +8,7 @@ Issuing a Shutdown Command
 
 Required Python Packages
 ```bash
-pip install fastapi uvicorn neo4j xmlrpc.client
+pip install fastapi uvicorn neo4j pydanitic
 ```
 
 How to Run Locally:
