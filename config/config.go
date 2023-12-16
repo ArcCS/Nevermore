@@ -31,6 +31,7 @@ var Server = struct {
 	Running           bool
 	CreateChars       bool
 	PermissionDefault int
+	RestToken         string
 }{
 	Host:              "127.0.0.1",
 	NEOUname:          "USERNAME",
@@ -51,6 +52,7 @@ var Server = struct {
 	Running:           true,
 	CreateChars:       true,
 	PermissionDefault: 2,
+	RestToken:         "",
 }
 
 var DragonAscii = text.Red + `
@@ -163,6 +165,7 @@ func init() {
 	Server.PGAddress = viper.GetString("pgaddress")
 	Server.Port = viper.GetString("port")
 	Server.PGPort = viper.GetInt("pgport")
+	Server.RestToken = viper.GetString("resttoken")
 	// Setup global logging format
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile | log.Lmicroseconds)
 

@@ -8,6 +8,7 @@ require (
 	github.com/go-openapi/errors v0.20.1 // indirect
 	github.com/go-openapi/strfmt v0.21.1 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
+	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jinzhu/copier v0.3.4

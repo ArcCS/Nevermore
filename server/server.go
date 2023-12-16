@@ -36,6 +36,7 @@ func main() {
 	StartTime()
 	intelligence.StartRoomAI()
 	StartSync()
+	go comms.ListenRest()
 	comms.Listen(config.Server.Host, config.Server.Port)
 }
 

@@ -1,0 +1,35 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: SSH and build
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd /opt/mud/src/github.com/ArcCS/Nevermore
+            git pull
+            go build -o server
+            mv server /opt/game/
+
+      - name: Call REST endpoint
+        uses: fjogeleit/http-request-action@master
+        with:
+          url: ${{ secrets.REST_CLEAN_SHUTDOWN }}
+          method: 'POST'
+          data: '{"token":"${{ secrets.REST_SHUTDOWN_TOKEN }}"}'
+          contentType: 'application/json'
