@@ -21,6 +21,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
+            source ~/.bash_profile
+            source ~/.bashrc
             cd /opt/mud/src/github.com/ArcCS/Nevermore/server
             git pull
             go build -o server
