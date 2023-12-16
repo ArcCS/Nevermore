@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Discord notification
         env:
-          DISCORD_WEBHOOK: ${{ secrets.WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.WEBHOOK_URL }}
         uses: Ilshidur/action-discord@master
         with:
-          args: 'PR Patch Notes: \\n {{ EVENT_PAYLOAD.event.pull_request.body }}'
+          args: 'The project {{ EVENT_PAYLOAD.event.pull_request.body }} has been deployed.'
