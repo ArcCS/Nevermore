@@ -28,13 +28,11 @@ func (berserk) process(s *state) {
 		return
 	}
 
-	berz, ok := s.actor.Flags["berserk"]
-	if ok {
-		if berz {
-			s.msg.Actor.SendBad("You're already in the grips of the red rage!")
-			return
-		}
+	if s.actor.CheckFlag("berserk") {
+		s.msg.Actor.SendBad("You're already in the grips of the red rage!")
+		return
 	}
+
 	ready, msg := s.actor.TimerReady("combat_berserk")
 	if !ready {
 		s.msg.Actor.SendBad(msg)

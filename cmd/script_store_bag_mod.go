@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strconv"
 )
@@ -138,6 +140,7 @@ func (modconfirm) process(s *state) {
 					s.actor.Gold.Value -= newCost
 					target.Weight = newWeight
 					target.Save()
+					objects.Items[target.ItemId], _ = objects.LoadItem(data.LoadItem(target.ItemId))
 
 					s.msg.Actor.SendInfo("You pay ", strconv.Itoa(newCost), " gold to make the bag ", strconv.Itoa(newWeight), " pounds.")
 				}
@@ -160,6 +163,7 @@ func (modconfirm) process(s *state) {
 				target.Flags["weightless_chest"] = true
 				target.Flags["permanent"] = true
 				target.Save()
+				objects.Items[target.ItemId], _ = objects.LoadItem(data.LoadItem(target.ItemId))
 
 				s.msg.Actor.SendInfo("You pay ", strconv.Itoa(weightLess), " gold to make the bag weightless..")
 			}
@@ -179,6 +183,7 @@ func (modconfirm) process(s *state) {
 					s.actor.Gold.Value -= newCost
 					target.MaxUses = newCapacity
 					target.Save()
+					objects.Items[target.ItemId], _ = objects.LoadItem(data.LoadItem(target.ItemId))
 
 					s.msg.Actor.SendInfo("You pay ", strconv.Itoa(newCost), " gold to make the bag hold ", strconv.Itoa(newCapacity), " items.")
 				}
