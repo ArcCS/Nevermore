@@ -21,11 +21,11 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-            source ~/.bash_profile
+            shopt -s expand_aliases
             source ~/.bashrc
             cd /opt/mud/src/github.com/ArcCS/Nevermore/server
             git pull
-            go build -o server
+            /usr/local/go/bin/go build -o server
             mv server /opt/game/
 
       - name: Call REST endpoint
