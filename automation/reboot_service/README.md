@@ -8,7 +8,7 @@ Issuing a Shutdown Command
 
 Required Python Packages
 ```bash
-pip install fastapi uvicorn neo4j pydanitic
+pip install fastapi uvicorn neo4j pydantic
 ```
 
 How to Run Locally:

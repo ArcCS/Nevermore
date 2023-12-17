@@ -13,9 +13,10 @@ class User(BaseModel):
     password: SecretStr
 
 # Connect to supervisord
-server = ServerProxy('http://' + config_vars["host"] + ':9001/RPC2')
 
-config_vars = json.load(open('/opt/game/config.json')
+config_vars = json.load(open('/opt/game/config.json'))
+
+server = ServerProxy('http://' + config_vars["host"] + ':9001/RPC2')
 
 # Neo4j connection
 driver = GraphDatabase.driver("bolt://" + config_vars["host"] + ":7687", auth=basic_auth(config_vars["neouname"], config_vars["neopword"]))
@@ -57,7 +58,7 @@ def restart_process(process_name):
     return start_process(process_name)
 
 @app.get("/stop_nexus/")
-async def stop_nexus(user: User)):
+async def stop_nexus(user: User):
     if not get_user(user.username, user.password.get_secret_value()):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
@@ -66,7 +67,7 @@ async def stop_nexus(user: User)):
     return {"message": "Process stopped successfully"}
 
 @app.get("/start_nexus/")
-async def start_nexus(user: User)):
+async def start_nexus(user: User):
     if not get_user(user.username, user.password.get_secret_value()):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
@@ -75,7 +76,7 @@ async def start_nexus(user: User)):
     return {"message": "Process started successfully"}
 
 @app.get("/restart_nexus/")
-async def restart_nexus(user: User)):
+async def restart_nexus(user: User):
     if not get_user(username, password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
@@ -84,7 +85,7 @@ async def restart_nexus(user: User)):
     return {"message": "Process restarted successfully"}
 
 @app.get("/clean_shutdown")
-def call_go_endpoint(user: User)):
+def call_go_endpoint(user: User):
     if not get_user(username, password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
     url = "http://127.0.0.1:1234/clean_shutdown"
