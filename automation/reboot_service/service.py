@@ -13,9 +13,10 @@ class User(BaseModel):
     password: SecretStr
 
 # Connect to supervisord
-server = ServerProxy('http://' + config_vars["host"] + ':9001/RPC2')
 
 config_vars = json.load(open('/opt/game/config.json'))
+
+server = ServerProxy('http://' + config_vars["host"] + ':9001/RPC2')
 
 # Neo4j connection
 driver = GraphDatabase.driver("bolt://" + config_vars["host"] + ":7687", auth=basic_auth(config_vars["neouname"], config_vars["neopword"]))
