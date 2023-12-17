@@ -22,6 +22,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             shopt -s expand_aliases
+            export GOPATH=/opt/mud
             source ~/.bashrc
             cd /opt/mud/src/github.com/ArcCS/Nevermore/server
             git pull
