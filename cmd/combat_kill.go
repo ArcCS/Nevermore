@@ -141,7 +141,7 @@ func (kill) process(s *state) {
 			}
 		}
 
-		if s.actor.Permission.HasAnyFlags(permissions.Ranger) && s.actor.Equipment.Main.ItemType == 4 {
+		if s.actor.Permission.HasAnyFlags(permissions.Ranger) && s.actor.Equipment.Main.ItemType == 4 && s.actor.Tier > 7 {
 			// Sniper
 			if utils.Roll(1000, 1, 0) == 1 {
 				// Throw a snipe

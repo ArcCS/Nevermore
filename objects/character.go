@@ -222,7 +222,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			}
 		}
 
-		if FilledCharacter.Class == 4 || FilledCharacter.Class == 6 {
+		if FilledCharacter.Class == 4 || FilledCharacter.Class == 5 {
 			FilledCharacter.ClassProps["enchants"] = int(charData["enchants"].(int64))
 		}
 		if FilledCharacter.Class == 5 || FilledCharacter.Class == 6 {
@@ -615,7 +615,7 @@ func (c *Character) Save() {
 	charData["heals"] = 0
 	charData["restores"] = 0
 	charData["rerolls"] = c.Rerolls
-	if c.Class == 4 || c.Class == 6 {
+	if c.Class == 4 || c.Class == 5 {
 		charData["enchants"] = c.ClassProps["enchants"]
 	}
 	if c.Class == 5 || c.Class == 6 {
@@ -1192,7 +1192,7 @@ func (c *Character) MaxWeight() int {
 func (c *Character) Refresh() {
 	c.Broadcasts = config.BaseBroads + (c.GetStat("int") * config.IntBroad)
 	c.Evals = config.BaseEvals + (int(math.Ceil(float64(c.GetStat("int")) / float64(config.IntEvalDivInt))))
-	if c.Class == 4 || c.Class == 6 {
+	if c.Class == 4 || c.Class == 5 {
 		c.ClassProps["enchants"] = 3
 	}
 	if c.Class == 5 || c.Class == 6 {
