@@ -46,7 +46,7 @@ func (information) process(s *state) {
 	showRestores := false
 	restores := 0
 
-	if s.actor.Class == 4 || s.actor.Class == 6 {
+	if s.actor.Class == 4 || s.actor.Class == 5 {
 		showEnchants = true
 		enchants = s.actor.ClassProps["enchants"]
 	}
