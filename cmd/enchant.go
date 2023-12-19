@@ -10,8 +10,8 @@ import (
 // Syntax: DROP item
 func init() {
 	addHandler(enchant{},
-		"Usage:  enchant itemName # \n \n Allows mages to imbue damaging magics into weapons, and paladins to imbue protective magic into armor",
-		permissions.Mage|permissions.Paladin,
+		"Usage:  enchant itemName # \n \n Allows mages to imbue damaging magics into weapons, and clerics to imbue protective magic into armor",
+		permissions.Mage|permissions.Cleric,
 		"enchant")
 }
 
@@ -54,7 +54,7 @@ func (enchant) process(s *state) {
 		return
 	}
 
-	if s.actor.Class == 6 && !utils.IntIn(target.ItemType, config.ArmorTypes) {
+	if s.actor.Class == 5 && !utils.IntIn(target.ItemType, config.ArmorTypes) {
 		s.msg.Actor.SendBad("You can only enchant armor!")
 		return
 	}

@@ -54,7 +54,7 @@ func (sellchest) process(s *state) {
 		}
 
 		if len(target.Storage.Contents) >= 1 {
-			if s.actor.PartyFollow != "" || len(s.actor.PartyFollowers) > 0 {
+			if s.actor.PartyFollow != "" || len(s.actor.PartyFollowersNoGM()) > 0 {
 				s.msg.Actor.SendInfo("The pawn broker nods to the ", target.Name, " and says, 'I'll give you a fair price for the contents, but only for the stuff that hasn't been used.. and you can't back out, if you agree I'll go through and everything and then I'll split the gold to everyone in your party, are you still interested?'")
 			} else {
 				s.msg.Actor.SendInfo("The pawn broker nods to the ", target.Name, " and says, 'I'll give you a fair price for the contents, but only for the stuff that hasn't been used.. and you can't back out, if you agree I'll go through and everything and toss you the gold, are you still interested?'")
@@ -133,7 +133,7 @@ func (sellchestConfirm) process(s *state) {
 			data.StoreItemSale(itemId, s.actor.CharId, s.actor.Tier, itemValue)
 		}
 
-		if s.actor.PartyFollow == "" && len(s.actor.PartyFollowers) == 0 {
+		if s.actor.PartyFollow == "" && len(s.actor.PartyFollowersNoGM()) == 0 {
 			s.actor.Gold.Add(finalValue)
 			s.msg.Actor.SendGood("The pawn broker gives you ", strconv.Itoa(finalValue), " for the contents of ", target.Name, ".")
 			return
@@ -142,12 +142,12 @@ func (sellchestConfirm) process(s *state) {
 			leadChar := objects.ActiveCharacters.Find(s.actor.PartyFollow)
 			if leadChar != nil {
 				s.participant = leadChar
-				goldSplit := finalValue / (len(leadChar.PartyFollowers) + 1)
+				goldSplit := finalValue / (len(leadChar.PartyFollowersNoGM()) + 1)
 				msg := "The pawn broker gives you " + strconv.Itoa(goldSplit) + " for the contents of " + target.Name + "."
 				s.participant.Gold.Add(goldSplit)
 				s.msg.Participant.Send(msg)
 				// Give the gold...
-				for _, follower := range leadChar.PartyFollowers {
+				for _, follower := range leadChar.PartyFollowersNoGM() {
 					followerChar := objects.ActiveCharacters.Find(follower)
 					if followerChar != nil {
 						if _, err := followerChar.Write([]byte(msg)); err != nil {
@@ -159,13 +159,13 @@ func (sellchestConfirm) process(s *state) {
 				return
 			}
 		}
-		if len(s.actor.PartyFollowers) > 0 {
-			goldSplit := finalValue / (len(s.actor.PartyFollowers) + 1)
+		if len(s.actor.PartyFollowersNoGM()) > 0 {
+			goldSplit := finalValue / (len(s.actor.PartyFollowersNoGM()) + 1)
 			msg := "The pawn broker gives you " + strconv.Itoa(goldSplit) + " for the contents of " + target.Name + "."
 			s.actor.Gold.Add(goldSplit)
 			s.msg.Actor.Send(msg)
 			// Give the gold...
-			for _, follower := range s.actor.PartyFollowers {
+			for _, follower := range s.actor.PartyFollowersNoGM() {
 				followerChar := objects.ActiveCharacters.Find(follower)
 				if followerChar != nil {
 					if _, err := followerChar.Write([]byte(msg)); err != nil {

@@ -130,14 +130,14 @@ var Classes = map[string]classDef{
 	},
 	"ranger": {
 		Desc:              "The ranger is a skillful fighter with the abilities to track opponents, to search for hidden exits, monsters, and treasures, and to hide from enemies very well. A ranger can hasten, and thus be allowed to attack faster than other classes. Rangers are necessary for some of the quests, as tracking can be required in some areas. Parties without a ranger can become hopelessly lost.",
-		Skills:            "Haste, Snipe, Sneak",
+		Skills:            "Haste, Sneak",
 		Stats:             "Dexterity",
 		Armor:             "Light, Medium",
 		Races:             "Human , Halfling",
 		Health:            12,
 		Stamina:           14,
 		Mana:              5,
-		WeaponAdvancement: .7,
+		WeaponAdvancement: 1,
 	},
 	"thief": {
 		Desc:              "A thief is a very valuable player in any group of adventurers, and in some cases, necessary. A thief is capable of picking locks and stealing from opponents, and has the ability to sneak undetected from place to place.",

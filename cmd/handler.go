@@ -11,6 +11,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -62,13 +63,17 @@ func addHandler(h handler, helpString string, permission permissions.Permissions
 // dispatch handler takes the command sent and attempts to find it in a stack of command locations for execution
 func dispatchHandler(s *state) {
 
+	log.Println("Last Activity was: " + strconv.Itoa(int(time.Now().Sub(objects.GetLastActivity(s.actor.Name)).Seconds())))
+
 	if len(s.cmd) > 0 {
-		//if !s.scripting {
+
 		if !utils.StringIn(strings.ToUpper(s.cmd), emotes) && !utils.StringIn(strings.ToUpper(s.cmd), excludeFromLogs) {
 			log.Println(s.actor.Name + " sent " + s.cmd + " " + strings.Join(s.input, " "))
+		}
+
+		if !s.scripting {
 			objects.LastActivity[s.actor.Name] = time.Now()
 		}
-		//}
 
 		if s.where.RoomId == config.OocRoom &&
 			!s.actor.Permission.HasAnyFlags(permissions.Dungeonmaster, permissions.Gamemaster) &&

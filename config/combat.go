@@ -21,6 +21,9 @@ var CombatModifiers = map[string]int{
 }
 
 var (
+	MultiLower = .1
+	MultiUpper = .2
+
 	ProximityChance = 80
 	ProximityStep   = 10
 

@@ -1256,6 +1256,15 @@ func (c *Character) LoseParty() {
 	return
 }
 
+func (c *Character) PartyFollowersNoGM() (followers []string) {
+	for i, char := range c.PartyFollowers {
+		if !ActiveCharacters.Find(char).Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+			followers = append(followers, c.PartyFollowers[i])
+		}
+	}
+	return followers
+}
+
 func (c *Character) Unfollow() {
 	if c.PartyFollow != "" {
 		leadChar := ActiveCharacters.Find(c.PartyFollow)
