@@ -85,7 +85,7 @@ var DragonAscii = text.Red + `
 ` + text.White
 
 // Flip to false to turn down verbose logs
-var DebugVerbose = true
+var DebugVerbose = false
 
 var MaxPlayItemNameLength = 26
 
