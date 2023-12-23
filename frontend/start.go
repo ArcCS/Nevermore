@@ -147,17 +147,13 @@ func (m *start) startProcess() {
 					return
 				}
 			} else {
-				if strings.Split(m.remoteAddr, ":")[0] == strings.Split(objects.IpMap[string(m.input)], ":")[0] {
-					m.buf.Send(text.Good, "Resuming session...\n", text.Reset)
-					var character = objects.ActiveCharacters.Find(string(m.input))
-					log.Println("Disconnect old lease")
-					character.Disconnect()
-					log.Println("Resume game")
-					ResumeGame(m.frontend, character)
-				} else {
-					m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.  (Your IP has possibly changed in a DC?)", text.Reset)
-					return
-				}
+				// Attempt to resume
+				m.buf.Send(text.Good, "Resuming session...\n", text.Reset)
+				var character = objects.ActiveCharacters.Find(string(m.input))
+				log.Println("Disconnect old lease")
+				character.Disconnect()
+				log.Println("Resume game")
+				ResumeGame(m.frontend, character)
 			}
 		}
 		m.buf.Send(text.Bad, "Invalid option selected. Please try again.", text.Reset)
