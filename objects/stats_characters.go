@@ -100,7 +100,13 @@ func (c *characterStats) List() []string {
 			continue
 		}
 
-		calc := time.Now().Sub(LastActivity[character.Name])
+		var calc time.Duration
+		if !LastActivity[character.Name].IsZero() {
+			calc = time.Now().Sub(LastActivity[character.Name])
+		}
+		if calc.Minutes() > 50 {
+			log.Println("High Character Idle Time from list with last activity" + LastActivity[character.Name].String() + " and current time " + time.Now().String() + " for character " + character.Name + " with idle time of " + strconv.Itoa(int(calc.Minutes())) + " minutes")
+		}
 		charState := ""
 		if calc.Minutes() > 2 {
 			charState = fmt.Sprintf("[idle: %s]", strconv.Itoa(int(calc.Minutes())))
