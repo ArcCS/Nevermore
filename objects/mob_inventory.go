@@ -105,6 +105,9 @@ func (i *MobInventory) RestartPerms() {
 
 // Search the MobInventory to return a specific instance of something
 func (i *MobInventory) Search(alias string, num int, observer *Character) *Mob {
+	if alias == "" {
+		return nil
+	}
 	if i == nil {
 		return nil
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -102,88 +103,53 @@ func (cast) process(s *state) {
 		return
 	}
 
+	name := ""
 	if len(s.words) > 1 {
-		name := s.input[1]
-		nameNum := 1
+		name = s.input[1]
+	}
+	nameNum := 1
 
-		if len(s.words) > 2 {
-			// Try to snag a number off the list
-			if val, err := strconv.Atoi(s.words[2]); err == nil {
-				nameNum = val
-			}
+	if len(s.words) > 2 {
+		// Try to snag a number off the list
+		if val, err := strconv.Atoi(s.words[2]); err == nil {
+			nameNum = val
 		}
+	}
 
-		// Are we casting on a character
-		var whatChar *objects.Character
+	// Are we casting on a character
+	var whatChar *objects.Character
 
-		// Check if it's a remote spell
-		if utils.StringIn(spellInstance.Name, objects.RemoteSpells) {
-			whatChar = objects.ActiveCharacters.Find(name)
-			// It was a person!
-			if whatChar != nil {
-				s.participant = whatChar
-				s.actor.RunHook("combat")
-				s.actor.Victim = whatChar
-				if strings.Contains(spellInstance.Effect, "damage") {
-					//TODO PVP flags etc.
-					s.msg.Actor.SendBad("No PVP implemented yet. ")
-					s.ok = true
-					return
-				}
-				if spellInstance.Name == "heal" {
-					if s.actor.ClassProps["heals"] <= 0 {
-						s.msg.Actor.SendBad("You cannot cast heal anymore today.")
-						s.ok = true
-						return
-					} else {
-						s.actor.ClassProps["heals"]--
-					}
-				}
-				if spellInstance.Name == "restore" {
-					if s.actor.ClassProps["restores"] <= 0 {
-						s.msg.Actor.SendBad("You cannot cast restore anymore today.")
-						s.ok = true
-						return
-					} else {
-						s.actor.ClassProps["restore"]--
-					}
-				}
-				s.actor.FlagOn("casting", "cast")
-				msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
-				s.actor.FlagOff("casting", "cast")
-				s.actor.Mana.Subtract(cost)
-				if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
-					s.actor.SetTimer("combat", config.CombatCooldown)
-				}
-				s.actor.SetTimer("cast", config.CombatCooldown)
-				s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
-				s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
-				s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatChar.Name)
-				if strings.Contains(msg, "$CRIPT") {
-					go Script(whatChar, strings.Replace(msg, "$CRIPT ", "", 1))
-				} else if msg != "" {
-					s.msg.Participant.SendGood(msg)
-				}
-				s.ok = true
-				return
-			}
-		}
+	// Check if it's a remote spell
+	if utils.StringIn(spellInstance.Name, objects.RemoteSpells) {
+		whatChar = objects.ActiveCharacters.Find(name)
 
-		whatChar = s.where.Chars.Search(name, s.actor)
 		// It was a person!
 		if whatChar != nil {
-			if whatChar == s.actor && spellInstance.Name == "restore" {
-				s.msg.Actor.SendBad("You can only cast this spell on others.")
-				return
-			}
 			s.participant = whatChar
 			s.actor.RunHook("combat")
-			s.actor.Victim = whatChar
 			if strings.Contains(spellInstance.Effect, "damage") {
 				//TODO PVP flags etc.
 				s.msg.Actor.SendBad("No PVP implemented yet. ")
 				s.ok = true
 				return
+			}
+			if spellInstance.Name == "heal" {
+				if s.actor.ClassProps["heals"] <= 0 {
+					s.msg.Actor.SendBad("You cannot cast heal anymore today.")
+					s.ok = true
+					return
+				} else {
+					s.actor.ClassProps["heals"]--
+				}
+			}
+			if spellInstance.Name == "restore" {
+				if s.actor.ClassProps["restores"] <= 0 {
+					s.msg.Actor.SendBad("You cannot cast restore anymore today.")
+					s.ok = true
+					return
+				} else {
+					s.actor.ClassProps["restore"]--
+				}
 			}
 			s.actor.FlagOn("casting", "cast")
 			msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
@@ -194,86 +160,124 @@ func (cast) process(s *state) {
 			}
 			s.actor.SetTimer("cast", config.CombatCooldown)
 			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
-			s.msg.Participant.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 			s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatChar.Name)
-			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatChar.Name)
-			s.msg.Participant.SendInfo(s.actor.Name + " cast a " + spellInstance.Name + " spell on you")
 			if strings.Contains(msg, "$CRIPT") {
-				if whatChar == s.actor {
-					go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
-				} else {
-					go Script(whatChar, strings.Replace(msg, "$CRIPT ", "", 1))
-				}
+				go Script(whatChar, strings.Replace(msg, "$CRIPT ", "", 1))
 			} else if msg != "" {
-				s.msg.Participant.Send(msg)
+				s.msg.Participant.SendGood(msg)
 			}
 			s.ok = true
 			return
 		}
+	}
 
-		// Try Mobs Last
-		var whatMob *objects.Mob
-		whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
-		// It was a mob!
-		if whatMob != nil {
-			s.actor.RunHook("combat")
-			s.actor.Victim = whatMob
-			s.actor.FlagOn("casting", "cast")
-			msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
-			s.actor.FlagOff("casting", "cast")
-			s.actor.Mana.Subtract(cost)
-			if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
-				s.actor.SetTimer("combat", 8)
-			}
-			s.actor.SetTimer("cast", 8)
-			s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
-			s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
-			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatMob.Name)
-			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatMob.Name)
-			if strings.Contains(msg, "$CRIPT") {
-				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
-			} else if msg != "" {
-				s.msg.Actor.SendGood(msg)
-			}
-			DeathCheck(s, whatMob)
-			s.ok = true
+	whatChar = s.where.Chars.Search(name, s.actor)
+	// It was a person!
+	if whatChar != nil {
+		log.Println("Selected Character: ", whatChar.Name)
+		if whatChar == s.actor && spellInstance.Name == "restore" {
+			s.msg.Actor.SendBad("You can only cast this spell on others.")
 			return
 		}
-	} else {
-
-		if strings.Contains(spellInstance.Effect, "damage") {
-			s.msg.Actor.SendBad("You cannot cast this on yourself.")
-			s.ok = true
-			return
-		}
-
+		s.participant = whatChar
 		s.actor.RunHook("combat")
+		if strings.Contains(spellInstance.Effect, "damage") {
+			//TODO PVP flags etc.
+			s.msg.Actor.SendBad("No PVP implemented yet. ")
+			s.ok = true
+			return
+		}
 		s.actor.FlagOn("casting", "cast")
-		msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
+		msg = objects.Cast(s.actor, whatChar, spellInstance.Effect, spellInstance.Magnitude)
 		s.actor.FlagOff("casting", "cast")
+		s.actor.Mana.Subtract(cost)
 		if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
 			s.actor.SetTimer("combat", config.CombatCooldown)
 		}
 		s.actor.SetTimer("cast", config.CombatCooldown)
+		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
+		s.msg.Participant.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
+		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
+		s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatChar.Name)
+		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatChar.Name)
+		s.msg.Participant.SendInfo(s.actor.Name + " cast a " + spellInstance.Name + " spell on you")
+		if strings.Contains(msg, "$CRIPT") {
+			if whatChar == s.actor {
+				go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+			} else {
+				go Script(whatChar, strings.Replace(msg, "$CRIPT ", "", 1))
+			}
+		} else if msg != "" {
+			s.msg.Participant.Send(msg)
+		}
+		s.ok = true
+		return
+	}
+
+	// Try Mobs Last
+	var whatMob *objects.Mob
+	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
+
+	if whatMob == nil {
+		log.Println("Try to resolve victim.")
+		if s.actor.Victim != nil {
+			log.Println("Casting on victim")
+			whatMob = s.actor.Victim.(*objects.Mob)
+		}
+	}
+
+	// It was a mob!
+	if whatMob != nil {
+		s.actor.RunHook("combat")
+		s.actor.Victim = whatMob
+		s.actor.FlagOn("casting", "cast")
+		msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
+		s.actor.FlagOff("casting", "cast")
 		s.actor.Mana.Subtract(cost)
+		if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+			s.actor.SetTimer("combat", 8)
+		}
+		s.actor.SetTimer("cast", 8)
 		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
-		if utils.StringIn(spellInstance.Name, objects.AmbiguousTargets) {
-			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell.")
-			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell.")
-		} else {
-			s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
-			s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + config.TextDescPronoun[s.actor.Gender] + "self.")
-		}
+		s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on " + whatMob.Name)
+		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + whatMob.Name)
 		if strings.Contains(msg, "$CRIPT") {
 			go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
 		} else if msg != "" {
 			s.msg.Actor.SendGood(msg)
 		}
+		DeathCheck(s, whatMob)
 		s.ok = true
 		return
 	}
+
+	s.actor.RunHook("combat")
+	s.actor.FlagOn("casting", "cast")
+	msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
+	s.actor.FlagOff("casting", "cast")
+	if (s.actor.Class == 5 || s.actor.Class == 4 || s.actor.Class == 7) && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+		s.actor.SetTimer("combat", config.CombatCooldown)
+	}
+	s.actor.SetTimer("cast", config.CombatCooldown)
+	s.actor.Mana.Subtract(cost)
+	s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
+	s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
+	if utils.StringIn(spellInstance.Name, objects.AmbiguousTargets) {
+		s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell.")
+		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell.")
+	} else {
+		s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
+		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + config.TextDescPronoun[s.actor.Gender] + "self.")
+	}
+	if strings.Contains(msg, "$CRIPT") {
+		go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))
+	} else if msg != "" {
+		s.msg.Actor.SendGood(msg)
+	}
+	s.ok = true
+	return
 
 	s.msg.Actor.SendInfo("Cast on who?")
 	s.ok = true

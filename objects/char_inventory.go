@@ -68,6 +68,9 @@ func (i *CharInventory) SearchAll(alias string) *Character {
 
 // Search the CharInventory to return a specific instance of something
 func (i *CharInventory) Search(alias string, observer *Character) *Character {
+	if alias == "" {
+		return nil
+	}
 	if i == nil {
 		return nil
 	}
