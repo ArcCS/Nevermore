@@ -221,7 +221,7 @@ func (cast) process(s *state) {
 
 	if whatMob == nil {
 		log.Println("Try to resolve victim.")
-		if s.actor.Victim != nil {
+		if s.actor.Victim != nil && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
 			log.Println("Casting on victim")
 			whatMob = s.actor.Victim.(*objects.Mob)
 		}
