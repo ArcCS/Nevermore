@@ -47,7 +47,7 @@ func (buildCopy) process(s *state) {
 			s.msg.Actor.SendBad("What item ID do you want to spawn?")
 			return
 		}
-		newItemId, succ := data.CopyItem(itemId)
+		newItemId, succ := data.CopyItem(itemId, s.actor.Name)
 		if succ {
 			objects.Items[newItemId], _ = objects.LoadItem(data.LoadItem(newItemId))
 			s.msg.Actor.SendGood("Created New item with id: " + strconv.Itoa(newItemId))

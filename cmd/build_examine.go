@@ -259,6 +259,8 @@ func (examine) process(s *state) {
 				{"V", "name", charData["name"].(string), "Characters Name"},
 				{"V", "description", text.WrapSoft(charData["description"].(string), rowLength/5), "Description"},
 				{"X", "character_id", charData["character_id"].(int64), "DB Char ID"},
+				{"V", "class", config.AvailableClasses[charData["class"].(int64)], "Character Class"},
+				{"V", "race", config.AvailableRaces[charData["race"].(int64)], "Character Race"},
 				{"V", "parentid", charData["parentid"].(int64), "Room ID that the character is in."},
 				{"V", "title", charData["title"].(string), "Character Titles"},
 				{"V", "bankgold", charData["bankgold"].(int64), "Amount of gold in the bank"},

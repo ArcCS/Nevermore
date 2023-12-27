@@ -124,6 +124,11 @@ func (modconfirm) process(s *state) {
 			return
 		}
 
+		if target.Creator != s.actor.Name {
+			s.msg.Actor.SendBad("You can only modify bags you created.")
+			return
+		}
+
 		switch actionStr {
 		case "WEIGHT":
 			if newWeight, err := strconv.Atoi(s.words[2]); err == nil {

@@ -253,7 +253,11 @@ func (cast) process(s *state) {
 		return
 	}
 
-	s.actor.RunHook("combat")
+	if name == "" && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+		s.msg.Actor.SendBad("You must specify a target for this spell.")
+		return
+	}
+
 	s.actor.FlagOn("casting", "cast")
 	msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 	s.actor.FlagOff("casting", "cast")
@@ -279,6 +283,4 @@ func (cast) process(s *state) {
 	s.ok = true
 	return
 
-	s.msg.Actor.SendInfo("Cast on who?")
-	s.ok = true
 }
