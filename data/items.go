@@ -127,6 +127,7 @@ func UpdateItem(itemData map[string]interface{}) bool {
 	results, err := execWrite(
 		"MATCH (i:item) WHERE i.item_id=$item_id SET "+
 			`i.ndice = $ndice,
+		i.creator = $creator,
 		i.weight = $weight,
 		i.description = $description,
 		i.weapon_speed = $weapon_speed,
@@ -149,6 +150,7 @@ func UpdateItem(itemData map[string]interface{}) bool {
 		i.magic = $magic`,
 		map[string]interface{}{
 			"item_id":          itemData["item_id"],
+			"creator":          itemData["creator"],
 			"ndice":            itemData["ndice"],
 			"weight":           itemData["weight"],
 			"description":      itemData["description"],
@@ -183,12 +185,13 @@ func UpdateItem(itemData map[string]interface{}) bool {
 	}
 }
 
-func CopyItem(itemId int) (int, bool) {
+func CopyItem(itemId int, creator string) (int, bool) {
 	newItemId := nextId("item")
-	results, err := execWrite("MATCH (i:item{item_id:$itemId}) CALL apoc.refactor.cloneNodes([i]) YIELD output SET output.item_id=$newId RETURN output.item_id",
+	results, err := execWrite("MATCH (i:item{item_id:$itemId}) CALL apoc.refactor.cloneNodes([i]) YIELD output SET output.item_id=$newId, output.creator=$creator RETURN output.item_id",
 		map[string]interface{}{
-			"itemId": itemId,
-			"newId":  newItemId,
+			"itemId":  itemId,
+			"newId":   newItemId,
+			"creator": creator,
 		},
 	)
 	if err != nil {

@@ -164,6 +164,7 @@ func (i *Item) ToggleFlag(flagName string) bool {
 func (i *Item) Save() {
 	itemData := make(map[string]interface{})
 	itemData["item_id"] = i.ItemId
+	itemData["creator"] = i.Creator
 	itemData["ndice"] = i.NumDice
 	itemData["weight"] = i.Weight
 	itemData["description"] = i.Description

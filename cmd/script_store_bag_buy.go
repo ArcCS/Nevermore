@@ -39,7 +39,7 @@ func (buybag) process(s *state) {
 		return
 	}
 
-	newItemId, succ := data.CopyItem(bagItem)
+	newItemId, succ := data.CopyItem(bagItem, s.actor.Name)
 	if succ {
 		objects.Items[newItemId], _ = objects.LoadItem(data.LoadItem(newItemId))
 		objects.Items[newItemId].Name = name
