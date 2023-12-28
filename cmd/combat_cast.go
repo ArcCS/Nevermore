@@ -128,8 +128,7 @@ func (cast) process(s *state) {
 			s.participant = whatChar
 			s.actor.RunHook("combat")
 			if strings.Contains(spellInstance.Effect, "damage") {
-				//TODO PVP flags etc.
-				s.msg.Actor.SendBad("No PVP implemented yet. ")
+				s.msg.Actor.SendBad("Who are you trying to cast on?")
 				s.ok = true
 				return
 			}
@@ -184,7 +183,7 @@ func (cast) process(s *state) {
 		s.actor.RunHook("combat")
 		if strings.Contains(spellInstance.Effect, "damage") {
 			//TODO PVP flags etc.
-			s.msg.Actor.SendBad("No PVP implemented yet. ")
+			s.msg.Actor.SendBad("Who are you trying to cast on?")
 			s.ok = true
 			return
 		}
@@ -219,10 +218,8 @@ func (cast) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 
-	if whatMob == nil {
-		log.Println("Try to resolve victim.")
+	if whatMob == nil && name == "" {
 		if s.actor.Victim != nil && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
-			log.Println("Casting on victim")
 			whatMob = s.actor.Victim.(*objects.Mob)
 		}
 	}
@@ -253,11 +250,12 @@ func (cast) process(s *state) {
 		return
 	}
 
-	if name == "" && utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
-		s.msg.Actor.SendBad("You must specify a target for this spell.")
+	if utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+		s.msg.Actor.SendBad("Who are you trying to cast on?")
 		return
 	}
 
+	log.Println("Casting on self")
 	s.actor.FlagOn("casting", "cast")
 	msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 	s.actor.FlagOff("casting", "cast")
