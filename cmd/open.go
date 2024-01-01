@@ -30,7 +30,7 @@ func (open) process(s *state) {
 		}
 	}
 
-	if what, ok := s.where.Exits[exitTxt]; ok {
+	if what := s.where.FindExit(exitTxt); what != nil {
 		// Is item a door that can be close
 		if !what.Flags["closeable"] {
 			s.msg.Actor.SendBad(what.Name, " is already open.")

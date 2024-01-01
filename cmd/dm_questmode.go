@@ -29,7 +29,7 @@ func (questmode) process(s *state) {
 
 	if s.words[0] == "ON" {
 		config.QuestMode = true
-		objects.ActiveCharacters.MessageAll("A barely percetible mist fills the air and the realms grow disturbingly quiet. \n "+
+		objects.ActiveCharacters.MessageAll("A barely perceptible mist fills the air and the realms grow disturbingly quiet. \n "+
 			"(Quest Mode Has been activated: Death Loss capped at 10%, max loss to current level base/Tiered Exp gains are lifted)", config.BroadcastChannel)
 		s.msg.Actor.SendGood("Realm Wide Quest mode has been activated")
 		return
