@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 )
@@ -39,7 +40,7 @@ func (search) process(s *state) {
 
 	// Look for hidden exits
 	for _, exit := range s.where.Exits {
-		if exit.Flags["hidden"] {
+		if exit.Flags["hidden"] || objects.Rooms[exit.ToId].Flags["active"] == true {
 			if utils.Roll(100, 1, 0) <= searchChance {
 				s.msg.Actor.SendGood("You find hidden exit: ", exit.Name, "!")
 			}

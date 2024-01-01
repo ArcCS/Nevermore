@@ -212,6 +212,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"a.passages = 0,"+
 			"a.bonuspoints = $bonuspoints,"+
 			"a.title = $title, "+
+			"a.class = $class, "+
 			"a.tier = $tier,  "+
 			"a.strcur = $strcur, "+
 			"a.concur = $concur, "+
@@ -260,6 +261,7 @@ func SaveChar(charData map[string]interface{}) bool {
 			"characterid": charData["character_id"],
 			"name":        charData["name"],
 			"title":       charData["title"],
+			"class":       charData["class"],
 			"tier":        charData["tier"],
 			"experience":  charData["experience"],
 			"spells":      charData["spells"],

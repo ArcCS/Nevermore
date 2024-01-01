@@ -570,6 +570,7 @@ func (c *Character) Save() {
 	charData["title"] = c.Title
 	charData["name"] = c.Name
 	charData["tier"] = c.Tier
+	charData["class"] = c.Class
 	charData["character_id"] = c.CharId
 	charData["experience"] = c.Experience.Value
 	charData["spells"] = strings.Join(c.Spells, ",")
@@ -813,6 +814,9 @@ func (c *Character) GainExperience(value int) {
 }
 
 func (c *Character) CanEquip(item *Item) (bool, string) {
+	if c.Class >= 99 {
+		return true, ""
+	}
 	if c.Class == 8 {
 		//check if weapon
 		if utils.IntIn(item.ItemType, []int{0, 1, 2, 3, 4}) {

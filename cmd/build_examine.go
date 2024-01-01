@@ -118,6 +118,7 @@ func (examine) process(s *state) {
 				{"V", "breathes", mobRef.BreathWeapon, text.WrapSoft("Element breath, earth air fire water paralytic pestilence", rowLength/5)},
 				{"V", "spells", text.WrapSoft(strings.Join(mobRef.Spells, ", "), rowLength/5), "Available spells"},
 				{"V", "placement", strconv.Itoa(mobRef.Placement), "Mob spawn location"},
+				{"T", "no_specials", strconv.FormatBool(mobRef.Flags["no_specials"]), "Whether the mob crits/doubles or not"},
 				{"T", "fast_moving", strconv.FormatBool(mobRef.Flags["fast_moving"]), "Mob is moves quickly"},
 				{"T", "guard_treasure", strconv.FormatBool(mobRef.Flags["guard_treasure"]), "Mob guards treasure."},
 				{"T", "take_treasure", strconv.FormatBool(mobRef.Flags["take_treasure"]), "Mob takes treasure."},

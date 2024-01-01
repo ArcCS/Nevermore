@@ -139,6 +139,7 @@ var Debug = struct {
 	Things:     false,
 }
 
+var QuestMode = false
 var StartingRoom = 3
 var OocRoom = 2
 var ServerShutdown = make(chan bool)

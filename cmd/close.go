@@ -25,10 +25,9 @@ func (closeExit) process(s *state) {
 	// Test for partial exit names
 	exitTxt := strings.ToLower(strings.Join(s.words, " "))
 	if !utils.StringIn(strings.ToUpper(exitTxt), directionals) {
-		for txtE := range s.where.Exits {
-			if strings.Contains(txtE, exitTxt) {
-				exitTxt = txtE
-			}
+		exitS := s.where.FindExit(exitTxt)
+		if exitS != nil {
+			exitTxt = exitS.Name
 		}
 	}
 

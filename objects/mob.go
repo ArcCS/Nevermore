@@ -27,6 +27,9 @@ type Mob struct {
 	Effects       map[string]*Effect
 	Hooks         map[string]map[string]*Hook
 
+	MobType    int // construct/celestial/daemonic/undead/humanoid/beast/draconic/elemental
+	MobSubType int // Melee, Ranged, Caster, Support
+
 	// ParentId is the room id for the room
 	ParentId   int
 	Gold       int
@@ -103,6 +106,8 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 			"say":      make(map[string]*Hook),
 			"attacked": make(map[string]*Hook),
 		},
+		0,
+		0,
 		-1,
 		int(mobData["gold"].(int64)),
 		int(mobData["experience"].(int64)),
@@ -429,17 +434,19 @@ func (m *Mob) Tick() {
 				resisted := 0
 				reflectDamage := 0
 				actualDamage := m.InflictDamage()
-				if utils.Roll(10, 1, 0) <= penalty {
-					attackStyleRoll := utils.Roll(10, 1, 0)
-					if attackStyleRoll <= config.MobVital {
-						multiplier = 2
-						vitalStrike = true
-					} else if attackStyleRoll <= config.MobCritical {
-						multiplier = 4
-						criticalStrike = true
-					} else if attackStyleRoll <= config.MobDouble {
-						multiplier = 2
-						doubleDamage = true
+				if !m.Flags["no_sepcials"] {
+					if utils.Roll(10, 1, 0) <= penalty {
+						attackStyleRoll := utils.Roll(10, 1, 0)
+						if attackStyleRoll <= config.MobVital {
+							multiplier = 2
+							vitalStrike = true
+						} else if attackStyleRoll <= config.MobCritical {
+							multiplier = 4
+							criticalStrike = true
+						} else if attackStyleRoll <= config.MobDouble {
+							multiplier = 2
+							doubleDamage = true
+						}
 					}
 				}
 				if vitalStrike {
@@ -549,17 +556,19 @@ func (m *Mob) Tick() {
 					resisted := 0
 					actualDamage := m.InflictDamage()
 					reflectDamage := 0
-					if utils.Roll(10, 1, 0) <= penalty {
-						attackStyleRoll := utils.Roll(10, 1, 0)
-						if attackStyleRoll <= config.MobVital {
-							multiplier = 2
-							vitalStrike = true
-						} else if attackStyleRoll <= config.MobCritical {
-							multiplier = 4
-							criticalStrike = true
-						} else if attackStyleRoll <= config.MobDouble {
-							multiplier = 2
-							doubleDamage = true
+					if !m.Flags["no_sepcials"] {
+						if utils.Roll(10, 1, 0) <= penalty {
+							attackStyleRoll := utils.Roll(10, 1, 0)
+							if attackStyleRoll <= config.MobVital {
+								multiplier = 2
+								vitalStrike = true
+							} else if attackStyleRoll <= config.MobCritical {
+								multiplier = 4
+								criticalStrike = true
+							} else if attackStyleRoll <= config.MobDouble {
+								multiplier = 2
+								doubleDamage = true
+							}
 						}
 					}
 					if vitalStrike {
@@ -800,7 +809,7 @@ func (m *Mob) Follow(params []string) {
 							}
 						}
 						rand.Seed(time.Now().UnixNano())
-						r := rand.Int()
+						r := rand.Intn(50)
 						t, _ := time.ParseDuration(string(rune(r)) + "ms")
 						time.Sleep(t)
 					}
@@ -1308,6 +1317,7 @@ func (m *Mob) Save() {
 	mobData["ranged_attack"] = utils.Btoi(m.Flags["ranged_attack"])
 	mobData["flees"] = utils.Btoi(m.Flags["flees"])
 	mobData["blinds"] = utils.Btoi(m.Flags["blinds"])
+	mobData["no_specials"] = utils.Btoi(m.Flags["no_specials"])
 	mobData["placement"] = m.Placement
 	mobData["immobile"] = utils.Btoi(m.Flags["immobile"])
 	data.UpdateMob(mobData)

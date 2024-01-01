@@ -133,7 +133,9 @@ func (kill) process(s *state) {
 				s.msg.Actor.SendInfo("You landed a lethal blow on the " + whatMob.Name)
 				s.msg.Observers.SendInfo(s.actor.Name + " landed a lethal blow on " + whatMob.Name)
 				s.actor.Equipment.DamageWeapon("main", 1)
+				data.StoreCombatMetric("lethal", 0, 0, whatMob.Stam.Current, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 				whatMob.AddThreatDamage(whatMob.Stam.Current, s.actor)
+				s.actor.AdvanceSkillExp(int((float64(whatMob.Stam.Current) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 				whatMob.Stam.Current = 0
 				DeathCheck(s, whatMob)
 				s.actor.SetTimer("combat", config.CombatCooldown)
@@ -277,7 +279,9 @@ func DeathCheck(s *state, m *objects.Mob) {
 		//s.msg.Actor.SendGood("Highest Tier: " + strconv.Itoa(highestTier))
 		//s.msg.Actor.SendGood(strconv.Itoa(tierLimit))
 		experienceAwarded := 0
-		if m.CheckFlag("hostile") {
+		if config.QuestMode {
+			experienceAwarded = m.Experience
+		} else if m.CheckFlag("hostile") {
 			experienceAwarded = int(float64(m.Experience) * (config.ExperienceReduction[expReduce] + (float64(utils.Roll(10, 1, 0)) / 100)))
 		} else {
 			experienceAwarded = m.Experience / 10
@@ -287,12 +291,14 @@ func DeathCheck(s *state, m *objects.Mob) {
 			charClean := s.where.Chars.SearchAll(member.Name)
 			if charClean != nil {
 				partyCheck := false
-				for _, name := range partyMembers {
-					if charClean.Name == name {
-						partyCheck = true
+				if config.QuestMode == false {
+					for _, name := range partyMembers {
+						if charClean.Name == name {
+							partyCheck = true
+						}
 					}
 				}
-				if partyCheck || m.CheckThreatTable(charClean.Name) {
+				if config.QuestMode || partyCheck || m.CheckThreatTable(charClean.Name) {
 					if int(math.Ceil((float64(charClean.Tier+1))*1.2)) < highestTier {
 						buildActorString += text.Cyan + "You learn nothing for the defeat of the " + m.Name + "\n"
 					} else {

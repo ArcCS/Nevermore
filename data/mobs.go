@@ -26,7 +26,7 @@ func LoadMobs() []interface{} {
 	sdice:m.sdice, 
 	ndice:m.ndice, 
 	pdice:m.pdice, 
-	spells:m.spells, 
+	spells:m.spells,
 	casting_probability:m.casting_probability, 
 	armor:m.armor, 
 	numwander:m.numwander, 
@@ -40,6 +40,7 @@ func LoadMobs() []interface{} {
 	commands: m.commands,
 	drops: collect({chance: d.chance, item_id: i.item_id}),
 	flags:{
+	no_specials: m.no_specials,
 	fast_moving: m.fast_moving,
 	guard_treasure: m.guard_treasure,
 	take_treasure: m.take_treasure,
@@ -109,6 +110,7 @@ func LoadMob(mobId int) map[string]interface{} {
 	placement:m.placement,
 	drops: collect({chance: d.chance, item_id: i.item_id}),
 	flags:{
+	no_specials: m.no_specials,
 	day_only: m.day_only,
 	night_only: m.night_only,
 	fast_moving: m.fast_moving,
@@ -199,6 +201,7 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		m.blinds = 0,
 		m.placement = 5,
 		m.immobile = 0,
+		m.no_specials = 0,
 		m.hostile=0`,
 		map[string]interface{}{
 			"mobId":   mob_id,
@@ -271,6 +274,7 @@ func UpdateMob(mobData map[string]interface{}) bool {
 		m.blinds=$blinds,
 		m.placement=$placement,
 		m.immobile=$immobile,
+		m.no_specials=$no_specials,
 		m.hostile=$hostile`,
 		map[string]interface{}{
 			"mob_id":              mobData["mob_id"],
@@ -326,6 +330,7 @@ func UpdateMob(mobData map[string]interface{}) bool {
 			"placement":           mobData["placement"],
 			"immobile":            mobData["immobile"],
 			"commands":            mobData["commands"],
+			"no_specials":         mobData["no_specials"],
 		},
 	)
 	if err != nil {

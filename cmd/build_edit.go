@@ -417,6 +417,15 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(s.words[3])
 					character.Tier = value
 					s.msg.Actor.SendGood("Changed Tier")
+				case "class":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Class = value
+					character.ClassTitle = config.ClassTitle(value, character.Gender, character.Tier)
+					s.msg.Actor.SendGood("Changed Class")
+				case "race":
+					value, _ := strconv.Atoi(s.words[3])
+					character.Race = value
+					s.msg.Actor.SendGood("Changed Race")
 				case "experience":
 					types, _ := strconv.Atoi(s.words[3])
 					character.Experience.Value = types
