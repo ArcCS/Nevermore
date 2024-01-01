@@ -13,6 +13,7 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/jinzhu/copier"
 	"log"
+	"time"
 )
 
 // game embeds a frontend instance adding fields and methods specific to
@@ -52,7 +53,7 @@ func (g *game) gameInit() {
 	if _, ok := objects.Rooms[g.character.ParentId]; !ok {
 		g.character.ParentId = config.StartingRoom
 	}
-	if g.character.Class == 100 {
+	if g.character.Class == 100 || g.character.Class == 99 {
 		g.character.Permission.ToggleFlag(g.permissions)
 	} else {
 		g.character.Permission.ToggleFlag(permissions.Anyone)
@@ -67,6 +68,7 @@ func (g *game) gameInit() {
 	objects.Rooms[g.character.ParentId].UnlockRoom("GameInit", false)
 
 	cmd.Script(g.character, "$POOF")
+	objects.LastActivity[g.character.Name] = time.Now()
 	// Initialize this characters ticker
 	g.nextFunc = g.gameProcess
 }

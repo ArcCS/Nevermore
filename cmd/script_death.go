@@ -98,8 +98,6 @@ func (scriptDeath) process(s *state) {
 		s.actor.Placement = 3
 		s.actor.ParentId = healingHand.RoomId
 
-		s.msg.Actor.Send("In what seems like a dream, an imposing black gate shrouded in fog speeds into view.. There is nothing else here to greet you, except a sorrowful sense of loneliness and longing... A chilling thought claws at the inside of your skull, behind your eyes, that this scene isn't right.. and just as swiftly as you arrived, the gate races past... and you awaken in another place..\n\n\n " + text.Reset)
-
 		s.actor.RemoveEffect("blind")
 		s.actor.RemoveEffect("poison")
 		s.actor.RemoveEffect("disease")
@@ -109,11 +107,15 @@ func (scriptDeath) process(s *state) {
 
 		totalExpNeeded := config.MaxLoss(s.actor.Tier)
 		finalMin := config.TierExpLevels[s.actor.Tier] - int(float64(totalExpNeeded))
+
+		if config.QuestMode == true {
+			finalMin = config.TierExpLevels[s.actor.Tier]
+		}
 		// Determine the death penalty
 		if s.actor.Tier > config.FreeDeathTier {
 			deathRoll := utils.Roll(100, 1, 0)
 			switch {
-			case deathRoll <= 20: // Light Passage
+			case config.QuestMode == true || deathRoll <= 30: // Light Passage
 				s.msg.Actor.Send(text.Green + "You've pass through this death with minimal effects. (10% xp loss) \n\n" + text.Reset)
 				log.Println(s.actor.Name + " has died with 10% loss.")
 				s.actor.Experience.SubMax(int(float64(totalExpNeeded)*.15), finalMin)
