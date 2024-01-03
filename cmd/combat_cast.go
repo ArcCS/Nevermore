@@ -227,7 +227,9 @@ func (cast) process(s *state) {
 	// It was a mob!
 	if whatMob != nil {
 		s.actor.RunHook("combat")
-		s.actor.Victim = whatMob
+		if utils.StringIn(spellInstance.Name, objects.OffensiveSpells) {
+			s.actor.Victim = whatMob
+		}
 		s.actor.FlagOn("casting", "cast")
 		msg = objects.Cast(s.actor, whatMob, spellInstance.Effect, spellInstance.Magnitude)
 		s.actor.FlagOff("casting", "cast")

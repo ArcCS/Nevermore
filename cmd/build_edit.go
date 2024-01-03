@@ -476,7 +476,7 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendGood("Changed piety")
 				case "stamcur":
 					value, _ := strconv.Atoi(s.words[3])
-					character.Stam.Current = value
+					character.Stam.Add(value)
 					s.msg.Actor.SendGood("Changed current stamina")
 				case "stammax":
 					value, _ := strconv.Atoi(s.words[3])
@@ -488,7 +488,7 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendGood("Changed mana maximum")
 				case "manacur":
 					value, _ := strconv.Atoi(s.words[3])
-					character.Mana.Current = value
+					character.Mana.Add(value)
 					s.msg.Actor.SendGood("Changed mana current")
 				case "vitmax":
 					value, _ := strconv.Atoi(s.words[3])
@@ -496,7 +496,7 @@ func (edit) process(s *state) {
 					s.msg.Actor.SendGood("Changed vitality max")
 				case "vitcur":
 					value, _ := strconv.Atoi(s.words[3])
-					character.Vit.Current = value
+					character.Vit.Add(value)
 					s.msg.Actor.SendGood("Changed vit current")
 				case "sharpexp":
 					value, _ := strconv.Atoi(s.words[3])
