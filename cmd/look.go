@@ -159,7 +159,7 @@ func (look) process(s *state) {
 	}
 
 	// Check exits
-	whatExit := s.where.FindExit(strings.ToLower(name))
+	whatExit := s.where.FindExit(strings.ToLower(name), s.actor)
 
 	// Nice, looking at an exit.
 	if whatExit != nil {
