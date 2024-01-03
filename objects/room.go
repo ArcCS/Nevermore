@@ -248,7 +248,7 @@ func (r *Room) CleanExits() {
 func (r *Room) FindExit(exitName string, observer *Character) *Exit {
 	for k, v := range r.Exits {
 		if strings.Contains(strings.ToLower(k), strings.ToLower(exitName)) {
-			if _, ok := Rooms[v.ToId]; !ok {
+			if _, ok := Rooms[v.ToId]; ok {
 				if Rooms[v.ToId].Flags["active"] || observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 					return v
 				}
