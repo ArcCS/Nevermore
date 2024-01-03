@@ -23,7 +23,7 @@ func (pick) process(s *state) {
 
 	targetStr := s.words[0]
 
-	whatExit := s.where.FindExit(strings.ToLower(targetStr))
+	whatExit := s.where.FindExit(strings.ToLower(targetStr), s.actor)
 	if whatExit != nil {
 		if whatExit.Placement != s.actor.Placement {
 			s.msg.Actor.SendBad("You are too far away to pick  ", whatExit.Name)

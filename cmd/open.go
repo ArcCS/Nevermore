@@ -24,13 +24,13 @@ func (open) process(s *state) {
 	// Test for partial exit names
 	exitTxt := strings.ToLower(strings.Join(s.words, " "))
 	if !utils.StringIn(strings.ToUpper(exitTxt), directionals) {
-		exitS := s.where.FindExit(exitTxt)
+		exitS := s.where.FindExit(exitTxt, s.actor)
 		if exitS != nil {
 			exitTxt = exitS.Name
 		}
 	}
 
-	if what := s.where.FindExit(exitTxt); what != nil {
+	if what := s.where.FindExit(exitTxt, s.actor); what != nil {
 		// Is item a door that can be close
 		if !what.Flags["closeable"] {
 			s.msg.Actor.SendBad(what.Name, " is already open.")
