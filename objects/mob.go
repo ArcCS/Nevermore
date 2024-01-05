@@ -651,7 +651,9 @@ func (m *Mob) DeathCheck(target *Character) bool {
 			expReduce = 5
 		}
 		experienceAwarded := 0
-		if m.CheckFlag("hostile") {
+		if config.QuestMode {
+			experienceAwarded = m.Experience
+		} else if m.CheckFlag("hostile") {
 			experienceAwarded = int(float64(m.Experience) * (config.ExperienceReduction[expReduce] + (float64(utils.Roll(10, 1, 0)) / 100)))
 		} else {
 			experienceAwarded = m.Experience / 10
@@ -666,7 +668,10 @@ func (m *Mob) DeathCheck(target *Character) bool {
 						partyCheck = true
 					}
 				}
-				if partyCheck || m.CheckThreatTable(charClean.Name) {
+				if config.QuestMode {
+					buildActorString += text.Cyan + "You earn " + strconv.Itoa(experienceAwarded) + " experience for the defeat of the " + m.Name + "\n"
+					charClean.GainExperience(experienceAwarded)
+				} else if partyCheck || m.CheckThreatTable(charClean.Name) {
 					if int(math.Ceil((float64(charClean.Tier+1))*1.2)) < highestTier {
 						buildActorString += text.Cyan + "You learn nothing for the defeat of the " + m.Name + "\n"
 					} else {
