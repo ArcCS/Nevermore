@@ -4,7 +4,6 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
 	"strconv"
 )
 
@@ -44,7 +43,6 @@ func (shift) process(s *state) {
 		}
 
 		for _, char := range s.where.Chars.Contents {
-			log.Println("Send folks around!")
 			if char != nil {
 				s.where.Chars.Remove(char)
 				to.Chars.Add(char)
@@ -52,8 +50,6 @@ func (shift) process(s *state) {
 				go Script(char, "LOOK")
 				s.msg.Actor.SendInfo("You teleported " + char.Name + " to " + to.Name + "(" + strconv.Itoa(to.RoomId) + ")")
 				s.ok = true
-				return
-
 			} else {
 				s.msg.Actor.SendBad("Send who where?")
 				return
