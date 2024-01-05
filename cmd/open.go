@@ -10,7 +10,7 @@ func init() {
 	addHandler(open{},
 		"Usage:  open exit_name \n \n Open the specified exit.",
 		permissions.Player,
-		"OPEN")
+		"OPEN", "OP")
 }
 
 type open cmd

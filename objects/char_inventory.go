@@ -224,6 +224,17 @@ func (i *CharInventory) ListChars(observer *Character) []*Character {
 	return items
 }
 
+// ListChars the items in this CharInventory
+func (i *CharInventory) ListAll() []*Character {
+	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
+	items := make([]*Character, 0)
+
+	for _, c := range i.Contents {
+		items = append(items, c)
+	}
+	return items
+}
+
 // ListPeoChars ListChars the items in this CharInventory
 func (i *CharInventory) ListPeoChars(observer *Character) []*Character {
 	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing

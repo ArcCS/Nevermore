@@ -95,12 +95,12 @@ func (steal) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(targetStr, targetNum, s.actor)
 	if whatMob != nil {
-		if whatMob.CheckFlag("no_steal") {
+		if whatMob.CheckFlag("no_steal") && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendBad("Try as you might you can not find a way to steal from this enemy.")
 			return
 		}
 
-		if whatMob.Placement != s.actor.Placement {
+		if whatMob.Placement != s.actor.Placement && !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			s.msg.Actor.SendBad("You are too far away to steal from ", whatMob.Name)
 			return
 		}

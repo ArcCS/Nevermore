@@ -94,6 +94,14 @@ func (look) process(s *state) {
 	whatChar = s.where.Chars.Search(name, s.actor)
 	// It was a person!
 	if whatChar != nil {
+
+		if len(s.words) > 1 {
+			findItem := whatChar.Equipment.Search(s.words[1], 1)
+			if findItem != nil {
+				s.msg.Actor.SendInfo(findItem.Look())
+				return
+			}
+		}
 		s.msg.Actor.SendInfo(whatChar.Look())
 		s.msg.Actor.SendInfo(text.Gray + whatChar.Description + "\n")
 		equipTemplate := "{{if .Chest}}\n{{.SubPronoun}} {{.Isare}} wearing {{.Chest}} about {{.PosPronoun}} body{{end}}" +

@@ -27,6 +27,7 @@ func (give) process(s *state) {
 	targetStr := s.words[0]
 	targetNum := 1
 	whoStr := s.words[1]
+	whoNum := 1
 
 	if val, err := strconv.Atoi(s.words[1]); err == nil {
 		targetNum = val
@@ -38,6 +39,42 @@ func (give) process(s *state) {
 		}
 	} else {
 		whoStr = s.words[1]
+	}
+
+	if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		if len(s.words) == 4 {
+			if val, err := strconv.Atoi(s.words[3]); err == nil {
+				whoNum = val
+			}
+		} else if len(s.words) == 3 {
+			if val, err := strconv.Atoi(s.words[2]); err == nil {
+				whoNum = val
+			}
+		}
+		var who *objects.Mob
+		who = s.where.Mobs.Search(whoStr, whoNum, s.actor)
+		if who == nil {
+			s.msg.Actor.SendInfo("Give who what???")
+			return
+		}
+
+		target := s.actor.Inventory.Search(targetStr, targetNum)
+
+		if target == nil {
+			s.msg.Actor.SendInfo("What're you trying to give away?")
+			return
+		}
+
+		s.actor.RunHook("act")
+		if err := s.actor.Inventory.Remove(target); err != nil {
+			s.msg.Actor.SendBad("Game eror when removing item from inventory.")
+			log.Println(err)
+			return
+		}
+		who.Inventory.Add(target)
+
+		s.msg.Actor.SendGood("You give ", target.Name, " to ", who.Name, ".")
+		return
 	}
 
 	var who *objects.Character

@@ -18,7 +18,7 @@ func init() {
 		"GO", "N", "NE", "E", "SE", "S", "SW", "W", "NW", "U", "D",
 		"NORTH", "NORTHEAST", "EAST", "SOUTHEAST",
 		"SOUTH", "SOUTHWEST", "WEST", "NORTHWEST",
-		"UP", "DOWN", "OUT")
+		"UP", "DOWN", "OUT", "O")
 }
 
 var (
@@ -47,6 +47,7 @@ var (
 		"D":         "DOWN",
 		"DOWN":      "DOWN",
 		"OUT":       "OUT",
+		"O":         "OUT",
 	}
 )
 

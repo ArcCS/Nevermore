@@ -11,7 +11,7 @@ func init() {
 	addHandler(closeExit{},
 		"Usage:  close exitName \n\n Close the specified exit so no one can pass through it.",
 		permissions.Player,
-		"CLOSE")
+		"CLOSE", "CL", "CLO")
 }
 
 type closeExit cmd
