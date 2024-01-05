@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
 	"strconv"
 )
 
@@ -42,7 +43,10 @@ func (shift) process(s *state) {
 			return
 		}
 
-		for _, char := range s.where.Chars.Contents {
+		charList := s.where.Chars.ListAll()
+
+		for _, char := range charList {
+			log.Println("Shifting: ", char.Name)
 			if char != nil {
 				s.where.Chars.Remove(char)
 				to.Chars.Add(char)
@@ -56,5 +60,4 @@ func (shift) process(s *state) {
 			}
 		}
 	}
-	s.msg.Actor.SendBad("Send who where?")
 }
