@@ -109,7 +109,7 @@ var Inventory = struct {
 	CrowdSize int // If inventory has more player than this it's a crowd
 }{
 	Compact:   4,
-	CrowdSize: 10,
+	CrowdSize: 25,
 }
 
 // Login default configuration
