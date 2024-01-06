@@ -898,9 +898,10 @@ func (m *Mob) MobScript(inputStr string) {
 }
 
 func (m *Mob) Stun(amt int) {
-	// TODO: Diminishing returns and max stun length
-	if amt > m.MobStunned {
-		m.MobStunned += amt
+	if !m.Flags["no_stun"] {
+		if amt > m.MobStunned {
+			m.MobStunned += amt
+		}
 	}
 }
 
