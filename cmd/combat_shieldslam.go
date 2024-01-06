@@ -63,11 +63,6 @@ func (slam) process(s *state) {
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
-		_, ok := whatMob.ThreatTable[s.actor.Name]
-		if ok {
-			s.msg.Actor.SendBad("You have already engaged ", whatMob.Name, " in combat!")
-			return
-		}
 		s.actor.RunHook("combat")
 		s.actor.Victim = whatMob
 		// Shortcut a missing weapon:
@@ -92,6 +87,7 @@ func (slam) process(s *state) {
 		data.StoreCombatMetric("shieldslam", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 		whatMob.AddThreatDamage(whatMob.Stam.Max/10, s.actor)
 		whatMob.Stun(int(config.ShieldStun * float64(s.actor.GetStat("pie"))))
+		whatMob.CurrentTarget = s.actor.Name
 		s.msg.Actor.SendInfo("You slammed the " + whatMob.Name + " with your shield for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
 		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.TextPosPronoun[s.actor.Gender] + " shield into " + whatMob.Name)
 		if whatMob.CheckFlag("reflection") {
