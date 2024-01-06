@@ -35,6 +35,7 @@ var ScriptList = map[string]string{
 	"$BAGLIST":    "Usage: $BAGLIST, list bag purchasing options",
 	"$BUYBAG":     "Usage: $BUYBAG, buys a bag",
 	"$MODBAG":     "Usage: $MODBAG, modifies a bag",
+	"$SPLIT":      "Usage: $SPLIT, generates a split order for items",
 }
 
 func (scripts) process(s *state) {
