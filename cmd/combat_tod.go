@@ -13,7 +13,7 @@ func init() {
 	addHandler(tod{},
 		"Usage:  touch target # \n\n Attempt the secret art of a touch of death on your living target",
 		permissions.Monk,
-		"touch", "tod", "touch-of-death")
+		"tod", "touch-of-death")
 }
 
 type tod cmd
