@@ -434,7 +434,7 @@ func (m *Mob) Tick() {
 				resisted := 0
 				reflectDamage := 0
 				actualDamage := m.InflictDamage()
-				if !m.Flags["no_sepcials"] {
+				if !m.Flags["no_specials"] {
 					if utils.Roll(10, 1, 0) <= penalty {
 						attackStyleRoll := utils.Roll(10, 1, 0)
 						if attackStyleRoll <= config.MobVital {
@@ -556,7 +556,7 @@ func (m *Mob) Tick() {
 					resisted := 0
 					actualDamage := m.InflictDamage()
 					reflectDamage := 0
-					if !m.Flags["no_sepcials"] {
+					if !m.Flags["no_specials"] {
 						if utils.Roll(10, 1, 0) <= penalty {
 							attackStyleRoll := utils.Roll(10, 1, 0)
 							if attackStyleRoll <= config.MobVital {
