@@ -6,13 +6,14 @@
 package cmd
 
 import (
+	"log"
+	"strings"
+	"time"
+
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
-	"strings"
-	"time"
 )
 
 // handler is the interface for command processing handlers.
@@ -256,7 +257,24 @@ func dispatchHandler(s *state) {
 				}
 			}
 		}
+		if len(s.cmd) > 1 {
+			filtered_values := []string{}
+			h_keys := []string{}
+			for key, _ := range handlers {
+				h_keys = append(h_keys, key)
+			}
+			for _, value := range h_keys {
 
+				if strings.HasPrefix(value, s.cmd) {
+					if len(filtered_values) == 0 || handlers[filtered_values[0]] != handlers[value] {
+						filtered_values = append(filtered_values, value)
+					}
+				}
+			}
+			if len(filtered_values) == 1 {
+				s.cmd = filtered_values[0]
+			}
+		}
 		switch handler, valid := handlers[s.cmd]; {
 		case valid:
 			if s.actor.Permission.HasFlag(handlerPermission[s.cmd]) || s.actor.Permission.HasAnyFlags(permissions.Dungeonmaster, permissions.Gamemaster) {
