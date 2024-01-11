@@ -90,8 +90,6 @@ func (steal) process(s *state) {
 		return
 	}
 
-	// TODO: Steal from players inventory if PvP flag is set
-
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(targetStr, targetNum, s.actor)
 	if whatMob != nil {
@@ -176,8 +174,28 @@ func (steal) process(s *state) {
 			s.msg.Actor.SendInfo("That item isn't on the target.")
 			return
 		}
+	}
+
+	// Try searching through players
+	var whatChar *objects.Character
+	whatChar = s.where.Chars.Search(targetStr, s.actor)
+	if whatChar != nil && s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		what := whatChar.Inventory.Search(nameStr, nameNum)
+		if what != nil {
+			if err := whatChar.Inventory.Remove(what); err != nil {
+				s.msg.Actor.SendBad("Game Error when attempting to steal item from player.")
+				log.Println("Error removing item from player: ", err)
+				return
+			}
+			s.actor.Inventory.Add(what)
+			s.msg.Actor.SendGood("You steal a ", what.Name, " from ", whatChar.Name, ".")
+			return
+		} else {
+			s.msg.Actor.SendInfo("That item isn't on the target.")
+			return
+		}
 	} else {
-		s.msg.Actor.SendBad("What are you trying to steal from?")
+		s.msg.Actor.SendBad("Who are you trying to steal from?")
 		s.ok = true
 		return
 	}
