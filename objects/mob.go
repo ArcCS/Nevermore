@@ -1203,9 +1203,9 @@ func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {
 			resisting += .25
 		}
 	}
-	if resisting > 0 {
+	/*if resisting > 0 {
 		resisting = (float64(m.Int.Current) / 30) * resisting
-	}
+	}*/
 
 	if m.CheckFlag("resist-magic") {
 		resisting += .10
