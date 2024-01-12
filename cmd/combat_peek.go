@@ -51,8 +51,6 @@ func (peek) process(s *state) {
 		}
 	}
 
-	//TODO: Peek players inventory if PvP flag is set
-
 	var whatMob *objects.Mob
 	whatMob = s.where.Mobs.Search(name, nameNum, s.actor)
 	if whatMob != nil {
@@ -92,10 +90,22 @@ func (peek) process(s *state) {
 		} else {
 			s.msg.Actor.Send("  ", strings.Join(whatMob.Inventory.List(), ", "))
 		}
+	}
+
+	// Try searching through players
+	var whatChar *objects.Character
+	whatChar = s.where.Chars.Search(name, s.actor)
+	if whatChar != nil && s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		inv := whatChar.Inventory.List()
+		s.msg.Actor.SendInfo("In their inventory:")
+		if len(inv) == 0 {
+			s.msg.Actor.Send("  No items")
+		} else {
+			s.msg.Actor.Send("  ", strings.Join(whatChar.Inventory.List(), ", "))
+		}
 	} else {
 		s.msg.Actor.SendBad("Peek whose inventory?")
+		return
 	}
-	s.ok = true
-	return
 
 }
