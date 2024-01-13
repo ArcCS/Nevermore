@@ -2,15 +2,16 @@ package frontend
 
 import (
 	"fmt"
+	"math/rand"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
-	"math/rand"
-	"strconv"
-	"strings"
-	"time"
 )
 
 // account embeds a frontend instance adding fields and methods specific to
@@ -186,6 +187,9 @@ func (a *newPCharacter) helpDisplay(subject string) {
 
 func validateFastPStep(choiceInput string) bool {
 	inputs := strings.Split(choiceInput, " ")
+	if len(inputs) != 2 {
+		return false
+	}
 	if inputs[0] != "f" {
 		if inputs[0] != "m" {
 			return false

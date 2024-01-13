@@ -2,11 +2,12 @@ package objects
 
 import (
 	"encoding/json"
-	"github.com/jinzhu/copier"
 	"log"
 	"math/rand"
 	"strings"
 	"time"
+
+	"github.com/jinzhu/copier"
 )
 
 type Equipment struct {
@@ -310,7 +311,7 @@ func (e *Equipment) Search(alias string, nameNum int) *Item {
 	return nil
 }
 
-func (e *Equipment) Equip(item *Item) (ok bool) {
+func (e *Equipment) Equip(item *Item, charClass int) (ok bool) {
 	ok = false
 	itemSlot := ""
 
@@ -406,27 +407,40 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 		itemSlot = "hands"
 		ok = true
 	} //hands
-	if item.ItemType == 0 && e.Main == (*Item)(nil) {
-		e.Main = item
-		itemSlot = "main"
-		ok = true
+	if item.ItemType >= 0 && item.ItemType <= 3 {
+		log.Printf("trying to equip %+v. mainhand: %+v  offhand: %+v char class: %d", item, e.Main, e.Off, charClass)
+		if e.Main == (*Item)(nil) {
+			log.Printf("hi")
+			e.Main = item
+			itemSlot = "main"
+			ok = true
+		} else if e.Off == (*Item)(nil) && charClass == 2 {
+			log.Printf("trying to equip offhand %+v. mainhand: %+v  offhand: %+v char class: %d", item, e.Main, e.Off, charClass)
+			e.Off = item
+			itemSlot = "off"
+			ok = true
+		}
 	} //sharp
-	if item.ItemType == 1 && e.Main == (*Item)(nil) {
-		e.Main = item
-		itemSlot = "main"
-		ok = true
-	} //thrust
-	if item.ItemType == 2 && e.Main == (*Item)(nil) {
-		e.Main = item
-		itemSlot = "main"
-		ok = true
-	} //blunt
-	if item.ItemType == 3 && e.Main == (*Item)(nil) {
-		e.Main = item
-		itemSlot = "main"
-		ok = true
-	} //pole
-	if item.ItemType == 4 && e.Main == (*Item)(nil) {
+	/*	if item.ItemType == 1 {
+			if e.Main == (*Item)(nil) {
+				e.Main = item
+				itemSlot = "main"
+				ok = true
+			} else if e.Off == (*Item)(nil) {
+
+			}
+		} //thrust
+		if item.ItemType == 2 && e.Main == (*Item)(nil) {
+			e.Main = item
+			itemSlot = "main"
+			ok = true
+		} //blunt
+		if item.ItemType == 3 && e.Main == (*Item)(nil) {
+			e.Main = item
+			itemSlot = "main"
+			ok = true
+		} //pole
+	*/if item.ItemType == 4 && e.Main == (*Item)(nil) {
 		e.Main = item
 		itemSlot = "main"
 		ok = true
@@ -843,7 +857,7 @@ func (e *Equipment) Jsonify() string {
 	}
 }
 
-func RestoreEquipment(jsonString string) *Equipment {
+func RestoreEquipment(jsonString string, charClass int) *Equipment {
 	obj := make([]map[string]interface{}, 0)
 	NewEquipment := &Equipment{}
 	err := json.Unmarshal([]byte(jsonString), &obj)
@@ -866,7 +880,7 @@ func RestoreEquipment(jsonString string) *Equipment {
 		if _, ok := item["adjustment"]; ok {
 			newItem.Adjustment = int(item["adjustment"].(float64))
 		}
-		NewEquipment.Equip(&newItem)
+		NewEquipment.Equip(&newItem, charClass)
 	}
 	return NewEquipment
 }

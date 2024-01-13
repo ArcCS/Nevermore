@@ -2,18 +2,19 @@ package objects
 
 import (
 	"encoding/json"
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/data"
-	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/prompt"
-	"github.com/ArcCS/Nevermore/text"
-	"github.com/ArcCS/Nevermore/utils"
 	"io"
 	"log"
 	"math"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/prompt"
+	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
 )
 
 type Character struct {
@@ -119,7 +120,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			writer,
 			StyleNone,
 			int(charData["character_id"].(int64)),
-			RestoreEquipment(charData["equipment"].(string)),
+			RestoreEquipment(charData["equipment"].(string), int(charData["class"].(int64))),
 			RestoreInventory(charData["inventory"].(string)),
 			0,
 			make(map[string]bool),

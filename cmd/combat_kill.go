@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/data"
 	"log"
 	"math"
 	"strconv"
+
+	"github.com/ArcCS/Nevermore/data"
 
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
@@ -238,6 +239,57 @@ func (kill) process(s *state) {
 			weapMsg = s.actor.Equipment.DamageWeapon("main", weaponDamage)
 			if weapMsg != "" {
 				s.msg.Actor.SendInfo(weapMsg)
+			}
+		}
+		if s.actor.Equipment.Off != nil && (s.actor.Equipment.Off.ItemType == 0 || s.actor.Equipment.Off.ItemType == 1) {
+			weaponDamage := 1
+			weapMsg := ""
+			alwaysCrit := false
+			if s.actor.Class != 8 {
+				alwaysCrit = s.actor.Equipment.Off.Flags["always_crit"]
+			}
+			for count, mult := range attacks {
+				// Check for a miss
+				if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
+					s.msg.Actor.SendBad("You misse with your offhand!!")
+					data.StoreCombatMetric("kill-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
+					whatMob.AddThreatDamage(1, s.actor)
+					continue
+				} else {
+					action := "kill"
+					if count == 0 {
+						if config.RollCritical(skillLevel) || alwaysCrit {
+							mult *= float64(config.CombatModifiers["critical"])
+							s.msg.Actor.SendGood("Critical Strike!")
+							weaponDamage = 10
+							action = "kill-critical"
+						} else if config.RollDouble(skillLevel) {
+							mult *= float64(config.CombatModifiers["double"])
+							s.msg.Actor.SendGood("Double Damage!")
+							action = "kill-double"
+						}
+					}
+
+					actualDamage, _, resisted := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * mult * 0.6)))
+					data.StoreCombatMetric(action, 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
+					whatMob.AddThreatDamage(actualDamage, s.actor)
+					s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
+					s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + text.Reset)
+					if whatMob.CheckFlag("reflection") {
+						reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
+						stamDamage, vitDamage, resisted := s.actor.ReceiveDamage(reflectDamage)
+						data.StoreCombatMetric("kill_mob_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
+						s.msg.Actor.Send("The " + whatMob.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back at you!")
+						s.actor.DeathCheck(" was killed by reflection!")
+					}
+				}
+			}
+			DeathCheck(s, whatMob)
+			if s.actor.Class != 8 {
+				weapMsg = s.actor.Equipment.DamageWeapon("main", weaponDamage)
+				if weapMsg != "" {
+					s.msg.Actor.SendInfo(weapMsg)
+				}
 			}
 		}
 

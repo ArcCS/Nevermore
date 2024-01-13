@@ -16,7 +16,7 @@ var CombatModifiers = map[string]int{
 	"berserk": 5,
 
 	// Sneaky Types
-	"backstab": 5,
+	"backstab": 4,
 	"snipe":    4,
 }
 
@@ -92,7 +92,7 @@ var (
 	MobStealRevengeVitalChance  = 15
 	MobBSRevengeVitalChance     = 25
 	VitalStrikeScale            = 2
-	BackstabCooldown            = 30
+	BackstabCooldown            = 20
 	TrackCooldown               = 16
 	TrackChance                 = 20
 	TrackChancePerLevel         = 5
