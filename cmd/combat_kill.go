@@ -243,14 +243,6 @@ func (kill) process(s *state) {
 				s.msg.Actor.SendInfo(weapMsg)
 			}
 		}
-		
-			if s.actor.Class != 8 {
-				weapMsg = s.actor.Equipment.DamageWeapon("main", weaponDamage)
-				if weapMsg != "" {
-					s.msg.Actor.SendInfo(weapMsg)
-				}
-			}
-		}
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return
 
