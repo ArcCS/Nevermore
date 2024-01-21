@@ -2,6 +2,7 @@ package objects
 
 import (
 	"log"
+	"math"
 	"math/rand"
 	"strconv"
 
@@ -476,7 +477,7 @@ func spellDamage(caller interface{}, target interface{}, magnitude int, magicTyp
 			spellType = 3
 		}
 		actualDamage = elementalDamage(magnitude, intel)
-		damage = int(float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod)
+		damage = int(float64(actualDamage) + float64(actualDamage)*float64(math.Max(float64(caller.Int.Current-config.BaselineStatValue), 0)*config.StatDamageMod))
 		if caller.Class == 4 {
 			affinityLevel := config.SpellDmgSkill[config.WeaponLevel(caller.Skills[magicSkillMap[magicType]].Value, caller.Class)]
 			damage = int(float64(damage) * (1 + float64(affinityLevel)*.01))
