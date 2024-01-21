@@ -94,9 +94,6 @@ var Effects = map[string]func(caller interface{}, target interface{}, magnitude 
 	"reflection":       reflection,
 	"dodge":            dodge,
 	"resist-acid":      resistacid,
-	"aura-courage":     auracourage,
-	"aura-faith":       aurafaith,
-	"aura-judgement":   aurajudgement,
 	//"embolden":         embolden,
 }
 
@@ -1347,63 +1344,6 @@ func attraction(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		go Script(caller, "$ATTRACT")
 		return text.Cyan + "Light coalesces into a vaguely sprite shape and darts around the area creating as much commotion as possible, then fades away.\n"
-	}
-	return ""
-}
-
-func auracourage(caller interface{}, target interface{}, magnitude int) string {
-	switch target := target.(type) {
-	case *Character:
-		target.ApplyEffect("aura-courage", "1200", 0, 0,
-			func(triggers int) {
-				target.FlagOnAndMsg("aura-courage", "aura-courage", text.Red+"You channel your inner courage.\n")
-				target.FlagOff("aura-judgement", "aura-judgement")
-				target.FlagOff("aura-faith", "aura-faith")
-			},
-			func() {
-				target.FlagOffAndMsg("aura-courage", "aura-courage", text.Cyan+"Your aura fades.\n")
-			})
-		return ""
-	case *Mob:
-		return ""
-	}
-	return ""
-}
-
-func aurafaith(caller interface{}, target interface{}, magnitude int) string {
-	switch target := target.(type) {
-	case *Character:
-		target.ApplyEffect("pray", "1200", 0, 0,
-			func(triggers int) {
-				target.FlagOnAndMsg("aura-faith", "aura-faith", text.Red+"You channel your inner faith.\n")
-				target.FlagOff("aura-courage", "aura-courage")
-				target.FlagOff("aura-judgement", "aura-judgement")
-			},
-			func() {
-				target.FlagOffAndMsg("aura-faith", "aura-faith", text.Cyan+"Your aura fades.\n")
-			})
-		return ""
-	case *Mob:
-		return ""
-	}
-	return ""
-}
-
-func aurajudgement(caller interface{}, target interface{}, magnitude int) string {
-	switch target := target.(type) {
-	case *Character:
-		target.ApplyEffect("pray", "1200", 0, 0,
-			func(triggers int) {
-				target.FlagOnAndMsg("aura-judgement", "aura-judgement", text.Red+"You channel your sense of judgement.\n")
-				target.FlagOff("aura-courage", "aura-courage")
-				target.FlagOff("aura-faith", "aura-faith")
-			},
-			func() {
-				target.FlagOffAndMsg("aura-judgement", "aura-judgement", text.Cyan+"Your aura fades.\n")
-			})
-		return ""
-	case *Mob:
-		return ""
 	}
 	return ""
 }
