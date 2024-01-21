@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"strings"
-	"time"
 
 	"github.com/jinzhu/copier"
 )
@@ -179,7 +178,6 @@ func (e *Equipment) DamageRandomArmor() (retString string) {
 	}
 
 	if len(armorList) > 0 {
-		rand.Seed(time.Now().Unix())
 		damageItem := armorList[rand.Intn(len(armorList))]
 		if damageItem == "head" {
 			e.Head.MaxUses -= 1

@@ -80,7 +80,8 @@ var (
 	SneakBonus                  = 10
 	StealChance                 = 20
 	StealChancePerSkillLevel    = 4
-	BackStabChance              = 20
+	BackStabChance              = 30
+	BackstabDamageSkillModifier = .15
 	BackStabChancePerSkillLevel = 3
 	SnipeChance                 = 15
 	HideChancePerPoint          = 3

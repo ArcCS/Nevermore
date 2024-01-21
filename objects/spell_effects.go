@@ -4,7 +4,6 @@ import (
 	"log"
 	"math/rand"
 	"strconv"
-	"time"
 
 	"github.com/ArcCS/Nevermore/data"
 
@@ -1297,7 +1296,6 @@ func disruptmagic(caller interface{}, target interface{}, magnitude int) string 
 			}
 		}
 		if len(spellEffects) > 0 {
-			rand.Seed(time.Now().Unix())
 			chosenSpell := spellEffects[rand.Intn(len(spellEffects))]
 			target.RemoveEffect(chosenSpell)
 			if _, err := target.Write([]byte(text.Bad + "The disruptive magic removes " + chosenSpell + " from you.\n")); err != nil {
@@ -1322,7 +1320,6 @@ func disruptmagic(caller interface{}, target interface{}, magnitude int) string 
 			}
 		}
 		if len(spellEffects) > 0 {
-			rand.Seed(time.Now().Unix())
 			chosenSpell := spellEffects[rand.Intn(len(spellEffects))]
 			target.RemoveEffect(chosenSpell)
 			switch caller := caller.(type) {

@@ -2,10 +2,8 @@ package frontend
 
 import (
 	"fmt"
-	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
@@ -164,7 +162,6 @@ func (a *newPCharacter) completeBuilder() {
 	charData["birthdate"] = objects.DayOfMonth
 	charData["birthmonth"] = objects.CurrentMonth
 	charData["darkvision"] = config.RaceDefs[config.AvailableRaces[a.race]].Darkvision
-	rand.Seed(time.Now().Unix())
 	if data.CreateChar(charData) {
 		a.buf.Send(text.Info, "New GM created,  entering Altin. \n", text.Reset)
 		StartGame(a.frontend, a.name)
