@@ -2,18 +2,19 @@ package objects
 
 import (
 	"encoding/json"
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/data"
-	"github.com/ArcCS/Nevermore/permissions"
-	"github.com/ArcCS/Nevermore/prompt"
-	"github.com/ArcCS/Nevermore/text"
-	"github.com/ArcCS/Nevermore/utils"
 	"io"
 	"log"
 	"math"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/permissions"
+	"github.com/ArcCS/Nevermore/prompt"
+	"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/utils"
 )
 
 type Character struct {
@@ -105,6 +106,11 @@ type Character struct {
 
 func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Character, bool) {
 	charData, err := data.LoadChar(charName)
+	NewEquipment, ErroredEquip := RestoreEquipment(charData["equipment"].(string), int(charData["class"].(int64)))
+	NewInventory := RestoreInventory(charData["inventory"].(string))
+	for _, item := range ErroredEquip {
+		NewInventory.Add(&item)
+	}
 	lastRefresh, _ := time.Parse(time.RFC3339, charData["lastrefresh"].(string))
 	if err {
 		return nil, true
@@ -119,8 +125,8 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			writer,
 			StyleNone,
 			int(charData["character_id"].(int64)),
-			RestoreEquipment(charData["equipment"].(string)),
-			RestoreInventory(charData["inventory"].(string)),
+			NewEquipment,
+			NewInventory,
 			0,
 			make(map[string]bool),
 			make(map[string][]string),
@@ -761,13 +767,16 @@ func (c *Character) Tick() {
 		c.LastSave = time.Now()
 		c.TickSaveWrapper()
 	}
+	healMultiplier, manaMultiplier := 1.0, 1.0
 	if Rooms[c.ParentId].Flags["heal_fast"] {
-		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod * 2)))
-		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod * 2)))
-	} else {
-		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod)))
-		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod)))
+		healMultiplier += 1
+		manaMultiplier += 1
 	}
+	if c.CheckFlag("regen_health") {
+		healMultiplier += 0.3
+	}
+	c.Heal(int(math.Ceil(float64(c.GetStat("con")+c.Tier) * config.ConHealRegenMod * healMultiplier)))
+	c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")+c.Tier)*config.PieRegenMod) * manaMultiplier))
 
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
@@ -937,7 +946,7 @@ func (c *Character) ReceiveDamage(damage int) (int, int, int) {
 		damage -= int(math.Ceil(float64(damage) * config.InertialDamageIgnore))
 	}
 	stamDamage, vitalDamage := 0, 0
-	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
+	resist := int(math.Ceil(float64(config.ArmorReductionConstant) / (float64(config.ArmorReductionConstant) + float64(c.GetStat("armor")))))
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		if _, err := c.Write([]byte(text.Info + msg + "\n" + text.Reset)); err != nil {
@@ -1073,9 +1082,7 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 	}
 
 	resisted := int(math.Ceil(float64(damage) * resisting))
-	if c.GetStat("int") > config.IntResistMagicBase {
-		damage -= c.GetStat("int") - config.IntResistMagicPerPoint
-	}
+	damage -= int(math.Max(float64(c.GetStat("int"))-float64(config.BaselineStatValue), 0)) * config.IntResistMagicPerPoint
 	stamDam, vitDam := c.ReceiveDamageNoArmor(damage - resisted)
 	return stamDam, vitDam, resisted
 }

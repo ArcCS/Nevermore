@@ -2,15 +2,15 @@ package utils
 
 import (
 	"bufio"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"log"
 	"math"
 	"math/rand"
 	"os"
 	"sort"
 	"strings"
-	"time"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func Sum(input []int) int {
@@ -31,8 +31,6 @@ func RemoveInt(slice []int, s int) []int {
 }
 
 func RandMapKeySelection(mapList map[string]int) string {
-	// Seed the random number generator
-	rand.Seed(time.Now().UnixNano())
 	keys := make([]string, 0, len(mapList))
 	for k := range mapList {
 		keys = append(keys, k)
@@ -44,8 +42,6 @@ func RandMapKeySelection(mapList map[string]int) string {
 }
 
 func RandListSelection(stringList []string) string {
-	// Seed the random number generator
-	rand.Seed(time.Now().UnixNano())
 	return stringList[rand.Intn(len(stringList))]
 }
 

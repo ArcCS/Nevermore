@@ -375,7 +375,6 @@ func (m *Mob) Tick() {
 					if utils.Roll(100, 1, 0) <= m.ChanceCast {
 						log.Println("Successful Roll, Selecting a spell")
 						for range m.Spells {
-							rand.Seed(time.Now().Unix())
 							selectSpell = m.Spells[rand.Intn(len(m.Spells))]
 							if selectSpell != "" {
 								if utils.StringIn(selectSpell, OffensiveSpells) {
@@ -408,6 +407,8 @@ func (m *Mob) Tick() {
 			// Calculate Vital/Crit/Double
 			multiplier := float64(1)
 			vitalStrike := false
+			mobCriticalMultiplier := config.MobCriticalMultiplier
+			mobVitalMultiplier := config.MobVitalMultiplier
 			criticalStrike := false
 			doubleDamage := false
 			penalty := 1
@@ -438,10 +439,10 @@ func (m *Mob) Tick() {
 					if utils.Roll(10, 1, 0) <= penalty {
 						attackStyleRoll := utils.Roll(10, 1, 0)
 						if attackStyleRoll <= config.MobVital {
-							multiplier = 2
+							multiplier = mobVitalMultiplier - (float64(target.Con.Current-config.BaselineStatValue) * 0.01)
 							vitalStrike = true
 						} else if attackStyleRoll <= config.MobCritical {
-							multiplier = 4
+							multiplier = float64(mobCriticalMultiplier) - (float64(target.Con.Current-config.BaselineStatValue) * 0.01)
 							criticalStrike = true
 						} else if attackStyleRoll <= config.MobDouble {
 							multiplier = 2
@@ -560,10 +561,10 @@ func (m *Mob) Tick() {
 						if utils.Roll(10, 1, 0) <= penalty {
 							attackStyleRoll := utils.Roll(10, 1, 0)
 							if attackStyleRoll <= config.MobVital {
-								multiplier = 2
+								multiplier = mobVitalMultiplier - (float64(target.Con.Current-config.BaselineStatValue) * 0.01)
 								vitalStrike = true
 							} else if attackStyleRoll <= config.MobCritical {
-								multiplier = 4
+								multiplier = float64(mobCriticalMultiplier) - (float64(target.Con.Current-config.BaselineStatValue) * 0.01)
 								criticalStrike = true
 							} else if attackStyleRoll <= config.MobDouble {
 								multiplier = 2
@@ -813,7 +814,6 @@ func (m *Mob) Follow(params []string) {
 								Rooms[l].LockPriority = ""
 							}
 						}
-						rand.Seed(time.Now().UnixNano())
 						r := rand.Intn(50)
 						t, _ := time.ParseDuration(string(rune(r)) + "ms")
 						time.Sleep(t)
@@ -907,7 +907,6 @@ func (m *Mob) Stun(amt int) {
 
 // Teleport Special handler for handling a mobs cast of a teleport spell
 func (m *Mob) Teleport(target string) {
-	rand.Seed(time.Now().Unix())
 	newRoom := Rooms[TeleportTable[rand.Intn(len(TeleportTable))]]
 	targetName := strings.Split(target, " ")
 	workingRoom := Rooms[m.ParentId]

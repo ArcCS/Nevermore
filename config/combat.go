@@ -16,16 +16,16 @@ var CombatModifiers = map[string]int{
 	"berserk": 5,
 
 	// Sneaky Types
-	"backstab": 5,
+	"backstab": 4,
 	"snipe":    4,
 }
 
 var (
-	MultiLower = .1
-	MultiUpper = .2
-
-	ProximityChance = 80
-	ProximityStep   = 10
+	MultiLower        = .1
+	MultiUpper        = .2
+	BaselineStatValue = 10
+	ProximityChance   = 80
+	ProximityStep     = 10
 
 	BerserkCooldown = 60 * 5
 	CombatCooldown  = 8
@@ -50,11 +50,13 @@ var (
 	SpecialAbilityTier = 7
 	MinorAbilityTier   = 5
 
-	MobVital       = 3
-	MobCritical    = 4
-	MobDouble      = 10
-	MobFollowVital = 20
-	MobFollMult    = 3
+	MobVital              = 3
+	MobVitalMultiplier    = 1.5
+	MobCritical           = 4
+	MobCriticalMultiplier = 3
+	MobDouble             = 10
+	MobFollowVital        = 20
+	MobFollMult           = 3
 
 	BindCost   = 75000
 	RenameCost = 150000
@@ -78,7 +80,8 @@ var (
 	SneakBonus                  = 10
 	StealChance                 = 20
 	StealChancePerSkillLevel    = 4
-	BackStabChance              = 20
+	BackStabChance              = 30
+	BackstabDamageSkillModifier = .15
 	BackStabChancePerSkillLevel = 3
 	SnipeChance                 = 15
 	HideChancePerPoint          = 3
@@ -92,7 +95,7 @@ var (
 	MobStealRevengeVitalChance  = 15
 	MobBSRevengeVitalChance     = 25
 	VitalStrikeScale            = 2
-	BackstabCooldown            = 30
+	BackstabCooldown            = 20
 	TrackCooldown               = 16
 	TrackChance                 = 20
 	TrackChancePerLevel         = 5
@@ -162,8 +165,9 @@ var (
 	PieRegenMod = .4 // Regen Mana per tick
 	PieHealMod  = .7 // Per point
 
-	ArmorReduction       = .007
-	ArmorReductionPoints = 10
+	ArmorReduction         = .007
+	ArmorReductionPoints   = 10
+	ArmorReductionConstant = 1200
 
 	MobArmorReduction = .5
 

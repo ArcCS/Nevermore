@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"bytes"
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/permissions"
 	"log"
 	"strconv"
 	"text/template"
+
+	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/permissions"
 )
 
 // Syntax: WHO
@@ -135,7 +136,7 @@ Covert Arts              {{.Stealth}} ({{.StealthTotal}}/{{.StealthNext}})
 		strconv.Itoa(s.actor.Skills[11].Value),
 		strconv.Itoa(config.StealthExpNext(s.actor.Skills[11].Value)),
 	}
-
+	log.Println(data)
 	if s.actor.Class == 8 {
 		skillHeader += monkSkills
 	} else {

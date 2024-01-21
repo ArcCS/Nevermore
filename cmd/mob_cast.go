@@ -24,7 +24,6 @@ func (mobCast) process(s *state) {
 				if utils.Roll(100, 1, 0) <= m.ChanceCast {
 					log.Println("Successful Roll, trying to cast a spell")
 					for range m.Spells {
-						rand.Seed(time.Now().Unix())
 						selectSpell = m.Spells[rand.Intn(len(m.Spells))]
 						if selectSpell != "" {
 							if utils.StringIn(selectSpell, OffensiveSpells) {
