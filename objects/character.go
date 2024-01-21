@@ -106,6 +106,11 @@ type Character struct {
 
 func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Character, bool) {
 	charData, err := data.LoadChar(charName)
+	NewEquipment, ErroredEquip := RestoreEquipment(charData["equipment"].(string), int(charData["class"].(int64)))
+	NewInventory := RestoreInventory(charData["inventory"].(string))
+	for _, item := range ErroredEquip {
+		NewInventory.Add(&item)
+	}
 	lastRefresh, _ := time.Parse(time.RFC3339, charData["lastrefresh"].(string))
 	if err {
 		return nil, true
@@ -120,8 +125,8 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			writer,
 			StyleNone,
 			int(charData["character_id"].(int64)),
-			RestoreEquipment(charData["equipment"].(string), int(charData["class"].(int64))),
-			RestoreInventory(charData["inventory"].(string)),
+			NewEquipment,
+			NewInventory,
 			0,
 			make(map[string]bool),
 			make(map[string][]string),
@@ -762,14 +767,12 @@ func (c *Character) Tick() {
 		c.LastSave = time.Now()
 		c.TickSaveWrapper()
 	}
-	healMultiplier := 1.0
-	manaMultiplier := 1.0
+	healMultiplier, manaMultiplier := 1.0, 1.0
 	if Rooms[c.ParentId].Flags["heal_fast"] {
 		healMultiplier += 1
 		manaMultiplier += 1
 	}
 	if c.CheckFlag("regen_health") {
-		log.Println(c.Name + " is regenning extra because he's a troll!")
 		healMultiplier += 0.3
 	}
 	c.Heal(int(math.Ceil(float64(c.GetStat("con")+c.Tier) * config.ConHealRegenMod * healMultiplier)))
