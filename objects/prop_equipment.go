@@ -405,40 +405,15 @@ func (e *Equipment) Equip(item *Item, charClass int) (ok bool) {
 		itemSlot = "hands"
 		ok = true
 	} //hands
-	if item.ItemType >= 0 && item.ItemType <= 3 {
-		log.Printf("trying to equip %+v. mainhand: %+v  offhand: %+v char class: %d", item, e.Main, e.Off, charClass)
+	if item.ItemType >= 0 && item.ItemType <= 3 { // 0: sharp, 1: thrust, 2: blunt, 3: pole
 		if e.Main == (*Item)(nil) {
 			log.Printf("hi")
 			e.Main = item
 			itemSlot = "main"
 			ok = true
-		} else if e.Off == (*Item)(nil) && charClass == 2 {
-			log.Printf("trying to equip offhand %+v. mainhand: %+v  offhand: %+v char class: %d", item, e.Main, e.Off, charClass)
-			e.Off = item
-			itemSlot = "off"
-			ok = true
 		}
-	} //sharp
-	/*	if item.ItemType == 1 {
-			if e.Main == (*Item)(nil) {
-				e.Main = item
-				itemSlot = "main"
-				ok = true
-			} else if e.Off == (*Item)(nil) {
-
-			}
-		} //thrust
-		if item.ItemType == 2 && e.Main == (*Item)(nil) {
-			e.Main = item
-			itemSlot = "main"
-			ok = true
-		} //blunt
-		if item.ItemType == 3 && e.Main == (*Item)(nil) {
-			e.Main = item
-			itemSlot = "main"
-			ok = true
-		} //pole
-	*/if item.ItemType == 4 && e.Main == (*Item)(nil) {
+	}
+	if item.ItemType == 4 && e.Main == (*Item)(nil) {
 		e.Main = item
 		itemSlot = "main"
 		ok = true
@@ -855,12 +830,13 @@ func (e *Equipment) Jsonify() string {
 	}
 }
 
-func RestoreEquipment(jsonString string, charClass int) *Equipment {
+func RestoreEquipment(jsonString string, charClass int) (*Equipment, []Item) {
 	obj := make([]map[string]interface{}, 0)
 	NewEquipment := &Equipment{}
+	var ErroredEquipment []Item
 	err := json.Unmarshal([]byte(jsonString), &obj)
 	if err != nil {
-		return NewEquipment
+		return NewEquipment, ErroredEquipment
 	}
 	for _, item := range obj {
 		newItem := Item{}
@@ -878,9 +854,12 @@ func RestoreEquipment(jsonString string, charClass int) *Equipment {
 		if _, ok := item["adjustment"]; ok {
 			newItem.Adjustment = int(item["adjustment"].(float64))
 		}
-		NewEquipment.Equip(&newItem, charClass)
+		ok := NewEquipment.Equip(&newItem, charClass)
+		if !ok {
+			ErroredEquipment = append(ErroredEquipment, newItem)
+		}
 	}
-	return NewEquipment
+	return NewEquipment, ErroredEquipment
 }
 
 func (e *Equipment) CheckEquipment() {
