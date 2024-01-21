@@ -762,13 +762,18 @@ func (c *Character) Tick() {
 		c.LastSave = time.Now()
 		c.TickSaveWrapper()
 	}
+	healMultiplier := 1.0
+	manaMultiplier := 1.0
 	if Rooms[c.ParentId].Flags["heal_fast"] {
-		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod * 2)))
-		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod * 2)))
-	} else {
-		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod)))
-		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod)))
+		healMultiplier += 1
+		manaMultiplier += 1
 	}
+	if c.CheckFlag("regen_health") {
+		log.Println(c.Name + " is regenning extra because he's a troll!")
+		healMultiplier += 0.3
+	}
+	c.Heal(int(math.Ceil(float64(c.GetStat("con")+c.Tier) * config.ConHealRegenMod * healMultiplier)))
+	c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")+c.Tier)*config.PieRegenMod) * manaMultiplier))
 
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
@@ -1074,9 +1079,7 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 	}
 
 	resisted := int(math.Ceil(float64(damage) * resisting))
-	if c.GetStat("int") > config.IntResistMagicBase {
-		damage -= c.GetStat("int") - config.IntResistMagicPerPoint
-	}
+	damage -= int(math.Max(float64(c.GetStat("int"))-float64(config.BaselineStatValue), 0)) * config.IntResistMagicPerPoint
 	stamDam, vitDam := c.ReceiveDamageNoArmor(damage - resisted)
 	return stamDam, vitDam, resisted
 }

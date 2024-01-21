@@ -200,7 +200,9 @@ func (kill) process(s *state) {
 		}
 		for count, mult := range attacks {
 			// Check for a miss
-			if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
+			die_roll := utils.Roll(100, 1, 0)
+			log.Printf("dice roll of %d against miss chance %d", die_roll, DetermineMissChance(s, whatMob))
+			if die_roll <= DetermineMissChance(s, whatMob) {
 				s.msg.Actor.SendBad("You missed!!")
 				data.StoreCombatMetric("kill-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 				whatMob.AddThreatDamage(1, s.actor)
@@ -234,7 +236,6 @@ func (kill) process(s *state) {
 				}
 			}
 		}
-		DeathCheck(s, whatMob)
 		if s.actor.Class != 8 {
 			weapMsg = s.actor.Equipment.DamageWeapon("main", weaponDamage)
 			if weapMsg != "" {
@@ -250,8 +251,10 @@ func (kill) process(s *state) {
 			}
 			for count, mult := range attacks {
 				// Check for a miss
-				if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
-					s.msg.Actor.SendBad("You misse with your offhand!!")
+				die_roll := utils.Roll(100, 1, 0)
+				log.Printf("die roll of %d against miss chance of %d", die_roll, DetermineMissChance(s, whatMob))
+				if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob) {
+					s.msg.Actor.SendBad("You missed with your offhand!!")
 					data.StoreCombatMetric("kill-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 					whatMob.AddThreatDamage(1, s.actor)
 					continue
@@ -284,7 +287,7 @@ func (kill) process(s *state) {
 					}
 				}
 			}
-			DeathCheck(s, whatMob)
+
 			if s.actor.Class != 8 {
 				weapMsg = s.actor.Equipment.DamageWeapon("main", weaponDamage)
 				if weapMsg != "" {
@@ -292,7 +295,7 @@ func (kill) process(s *state) {
 				}
 			}
 		}
-
+		DeathCheck(s, whatMob)
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return
 
@@ -382,19 +385,23 @@ func DeathCheck(s *state, m *objects.Mob) {
 }
 
 // DetermineMissChance Determine Miss Chance based on weapon Skills
-func DetermineMissChance(s *state, lvlDiff int) int {
+func DetermineMissChance(s *state, whatMob *objects.Mob) int {
 	missChance := 0
 	if s.actor.Class == 8 {
 		missChance = config.WeaponMissChance(s.actor.Skills[5].Value)
 	} else {
 		missChance = config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value)
 	}
+	lvlDiff := whatMob.Level - s.actor.Tier
 	if !config.QuestMode {
-		if lvlDiff >= 2 {
+		if lvlDiff >= 2+(int(1+(len(whatMob.ThreatTable)/2))) {
 			missChance += lvlDiff * config.MissPerLevel
 		}
 	}
-	missChance -= s.actor.GetStat("dex") * config.HitPerDex
+	if s.actor.GetStat("dex") < config.BaselineStatValue {
+		missChance += config.BaselineStatValue - s.actor.GetStat("dex")
+	}
+	missChance -= (s.actor.GetStat("dex") - whatMob.Dex.Current) * config.HitPerDex
 	if missChance >= 100 {
 		missChance = 95
 	}

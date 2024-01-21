@@ -6,14 +6,15 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/message"
-	"github.com/ArcCS/Nevermore/objects"
-	"github.com/ArcCS/Nevermore/utils"
 	"io"
 	"math/rand"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/ArcCS/Nevermore/message"
+	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/utils"
 )
 
 func init() {
@@ -292,7 +293,6 @@ func (s *state) AcquireLockPriority() {
 					objects.Rooms[l].LockPriority = ""
 				}
 			}
-			rand.Seed(time.Now().UnixNano())
 			r := rand.Int()
 			t, _ := time.ParseDuration(string(rune(r)) + "ms")
 			time.Sleep(t)

@@ -21,11 +21,11 @@ var CombatModifiers = map[string]int{
 }
 
 var (
-	MultiLower = .1
-	MultiUpper = .2
-
-	ProximityChance = 80
-	ProximityStep   = 10
+	MultiLower        = .1
+	MultiUpper        = .2
+	BaselineStatValue = 10
+	ProximityChance   = 80
+	ProximityStep     = 10
 
 	BerserkCooldown = 60 * 5
 	CombatCooldown  = 8
@@ -50,11 +50,13 @@ var (
 	SpecialAbilityTier = 7
 	MinorAbilityTier   = 5
 
-	MobVital       = 3
-	MobCritical    = 4
-	MobDouble      = 10
-	MobFollowVital = 20
-	MobFollMult    = 3
+	MobVital              = 3
+	MobVitalMultiplier    = 1.5
+	MobCritical           = 4
+	MobCriticalMultiplier = 3
+	MobDouble             = 10
+	MobFollowVital        = 20
+	MobFollMult           = 3
 
 	BindCost   = 75000
 	RenameCost = 150000

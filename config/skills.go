@@ -251,14 +251,22 @@ func WeaponMissChance(exp int) int {
 	case currentLevel == 0:
 		return 30
 	case currentLevel == 1:
-		return 25
+		return 28
 	case currentLevel == 2:
-		return 20
+		return 26
 	case currentLevel == 3:
-		return 15
+		return 24
 	case currentLevel == 4:
+		return 22
+	case currentLevel == 5:
+		return 20
+	case currentLevel == 6:
+		return 15
+	case currentLevel == 7:
 		return 10
-	case currentLevel >= 5:
+	case currentLevel == 8:
+		return 5
+	case currentLevel >= 9:
 		return 0
 	default:
 		return 50
