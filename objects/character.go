@@ -946,7 +946,7 @@ func (c *Character) ReceiveDamage(damage int) (int, int, int) {
 		damage -= int(math.Ceil(float64(damage) * config.InertialDamageIgnore))
 	}
 	stamDamage, vitalDamage := 0, 0
-	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
+	resist := int(math.Ceil(float64(config.ArmorReductionConstant) / (float64(config.ArmorReductionConstant) + float64(c.GetStat("armor")))))
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		if _, err := c.Write([]byte(text.Info + msg + "\n" + text.Reset)); err != nil {

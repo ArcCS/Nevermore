@@ -165,8 +165,9 @@ var (
 	PieRegenMod = .4 // Regen Mana per tick
 	PieHealMod  = .7 // Per point
 
-	ArmorReduction       = .007
-	ArmorReductionPoints = 10
+	ArmorReduction         = .007
+	ArmorReductionPoints   = 10
+	ArmorReductionConstant = 1200
 
 	MobArmorReduction = .5
 
