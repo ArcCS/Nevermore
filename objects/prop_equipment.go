@@ -2,11 +2,11 @@ package objects
 
 import (
 	"encoding/json"
-	"github.com/jinzhu/copier"
 	"log"
 	"math/rand"
 	"strings"
-	"time"
+
+	"github.com/jinzhu/copier"
 )
 
 type Equipment struct {
@@ -178,7 +178,6 @@ func (e *Equipment) DamageRandomArmor() (retString string) {
 	}
 
 	if len(armorList) > 0 {
-		rand.Seed(time.Now().Unix())
 		damageItem := armorList[rand.Intn(len(armorList))]
 		if damageItem == "head" {
 			e.Head.MaxUses -= 1
@@ -310,7 +309,7 @@ func (e *Equipment) Search(alias string, nameNum int) *Item {
 	return nil
 }
 
-func (e *Equipment) Equip(item *Item) (ok bool) {
+func (e *Equipment) Equip(item *Item, charClass int) (ok bool) {
 	ok = false
 	itemSlot := ""
 
@@ -406,26 +405,14 @@ func (e *Equipment) Equip(item *Item) (ok bool) {
 		itemSlot = "hands"
 		ok = true
 	} //hands
-	if item.ItemType == 0 && e.Main == (*Item)(nil) {
-		e.Main = item
-		itemSlot = "main"
-		ok = true
-	} //sharp
-	if item.ItemType == 1 && e.Main == (*Item)(nil) {
-		e.Main = item
-		itemSlot = "main"
-		ok = true
-	} //thrust
-	if item.ItemType == 2 && e.Main == (*Item)(nil) {
-		e.Main = item
-		itemSlot = "main"
-		ok = true
-	} //blunt
-	if item.ItemType == 3 && e.Main == (*Item)(nil) {
-		e.Main = item
-		itemSlot = "main"
-		ok = true
-	} //pole
+	if item.ItemType >= 0 && item.ItemType <= 3 { // 0: sharp, 1: thrust, 2: blunt, 3: pole
+		if e.Main == (*Item)(nil) {
+			log.Printf("hi")
+			e.Main = item
+			itemSlot = "main"
+			ok = true
+		}
+	}
 	if item.ItemType == 4 && e.Main == (*Item)(nil) {
 		e.Main = item
 		itemSlot = "main"
@@ -843,12 +830,13 @@ func (e *Equipment) Jsonify() string {
 	}
 }
 
-func RestoreEquipment(jsonString string) *Equipment {
+func RestoreEquipment(jsonString string, charClass int) (*Equipment, []Item) {
 	obj := make([]map[string]interface{}, 0)
 	NewEquipment := &Equipment{}
+	var ErroredEquipment []Item
 	err := json.Unmarshal([]byte(jsonString), &obj)
 	if err != nil {
-		return NewEquipment
+		return NewEquipment, ErroredEquipment
 	}
 	for _, item := range obj {
 		newItem := Item{}
@@ -866,9 +854,12 @@ func RestoreEquipment(jsonString string) *Equipment {
 		if _, ok := item["adjustment"]; ok {
 			newItem.Adjustment = int(item["adjustment"].(float64))
 		}
-		NewEquipment.Equip(&newItem)
+		ok := NewEquipment.Equip(&newItem, charClass)
+		if !ok {
+			ErroredEquipment = append(ErroredEquipment, newItem)
+		}
 	}
-	return NewEquipment
+	return NewEquipment, ErroredEquipment
 }
 
 func (e *Equipment) CheckEquipment() {

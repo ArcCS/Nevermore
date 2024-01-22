@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"bytes"
+	"log"
+	"text/template"
+
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
-	"text/template"
 )
 
 // Syntax: ( INFORMATION | INFO | INF | ME | STATS)
@@ -72,6 +73,8 @@ func (information) process(s *state) {
 		"{{if .Poisoned}}" + text.Red + "You have poison coursing through your veins.\n{{end}}" + text.Good +
 		"{{if .Diseased}}" + text.Brown + "You are suffering from affliction.\n{{end}}" + text.Good +
 		"{{if .Blind}}" + text.Blue + "You have been blinded!!\n{{end}}" + text.Good +
+		"{{if .RegenHealth}}You naturally regenerate.\n{{end}}" +
+		"{{if .Levitate}}You naturally levitate.\n{{end}}" +
 		"{{if .DarkVision}}You can see in the dark naturally. \n{{end}}" +
 		"You have {{.Broadcasts}} broadcasts remaining today.\n" +
 		"You have {{.Evals}} evaluates remaining today.\n" +
@@ -113,6 +116,8 @@ func (information) process(s *state) {
 		Diseased        bool
 		Blind           bool
 		DarkVision      bool
+		RegenHealth     bool
+		Levitate        bool
 		ShowEnchants    bool
 		ShowHeals       bool
 		ShowRestores    bool
@@ -161,6 +166,8 @@ func (information) process(s *state) {
 		s.actor.CheckFlag("disease"),
 		s.actor.CheckFlag("blind"),
 		s.actor.CheckFlag("darkvision"),
+		s.actor.CheckFlag("regen_health"),
+		s.actor.CheckFlag("levitate"),
 		showEnchants,
 		showHeals,
 		showRestores,
@@ -180,7 +187,6 @@ func (information) process(s *state) {
 		disprerolls,
 		s.actor.Rerolls,
 	}
-
 	tmpl, _ := template.New("char_info").Parse(charTemplate)
 	var output bytes.Buffer
 	err := tmpl.Execute(&output, data)
@@ -188,6 +194,8 @@ func (information) process(s *state) {
 		log.Println(err)
 	} else {
 		s.msg.Actor.SendGood(output.String())
+		log.Println("info command")
+		log.Println(data)
 	}
 
 	s.ok = true

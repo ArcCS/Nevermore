@@ -2,12 +2,12 @@ package config
 
 import (
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/spf13/viper"
-	"log"
-	"math/rand"
-	"time"
 )
 
 // Server default configuration
@@ -171,7 +171,6 @@ func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile | log.Lmicroseconds)
 
 	// Seed default random source
-	rand.Seed(time.Now().UnixNano())
 
 	if !Debug.LongLog {
 		log.SetFlags(log.Ldate | log.Ltime)

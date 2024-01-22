@@ -6,6 +6,8 @@ var AvailableClasses = make([]string, 9)
 var ClassPerms = make([]permissions.Permissions, 9)
 var StartingGear = make(map[int][]int, 9)
 
+const FIGHTER, BARBARIAN, THIEF, RANGER, MAGE, CLERIC, PALADIN, BARD, MONK = 0, 1, 2, 3, 4, 5, 6, 7, 8
+
 func init() {
 	AvailableClasses[0] = "fighter"
 	AvailableClasses[1] = "barbarian"
