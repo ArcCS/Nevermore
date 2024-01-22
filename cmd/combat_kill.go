@@ -200,7 +200,7 @@ func (kill) process(s *state) {
 		}
 		for count, mult := range attacks {
 			// Check for a miss
-			if utils.Roll(100, 1, 0)utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob) {
+			if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob) {
 				s.msg.Actor.SendBad("You missed!!")
 				data.StoreCombatMetric("kill-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 				whatMob.AddThreatDamage(1, s.actor)
