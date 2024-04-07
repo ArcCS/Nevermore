@@ -195,6 +195,7 @@ func (cast) process(s *state) {
 			s.actor.SetTimer("combat", config.CombatCooldown)
 		}
 		s.actor.SetTimer("cast", config.CombatCooldown)
+		s.actor.RunHook("say")
 		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 		s.msg.Participant.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
@@ -258,6 +259,7 @@ func (cast) process(s *state) {
 	}
 
 	log.Println("Casting on self")
+	s.actor.RunHook("combat")
 	s.actor.FlagOn("casting", "cast")
 	msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 	s.actor.FlagOff("casting", "cast")
