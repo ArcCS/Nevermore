@@ -195,7 +195,6 @@ func (cast) process(s *state) {
 			s.actor.SetTimer("combat", config.CombatCooldown)
 		}
 		s.actor.SetTimer("cast", config.CombatCooldown)
-		s.actor.RunHook("say")
 		s.msg.Actor.SendGood("You chant: \"" + spellInstance.Chant + "\"")
 		s.msg.Participant.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
 		s.msg.Observers.SendGood(s.actor.Name + " chants: \"" + spellInstance.Chant + "\"")
