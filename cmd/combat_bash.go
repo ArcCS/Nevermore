@@ -4,6 +4,7 @@ import (
 	"github.com/ArcCS/Nevermore/data"
 	"math"
 	"strconv"
+
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
@@ -87,7 +88,7 @@ func (bash) process(s *state) {
 		}
 
 		// Check for a miss
-		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob) {
+		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
 			s.msg.Actor.SendBad("You missed!!")
 			s.msg.Observers.SendBad(s.actor.Name + " fails to bash " + whatMob.Name)
 			s.actor.SetTimer("combat", config.CombatCooldown)

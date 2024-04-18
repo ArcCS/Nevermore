@@ -16,7 +16,7 @@ var CombatModifiers = map[string]int{
 	"berserk": 5,
 
 	// Sneaky Types
-	"backstab": 4,
+	"backstab": 5,
 	"snipe":    4,
 }
 
@@ -40,7 +40,7 @@ var (
 
 	BaseDevicePiety = 8.0
 
-	IntMajorPenalty = 7
+	IntMajorPenalty = 9
 	PieMajorPenalty = 5
 
 	MobAugmentPerCharacter = 3
@@ -50,13 +50,11 @@ var (
 	SpecialAbilityTier = 7
 	MinorAbilityTier   = 5
 
-	MobVital              = 3
-	MobVitalMultiplier    = 1.5
-	MobCritical           = 4
-	MobCriticalMultiplier = 3
-	MobDouble             = 10
-	MobFollowVital        = 20
-	MobFollMult           = 3
+	MobVital       = 3
+	MobCritical    = 4
+	MobDouble      = 10
+	MobFollowVital = 20
+	MobFollMult    = 3
 
 	BindCost   = 75000
 	RenameCost = 150000
@@ -80,7 +78,7 @@ var (
 	SneakBonus                  = 10
 	StealChance                 = 20
 	StealChancePerSkillLevel    = 4
-	BackStabChance              = 30
+	BackStabChance              = 20
 	BackstabDamageSkillModifier = .15
 	BackStabChancePerSkillLevel = 3
 	SnipeChance                 = 15
@@ -95,7 +93,7 @@ var (
 	MobStealRevengeVitalChance  = 15
 	MobBSRevengeVitalChance     = 25
 	VitalStrikeScale            = 2
-	BackstabCooldown            = 20
+	BackstabCooldown            = 30
 	TrackCooldown               = 16
 	TrackChance                 = 20
 	TrackChancePerLevel         = 5
