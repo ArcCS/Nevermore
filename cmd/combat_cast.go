@@ -258,6 +258,7 @@ func (cast) process(s *state) {
 	}
 
 	log.Println("Casting on self")
+	s.actor.RunHook("combat")
 	s.actor.FlagOn("casting", "cast")
 	msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 	s.actor.FlagOff("casting", "cast")
