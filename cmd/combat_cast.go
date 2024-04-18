@@ -1,14 +1,13 @@
 package cmd
 
 import (
-	"log"
-	"strconv"
-	"strings"
-
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"log"
+	"strconv"
+	"strings"
 )
 
 func init() {
