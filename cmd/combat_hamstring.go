@@ -1,12 +1,11 @@
 package cmd
 
 import (
-	"strconv"
-
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
+	"strconv"
 )
 
 func init() {
@@ -70,7 +69,7 @@ func (hamstring) process(s *state) {
 		}
 
 		// Check for a miss
-		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob) {
+		if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
 			s.msg.Actor.SendBad("You missed!!")
 			s.msg.Observers.SendBad(s.actor.Name + " fails to hamstring " + whatMob.Name)
 			whatMob.AddThreatDamage(1, s.actor)
