@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"strconv"
-
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/permissions"
+	"strconv"
 )
 
 func init() {
