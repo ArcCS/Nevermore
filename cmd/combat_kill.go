@@ -1,11 +1,10 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/data"
 	"log"
 	"math"
 	"strconv"
-
-	"github.com/ArcCS/Nevermore/data"
 
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
@@ -200,7 +199,7 @@ func (kill) process(s *state) {
 		}
 		for count, mult := range attacks {
 			// Check for a miss
-			if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob) {
+			if utils.Roll(100, 1, 0) <= DetermineMissChance(s, whatMob.Level-s.actor.Tier) {
 				s.msg.Actor.SendBad("You missed!!")
 				data.StoreCombatMetric("kill-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 				whatMob.AddThreatDamage(1, s.actor)
@@ -241,6 +240,7 @@ func (kill) process(s *state) {
 				s.msg.Actor.SendInfo(weapMsg)
 			}
 		}
+
 		s.actor.SetTimer("combat", config.CombatCooldown)
 		return
 
@@ -330,23 +330,19 @@ func DeathCheck(s *state, m *objects.Mob) {
 }
 
 // DetermineMissChance Determine Miss Chance based on weapon Skills
-func DetermineMissChance(s *state, whatMob *objects.Mob) int {
+func DetermineMissChance(s *state, lvlDiff int) int {
 	missChance := 0
 	if s.actor.Class == 8 {
 		missChance = config.WeaponMissChance(s.actor.Skills[5].Value)
 	} else {
 		missChance = config.WeaponMissChance(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value)
 	}
-	lvlDiff := whatMob.Level - s.actor.Tier
 	if !config.QuestMode {
-		if lvlDiff >= 2+(int(1+(len(whatMob.ThreatTable)/2))) {
+		if lvlDiff >= 2 {
 			missChance += lvlDiff * config.MissPerLevel
 		}
 	}
-	if s.actor.GetStat("dex") < config.BaselineStatValue {
-		missChance += config.BaselineStatValue - s.actor.GetStat("dex")
-	}
-	missChance -= (s.actor.GetStat("dex") - whatMob.Dex.Current) * config.HitPerDex
+	missChance -= s.actor.GetStat("dex") * config.HitPerDex
 	if missChance >= 100 {
 		missChance = 95
 	}

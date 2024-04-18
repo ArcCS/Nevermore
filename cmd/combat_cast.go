@@ -1,13 +1,14 @@
 package cmd
 
 import (
+	"log"
+	"strconv"
+	"strings"
+
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
-	"log"
-	"strconv"
-	"strings"
 )
 
 func init() {
@@ -65,7 +66,7 @@ func (cast) process(s *state) {
 	}
 
 	if s.actor.GetStat("int") < config.IntMajorPenalty {
-		if utils.Roll(100, 1, 0) <= config.FizzleSave {
+		if utils.Roll(100, 1, 0) <= config.FizzleSavePerLvl*(config.IntMajorPenalty-s.actor.GetStat("int")) {
 			s.msg.Actor.SendBad("You attempt to cast the spell, but it fizzles out.")
 			s.actor.Mana.Current -= cost
 			s.actor.SetTimer("combat", 8)
@@ -258,7 +259,6 @@ func (cast) process(s *state) {
 	}
 
 	log.Println("Casting on self")
-	s.actor.RunHook("combat")
 	s.actor.FlagOn("casting", "cast")
 	msg = objects.Cast(s.actor, s.actor, spellInstance.Effect, spellInstance.Magnitude)
 	s.actor.FlagOff("casting", "cast")
