@@ -1,11 +1,9 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/data"
 	"math"
 	"strconv"
-
-	"github.com/ArcCS/Nevermore/data"
-
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"

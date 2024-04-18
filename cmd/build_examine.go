@@ -1,10 +1,6 @@
 package cmd
 
 import (
-	"log"
-	"strconv"
-	"strings"
-
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
@@ -12,6 +8,9 @@ import (
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/jedib0t/go-pretty/text"
+	"log"
+	"strconv"
+	"strings"
 )
 
 func init() {
@@ -297,8 +296,6 @@ func (examine) process(s *state) {
 				{"V", "divinity", charData["divinity"].(int64), "Divinity"},
 				{"V", "stealthexp", charData["stealthexp"].(int64), "Stealth Experience"},
 				{"T", "darkvision", strconv.FormatBool(charData["flags"].(map[string]interface{})["darkvision"].(int64) != 0), "Permanent Dark Vision"},
-				{"T", "regen_health", strconv.FormatBool(charData["flags"].(map[string]interface{})["regen_health"].(int64) != 0), "Troll Regeneration"},
-				{"T", "levitate", strconv.FormatBool(charData["flags"].(map[string]interface{})["levitate"].(int64) != 0), "Permanent Levitation"},
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 			s.msg.Actor.SendGood(t.Render())
@@ -344,8 +341,6 @@ func (examine) process(s *state) {
 				{"V", "stealthexp", character.Skills[11].Value, "Stealth Experience"},
 				{"T", "invisible", strconv.FormatBool(character.Flags["invisible"]), "Character is currently invisible"},
 				{"T", "darkvision", strconv.FormatBool(character.Flags["darkvision"]), "Permanent Dark Vision"},
-				{"T", "regen_health", strconv.FormatBool(character.Flags["regen_health"]), "Troll Regeneration"},
-				{"T", "levitate", strconv.FormatBool(character.Flags["levitate"]), "Permanent Levitation"},
 			})
 			t.SetCaption("X = Cannot Modify,  T=Toggle to Edit, V=Edit by value name\nSee 'help edit' for more.")
 			s.msg.Actor.SendGood(t.Render())

@@ -1,15 +1,14 @@
 package cmd
 
 import (
-	"math"
-	"strconv"
-
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"math"
+	"strconv"
 )
 
 func init() {
@@ -104,7 +103,7 @@ func (backstab) process(s *state) {
 
 		//curChance := config.BackStabChance + (s.actor.Dex.Current * config.BackStabChancePerPoint) + (config.BackStabChancePerLevel * (s.actor.Tier - whatMob.Level))
 
-		curChance := config.BackStabChance + ((s.actor.Dex.Current - config.BaselineStatValue) * config.BackStabChancePerPoint) + (config.StealthLevel(s.actor.Skills[11].Value) * config.BackStabChancePerSkillLevel)
+		curChance := config.BackStabChance + (s.actor.Dex.Current * config.BackStabChancePerPoint) + (config.StealthLevel(s.actor.Skills[11].Value) * config.BackStabChancePerSkillLevel)
 		lvlDiff := float64(whatMob.Level - s.actor.Tier)
 		if lvlDiff > 1 {
 			lvlDiff = (lvlDiff - 1) * .125
@@ -112,6 +111,7 @@ func (backstab) process(s *state) {
 		} else if lvlDiff == 1 {
 			curChance -= int(float64(curChance) * 0.05)
 		}
+
 		//s.msg.Actor.SendInfo("BS chance = " + strconv.Itoa(curChance))
 
 		if curChance > 95 {
@@ -121,12 +121,12 @@ func (backstab) process(s *state) {
 		if s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 			curChance = 100
 		}
-		skillModifiers := (float64(config.WeaponLevel(s.actor.Skills[s.actor.Equipment.Main.ItemType].Value, s.actor.Class)) * config.BackstabDamageSkillModifier) + (float64(config.StealthLevel(s.actor.Skills[11].Value)) * config.BackstabDamageSkillModifier)
 
 		s.actor.Victim = whatMob
 		s.actor.RunHook("combat")
 		if curChance >= 100 || utils.Roll(100, 1, 0) <= curChance {
-			actualDamage, _, resisted := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * (float64(config.CombatModifiers["backstab"]) + skillModifiers))))
+
+			actualDamage, _, resisted := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(config.CombatModifiers["backstab"]))))
 			data.StoreCombatMetric("backstab", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 			s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 			s.actor.AdvanceStealthExp(int(float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)))
