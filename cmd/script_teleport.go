@@ -5,7 +5,8 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
-	
+	"math/rand"
+	"strings"
 )
 
 func init() {
