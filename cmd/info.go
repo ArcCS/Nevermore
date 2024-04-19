@@ -161,8 +161,6 @@ func (information) process(s *state) {
 		s.actor.CheckFlag("disease"),
 		s.actor.CheckFlag("blind"),
 		s.actor.CheckFlag("darkvision"),
-		s.actor.CheckFlag("regen_health"),
-		s.actor.CheckFlag("levitate"),
 		showEnchants,
 		showHeals,
 		showRestores,
@@ -182,6 +180,7 @@ func (information) process(s *state) {
 		disprerolls,
 		s.actor.Rerolls,
 	}
+
 	tmpl, _ := template.New("char_info").Parse(charTemplate)
 	var output bytes.Buffer
 	err := tmpl.Execute(&output, data)
@@ -189,8 +188,6 @@ func (information) process(s *state) {
 		log.Println(err)
 	} else {
 		s.msg.Actor.SendGood(output.String())
-		log.Println("info command")
-		log.Println(data)
 	}
 
 	s.ok = true

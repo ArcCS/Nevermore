@@ -1,13 +1,11 @@
 package cmd
 
 import (
-	"math/rand"
-	"strings"
-
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
+	
 )
 
 func init() {
