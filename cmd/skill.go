@@ -135,7 +135,7 @@ Covert Arts              {{.Stealth}} ({{.StealthTotal}}/{{.StealthNext}})
 		strconv.Itoa(s.actor.Skills[11].Value),
 		strconv.Itoa(config.StealthExpNext(s.actor.Skills[11].Value)),
 	}
-	
+
 	if s.actor.Class == 8 {
 		skillHeader += monkSkills
 	} else {
