@@ -165,7 +165,7 @@ var RaceDefs = map[string]raceDef{
 		DexMin: 2, DexMax: 22,
 		ConMin: 17, ConMax: 45,
 		IntMin: 2, IntMax: 20,
-		PieMin: 2, PieMax: 23,
+		PieMin: 3, PieMax: 23,
 		Darkvision: true,
 	},
 	"sprite": {
