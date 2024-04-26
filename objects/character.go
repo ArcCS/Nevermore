@@ -2,19 +2,18 @@ package objects
 
 import (
 	"encoding/json"
-	"io"
-	"log"
-	"math"
-	"strconv"
-	"strings"
-	"time"
-
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"io"
+	"log"
+	"math"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type Character struct {
@@ -767,16 +766,12 @@ func (c *Character) Tick() {
 		c.LastSave = time.Now()
 		c.TickSaveWrapper()
 	}
-	healMultiplier, manaMultiplier := 1.0, 1.0
 	if Rooms[c.ParentId].Flags["heal_fast"] {
-		healMultiplier += 1
-		manaMultiplier += 1
-	}
-	if c.CheckFlag("regen_health") {
-		healMultiplier += 0.3
-	}
-	c.Heal(int(math.Ceil(float64(c.GetStat("con")+c.Tier) * config.ConHealRegenMod * healMultiplier)))
-	c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")+c.Tier)*config.PieRegenMod) * manaMultiplier))
+		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod * 2)))
+		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod * 2)))
+	} else {
+		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod)))
+		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod)))
 
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {
@@ -946,15 +941,14 @@ func (c *Character) ReceiveDamage(damage int) (int, int, int) {
 		damage -= int(math.Ceil(float64(damage) * config.InertialDamageIgnore))
 	}
 	stamDamage, vitalDamage := 0, 0
-	mitigation := float64(config.ArmorReductionConstant) / (float64(config.ArmorReductionConstant) + float64(c.GetStat("armor")))
+	resist := int(math.Ceil(float64(damage) * ((float64(c.GetStat("armor")) / float64(config.ArmorReductionPoints)) * config.ArmorReduction)))
 	msg := c.Equipment.DamageRandomArmor()
 	if msg != "" {
 		if _, err := c.Write([]byte(text.Info + msg + "\n" + text.Reset)); err != nil {
 			log.Println("Error writing to player: ", err)
 		}
 	}
-	finalDamage := int(math.Ceil(float64(damage) * mitigation))
-	resist := damage - finalDamage
+	finalDamage := damage - resist
 	if finalDamage < 0 {
 		finalDamage = 0
 	}
@@ -1083,7 +1077,9 @@ func (c *Character) ReceiveMagicDamage(damage int, element string) (int, int, in
 	}
 
 	resisted := int(math.Ceil(float64(damage) * resisting))
-	damage -= int(math.Max(float64(c.GetStat("int"))-float64(config.BaselineStatValue), 0)) * config.IntResistMagicPerPoint
+	if c.GetStat("int") > config.IntResistMagicBase {
+		damage -= c.GetStat("int") - config.IntResistMagicPerPoint
+	}
 	stamDam, vitDam := c.ReceiveDamageNoArmor(damage - resisted)
 	return stamDam, vitDam, resisted
 }
