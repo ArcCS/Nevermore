@@ -407,8 +407,6 @@ func (m *Mob) Tick() {
 			// Calculate Vital/Crit/Double
 			multiplier := float64(1)
 			vitalStrike := false
-			mobCriticalMultiplier := config.MobCriticalMultiplier
-			mobVitalMultiplier := config.MobVitalMultiplier
 			criticalStrike := false
 			doubleDamage := false
 			penalty := 1
@@ -439,10 +437,10 @@ func (m *Mob) Tick() {
 					if utils.Roll(10, 1, 0) <= penalty {
 						attackStyleRoll := utils.Roll(10, 1, 0)
 						if attackStyleRoll <= config.MobVital {
-							multiplier = mobVitalMultiplier - (float64(target.Con.Current-config.BaselineStatValue) * 0.01)
+							multiplier = 2
 							vitalStrike = true
 						} else if attackStyleRoll <= config.MobCritical {
-							multiplier = float64(mobCriticalMultiplier) - (float64(target.Con.Current-config.BaselineStatValue) * 0.01)
+							multiplier = 4
 							criticalStrike = true
 						} else if attackStyleRoll <= config.MobDouble {
 							multiplier = 2

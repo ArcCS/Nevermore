@@ -6,15 +6,14 @@
 package cmd
 
 import (
+	"github.com/ArcCS/Nevermore/message"
+	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/utils"
 	"io"
 	"math/rand"
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/ArcCS/Nevermore/message"
-	"github.com/ArcCS/Nevermore/objects"
-	"github.com/ArcCS/Nevermore/utils"
 )
 
 func init() {

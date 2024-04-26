@@ -2,11 +2,10 @@ package objects
 
 import (
 	"encoding/json"
+	"github.com/jinzhu/copier"
 	"log"
 	"math/rand"
 	"strings"
-
-	"github.com/jinzhu/copier"
 )
 
 type Equipment struct {
