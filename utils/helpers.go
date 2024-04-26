@@ -2,15 +2,14 @@ package utils
 
 import (
 	"bufio"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"log"
 	"math"
 	"math/rand"
 	"os"
 	"sort"
 	"strings"
-
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 func Sum(input []int) int {

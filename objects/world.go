@@ -1,12 +1,11 @@
 package objects
 
 import (
+	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"runtime"
 	"time"
-
-	"github.com/ArcCS/Nevermore/data"
-	"github.com/ArcCS/Nevermore/utils"
 )
 
 // Rooms contains all the world rooms tagged with their room_id
@@ -55,7 +54,6 @@ func Load() {
 	preparse := data.LoadMobs()
 	for _, mob := range preparse {
 		if mob != nil {
-			log.Println(mob)
 			mobData := mob.(map[string]interface{})
 			Mobs[int(mobData["mob_id"].(int64))], _ = LoadMob(mobData)
 		}

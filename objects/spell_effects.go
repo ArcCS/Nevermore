@@ -1,11 +1,10 @@
 package objects
 
 import (
+	"github.com/ArcCS/Nevermore/data"
 	"log"
 	"math/rand"
 	"strconv"
-
-	"github.com/ArcCS/Nevermore/data"
 
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/text"
