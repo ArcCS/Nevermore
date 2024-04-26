@@ -2,14 +2,13 @@ package frontend
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
-
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
+	"strconv"
+	"strings"
 )
 
 // account embeds a frontend instance adding fields and methods specific to

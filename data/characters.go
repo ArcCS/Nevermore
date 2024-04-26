@@ -74,7 +74,7 @@ func LoadChar(charName string) (map[string]interface{}, bool) {
 		"restores: a.restores, "+
 		"rerolls: a.rerolls, "+
 		"oocswap: a.oocswap, "+
-		"flags:{invisible: a.invisible, darkvision: a.darkvision, hidden: a.hidden, ooc: a.ooc, regen_health: a.regen_health, levitate: a.levitate}}",
+		"flags:{invisible: a.invisible, darkvision: a.darkvision, hidden: a.hidden, ooc: a.ooc}}",
 
 		map[string]interface{}{
 			"charName": charName,
@@ -150,8 +150,6 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.invisible = 0, "+
 			"a.lastrefresh = $lastrefresh, "+
 			"a.darkvision = $darkvision, "+
-			"a.regen_health = $regen_health, "+
-			"a.levitate = $levitate, "+
 			"a.effects = '[]', "+
 			"a.timers = '[]', "+
 			"a.enchants = 0, "+
@@ -162,27 +160,25 @@ func CreateChar(charData map[string]interface{}) bool {
 			"a.oocswap = 0, "+
 			"a.hidden = 0 ",
 		map[string]interface{}{
-			"characterId":  nextId("character"),
-			"gender":       charData["gender"],
-			"name":         utils.Title(charData["name"].(string)),
-			"class":        charData["class"],
-			"race":         charData["race"],
-			"strcur":       charData["str"],
-			"concur":       charData["con"],
-			"dexcur":       charData["dex"],
-			"piecur":       charData["pie"],
-			"intcur":       charData["intel"],
-			"birth_day":    charData["birthday"],
-			"birth_date":   charData["birthdate"],
-			"birth_month":  charData["birthmonth"],
-			"lastrefresh":  time.Now().String(),
-			"darkvision":   utils.Btoi(charData["darkvision"].(bool)),
-			"regen_health": utils.Btoi(charData["regen_health"].(bool)),
-			"levitate":     utils.Btoi(charData["levitate"].(bool)),
-			"curr_mana":    config.CalcMana(1, charData["con"].(int), charData["class"].(int)),
-			"curr_vit":     config.CalcHealth(1, charData["intel"].(int), charData["class"].(int)),
-			"curr_stam":    config.CalcStamina(1, charData["con"].(int), charData["class"].(int)),
-			"start_room":   config.StartingRoom,
+			"characterId": nextId("character"),
+			"gender":      charData["gender"],
+			"name":        utils.Title(charData["name"].(string)),
+			"class":       charData["class"],
+			"race":        charData["race"],
+			"strcur":      charData["str"],
+			"concur":      charData["con"],
+			"dexcur":      charData["dex"],
+			"piecur":      charData["pie"],
+			"intcur":      charData["intel"],
+			"birth_day":   charData["birthday"],
+			"birth_date":  charData["birthdate"],
+			"birth_month": charData["birthmonth"],
+			"lastrefresh": time.Now().String(),
+			"darkvision":  utils.Btoi(charData["darkvision"].(bool)),
+			"curr_mana":   config.CalcMana(1, charData["con"].(int), charData["class"].(int)),
+			"curr_vit":    config.CalcHealth(1, charData["intel"].(int), charData["class"].(int)),
+			"curr_stam":   config.CalcStamina(1, charData["con"].(int), charData["class"].(int)),
+			"start_room":  config.StartingRoom,
 		},
 	)
 	if err != nil {

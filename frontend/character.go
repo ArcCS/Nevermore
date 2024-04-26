@@ -566,8 +566,6 @@ func (a *newCharacter) completeBuilder() {
 	charData["intel"] = a.intel
 	charData["pie"] = a.pie
 	charData["darkvision"] = config.RaceDefs[config.AvailableRaces[a.race]].Darkvision
-	charData["regen_health"] = config.RaceDefs[config.AvailableRaces[a.race]].RegenHealth
-	charData["levitate"] = config.RaceDefs[config.AvailableRaces[a.race]].Levitate
 	charData["birthday"] = objects.CurrentDay
 	charData["birthdate"] = objects.DayOfMonth
 	charData["birthmonth"] = objects.CurrentMonth
