@@ -292,7 +292,6 @@ func (s *state) AcquireLockPriority() {
 					objects.Rooms[l].LockPriority = ""
 				}
 			}
-			rand.Seed(time.Now().UnixNano())
 			r := rand.Int()
 			t, _ := time.ParseDuration(string(rune(r)) + "ms")
 			time.Sleep(t)

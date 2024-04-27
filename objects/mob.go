@@ -375,7 +375,6 @@ func (m *Mob) Tick() {
 					if utils.Roll(100, 1, 0) <= m.ChanceCast {
 						log.Println("Successful Roll, Selecting a spell")
 						for range m.Spells {
-							rand.Seed(time.Now().Unix())
 							selectSpell = m.Spells[rand.Intn(len(m.Spells))]
 							if selectSpell != "" {
 								if utils.StringIn(selectSpell, OffensiveSpells) {
@@ -813,7 +812,6 @@ func (m *Mob) Follow(params []string) {
 								Rooms[l].LockPriority = ""
 							}
 						}
-						rand.Seed(time.Now().UnixNano())
 						r := rand.Intn(50)
 						t, _ := time.ParseDuration(string(rune(r)) + "ms")
 						time.Sleep(t)
@@ -907,7 +905,6 @@ func (m *Mob) Stun(amt int) {
 
 // Teleport Special handler for handling a mobs cast of a teleport spell
 func (m *Mob) Teleport(target string) {
-	rand.Seed(time.Now().Unix())
 	newRoom := Rooms[TeleportTable[rand.Intn(len(TeleportTable))]]
 	targetName := strings.Split(target, " ")
 	workingRoom := Rooms[m.ParentId]

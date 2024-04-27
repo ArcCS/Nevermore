@@ -21,11 +21,11 @@ var CombatModifiers = map[string]int{
 }
 
 var (
-	MultiLower = .1
-	MultiUpper = .2
-
-	ProximityChance = 80
-	ProximityStep   = 10
+	MultiLower        = .1
+	MultiUpper        = .2
+	BaselineStatValue = 10
+	ProximityChance   = 80
+	ProximityStep     = 10
 
 	BerserkCooldown = 60 * 5
 	CombatCooldown  = 8
@@ -40,7 +40,7 @@ var (
 
 	BaseDevicePiety = 8.0
 
-	IntMajorPenalty = 7
+	IntMajorPenalty = 9
 	PieMajorPenalty = 5
 
 	MobAugmentPerCharacter = 3
@@ -79,6 +79,7 @@ var (
 	StealChance                 = 20
 	StealChancePerSkillLevel    = 4
 	BackStabChance              = 20
+	BackstabDamageSkillModifier = .15
 	BackStabChancePerSkillLevel = 3
 	SnipeChance                 = 15
 	HideChancePerPoint          = 3
@@ -162,8 +163,9 @@ var (
 	PieRegenMod = .4 // Regen Mana per tick
 	PieHealMod  = .7 // Per point
 
-	ArmorReduction       = .007
-	ArmorReductionPoints = 10
+	ArmorReduction         = .007
+	ArmorReductionPoints   = 10
+	ArmorReductionConstant = 1200
 
 	MobArmorReduction = .5
 

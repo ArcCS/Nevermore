@@ -7,10 +7,8 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
-	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // account embeds a frontend instance adding fields and methods specific to
@@ -163,7 +161,6 @@ func (a *newPCharacter) completeBuilder() {
 	charData["birthdate"] = objects.DayOfMonth
 	charData["birthmonth"] = objects.CurrentMonth
 	charData["darkvision"] = config.RaceDefs[config.AvailableRaces[a.race]].Darkvision
-	rand.Seed(time.Now().Unix())
 	if data.CreateChar(charData) {
 		a.buf.Send(text.Info, "New GM created,  entering Altin. \n", text.Reset)
 		StartGame(a.frontend, a.name)
@@ -186,6 +183,9 @@ func (a *newPCharacter) helpDisplay(subject string) {
 
 func validateFastPStep(choiceInput string) bool {
 	inputs := strings.Split(choiceInput, " ")
+	if len(inputs) != 2 {
+		return false
+	}
 	if inputs[0] != "f" {
 		if inputs[0] != "m" {
 			return false

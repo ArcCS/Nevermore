@@ -105,6 +105,11 @@ type Character struct {
 
 func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Character, bool) {
 	charData, err := data.LoadChar(charName)
+	NewEquipment, ErroredEquip := RestoreEquipment(charData["equipment"].(string), int(charData["class"].(int64)))
+	NewInventory := RestoreInventory(charData["inventory"].(string))
+	for _, item := range ErroredEquip {
+		NewInventory.Add(&item)
+	}
 	lastRefresh, _ := time.Parse(time.RFC3339, charData["lastrefresh"].(string))
 	if err {
 		return nil, true
@@ -119,8 +124,8 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			writer,
 			StyleNone,
 			int(charData["character_id"].(int64)),
-			RestoreEquipment(charData["equipment"].(string)),
-			RestoreInventory(charData["inventory"].(string)),
+			NewEquipment,
+			NewInventory,
 			0,
 			make(map[string]bool),
 			make(map[string][]string),
@@ -767,7 +772,6 @@ func (c *Character) Tick() {
 	} else {
 		c.Heal(int(math.Ceil(float64(c.GetStat("con")) * config.ConHealRegenMod)))
 		c.RestoreMana(int(math.Ceil(float64(c.GetStat("pie")) * config.PieRegenMod)))
-	}
 
 	// Loop the currently applied effects, drop them if needed, or execute their functions as necessary
 	for name, effect := range c.Effects {

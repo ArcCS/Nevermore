@@ -57,7 +57,7 @@ func (equip) process(s *state) {
 			return
 		}
 
-		if s.actor.Equipment.Equip(what) {
+		if s.actor.Equipment.Equip(what, s.actor.Class) {
 			s.msg.Actor.SendGood("You equip " + what.DisplayName())
 			s.msg.Observers.SendInfo(s.actor.Name + " equips " + what.DisplayName())
 			if err := s.actor.Inventory.Remove(what); err != nil {
