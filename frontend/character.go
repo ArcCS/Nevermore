@@ -2,14 +2,13 @@ package frontend
 
 import (
 	"fmt"
+	"github.com/ArcCS/Nevermore/data"
+	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/ArcCS/Nevermore/data"
-	"github.com/ArcCS/Nevermore/objects"
-	"github.com/ArcCS/Nevermore/utils"
 
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/text"
