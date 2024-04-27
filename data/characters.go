@@ -4,12 +4,11 @@ package data
 
 import (
 	"fmt"
+	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/utils"
 	"log"
 	"strings"
 	"time"
-
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/utils"
 )
 
 // LoadChar Retrieve character information
