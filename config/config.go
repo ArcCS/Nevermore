@@ -2,12 +2,11 @@ package config
 
 import (
 	"fmt"
-	"log"
-	"time"
-
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/spf13/viper"
+	"log"
+	"time"
 )
 
 // Server default configuration
