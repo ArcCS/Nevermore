@@ -943,15 +943,15 @@ func (m *Mob) CalculateInventory() {
 }
 
 func (m *Mob) ReturnState() string {
-	stamStatus := "healthy"
+	stamStatus := text.Green + "healthy" + text.Info
 	if m.Stam.Current < (m.Stam.Max - int(.90*float32(m.Stam.Max))) {
-		stamStatus = "near death"
+		stamStatus = text.BrightRed + "near death" + text.Info
 	} else if m.Stam.Current < (m.Stam.Max - int(.75*float32(m.Stam.Max))) {
-		stamStatus = "badly injured"
+		stamStatus = text.Red + "badly injured" + text.Info
 	} else if m.Stam.Current < (m.Stam.Max - int(.5*float32(m.Stam.Max))) {
-		stamStatus = "injured"
+		stamStatus = text.DarkYellow + "injured" + text.Info
 	} else if m.Stam.Current < (m.Stam.Max - int(.25*float32(m.Stam.Max))) {
-		stamStatus = "slightly injured"
+		stamStatus = text.DarkGreen + "slightly injured" + text.Info
 	}
 	return " looks " + stamStatus
 }
@@ -1189,11 +1189,6 @@ func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {
 			resisting += .25
 		}
 	}
-	/* TODO: Revisit after we actually change stats
-	if resisting > 0 {
-		resisting = (float64(m.Int.Current) / 30) * resisting
-	}
-	*/
 
 	if m.CheckFlag("resist-magic") {
 		resisting += .10

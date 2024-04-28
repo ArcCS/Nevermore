@@ -63,12 +63,11 @@ func (give) process(s *state) {
 
 			s.actor.RunHook("act")
 			if err := s.actor.Inventory.Remove(target); err != nil {
-				s.msg.Actor.SendBad("Game eror when removing item from inventory.")
+				s.msg.Actor.SendBad("Game error when removing item from inventory.")
 				log.Println(err)
 				return
 			}
 			who.Inventory.Add(target)
-
 			s.msg.Actor.SendGood("You give ", target.Name, " to ", who.Name, ".")
 			return
 		}

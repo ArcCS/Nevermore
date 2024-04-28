@@ -1,15 +1,18 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/permissions"
+
+	"regexp"
 	"strings"
+
+	"github.com/ArcCS/Nevermore/permissions"
 )
 
 func init() {
 	addHandler(act{},
 		"Usage:  act performs for all to see \n \n Perform actions.",
 		permissions.Player,
-		"act", "blink", "blush", "bow", "burp", "cackle", "cheer", "chuckle", "clap", "confused", "cough", "crossarms", "crossfingers", "cry", "dance", "emote", "flex", "flinch", "frown", "gasp", "giggle", "grin", "groan", "hiccup", "jump", "kneel", "laugh", "nod", "ponder", "salute", "shake", "shiver", "shrug", "sigh", "sneeze", "snap", "smile", "smirk", "snicker", "spit", "stare", "stretch", "tap", "thumbsdown", "thumbsup", "wave", "whistle", "wink", "yawn")
+		"act", "blink", "blush", "bow", "burp", "cackle", "cheer", "chuckle", "clap", "confused", "cough", "crossarms", "crossfingers", "cry", "dance", "emote", "flex", "flinch", "frown", "gasp", "giggle", "grin", "groan", "hiccup", "jump", "kneel", "laugh", "me", "nod", "ponder", "salute", "shake", "shiver", "shrug", "sigh", "sneeze", "snap", "smile", "smirk", "snicker", "spit", "stare", "stretch", "tap", "thumbsdown", "thumbsup", "wave", "whistle", "wink", "yawn")
 }
 
 var actDict = map[string]string{
@@ -71,13 +74,17 @@ func (act) process(s *state) {
 	action := ""
 	var ok bool
 	s.actor.RunHook("act")
-	if cmdStr == "act" || cmdStr == "emote" {
+	if cmdStr == "act" || cmdStr == "emote" || cmdStr == "me" {
 		// Did they send an action?
 		if len(s.words) == 0 {
 			s.msg.Actor.SendBad("... what were you trying to do???")
 			return
 		}
 		action = strings.Join(s.input, " ")
+		match, _ := regexp.MatchString("([?.,\"'()!;:])", action[len(action)-1:])
+		if !match {
+			action = action + "."
+		}
 	} else {
 		if action, ok = actDict[cmdStr]; !ok {
 			s.msg.Actor.SendBad("Action not available")

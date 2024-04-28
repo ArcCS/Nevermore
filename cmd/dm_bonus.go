@@ -31,22 +31,25 @@ func (bonus) process(s *state) {
 			}
 
 			if targetChar != nil {
-				if targetChar.BonusPoints.Value >= 50 {
-					s.msg.Actor.SendBad(targetChar.Name + " already has 50 bonus points!")
+				if targetChar.BonusPoints.Value <= 50 {
+					targetChar.BonusPoints.Add(amt)
+					s.participant = targetChar
+					s.msg.Participant.SendGood("You've been awarded " + s.words[0] + " bonus points!")
+					s.msg.Actor.SendGood("You've awarded " + s.words[0] + " bonus points to " + targetChar.Name + "!")
+				} else {
+					s.msg.Actor.SendBad("That player has too many bonus points already!")
 					return
 				}
-				targetChar.BonusPoints.Add(amt)
-				s.participant = targetChar
-				s.msg.Participant.SendGood("You've been awarded " + s.words[0] + " bonus points!")
-				s.msg.Actor.SendGood("You've awarded " + s.words[0] + " bonus points to " + targetChar.Name + "!")
+
 			}
 		} else {
 			for _, actor := range s.where.Chars.Contents {
-				if actor.BonusPoints.Value >= 50 {
-					s.msg.Actor.SendBad(actor.Name + " already has 50 bonus points!")
-					continue
+				if actor.BonusPoints.Value <= 50 {
+					actor.BonusPoints.Add(amt)
+				} else {
+					s.msg.Actor.SendBad(actor.Name + " has too many bonus points already!")
+					return
 				}
-				actor.BonusPoints.Add(amt)
 			}
 			s.msg.Observers.SendGood("You've been awarded " + s.words[0] + " bonus points!")
 			s.msg.Actor.SendGood("You've awarded " + s.words[0] + " bonus points to everyone in the room!")
