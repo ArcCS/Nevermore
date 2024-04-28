@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
@@ -102,7 +101,6 @@ func (sellConfirm) process(s *state) {
 	if target != nil {
 		if ok := s.actor.Inventory.Remove(target); ok == nil {
 			s.actor.Gold.Add(targetPrice)
-			data.StoreItemSale(target.ItemId, s.actor.CharId, s.actor.Tier, targetPrice)
 			s.msg.Actor.SendGood("The pawn broker gives you ", strconv.Itoa(targetPrice), " for ", target.Name, ".")
 		} else {
 			s.msg.Actor.SendBad("Issue completing sell.")

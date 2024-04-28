@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
@@ -25,7 +24,6 @@ func (ptell) process(s *state) {
 
 	msg := strings.Join(s.input, " ")
 	msg = text.White + s.actor.Name + " party flashes# \"" + msg + "\""
-	data.StoreChatLog(5, s.actor.CharId, 0, msg)
 	if s.actor.PartyFollow == "" && len(s.actor.PartyFollowers) == 0 {
 		s.msg.Actor.SendBad("You have no party to telepathically communicate with.")
 	}

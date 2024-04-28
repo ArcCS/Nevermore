@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"log"
@@ -138,7 +137,6 @@ func (pose) process(s *state) {
 		},
 	)
 
-	data.StoreChatLog(0, s.actor.CharId, 0, msg)
 	s.actor.Pose = msg
 	s.msg.Actor.SendGood("You pose: \"", msg, "\"")
 	s.msg.Observers.SendGood("You see ", s.actor.Name, " pose: \"", msg, "\"")

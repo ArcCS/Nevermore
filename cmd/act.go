@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
@@ -86,7 +85,6 @@ func (act) process(s *state) {
 			return
 		}
 	}
-	data.StoreChatLog(3, s.actor.CharId, 0, action)
 	s.msg.Actor.SendInfo(s.actor.Name, " ", action)
 	s.msg.Observers.SendInfo(s.actor.Name, " ", action)
 

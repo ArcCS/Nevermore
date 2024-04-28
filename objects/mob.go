@@ -425,13 +425,11 @@ func (m *Mob) Tick() {
 					if _, err := target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset)); err != nil {
 						log.Println("Error writing to player:", err)
 					}
-					data.StoreCombatMetric("range-miss", 0, 1, 0, 0, 0, 1, m.MobId, m.Level, 0, target.CharId)
 					return
 				}
 				// If we made it here, default out and do a range hit.
 				stamDamage := 0
 				vitDamage := 0
-				resisted := 0
 				reflectDamage := 0
 				actualDamage := m.InflictDamage()
 				if !m.Flags["no_specials"] {
@@ -450,14 +448,12 @@ func (m *Mob) Tick() {
 					}
 				}
 				if vitalStrike {
-					vitDamage, resisted = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
-					data.StoreCombatMetric("range_vital", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
+					vitDamage, _ = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 					if _, err := target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset)); err != nil {
 						log.Println("Error writing to player:", err)
 					}
 				} else {
-					stamDamage, vitDamage, resisted = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
-					data.StoreCombatMetric("range", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
+					stamDamage, vitDamage, _ = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 				}
 
 				buildString := ""
@@ -485,8 +481,7 @@ func (m *Mob) Tick() {
 				}
 				if target.CheckFlag("reflection") {
 					reflectDamage = int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
-					mobFin, _, mobResisted := m.ReceiveDamage(reflectDamage)
-					data.StoreCombatMetric("range_player_reflect", 0, 1, reflectDamage, mobResisted, mobFin, 0, target.CharId, target.Tier, 1, m.MobId)
+					m.ReceiveDamage(reflectDamage)
 					if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset)); err != nil {
 						log.Println("Error writing to player:", err)
 					}
@@ -527,7 +522,6 @@ func (m *Mob) Tick() {
 					if _, err := target.Write([]byte(text.Green + m.Name + " missed you!!" + "\n" + text.Reset)); err != nil {
 						log.Println("Error writing to player:", err)
 					}
-					data.StoreCombatMetric("melee-miss", 0, 1, 0, 0, 0, 1, m.MobId, m.Level, 0, target.CharId)
 					return
 				}
 				target.RunHook("attacked")
@@ -535,8 +529,7 @@ func (m *Mob) Tick() {
 				if target.Class == 0 && target.Equipment.Main != nil && config.RollParry(config.WeaponLevel(target.Skills[target.Equipment.Main.ItemType].Value, target.Class)) {
 					if target.Tier >= config.SpecialAbilityTier {
 						// It's a riposte
-						actualDamage, _, resisted := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
-						data.StoreCombatMetric("melee_player_riposte", 0, 1, actualDamage+resisted, resisted, actualDamage, 0, target.CharId, target.Tier, 1, m.MobId)
+						actualDamage, _, _ := m.ReceiveDamage(int(math.Ceil(float64(target.InflictDamage()))))
 						if _, err := target.Write([]byte(text.Green + "You parry and riposte the attack from " + m.Name + " for " + strconv.Itoa(actualDamage) + " damage!" + "\n" + text.Reset)); err != nil {
 							log.Println("Error writing to player:", err)
 						}
@@ -553,7 +546,6 @@ func (m *Mob) Tick() {
 				} else {
 					stamDamage := 0
 					vitDamage := 0
-					resisted := 0
 					actualDamage := m.InflictDamage()
 					reflectDamage := 0
 					if !m.Flags["no_specials"] {
@@ -572,15 +564,12 @@ func (m *Mob) Tick() {
 						}
 					}
 					if vitalStrike {
-						vitDamage, resisted = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
-						data.StoreCombatMetric("melee_vital", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
+						vitDamage, _ = target.ReceiveVitalDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 						if _, err := target.Write([]byte(text.Red + "Vital Strike!!!\n" + text.Reset)); err != nil {
 							log.Println("Error writing to player:", err)
 						}
 					} else {
-						stamDamage, vitDamage, resisted = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
-						data.StoreCombatMetric("melee", 0, 1, int(math.Ceil(float64(actualDamage)*multiplier)), resisted, stamDamage+vitDamage, 1, m.MobId, m.Level, 0, target.CharId)
-
+						stamDamage, vitDamage, _ = target.ReceiveDamage(int(math.Ceil(float64(actualDamage) * multiplier)))
 					}
 					buildString := ""
 					if stamDamage != 0 {
@@ -613,8 +602,7 @@ func (m *Mob) Tick() {
 					}
 					if target.CheckFlag("reflection") {
 						reflectDamage = int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
-						mobFin, _, mobResisted := m.ReceiveDamage(reflectDamage)
-						data.StoreCombatMetric("melee_player_reflect", 0, 1, reflectDamage, mobResisted, mobFin, 0, target.CharId, target.Tier, 1, m.MobId)
+						m.ReceiveDamage(reflectDamage)
 						if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset)); err != nil {
 							log.Println("Error writing to player:", err)
 						}
@@ -828,9 +816,7 @@ func (m *Mob) Follow(params []string) {
 				Rooms[m.ParentId].Mobs.Remove(m)
 				Rooms[targetChar.ParentId].Mobs.AddWithMessage(m, m.Name+" follows "+targetChar.Name+" into the area.", false)
 				if utils.Roll(100, 1, 0) <= config.MobFollowVital {
-					vitDamage, resisted := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage() * config.MobFollMult))))
-					data.StoreCombatMetric("follow_vital", 0, 1, vitDamage, resisted, vitDamage, 1, m.MobId, m.Level, 0, targetChar.CharId)
-
+					vitDamage, _ := targetChar.ReceiveVitalDamage(int(math.Ceil(float64(m.InflictDamage() * config.MobFollMult))))
 					if vitDamage == 0 {
 						if _, err := targetChar.Write([]byte(text.Red + m.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset)); err != nil {
 							log.Println("Error writing to player:", err)
@@ -1203,9 +1189,11 @@ func (m *Mob) ReceiveMagicDamage(damage int, element string) (int, int, int) {
 			resisting += .25
 		}
 	}
+	/* TODO: Revisit after we actually change stats
 	if resisting > 0 {
 		resisting = (float64(m.Int.Current) / 30) * resisting
 	}
+	*/
 
 	if m.CheckFlag("resist-magic") {
 		resisting += .10

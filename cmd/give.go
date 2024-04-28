@@ -53,28 +53,25 @@ func (give) process(s *state) {
 		}
 		var who *objects.Mob
 		who = s.where.Mobs.Search(whoStr, whoNum, s.actor)
-		if who == nil {
-			s.msg.Actor.SendInfo("Give who what???")
+		if who != nil {
+			target := s.actor.Inventory.Search(targetStr, targetNum)
+
+			if target == nil {
+				s.msg.Actor.SendInfo("What're you trying to give away?")
+				return
+			}
+
+			s.actor.RunHook("act")
+			if err := s.actor.Inventory.Remove(target); err != nil {
+				s.msg.Actor.SendBad("Game eror when removing item from inventory.")
+				log.Println(err)
+				return
+			}
+			who.Inventory.Add(target)
+
+			s.msg.Actor.SendGood("You give ", target.Name, " to ", who.Name, ".")
 			return
 		}
-
-		target := s.actor.Inventory.Search(targetStr, targetNum)
-
-		if target == nil {
-			s.msg.Actor.SendInfo("What're you trying to give away?")
-			return
-		}
-
-		s.actor.RunHook("act")
-		if err := s.actor.Inventory.Remove(target); err != nil {
-			s.msg.Actor.SendBad("Game eror when removing item from inventory.")
-			log.Println(err)
-			return
-		}
-		who.Inventory.Add(target)
-
-		s.msg.Actor.SendGood("You give ", target.Name, " to ", who.Name, ".")
-		return
 	}
 
 	var who *objects.Character

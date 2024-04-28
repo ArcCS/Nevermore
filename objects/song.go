@@ -2,7 +2,6 @@ package objects
 
 import (
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
@@ -151,8 +150,7 @@ func BansheesLament(target interface{}, singer *Character) {
 		if _, err := singer.Write([]byte(text.Red + "Your song caused " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset)); err != nil {
 			log.Println("Error writing to player:", err)
 		}
-		actualDamage, resisted := target.ReceiveDamageNoArmor(damage)
-		data.StoreCombatMetric("banshees_lament", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, singer.CharId, singer.Tier, 1, target.MobId)
+		target.ReceiveDamageNoArmor(damage)
 		target.AddThreatDamage(damage, singer)
 	}
 }

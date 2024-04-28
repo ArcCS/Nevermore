@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
 	"strings"
 )
@@ -30,7 +29,6 @@ func (osay) process(s *state) {
 
 	msg := strings.Join(s.input, " ")
 	s.actor.RunHook("say")
-	data.StoreChatLog(1, s.actor.CharId, 0, msg)
 	if msg[len(msg)-1:] == "?" {
 		s.msg.Actor.SendGood("You ask, out of character: \"", msg, "\"")
 		s.msg.Observers.SendInfo(who, " asks, out of character: \"", msg, "\"")
