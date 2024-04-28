@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"github.com/ArcCS/Nevermore/data"
 	"log"
 	"math/rand"
 	"strconv"
@@ -288,12 +287,9 @@ func healstam(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			healAmount := target.HealStam(damage)
-			mode := 3
 			if caller.CheckFlag("casting") {
 				caller.AdvanceDivinity(healAmount*2, caller.Class)
-				mode = 2
 			}
-			data.StoreCombatMetric("vigor", 1, mode, damage, damage-healAmount, healAmount, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
 				/*
 					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
@@ -333,12 +329,9 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			healAmount := target.HealVital(damage)
-			mode := 3
 			if caller.CheckFlag("casting") {
 				caller.AdvanceDivinity(healAmount*2, caller.Class)
-				mode = 2
 			}
-			data.StoreCombatMetric("mend", 1, mode, damage, damage-healAmount, healAmount, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
 				/*
 					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
@@ -365,13 +358,10 @@ func healvit(caller interface{}, target interface{}, magnitude int) string {
 
 func heal(caller interface{}, target interface{}, magnitude int) string {
 	damage := 0
-	action := ""
 	if magnitude == 1 {
 		damage = 20
-		action = "detraumatize"
 	} else {
 		damage = 40
-		action = "renewal"
 	}
 	switch caller := caller.(type) {
 	case *Character:
@@ -386,19 +376,11 @@ func heal(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			stam, vit := target.Heal(damage)
-			mode := 3
 			if caller.CheckFlag("casting") {
 				caller.AdvanceDivinity((stam*2)+(vit*2), caller.Class)
-				mode = 2
 			}
-			data.StoreCombatMetric(action, 1, mode, damage, damage-(stam+vit), stam+vit, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			if utils.IntIn(caller.Class, []int{5, 6, 7}) {
-				/*
-					for _, mob := range Rooms[target.ParentId].Mobs.Contents {
-						if mob.Flags["hostile"] {
-							mob.AddThreatDamage(healAmount/10, caller)
-						}
-					}*/
+
 				switch victim := target.Victim.(type) {
 				case *Mob:
 					victim.AddThreatDamage(stam+vit/3, caller)
@@ -433,12 +415,9 @@ func healall(caller interface{}, target interface{}, magnitude int) string {
 		switch target := target.(type) {
 		case *Character:
 			stam, vit := target.Heal(2000)
-			mode := 3
 			if caller.CheckFlag("casting") {
 				caller.AdvanceDivinity((stam*2)+(vit*2), caller.Class)
-				mode = 2
 			}
-			data.StoreCombatMetric("heal", 1, mode, stam+vit, 0, stam+vit, 0, caller.CharId, caller.Tier, 0, target.CharId)
 			return text.Info + "You now have " + strconv.Itoa(target.Stam.Current) + " stamina and " + strconv.Itoa(target.Vit.Current) + " vitality." + text.Reset + "\n"
 		case *Mob:
 			stamDam, vitDam := target.Heal(2000)
@@ -459,22 +438,12 @@ var magicSkillMap = map[string]int{
 func spellDamage(caller interface{}, target interface{}, magnitude int, magicType string) string {
 	var name string
 	var intel int
-	var level int
-	var id int
-	var callerType int
-	var spellType = 2
 	actualDamage := 0
 	damage := 0
 	switch caller := caller.(type) {
 	case *Character:
 		name = caller.Name
 		intel = caller.Int.Current
-		level = caller.Tier
-		id = caller.CharId
-		callerType = 0
-		if !caller.CheckFlag("casting") {
-			spellType = 3
-		}
 		actualDamage = elementalDamage(magnitude, intel)
 		damage = int(float64(actualDamage) + float64(actualDamage)*float64(caller.Int.Current)*config.StatDamageMod)
 		if caller.Class == 4 {
@@ -483,9 +452,6 @@ func spellDamage(caller interface{}, target interface{}, magnitude int, magicTyp
 		}
 	case *Mob:
 		name = caller.Name
-		level = caller.Level
-		id = caller.MobId
-		callerType = 1
 		intel = caller.Int.Current
 		actualDamage = elementalDamage(magnitude, intel)
 		damage = actualDamage
@@ -493,15 +459,13 @@ func spellDamage(caller interface{}, target interface{}, magnitude int, magicTyp
 	switch target := target.(type) {
 	case *Character:
 		stamDam, vitDam, resisted := target.ReceiveMagicDamage(damage, magicType)
-		data.StoreCombatMetric(magicType+"spell_"+strconv.Itoa(magnitude), 0, spellType, actualDamage+resisted, resisted, actualDamage, callerType, id, level, 0, target.CharId)
 		returnString := text.Bad + name + "'s spell struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset
 		// Reflect
 		switch caller := caller.(type) {
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
-				stamDamage, vitDamage, resisted := caller.ReceiveMagicDamage(reflectDamage, magicType)
-				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 0, target.CharId, target.Tier, 0, caller.CharId)
+				caller.ReceiveMagicDamage(reflectDamage, magicType)
 				returnString += "\n" + text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset
 				if _, err := caller.Write([]byte(text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!\n" + text.Reset)); err != nil {
 					log.Println("Error writing to player:", err)
@@ -516,8 +480,7 @@ func spellDamage(caller interface{}, target interface{}, magnitude int, magicTyp
 
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
-				stamDamage, _, resisted := caller.ReceiveMagicDamage(reflectDamage, magicType)
-				data.StoreCombatMetric("spell_player_reflect", 0, 0, stamDamage+resisted, resisted, stamDamage, 0, target.CharId, target.Tier, 1, caller.MobId)
+				caller.ReceiveMagicDamage(reflectDamage, magicType)
 				if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + caller.Name + "!\n" + text.Reset)); err != nil {
 					log.Println("Error writing to player:", err)
 				}
@@ -528,7 +491,6 @@ func spellDamage(caller interface{}, target interface{}, magnitude int, magicTyp
 
 	case *Mob:
 		damage, _, resisted := target.ReceiveMagicDamage(damage, magicType)
-		data.StoreCombatMetric(magicType+"spell_"+strconv.Itoa(magnitude), 0, spellType, actualDamage+resisted, resisted, actualDamage, callerType, id, level, 0, target.MobId)
 		switch caller := caller.(type) {
 		case *Character:
 			target.AddThreatDamage(damage, caller)
@@ -540,8 +502,7 @@ func spellDamage(caller interface{}, target interface{}, magnitude int, magicTyp
 		case *Character:
 			if target.CheckFlag("reflection") {
 				reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
-				stamDamage, vitDamage, resisted := caller.ReceiveMagicDamage(reflectDamage, magicType)
-				data.StoreCombatMetric("spell_mob_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, target.MobId, target.Level, 0, caller.CharId)
+				caller.ReceiveMagicDamage(reflectDamage, magicType)
 				returnString += "\n" + text.Red + target.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back to you!"
 				caller.DeathCheck(" was slain by reflection!")
 			}

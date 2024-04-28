@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/data"
 	"math"
 	"strconv"
 
@@ -92,7 +91,6 @@ func (bash) process(s *state) {
 			s.msg.Actor.SendBad("You missed!!")
 			s.msg.Observers.SendBad(s.actor.Name + " fails to bash " + whatMob.Name)
 			s.actor.SetTimer("combat", config.CombatCooldown)
-			data.StoreCombatMetric("bash-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 			return
 		}
 
@@ -100,8 +98,7 @@ func (bash) process(s *state) {
 		// Check the rolls in reverse order from hardest to lowest for bash rolls.
 		damageModifier, stunModifier, bashMsg := config.RollBash(config.WeaponLevel(s.actor.Skills[2].Value, s.actor.Class))
 		whatMob.Stun(config.BashStuns * stunModifier)
-		actualDamage, _, resisted := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
-		data.StoreCombatMetric("bash", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
+		actualDamage, _, _ := whatMob.ReceiveDamage(int(math.Ceil(float64(s.actor.InflictDamage()) * float64(damageModifier))))
 		whatMob.AddThreatDamage(actualDamage, s.actor)
 		s.actor.AdvanceSkillExp(int((float64(actualDamage) / float64(whatMob.Stam.Max) * float64(whatMob.Experience)) * config.Classes[config.AvailableClasses[s.actor.Class]].WeaponAdvancement))
 		s.msg.Actor.SendInfo(bashMsg)
@@ -110,8 +107,7 @@ func (bash) process(s *state) {
 		s.msg.Observers.SendInfo(s.actor.Name + " bashes " + whatMob.Name)
 		if whatMob.CheckFlag("reflection") {
 			reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
-			stamDamage, vitDamage, resisted := s.actor.ReceiveDamage(reflectDamage)
-			data.StoreCombatMetric("bash_mob_reflect", 0, 0, stamDamage+vitDamage+resisted, resisted, stamDamage+vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
+			s.actor.ReceiveDamage(reflectDamage)
 			s.msg.Actor.Send("The " + whatMob.Name + " reflects " + strconv.Itoa(reflectDamage) + " damage back at you!")
 			s.actor.DeathCheck(" was killed by reflection!")
 		}

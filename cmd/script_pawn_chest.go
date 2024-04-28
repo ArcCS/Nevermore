@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
@@ -102,7 +101,6 @@ func (sellchestConfirm) process(s *state) {
 		itemValue := 0
 
 		for _, item := range target.Storage.ListItems() {
-			itemId := item.ItemId
 			log.Println("Item: ", item.Name, " Value: ", item.Value, " MaxUses: ", objects.Items[item.ItemId].MaxUses)
 			if target.MaxUses != objects.Items[target.ItemId].MaxUses {
 				s.msg.Actor.SendInfo("The pawn broker places your ", item.Name, " back in the ", target.Name, " and says, 'I don't buy used items.'")
@@ -130,7 +128,6 @@ func (sellchestConfirm) process(s *state) {
 				finalValue += itemValue
 			}
 
-			data.StoreItemSale(itemId, s.actor.CharId, s.actor.Tier, itemValue)
 		}
 
 		if s.actor.PartyFollow == "" && len(s.actor.PartyFollowersNoGM()) == 0 {

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
@@ -155,8 +154,7 @@ func (steal) process(s *state) {
 						whatMob.CurrentTarget = s.actor.Name
 						s.msg.Actor.SendInfo(whatMob.Name + " turns to you.")
 						s.msg.Observers.SendInfo(whatMob.Name + " turns to " + s.actor.Name + ".")
-						vitDamage, resisted := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage() * config.VitalStrikeScale))))
-						data.StoreCombatMetric("steal_fail_vital", 0, 0, vitDamage+resisted, resisted, vitDamage, 1, whatMob.MobId, whatMob.Level, 0, s.actor.CharId)
+						vitDamage, _ := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(whatMob.InflictDamage() * config.VitalStrikeScale))))
 						if vitDamage == 0 {
 							s.msg.Actor.SendGood(whatMob.Name, " vital strike bounces off of you for no damage!")
 						} else {

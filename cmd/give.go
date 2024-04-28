@@ -54,7 +54,6 @@ func (give) process(s *state) {
 		var who *objects.Mob
 		who = s.where.Mobs.Search(whoStr, whoNum, s.actor)
 		if who != nil {
-
 			target := s.actor.Inventory.Search(targetStr, targetNum)
 
 			if target == nil {
@@ -69,7 +68,6 @@ func (give) process(s *state) {
 				return
 			}
 			who.Inventory.Add(target)
-
 			s.msg.Actor.SendGood("You give ", target.Name, " to ", who.Name, ".")
 			return
 		}

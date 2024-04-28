@@ -5,7 +5,6 @@ package main
 import (
 	"github.com/ArcCS/Nevermore/comms"
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/intelligence"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/stats"
@@ -47,9 +46,6 @@ func StartSync() {
 			select {
 			case <-RoomSyncTicker.C:
 				objects.FlushRoomUpdates()
-				data.FlushChatLogs()
-				data.FlushItemSales()
-				data.FlushCombatMetrics()
 			}
 		}
 	}()
