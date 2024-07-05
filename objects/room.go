@@ -294,18 +294,14 @@ func (r *Room) Encounter() {
 				// Successful roll:  Roll again to pick the mob
 				multMob := 1
 				doubleChance := 0
-				tripleChance := 0
 				if len(r.Chars.Contents) >= 5 {
-					tripleChance = 15
-					doubleChance = 35
+					doubleChance = 20
 				} else if len(r.Chars.Contents) == 4 {
-					doubleChance = 35
-				} else if len(r.Chars.Contents) == 3 {
 					doubleChance = 15
+				} else if len(r.Chars.Contents) == 3 {
+					doubleChance = 10
 				}
-				if utils.Roll(100, 1, 0) <= tripleChance && len(r.Mobs.ListHostile()) <= config.RoomEncNoTriples {
-					multMob = 3
-				} else if utils.Roll(100, 1, 0) <= doubleChance && len(r.Mobs.ListHostile()) <= config.RoomEncNoDoubles {
+				if utils.Roll(100, 1, 0) <= doubleChance && len(r.Mobs.ListHostile()) <= config.RoomEncNoDoubles {
 					multMob = 2
 				}
 				for i := 0; i < multMob; i++ {

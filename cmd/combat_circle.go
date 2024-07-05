@@ -11,7 +11,7 @@ import (
 func init() {
 	addHandler(circle{},
 		"Usage:  circle target # \n\n Try to circle a mob to apply a short duration stun and generate threat",
-		permissions.Fighter|permissions.Barbarian|permissions.Paladin,
+		permissions.Fighter|permissions.Barbarian,
 		"circle", "cir")
 }
 

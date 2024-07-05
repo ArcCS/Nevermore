@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -193,12 +195,12 @@ func (godir) process(s *state) {
 					}
 
 					evasiveMan := 0
-					followList := make([]*objects.Mob, 0)
 					// Check if anyone blocks.
 					for _, mob := range s.where.Mobs.Contents {
 						// Check if a mob blocks.
 						if _, inList := mob.ThreatTable[s.actor.Name]; inList {
 							if mob.CheckFlag("block_exit") && mob.Placement == s.actor.Placement && mob.MobStunned == 0 && !mob.CheckFlag("run_away") {
+								evasiveMan = 2
 								curChance := config.MobBlock - ((s.actor.Tier - mob.Level) * config.MobBlockPerLevel)
 								if curChance > 85 {
 									curChance = 85
@@ -208,15 +210,33 @@ func (godir) process(s *state) {
 									s.actor.SetTimer("global", 8)
 									return
 								}
+								break
 							}
+						}
+					}
+					for _, mob := range s.where.Mobs.Contents {
+						// No one blocked, so check if anyone follows.
+						if _, inList := mob.ThreatTable[s.actor.Name]; inList {
 							if mob.CurrentTarget == s.actor.Name {
 								// Now check if they follow.
 								if mob.CheckFlag("follows") && !mob.CheckFlag("curious_canticle") {
-									followList = append(followList, mob)
-								}
-								evasiveMan = 2
-								if mob.Placement == s.actor.Placement {
 									evasiveMan = 4
+									if utils.Roll(100, 1, 0) <= config.MobFollowVital {
+										vitDamage, resisted := s.actor.ReceiveVitalDamage(int(math.Ceil(float64(mob.InflictDamage() * config.MobFollMult))))
+										data.StoreCombatMetric("follow_vital", 0, 1, vitDamage, resisted, vitDamage, 1, mob.MobId, mob.Level, 0, s.actor.CharId)
+
+										if vitDamage == 0 {
+											s.msg.Actor.SendInfo(text.Red + mob.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset)
+										} else {
+											s.msg.Actor.SendBad(text.Red + "Vital Strike!!!!\n" + text.Reset)
+											s.msg.Actor.SendBad(text.Red + mob.Name + " attacks you for " + strconv.Itoa(vitDamage) + " points of vital damage!" + "\n" + text.Reset)
+										}
+										deathCheck := s.actor.DeathCheckBool("was slain by a " + mob.Name + ".")
+										if deathCheck {
+											return
+										}
+										break
+									}
 								}
 							}
 						}
@@ -235,11 +255,13 @@ func (godir) process(s *state) {
 						s.msg.Observers[to.RoomId].SendInfo(s.actor.Name, " just arrived.")
 					}
 
-					// Character has been removed, invoke any follows for them.  this should be fine as the mob should take over locks
-					for _, mob := range followList {
-						mobProc := mob
-						go func() { mobProc.MobCommands <- "follow " + s.actor.Name }()
-					}
+					/*
+						// Character has been removed, invoke any follows for them.  this should be fine as the mob should take over locks
+						for _, mob := range followList {
+							mobProc := mob
+							go func() { mobProc.MobCommands <- "follow " + s.actor.Name }()
+						}
+					*/
 
 					// Do not invoke player state, just move them within this state lock
 					if len(s.actor.PartyFollowers) > 0 {
@@ -267,7 +289,6 @@ func (godir) process(s *state) {
 									follChar.RunHook("move")
 
 									evasiveMan = 0
-									followList = make([]*objects.Mob, 0)
 
 									if !objects.Rooms[toE.ToId].Flags["active"] {
 										if _, err := follChar.Write([]byte(text.Bad + "Go where?")); err != nil {
@@ -356,6 +377,7 @@ func (godir) process(s *state) {
 										// Check if a mob blocks.
 										if _, inList := mob.ThreatTable[follChar.Name]; inList {
 											if mob.CheckFlag("block_exit") && mob.Placement == follChar.Placement && mob.MobStunned == 0 && !mob.CheckFlag("run_away") {
+												evasiveMan = 2
 												curChance := config.MobBlock - ((follChar.Tier - mob.Level) * config.MobBlockPerLevel)
 												if curChance > 85 {
 													curChance = 85
@@ -365,18 +387,43 @@ func (godir) process(s *state) {
 														log.Println("Error writing to player: ", err)
 													}
 													follChar.SetTimer("global", 8)
-													endFollProc = true
-													break
+
 												}
+												endFollProc = true
+												break
 											}
+										}
+									}
+									for _, mob := range s.where.Mobs.Contents {
+										// Check if a follows
+										if _, inList := mob.ThreatTable[follChar.Name]; inList {
 											if mob.CurrentTarget == follChar.Name {
 												// Now check if they follow.
 												if mob.CheckFlag("follows") && !mob.CheckFlag("curious_canticle") {
-													followList = append(followList, mob)
-												}
-												evasiveMan = 2
-												if mob.Placement == follChar.Placement {
 													evasiveMan = 4
+													if utils.Roll(100, 1, 0) <= config.MobFollowVital {
+														vitDamage, resisted := follChar.ReceiveVitalDamage(int(math.Ceil(float64(mob.InflictDamage() * config.MobFollMult))))
+														data.StoreCombatMetric("follow_vital", 0, 1, vitDamage, resisted, vitDamage, 1, mob.MobId, mob.Level, 0, follChar.CharId)
+
+														if vitDamage == 0 {
+															if _, err := follChar.Write([]byte(text.Red + mob.Name + " attacks bounces off of you for no damage!" + "\n" + text.Reset)); err != nil {
+																log.Println("Error writing to player: ", err)
+															}
+
+														} else {
+															if _, err := follChar.Write([]byte(text.Red + "Vital Strike!!!!\n" + text.Reset)); err != nil {
+																log.Println("Error writing to player: ", err)
+															}
+															if _, err := follChar.Write([]byte(text.Red + mob.Name + " attacks you for " + strconv.Itoa(vitDamage) + " points of vital damage!" + "\n" + text.Reset)); err != nil {
+																log.Println("Error writing to player: ", err)
+															}
+														}
+														deathCheck := s.actor.DeathCheckBool("was slain by a " + mob.Name + ".")
+														if deathCheck {
+															endFollProc = true
+														}
+														break
+													}
 												}
 											}
 										}
@@ -406,12 +453,6 @@ func (godir) process(s *state) {
 								if follChar.Flags["invisible"] == false {
 									s.msg.Observers[from.RoomId].SendInfo("You see ", follChar.Name, " follow "+s.actor.Name+" to the ", strings.ToLower(toE.Name), ".")
 									s.msg.Observers[to.RoomId].SendInfo(follChar.Name, " just arrived.")
-								}
-
-								// Character has been removed, invoke any follows
-								for _, mob := range followList {
-									mobProc := mob
-									go func() { mobProc.MobCommands <- "follow " + follChar.Name }()
 								}
 							}
 						}

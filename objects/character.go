@@ -1321,3 +1321,19 @@ func (c *Character) DeathCheck(how string) {
 	}
 	return
 }
+
+func (c *Character) DeathCheckBool(how string) bool {
+	if c.DeathInProgress {
+		return true
+	} else {
+		c.DeathInProgress = true
+	}
+	if c.Vit.Current <= 0 {
+		go Script(c, "$DEATH "+how)
+		return true
+	} else {
+		c.DeathInProgress = false
+		return false
+	}
+
+}
