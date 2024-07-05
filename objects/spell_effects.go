@@ -143,7 +143,7 @@ func poison(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		if !target.CheckFlag("resist-poison") {
 			target.FlagOn("poisoned", "mob_poisoned")
-			target.ApplyEffect("poison", strconv.Itoa(magnitude*10), 8, magnitude, // magnitude maps to level of mob
+			target.ApplyEffect("poison", strconv.Itoa(magnitude*5), 8, magnitude, // magnitude maps to level of mob
 				func(triggers int) {
 					damage := magnitude
 					switch {
@@ -151,10 +151,8 @@ func poison(caller interface{}, target interface{}, magnitude int) string {
 						return
 					case triggers <= 3:
 						damage *= 2
-					case triggers <= 10:
-						damage *= 3
 					default:
-						damage *= 4
+						damage *= 2
 					}
 					// Reduce Damage by Con
 					damage -= (target.GetStat("con") / config.SickConBonus) * config.ReduceSickCon
@@ -191,18 +189,16 @@ func disease(caller interface{}, target interface{}, magnitude int) string {
 	switch target := target.(type) {
 	case *Character:
 		if !target.CheckFlag("resist-disease") {
-			target.ApplyEffect("disease", strconv.Itoa(magnitude*14), 8, magnitude,
+			target.ApplyEffect("disease", strconv.Itoa(magnitude*4), 8, magnitude,
 				func(triggers int) {
 					damage := magnitude
 					switch {
 					case triggers <= 1:
 						return
 					case triggers <= 3:
-						damage *= 3
-					case triggers <= 10:
-						damage *= 4
+						damage *= 2
 					default:
-						damage *= 5
+						damage *= 2
 					}
 					// Reduce Damage by Con
 					damage -= (target.GetStat("con") / config.SickConBonus) * config.ReduceSickCon

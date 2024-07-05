@@ -720,7 +720,11 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 			if _, err := target.Write([]byte(text.Red + m.Name + " tries to spread disease on to you!" + "\n" + text.Reset)); err != nil {
 				log.Println("Error writing to player:", err)
 			}
-			Effects["disease"](m, target, m.Level)
+			magnitude := m.Level
+			if magnitude < 4 {
+				magnitude = 4
+			}
+			Effects["disease"](m, target, magnitude)
 			return
 		}
 	}
@@ -728,6 +732,10 @@ func (m *Mob) CheckForExtraAttack(target *Character) {
 		if utils.Roll(100, 1, 0) > 50 {
 			if _, err := target.Write([]byte(text.Red + m.Name + " injects you with venom!" + "\n" + text.Reset)); err != nil {
 				log.Println("Error writing to player:", err)
+			}
+			magnitude := m.Level
+			if magnitude < 4 {
+				magnitude = 4
 			}
 			Effects["poison"](m, target, m.Level)
 			return

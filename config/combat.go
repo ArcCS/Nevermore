@@ -53,7 +53,7 @@ var (
 	MobVital       = 3
 	MobCritical    = 4
 	MobDouble      = 10
-	MobFollowVital = 20
+	MobFollowVital = 35
 	MobFollMult    = 3
 
 	BindCost   = 75000
@@ -124,8 +124,8 @@ var (
 	BashStuns   = 16
 	BashTimer   = 45
 
-	MobBlock          = 15
-	MobBlockPerLevel  = 5
+	MobBlock          = 35
+	MobBlockPerLevel  = 15
 	MobFollow         = 40
 	MobFollowPerLevel = 2
 	MobTakeChance     = 20 // Percent
