@@ -13,7 +13,7 @@ import (
 
 // Account embeds a frontend instance adding fields and methods specific to
 type Account struct {
-	*frontend
+	*Frontend
 	account    string
 	password   [16]byte
 	permission permissions.Permissions
@@ -22,8 +22,8 @@ type Account struct {
 // NewAccount returns an account with the specified frontend embedded. The
 // returned account can be used for processing the creation of new accounts and
 // players.
-func NewAccount(f *frontend) (a *Account) {
-	a = &Account{frontend: f, permission: 1}
+func NewAccount(f *Frontend) (a *Account) {
+	a = &Account{Frontend: f, permission: 1}
 	a.explainAccountDisplay()
 	return
 }
@@ -49,7 +49,7 @@ func (a *Account) newAccountProcess() {
 	switch l := len(a.input); {
 	case l == 0:
 		a.buf.Send(text.Info, "Account creation cancelled.\n", text.Reset)
-		NewLogin(a.frontend)
+		NewLogin(a.Frontend)
 	case l < config.Login.AccountLength:
 		l := strconv.Itoa(config.Login.AccountLength)
 		a.buf.Send(text.Bad, "Account ID is too short. Needs to be ", l, " characters or longer.\n", text.Reset)
@@ -73,7 +73,7 @@ func (a *Account) newPasswordProcess() {
 	switch l := len(a.input); {
 	case l == 0:
 		a.buf.Send(text.Info, "Account creation cancelled.\n", text.Reset)
-		NewLogin(a.frontend)
+		NewLogin(a.Frontend)
 	case l < config.Login.PasswordLength:
 		l := strconv.Itoa(config.Login.PasswordLength)
 		a.buf.Send(text.Bad, "Password is too short. Needs to be ", l, " characters or longer.\n", text.Reset)
@@ -96,7 +96,7 @@ func (a *Account) confirmPasswordProcess() {
 	switch l := len(a.input); {
 	case l == 0:
 		a.buf.Send(text.Info, "Account creation cancelled.\n", text.Reset)
-		NewLogin(a.frontend)
+		NewLogin(a.Frontend)
 	default:
 		if md5.Sum(a.input) != a.password {
 			a.buf.Send(text.Bad, "Passwords do not match, please try again.\n", text.Reset)
@@ -112,7 +112,7 @@ func (a *Account) write() {
 	// Check if account ID is already registered
 	if data.AccountExists(a.account) {
 		a.buf.Send(text.Bad, "The account ID you used is not available.\n", text.Reset)
-		NewLogin(a.frontend)
+		NewLogin(a.Frontend)
 		return
 	}
 
@@ -122,16 +122,16 @@ func (a *Account) write() {
 
 	if data.NewAcct(newAcct) {
 		log.Printf("New account failed to create: %s", a.account)
-		NewLogin(a.frontend)
+		NewLogin(a.Frontend)
 		return
 	}
 
 	log.Printf("New account created: %s", a.account)
-	a.frontend.account = a.account
-	accounts.inuse[a.frontend.account] = struct{}{}
+	a.Frontend.account = a.account
+	accounts.inuse[a.Frontend.account] = struct{}{}
 
 	// Greet new player
 	a.buf.Send(text.Good, "Welcome ", a.account, "!", text.Reset)
 
-	NewStart(a.frontend)
+	NewStart(a.Frontend)
 }

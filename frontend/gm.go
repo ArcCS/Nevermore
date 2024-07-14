@@ -7,45 +7,43 @@ import (
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
-	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 )
 
-// account embeds a frontend instance adding fields and methods specific to
+// NewPCharacter account embeds a Frontend instance adding fields and methods specific to
 // account and player creation.
-type newPCharacter struct {
-	*frontend
+type NewPCharacter struct {
+	*Frontend
 	name   string
 	gender string
 	race   int
 }
 
-func NewPCharacter(f *frontend) (a *newPCharacter) {
-	a = &newPCharacter{frontend: f}
+func CreateNewPChar(f *Frontend) (a *NewPCharacter) {
+	a = &NewPCharacter{Frontend: f}
 	a.explainPChar()
 	return
 }
 
 // Character Name
-func (a *newPCharacter) explainPChar() {
+func (a *NewPCharacter) explainPChar() {
 	a.buf.Send("Welcome to Aalynor's Nexus GM creator.  Just a couple of steps to get you running.")
 	a.newPCharacterDisplay()
 }
 
 // newAccountDisplay asks the player for a new account ID
-func (a *newPCharacter) newPCharacterDisplay() {
+func (a *NewPCharacter) newPCharacterDisplay() {
 	a.buf.Send("Enter your GM name or just press enter to cancel:")
 	a.nextFunc = a.charPNameProcess
 }
 
 // Process a character name
-func (a *newPCharacter) charPNameProcess() {
+func (a *NewPCharacter) charPNameProcess() {
 	switch l := len(a.input); {
 	case l == 0:
 		a.buf.Send(text.Info, "GM creation cancelled.\n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case l < config.Login.AccountLength:
 		l := strconv.Itoa(config.Login.AccountLength)
 		a.buf.Send(text.Bad, "GM name is too short. Needs to be ", l, " characters or longer.\n", text.Reset)
@@ -60,7 +58,7 @@ func (a *newPCharacter) charPNameProcess() {
 }
 
 // ******   Fast Processing Options
-func (a *newPCharacter) fastPCharDisplay() {
+func (a *NewPCharacter) fastPCharDisplay() {
 	a.buf.SendInfo(`Fast Step 1, Gender, Race
 
 	Enter your gender (m|f) and race separated by spaces.  Don't worry, if you have a GM account interacting with players
@@ -73,7 +71,7 @@ Cancel (c), return to the main menu.`)
 	a.nextFunc = a.fastPCharProcess
 }
 
-func (a *newPCharacter) fastPCharProcess() {
+func (a *NewPCharacter) fastPCharProcess() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -89,7 +87,7 @@ func (a *newPCharacter) fastPCharProcess() {
 		a.nextFunc = a.fastPCharProcess
 	case inputVal == "c":
 		a.buf.Send(text.Info, "GM creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newPCharacterDisplay()
@@ -105,7 +103,7 @@ func (a *newPCharacter) fastPCharProcess() {
 	}
 }
 
-func (a *newPCharacter) confirmFastSelections() {
+func (a *NewPCharacter) confirmFastSelections() {
 	a.buf.SendInfo(fmt.Sprintf(`Here is what you selected:
 		Name: %[1]s
 		Gender:  %[2]s
@@ -124,7 +122,7 @@ Cancel (c) Leave the GM builder
 	a.nextFunc = a.confirmFastProcess
 }
 
-func (a *newPCharacter) confirmFastProcess() {
+func (a *NewPCharacter) confirmFastProcess() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -135,7 +133,7 @@ func (a *newPCharacter) confirmFastProcess() {
 		a.fastPCharDisplay()
 	case inputVal == "c":
 		a.buf.Send(text.Info, "GM creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newPCharacterDisplay()
@@ -147,7 +145,7 @@ func (a *newPCharacter) confirmFastProcess() {
 	}
 }
 
-func (a *newPCharacter) completeBuilder() {
+func (a *NewPCharacter) completeBuilder() {
 	charData := make(map[string]interface{})
 	charData["name"] = a.name
 	charData["class"] = 100
@@ -163,17 +161,16 @@ func (a *newPCharacter) completeBuilder() {
 	charData["birthdate"] = objects.DayOfMonth
 	charData["birthmonth"] = objects.CurrentMonth
 	charData["darkvision"] = config.RaceDefs[config.AvailableRaces[a.race]].Darkvision
-	rand.Seed(time.Now().Unix())
 	if data.CreateChar(charData) {
 		a.buf.Send(text.Info, "New GM created,  entering Altin. \n", text.Reset)
-		StartGame(a.frontend, a.name)
+		StartGame(a.Frontend, a.name)
 	} else {
 		a.buf.SendBad(text.Info, "Error, try again later. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	}
 }
 
-func (a *newPCharacter) helpDisplay(subject string) {
+func (a *NewPCharacter) helpDisplay(subject string) {
 	// Print Race
 	subject = strings.ToLower(subject)
 	if subject == "races" {

@@ -56,7 +56,7 @@ func init() {
 
 }
 
-// closedError represents the fact that Close has been called on a frontend
+// closedError represents the fact that Close has been called on a Frontend
 type closedError struct{}
 
 // Error implements the error interface for errors and returns descriptive text
@@ -71,13 +71,13 @@ func (closedError) Temporary() bool {
 	return true
 }
 
-// frontend represents the current frontend state for a given io.Writer - this
+// Frontend represents the current Frontend state for a given io.Writer - this
 // is typically from a player's network connection.
-type frontend struct {
+type Frontend struct {
 	output      io.Writer          // Writer to send output text to
 	buf         *message.Buffer    // Buffered messages written with next prompt
 	input       []byte             // The input text we are currently processing
-	nextFunc    func()             // The next frontend function called by Parse
+	nextFunc    func()             // The next Frontend function called by Parse
 	remoteAddr  string             // IP Address
 	character   *objects.Character // The current player instance (ingame or not)
 	account     string
@@ -87,7 +87,7 @@ type frontend struct {
 	ClientClose func()      // Disconnect up the stack
 }
 
-func (f *frontend) GetCharacter() *objects.Character {
+func (f *Frontend) GetCharacter() *objects.Character {
 	if f.character != (*objects.Character)(nil) {
 		return f.character
 	} else {
@@ -99,8 +99,8 @@ func (f *frontend) GetCharacter() *objects.Character {
 // The io.Writer is used to send responses back from calling Parse. The new
 // frontend is initialised with a message buffer and nextFunc setup to call
 // greetingDisplay.
-func New(output io.Writer, address string, errorWriter func(error), clientclose func()) *frontend {
-	f := &frontend{
+func New(output io.Writer, address string, errorWriter func(error), clientclose func()) *Frontend {
+	f := &Frontend{
 		buf:        message.AcquireBuffer(),
 		output:     output,
 		remoteAddr: address,
@@ -112,18 +112,18 @@ func New(output io.Writer, address string, errorWriter func(error), clientclose 
 	return f
 }
 
-func (f *frontend) Disconnect() {
+func (f *Frontend) Disconnect() {
 	f.character = (*objects.Character)(nil)
 	f.ClientClose()
 }
 
-func (f *frontend) AccountCleanup() {
+func (f *Frontend) AccountCleanup() {
 	delete(accounts.inuse, f.account)
 	log.Println(accounts.inuse)
 }
 
 // Close makes sure the player is no longer 'in game' and frees up resources
-func (f *frontend) Close() {
+func (f *Frontend) Close() {
 
 	// Just return if we already have an error
 	if f.err != nil {
@@ -146,8 +146,6 @@ func (f *frontend) Close() {
 	f.nextFunc = nil
 
 	f.character = (*objects.Character)(nil)
-
-	f = (*frontend)(nil)
 }
 
 // Parse is the main input/output processing method for frontend. The input is
@@ -156,7 +154,7 @@ func (f *frontend) Close() {
 // io.Writer passed to the initial New function that created the frontend. If
 // the frontend is closed during processing a frontend.Error will be returned
 // else nil.
-func (f *frontend) Parse(input []byte) error {
+func (f *Frontend) Parse(input []byte) error {
 
 	// If we already have an error just return it
 	if f.err != nil {
@@ -176,13 +174,13 @@ func (f *frontend) Parse(input []byte) error {
 
 // greetingDisplay displays the welcome message to players when they first
 // connect to the server.
-func (f *frontend) greetingDisplay() {
+func (f *Frontend) greetingDisplay() {
 	f.buf.Send(config.DragonAscii)
 	NewLogin(f)
 }
 
 // Write writes the specified byte slice to the associated client.
-func (f *frontend) Write(b []byte) (n int, err error) {
+func (f *Frontend) Write(b []byte) (n int, err error) {
 	b = append(b, text.Prompt...)
 	b = append(b, '>')
 	n, err = f.output.Write(b)

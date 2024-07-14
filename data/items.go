@@ -79,7 +79,7 @@ func LoadItem(itemId int) map[string]interface{} {
 }
 
 func CreateItem(itemData map[string]interface{}) (int, bool) {
-	item_id := nextId("item")
+	itemId := nextId("item")
 	results, err := execWrite(
 		"CREATE (i:item) SET "+
 			`i.creator = $creator,
@@ -106,7 +106,7 @@ func CreateItem(itemData map[string]interface{}) (int, bool) {
 		i.light = 0,
 		i.weightless_chest = 0`,
 		map[string]interface{}{
-			"item_id": item_id,
+			"item_id": itemId,
 			"name":    itemData["name"],
 			"creator": itemData["creator"],
 			"type":    itemData["type"],
@@ -117,7 +117,7 @@ func CreateItem(itemData map[string]interface{}) (int, bool) {
 		return -1, true
 	}
 	if results.Counters().ContainsUpdates() {
-		return item_id, false
+		return itemId, false
 	} else {
 		return -1, true
 	}

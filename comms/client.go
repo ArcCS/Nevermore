@@ -141,24 +141,21 @@ func (c *client) process() {
 			if in, err = s.ReadSlice('\n'); err != nil {
 				frontend.Zero(in)
 
-				// Check if this is a timeout error
-				if err != nil {
-					var netErr net.Error
-					ok := errors.As(err, &netErr)
-					if ok && netErr.Timeout() {
-						_, err = c.Write([]byte(">"))
-						if err == nil {
-							if c.frontend.GetCharacter() != (*objects.Character)(nil) {
-								if time.Now().Sub(objects.LastActivity[c.frontend.GetCharacter().Name]).Minutes() > idleTime {
-									c.err = errors.New("idle Timeout")
-									continue
-								}
+				var netErr net.Error
+				ok := errors.As(err, &netErr)
+				if ok && netErr.Timeout() {
+					_, err = c.Write([]byte(">"))
+					if err == nil {
+						if c.frontend.GetCharacter() != (*objects.Character)(nil) {
+							if time.Now().Sub(objects.LastActivity[c.frontend.GetCharacter().Name]).Minutes() > idleTime {
+								c.err = errors.New("idle Timeout")
+								continue
 							}
-							c.err = nil
-							continue
-						} else {
-							log.Println("Failed to write to client, client actually DC'd?: ", err)
 						}
+						c.err = nil
+						continue
+					} else {
+						log.Println("Failed to write to client, client actually DC'd?: ", err)
 					}
 				}
 

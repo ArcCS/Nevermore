@@ -2,24 +2,21 @@ package frontend
 
 import (
 	"fmt"
+	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
+	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
-	"math/rand"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/text"
 )
 
-// account embeds a frontend instance adding fields and methods specific to
+// NewCharacter account embeds a frontend instance adding fields and methods specific to
 // account and player creation.
-type newCharacter struct {
-	*frontend
+type NewCharacter struct {
+	*Frontend
 	name   string
 	gender string
 	class  int
@@ -34,30 +31,30 @@ type newCharacter struct {
 // verifyName is used to test that a players name only uses the letters A-Z,a-z.
 var verifyName = regexp.MustCompile(`^[a-zA-Z]+$`)
 
-func NewCharacter(f *frontend) (a *newCharacter) {
-	a = &newCharacter{frontend: f}
+func CreateNewChar(f *Frontend) (a *NewCharacter) {
+	a = &NewCharacter{Frontend: f}
 	a.explainCharName()
 	return
 }
 
 // Character Name
-func (a *newCharacter) explainCharName() {
+func (a *NewCharacter) explainCharName() {
 	a.buf.Send("Welcome to Aalynor's Nexus character creation.  The first step is to choose your character name. It needs to use characters only. No numbers, no spaces. ")
 	a.newCharacterDisplay()
 }
 
 // newAccountDisplay asks the player for a new account ID
-func (a *newCharacter) newCharacterDisplay() {
+func (a *NewCharacter) newCharacterDisplay() {
 	a.buf.Send("Enter your characters name or just press enter to cancel:")
 	a.nextFunc = a.charNameProcess
 }
 
 // Process a character name
-func (a *newCharacter) charNameProcess() {
+func (a *NewCharacter) charNameProcess() {
 	switch l := len(a.input); {
 	case l == 0:
 		a.buf.Send(text.Info, "Character creation cancelled.\n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case l < config.Login.AccountLength:
 		l := strconv.Itoa(config.Login.AccountLength)
 		a.buf.Send(text.Bad, "Character name is too short. Needs to be ", l, " characters or longer.\n", text.Reset)
@@ -77,7 +74,7 @@ func (a *newCharacter) charNameProcess() {
 	}
 }
 
-func (a *newCharacter) creationSpeedDisplay() {
+func (a *NewCharacter) creationSpeedDisplay() {
 	a.buf.Send(`Welcome to Aalynor's Nexus character builder!
 
 Please choose one of the following options:
@@ -90,7 +87,7 @@ Cancel (c), return to the main menu.`)
 	a.nextFunc = a.creationSpeedProcess
 }
 
-func (a *newCharacter) creationSpeedProcess() {
+func (a *NewCharacter) creationSpeedProcess() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -98,7 +95,7 @@ func (a *newCharacter) creationSpeedProcess() {
 		a.nextFunc = a.creationSpeedProcess
 	case inputVal == "c":
 		a.buf.Send(text.Info, "Character creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
@@ -115,7 +112,7 @@ func (a *newCharacter) creationSpeedProcess() {
 }
 
 // ******   Story Processing Options
-func (a *newCharacter) selectGenderDisplay() {
+func (a *NewCharacter) selectGenderDisplay() {
 	a.buf.SendInfo(`You find yourself on a pier.  The air is dense and foggy with mists swirling about you.
 An old woman wanders up to you seemingly formed of mist herself.
 The Old Woman says:  'Your spirit has come alive and set you on a new journey... and here you are.. hero...'
@@ -134,7 +131,7 @@ Cancel (c), return to the main menu.`)
 	a.nextFunc = a.selectGenderProcess
 }
 
-func (a *newCharacter) selectGenderProcess() {
+func (a *NewCharacter) selectGenderProcess() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -145,7 +142,7 @@ func (a *newCharacter) selectGenderProcess() {
 		a.creationSpeedDisplay()
 	case inputVal == "c":
 		a.buf.Send(text.Info, "Character creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
@@ -164,7 +161,7 @@ func (a *newCharacter) selectGenderProcess() {
 }
 
 // ******   Story Processing Options
-func (a *newCharacter) selectRaceDisplay() {
+func (a *NewCharacter) selectRaceDisplay() {
 	a.buf.SendInfo(`The Old Woman tips her head to the side:  "I suppose I see it now""
 The Old Woman reaches up and puts her hands on your face; they are cool, aged, and dry as she feels over your features.
 THe Old Woman asks: "And from what race of people do you descend?"
@@ -179,7 +176,7 @@ Cancel (c), return to the main menu.`)
 	a.nextFunc = a.selectRaceProcess
 }
 
-func (a *newCharacter) selectRaceProcess() {
+func (a *NewCharacter) selectRaceProcess() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -198,7 +195,7 @@ func (a *newCharacter) selectRaceProcess() {
 		a.selectGenderDisplay()
 	case inputVal == "c":
 		a.buf.Send(text.Info, "Character creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
@@ -212,7 +209,7 @@ func (a *newCharacter) selectRaceProcess() {
 	}
 }
 
-func (a *newCharacter) selectClassDisplay() {
+func (a *NewCharacter) selectClassDisplay() {
 	a.buf.SendInfo(`The Old Woman says, "All heroes specialize in certain combat abilities,
 This combat specialization will define how you fight, and how you work with others.
 Tell me, how will you contribute to this world?"
@@ -228,7 +225,7 @@ Cancel (c), return to the main menu.`)
 	a.nextFunc = a.selectClassProcess
 }
 
-func (a *newCharacter) selectClassProcess() {
+func (a *NewCharacter) selectClassProcess() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -247,7 +244,7 @@ func (a *newCharacter) selectClassProcess() {
 		a.selectRaceDisplay()
 	case inputVal == "c":
 		a.buf.Send(text.Info, "Character creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
@@ -261,7 +258,7 @@ func (a *newCharacter) selectClassProcess() {
 	}
 }
 
-func (a *newCharacter) selectStatsDisplay() {
+func (a *NewCharacter) selectStatsDisplay() {
 	a.buf.SendInfo(fmt.Sprintf(`The Old Woman hears your answer and appears to be visually sizing up your suitability for the desired profession.
 
 Please select your stats.  You have 50 points to spend, and based on your
@@ -296,7 +293,7 @@ Cancel (c), return to the main menu.`,
 	a.nextFunc = a.selectStatsProcess
 }
 
-func (a *newCharacter) selectStatsProcess() {
+func (a *NewCharacter) selectStatsProcess() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -307,7 +304,7 @@ func (a *newCharacter) selectStatsProcess() {
 		a.selectClassDisplay()
 	case inputVal == "c":
 		a.buf.Send(text.Info, "Character creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
@@ -326,7 +323,7 @@ func (a *newCharacter) selectStatsProcess() {
 	}
 }
 
-func (a *newCharacter) confirmSelections() {
+func (a *NewCharacter) confirmSelections() {
 	a.buf.SendInfo(fmt.Sprintf(`Here is what you selected:
 		Gender:  %[1]s
 		Race:  %[2]s
@@ -355,7 +352,7 @@ Cancel (c) Leave the character builder
 	a.nextFunc = a.confirmProcess
 }
 
-func (a *newCharacter) confirmProcess() {
+func (a *NewCharacter) confirmProcess() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -366,7 +363,7 @@ func (a *newCharacter) confirmProcess() {
 		a.selectStatsDisplay()
 	case inputVal == "c":
 		a.buf.Send(text.Info, "Character creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
@@ -379,7 +376,7 @@ func (a *newCharacter) confirmProcess() {
 }
 
 // Finalize, save, and place hte character into the world.
-func (a *newCharacter) storyFinish() {
+func (a *NewCharacter) storyFinish() {
 	a.buf.SendInfo(`The Old Woman says, "You'll fit into this world just fine.
 You should know that Altin saw nearly a thousand years of something that people might call peace.
 However, during that time evil has been allowed to grow in the dark corners of the world.
@@ -394,7 +391,7 @@ The mists begin to clear...
 }
 
 // ******   Fast Processing Options
-func (a *newCharacter) fastStep1Display() {
+func (a *NewCharacter) fastStep1Display() {
 	a.buf.SendInfo(`Fast Step 1, Gender, Race, Class
 
 	Enter your gender (m|f), race, and class separated by spaces"
@@ -406,7 +403,7 @@ Cancel (c), return to the main menu.`)
 	a.nextFunc = a.fastStep1Process
 }
 
-func (a *newCharacter) fastStep1Process() {
+func (a *NewCharacter) fastStep1Process() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -414,7 +411,7 @@ func (a *newCharacter) fastStep1Process() {
 		a.nextFunc = a.fastStep1Process
 	case inputVal == "c":
 		a.buf.Send(text.Info, "Character creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
@@ -439,7 +436,7 @@ func (a *newCharacter) fastStep1Process() {
 	}
 }
 
-func (a *newCharacter) fastStep2Display() {
+func (a *NewCharacter) fastStep2Display() {
 	a.buf.SendInfo(fmt.Sprintf(`Please select your stats.  You have 50 points to spend, and based on your
 race selection here are your respective minimums and maximums:
 
@@ -471,7 +468,7 @@ Cancel (c), return to the main menu.`,
 	a.nextFunc = a.fastStep2Process
 }
 
-func (a *newCharacter) fastStep2Process() {
+func (a *NewCharacter) fastStep2Process() {
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
 	case l == 0:
@@ -482,7 +479,7 @@ func (a *newCharacter) fastStep2Process() {
 		a.fastStep1Display()
 	case inputVal == "c":
 		a.buf.Send(text.Info, "Character creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
@@ -501,7 +498,7 @@ func (a *newCharacter) fastStep2Process() {
 	}
 }
 
-func (a *newCharacter) confirmFastSelections() {
+func (a *NewCharacter) confirmFastSelections() {
 	a.buf.SendInfo(fmt.Sprintf(`Here is what you selected:
 		Gender:  %[1]s
 		Race:  %[2]s
@@ -530,7 +527,7 @@ Cancel (c) Leave the character builder
 	a.nextFunc = a.confirmFastProcess
 }
 
-func (a *newCharacter) confirmFastProcess() {
+func (a *NewCharacter) confirmFastProcess() {
 	log.Println("entering confirmFastProcess with input: ", string(a.input))
 	inputVal := strings.ToLower(string(a.input))
 	switch l := len(inputVal); {
@@ -542,7 +539,7 @@ func (a *newCharacter) confirmFastProcess() {
 		a.fastStep1Display()
 	case inputVal == "c":
 		a.buf.Send(text.Info, "Character creation cancelled. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	case inputVal == "r":
 		a.buf.Send(text.Info, "Restart requested. \n", text.Reset)
 		a.newCharacterDisplay()
@@ -554,7 +551,7 @@ func (a *newCharacter) confirmFastProcess() {
 	}
 }
 
-func (a *newCharacter) completeBuilder() {
+func (a *NewCharacter) completeBuilder() {
 	charData := make(map[string]interface{})
 	charData["account"] = a.account
 	charData["gender"] = a.gender
@@ -570,17 +567,16 @@ func (a *newCharacter) completeBuilder() {
 	charData["birthday"] = objects.CurrentDay
 	charData["birthdate"] = objects.DayOfMonth
 	charData["birthmonth"] = objects.CurrentMonth
-	rand.Seed(time.Now().Unix())
 	if data.CreateChar(charData) {
 		a.buf.Send(text.Info, "# New character created,  entering Altin. \n", text.Reset)
-		FirstTimeStartGame(a.frontend, a.name)
+		FirstTimeStartGame(a.Frontend, a.name)
 	} else {
 		a.buf.SendBad(text.Info, "Error, try again later. \n", text.Reset)
-		NewStart(a.frontend)
+		NewStart(a.Frontend)
 	}
 }
 
-func (a *newCharacter) helpDisplay(subject string) {
+func (a *NewCharacter) helpDisplay(subject string) {
 	// Print Race
 	subject = strings.ToLower(subject)
 	if subject == "races" {
@@ -659,7 +655,7 @@ func validateFastStep(choiceInput string) bool {
 	return true
 }
 
-func (a *newCharacter) validateStats(statInput string) bool {
+func (a *NewCharacter) validateStats(statInput string) bool {
 
 	stats := parseStats(statInput)
 	if stats[0]+stats[1]+stats[2]+stats[3]+stats[4] != 50 {

@@ -6,7 +6,6 @@ import (
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/spf13/viper"
 	"log"
-	"math/rand"
 	"time"
 )
 
@@ -84,7 +83,7 @@ var DragonAscii = text.Red + `
                                                                                                     
 ` + text.White
 
-// Flip to false to turn down verbose logs
+// DebugVerbose Flip to false to turn down verbose logs
 var DebugVerbose = false
 
 var MaxPlayItemNameLength = 26
@@ -167,11 +166,9 @@ func init() {
 	Server.Port = viper.GetString("port")
 	Server.PGPort = viper.GetInt("pgport")
 	Server.RestToken = viper.GetString("resttoken")
+	DebugVerbose = viper.GetBool("debug")
 	// Setup global logging format
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile | log.Lmicroseconds)
-
-	// Seed default random source
-	rand.Seed(time.Now().UnixNano())
 
 	if !Debug.LongLog {
 		log.SetFlags(log.Ldate | log.Ltime)

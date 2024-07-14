@@ -36,7 +36,6 @@ var (
 	RoomDefaultEncounterSpeed = 10 // Seconds
 	RoomMaxJigger             = 4
 	RoomEncNoDoubles          = 6
-	RoomEncNoTriples          = 5
 
 	BaseDevicePiety = 8.0
 
@@ -80,15 +79,11 @@ var (
 	StealChancePerSkillLevel    = 4
 	BackStabChance              = 20
 	BackStabChancePerSkillLevel = 3
-	SnipeChance                 = 15
 	HideChancePerPoint          = 3
 	SneakChancePerPoint         = 1
 	SneakChancePerTier          = 1
 	StealChancePerPoint         = 1
 	BackStabChancePerPoint      = 1
-	SnipeChancePerPoint         = 1
-	SnipeChancePerLevel         = 5
-	SnipeFumbleChance           = 20
 	MobStealRevengeVitalChance  = 15
 	MobBSRevengeVitalChance     = 25
 	VitalStrikeScale            = 2
@@ -204,7 +199,7 @@ func CalcMana(tier int, intel int, class int) int {
 func CalcHaste(tier int) int {
 	if tier < 10 {
 		return 2
-	} else if tier >= 10 && tier < 15 {
+	} else if tier < 15 {
 		return 3
 	} else if tier > 15 {
 		return 4

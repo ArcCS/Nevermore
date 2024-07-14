@@ -224,7 +224,7 @@ func (i *CharInventory) ListChars(observer *Character) []*Character {
 	return items
 }
 
-// ListChars the items in this CharInventory
+// ListAll the characters in this CharInventory
 func (i *CharInventory) ListAll() []*Character {
 	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
 	items := make([]*Character, 0)
@@ -235,7 +235,7 @@ func (i *CharInventory) ListAll() []*Character {
 	return items
 }
 
-// ListChars the items in this CharInventory
+// ListAllNoGM the items in this CharInventory, exclude GMs
 func (i *CharInventory) ListAllNoGM() []*Character {
 	// Determine how many items we need if this is an all request. and we have only one entry.  Return nothing
 	items := make([]*Character, 0)

@@ -47,17 +47,12 @@ func (shift) process(s *state) {
 
 		for _, char := range charList {
 			log.Println("Shifting: ", char.Name)
-			if char != nil {
-				s.where.Chars.Remove(char)
-				to.Chars.Add(char)
-				char.ParentId = to.RoomId
-				go Script(char, "LOOK")
-				s.msg.Actor.SendInfo("You teleported " + char.Name + " to " + to.Name + "(" + strconv.Itoa(to.RoomId) + ")")
-				s.ok = true
-			} else {
-				s.msg.Actor.SendBad("Send who where?")
-				return
-			}
+			s.where.Chars.Remove(char)
+			to.Chars.Add(char)
+			char.ParentId = to.RoomId
+			go Script(char, "LOOK")
+			s.msg.Actor.SendInfo("You teleported " + char.Name + " to " + to.Name + "(" + strconv.Itoa(to.RoomId) + ")")
+			s.ok = true
 		}
 	}
 }

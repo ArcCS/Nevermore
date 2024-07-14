@@ -23,9 +23,9 @@ var (
 		config.Server.PGUname,
 		config.Server.PGPword,
 		config.Server.PGUname)
-	ChatLogsCapture      []ChatLog
-	ItemSalesCapture     []ItemSales
-	ItemTotalsCapture    map[int]ItemTotals
+	ChatLogsCapture  []ChatLog
+	ItemSalesCapture []ItemSales
+
 	CombatMetricsCapture []CombatMetric
 )
 
@@ -37,7 +37,6 @@ func init() {
 
 	ChatLogsCapture = make([]ChatLog, 0)
 	ItemSalesCapture = make([]ItemSales, 0)
-	ItemTotalsCapture = make(map[int]ItemTotals)
 	CombatMetricsCapture = make([]CombatMetric, 0)
 
 }
@@ -173,13 +172,23 @@ func pgExecRead(selectStmt string) (*sql.Rows, error) {
 	if err != nil {
 		log.Println(err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(db)
 	// Select rows from the table
 	rows, err := db.Query(selectStmt)
 	if err != nil {
 		log.Println(err)
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
 
 	err = rows.Err()
 	if err != nil {
@@ -195,7 +204,12 @@ func pgExec(execStmt string, params ...interface{}) (success bool, err error) {
 		success = false
 		log.Println(err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(db)
 	/*
 		insertStmt := "INSERT INTO mytable (col1, col2) VALUES ($1, $2)"
 		updateStmt := "UPDATE mytable SET col2 = $1 WHERE col1 = $2"

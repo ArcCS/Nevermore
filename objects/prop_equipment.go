@@ -6,7 +6,6 @@ import (
 	"log"
 	"math/rand"
 	"strings"
-	"time"
 )
 
 type Equipment struct {
@@ -178,7 +177,6 @@ func (e *Equipment) DamageRandomArmor() (retString string) {
 	}
 
 	if len(armorList) > 0 {
-		rand.Seed(time.Now().Unix())
 		damageItem := armorList[rand.Intn(len(armorList))]
 		if damageItem == "head" {
 			e.Head.MaxUses -= 1
@@ -551,7 +549,7 @@ func (e *Equipment) UnequipSpecific(alias string) (ok bool) {
 func (e *Equipment) Unequip(alias string) (ok bool, item *Item) {
 	ok = false
 	itemSlot := ""
-	if e.Head != (*Item)(nil) && ok == false {
+	if e.Head != (*Item)(nil) {
 		if strings.Contains(strings.ToLower(e.Head.Name), strings.ToLower(alias)) {
 			item = e.Head
 			e.Head = (*Item)(nil)
@@ -641,7 +639,7 @@ func (e *Equipment) Unequip(alias string) (ok bool, item *Item) {
 	}
 
 	// Update armor values
-	if ok && item != (*Item)(nil) {
+	if ok && item != nil && item != (*Item)(nil) {
 		if item.Flags["light"] || item.ItemType == 12 {
 			e.FlagOff("light", itemSlot)
 		}

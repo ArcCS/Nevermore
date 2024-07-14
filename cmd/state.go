@@ -248,8 +248,8 @@ func (s *state) AddLocks(r int) {
 			return
 		}
 
-		for x := 0; x < l; x++ {
-			_ = copy(s.rLocks[x+1:l], s.rLocks[x:l-1])
+		for x := 0; x < l; {
+			_ = copy(s.rLocks[1:l], s.rLocks[0:l-1])
 			s.rLocks[x] = r
 			break
 		}
@@ -292,7 +292,6 @@ func (s *state) AcquireLockPriority() {
 					objects.Rooms[l].LockPriority = ""
 				}
 			}
-			rand.Seed(time.Now().UnixNano())
 			r := rand.Int()
 			t, _ := time.ParseDuration(string(rune(r)) + "ms")
 			time.Sleep(t)

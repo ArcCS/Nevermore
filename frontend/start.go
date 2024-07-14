@@ -19,10 +19,10 @@ import (
 	"strings"
 )
 
-// menu embeds a frontend instance adding fields and methods specific to
+// Start menu embeds a Frontend instance adding fields and methods specific to
 // the main menu.
-type start struct {
-	*frontend
+type Start struct {
+	*Frontend
 	optionEnd      int
 	powerCharacter string
 	characters     []string
@@ -30,15 +30,15 @@ type start struct {
 	pwChange       [16]byte
 }
 
-func NewStart(f *frontend) (m *start) {
-	m = &start{frontend: f}
+func NewStart(f *Frontend) (m *Start) {
+	m = &Start{Frontend: f}
 	m.startDisplay()
 	return
 }
 
 // menuDisplay shows the main menu of options available once a player is logged
 // into the system.
-func (m *start) startDisplay() {
+func (m *Start) startDisplay() {
 	// Load Characters
 	for _, name := range data.ListChars(m.account) {
 		if !utils.StringIn(name, m.characters) {
@@ -100,13 +100,13 @@ func (m *start) startDisplay() {
 }
 
 // menuProcess takes the current input and processes it as a menu option.
-func (m *start) startProcess() {
+func (m *Start) startProcess() {
 	switch string(m.input) {
 	case "":
 		return
 	case "1":
 		if config.Server.CreateChars {
-			NewCharacter(m.frontend)
+			CreateNewChar(m.Frontend)
 		} else {
 			m.buf.Send(text.Bad, "New character creation is disabled at this time.", text.Reset)
 		}
@@ -126,11 +126,11 @@ func (m *start) startProcess() {
 	default:
 		if m.permissions.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) && string(m.input) == "3" {
 			if m.powerCharacter == "" {
-				NewPCharacter(m.frontend)
+				CreateNewPChar(m.Frontend)
 				return
 			} else {
 				if objects.ActiveCharacters.Find(m.powerCharacter) == nil {
-					StartGame(m.frontend, m.powerCharacter)
+					StartGame(m.Frontend, m.powerCharacter)
 				} else {
 					m.buf.Send(text.Bad, "You're already in the game.  You cannot rejoin.", text.Reset)
 					return
@@ -141,7 +141,7 @@ func (m *start) startProcess() {
 
 			if objects.ActiveCharacters.Find(string(m.input)) == nil {
 				if m.accountAllowed() {
-					StartGame(m.frontend, string(m.input))
+					StartGame(m.Frontend, string(m.input))
 				} else {
 					m.buf.Send(text.Bad, "Account already logged in.\n", text.Reset)
 					return
@@ -153,14 +153,14 @@ func (m *start) startProcess() {
 				log.Println("Disconnect old lease")
 				character.Disconnect()
 				log.Println("Resume game")
-				ResumeGame(m.frontend, character)
+				ResumeGame(m.Frontend, character)
 			}
 		}
 		m.buf.Send(text.Bad, "Invalid option selected. Please try again.", text.Reset)
 	}
 }
 
-func (m *start) accountAllowed() bool {
+func (m *Start) accountAllowed() bool {
 	if m.permissions < 16 {
 		if _, ok := accounts.inuse[m.account]; ok {
 			return false
@@ -169,7 +169,7 @@ func (m *start) accountAllowed() bool {
 	return true
 }
 
-func (m *start) verifyPw() {
+func (m *Start) verifyPw() {
 	switch l := len(m.input); {
 	case l == 0:
 		m.buf.Send(text.Bad, "No text sent, returning to menu.", text.Reset)
@@ -182,7 +182,7 @@ func (m *start) verifyPw() {
 	return
 }
 
-func (m *start) changePw() {
+func (m *Start) changePw() {
 	switch l := len(m.input); {
 	case l == 0:
 		m.buf.Send(text.Info, "Password change cancelled.\n", text.Reset)
@@ -201,7 +201,7 @@ func (m *start) changePw() {
 	return
 }
 
-func (m *start) characterList() string {
+func (m *Start) characterList() string {
 	var charList strings.Builder
 	charList.WriteString("-----------------------------\n  ")
 	charList.Write([]byte(strings.Join(m.characters, ", ")))

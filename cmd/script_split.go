@@ -5,7 +5,6 @@ import (
 	"github.com/ArcCS/Nevermore/permissions"
 	"math/rand"
 	"strings"
-	"time"
 )
 
 func init() {
@@ -29,7 +28,6 @@ func (split) process(s *state) {
 	}
 
 	//Randomize the characterList
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(charList), func(i, j int) {
 		charList[i], charList[j] = charList[j], charList[i]
 	})

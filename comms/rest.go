@@ -59,5 +59,8 @@ func CleanShutDown(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	log.Println("Received Rest Call for a Clean Shutdown")
-	fmt.Fprint(w, "Valid token received")
+	_, err = fmt.Fprint(w, "Valid token received")
+	if err != nil {
+		return
+	}
 }

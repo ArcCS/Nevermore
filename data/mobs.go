@@ -145,7 +145,7 @@ func LoadMob(mobId int) map[string]interface{} {
 }
 
 func CreateMob(mobName string, creator string) (int, bool) {
-	mob_id := nextId("mob")
+	mobId := nextId("mob")
 	results, err := execWrite(
 		"CREATE (m:mob) SET "+
 			`m.mob_id = $mobId, 
@@ -204,7 +204,7 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		m.no_specials = 0,
 		m.hostile=0`,
 		map[string]interface{}{
-			"mobId":   mob_id,
+			"mobId":   mobId,
 			"name":    mobName,
 			"creator": creator,
 		},
@@ -214,7 +214,7 @@ func CreateMob(mobName string, creator string) (int, bool) {
 		return -1, false
 	}
 	if results.Counters().ContainsUpdates() {
-		return mob_id, false
+		return mobId, false
 	} else {
 		return -1, true
 	}

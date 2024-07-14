@@ -2,16 +2,27 @@ package utils
 
 import (
 	"bufio"
+	"crypto/rand"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"log"
 	"math"
-	"math/rand"
+	"math/big"
 	"os"
 	"sort"
 	"strings"
-	"time"
 )
+
+// SecureRandIntn generates a secure random number in [0, n).
+func SecureRandIntn(n int) int {
+	maxN := big.NewInt(int64(n))
+	randInt, err := rand.Int(rand.Reader, maxN)
+	if err != nil {
+		log.Println("error generating random number", err)
+		return 0
+	}
+	return int(randInt.Int64())
+}
 
 func Sum(input []int) int {
 	sum := 0
@@ -32,21 +43,19 @@ func RemoveInt(slice []int, s int) []int {
 
 func RandMapKeySelection(mapList map[string]int) string {
 	// Seed the random number generator
-	rand.Seed(time.Now().UnixNano())
 	keys := make([]string, 0, len(mapList))
 	for k := range mapList {
 		keys = append(keys, k)
 	}
 	if len(keys) > 0 {
-		return keys[rand.Intn(len(keys))]
+		return keys[SecureRandIntn(len(keys))]
 	}
 	return ""
 }
 
 func RandListSelection(stringList []string) string {
 	// Seed the random number generator
-	rand.Seed(time.Now().UnixNano())
-	return stringList[rand.Intn(len(stringList))]
+	return stringList[SecureRandIntn(len(stringList))]
 }
 
 func IntIn(a int, list []int) bool {
@@ -167,6 +176,7 @@ func WhereAt(subLoc int, charLoc int) string {
 func RandString(n int) string {
 	const alphanum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	var bytes = make([]byte, n)
+
 	if _, err := rand.Read(bytes); err != nil {
 		log.Println("rando error", err)
 	}

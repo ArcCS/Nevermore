@@ -676,12 +676,11 @@ func (c *Character) Write(b []byte) (n int, err error) {
 	}
 
 	b = append(b, c.buildPrompt()...)
-	if c != nil {
-		if n, err := c.Writer.Write(b); err != nil {
-			log.Println(err)
-			return n, err
-		}
+	if n, err := c.Writer.Write(b); err != nil {
+		log.Println(err)
+		return n, err
 	}
+
 	return
 }
 

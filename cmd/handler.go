@@ -258,21 +258,21 @@ func dispatchHandler(s *state) {
 			}
 		}
 		if len(s.cmd) > 1 {
-			filtered_values := []string{}
-			h_keys := []string{}
-			for key, _ := range handlers {
-				h_keys = append(h_keys, key)
+			var filteredValues []string
+			var hKeys []string
+			for key := range handlers {
+				hKeys = append(hKeys, key)
 			}
-			for _, value := range h_keys {
+			for _, value := range hKeys {
 
 				if strings.HasPrefix(value, s.cmd) {
-					if len(filtered_values) == 0 || handlers[filtered_values[0]] != handlers[value] {
-						filtered_values = append(filtered_values, value)
+					if len(filteredValues) == 0 || handlers[filteredValues[0]] != handlers[value] {
+						filteredValues = append(filteredValues, value)
 					}
 				}
 			}
-			if len(filtered_values) == 1 {
-				s.cmd = filtered_values[0]
+			if len(filteredValues) == 1 {
+				s.cmd = filteredValues[0]
 			}
 		}
 		switch handler, valid := handlers[s.cmd]; {

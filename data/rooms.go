@@ -62,7 +62,7 @@ func LoadRooms() []interface{} {
 	return roomList
 }
 
-func LoadRoom(room_id int) map[string]interface{} {
+func LoadRoom(roomId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	data, err := execRead("MATCH (r:room {room_id: $room_id}) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
 		`{room_id: r.room_id, creator: r.creator, name: r.name, description: r.description, encounter_rate: r.encounter_rate, 
@@ -107,7 +107,7 @@ func LoadRoom(room_id int) map[string]interface{} {
 	earth: r.earth,
 	wind: r.wind}}`,
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 		})
 	if err != nil {
 		log.Println(err)
@@ -116,7 +116,7 @@ func LoadRoom(room_id int) map[string]interface{} {
 	return data[0].Values[0].(map[string]interface{})
 }
 
-func LoadExit(exitName string, room_id int, toId int) map[string]interface{} {
+func LoadExit(exitName string, roomId int, toId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	data, err := execRead("MATCH (r:room)-[e:exit]->(d:room) WHERE r.room_id=$fromId AND e.name=$exitname AND d.room_id=$toId RETURN "+
 		`{direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
@@ -134,7 +134,7 @@ func LoadExit(exitName string, room_id int, toId int) map[string]interface{} {
 	placement_dependent: e.placement_dependent}}`,
 		map[string]interface{}{
 			"exitname": exitName,
-			"fromId":   room_id,
+			"fromId":   roomId,
 			"toId":     toId,
 		})
 	if err != nil {
@@ -149,7 +149,7 @@ func LoadExit(exitName string, room_id int, toId int) map[string]interface{} {
 
 // CreateRoom will create a new room from a roomname and a creator
 func CreateRoom(roomName string, creator string) (int, bool) {
-	room_id := nextId("room")
+	roomId := nextId("room")
 	results, err := execWrite(
 		"CREATE (r:room) SET "+
 			"r.room_id = $room_id, "+
@@ -187,7 +187,7 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 			"r.inventory = '[]', "+
 			"r.wind = 0",
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 			"name":    roomName,
 			"creator": creator,
 		},
@@ -196,7 +196,7 @@ func CreateRoom(roomName string, creator string) (int, bool) {
 		log.Println(err)
 	}
 	if results.Counters().NodesCreated() > 0 {
-		return room_id, false
+		return roomId, false
 	} else {
 		return -1, true
 	}
@@ -237,10 +237,10 @@ func CreateExit(exitData map[string]interface{}) bool {
 }
 
 // ExitExists Does this exit exist?
-func ExitExists(exitName string, room_id int) bool {
+func ExitExists(exitName string, roomId int) bool {
 	data, err := execRead("MATCH (r:room)-[e:exit]->() WHERE r.room_id=$room_id AND e.name=$name RETURN e",
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 			"name":    exitName,
 		},
 	)
@@ -256,10 +256,10 @@ func ExitExists(exitName string, room_id int) bool {
 }
 
 // DeleteRoom Delete Room
-func DeleteRoom(room_id int) bool {
+func DeleteRoom(roomId int) bool {
 	results, err := execWrite("MATCH ()-[e:exit]->(r:room)-[e2:exit]->() WHERE r.room_id=$room_id DELETE r, e, e2",
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 		},
 	)
 	if err != nil {
@@ -431,10 +431,10 @@ func UpdateExit(exitData map[string]interface{}) bool {
 }
 
 // DeleteExit Delete Exit based on the exit name and the containing room
-func DeleteExit(exitName string, room_id int) bool {
+func DeleteExit(exitName string, roomId int) bool {
 	results, err := execWrite("MATCH (r:room)-[e:exit]->() WHERE r.room_id=$room_id AND e.name=$name DELETE e",
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 			"name":    exitName,
 		},
 	)

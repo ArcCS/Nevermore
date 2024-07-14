@@ -14,34 +14,34 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 )
 
-// login embeds a frontend instance adding fields and methods specific to
+// Login embeds a Frontend instance adding fields and methods specific to
 // account logins.
-type login struct {
-	*frontend
+type Login struct {
+	*Frontend
 	inputName string
 }
 
 // NewLogin returns a login with the specified frontend embedded. The returned
 // login can be used for processing the logging in of accounts.
-func NewLogin(f *frontend) (l *login) {
-	l = &login{frontend: f}
+func NewLogin(f *Frontend) (l *Login) {
+	l = &Login{Frontend: f}
 	l.accountDisplay()
 	return
 }
 
 // accountDisplay asks for the player's account ID so that they can log into
 // the system.
-func (l *login) accountDisplay() {
+func (l *Login) accountDisplay() {
 	l.buf.Send("Enter your account ID or just press enter to create a new account, enter QUIT to leave the server:")
 	l.nextFunc = l.accountProcess
 }
 
 // accountProcess processes the current input as an account ID.
-func (l *login) accountProcess() {
+func (l *Login) accountProcess() {
 	//log.Printf("String from: %s", string(l.input))
 	switch {
 	case len(l.input) == 0:
-		NewAccount(l.frontend)
+		NewAccount(l.Frontend)
 	case bytes.Equal(bytes.ToUpper(l.input), []byte("QUIT")):
 		l.Close()
 	default:
@@ -51,7 +51,7 @@ func (l *login) accountProcess() {
 }
 
 // passwordDisplay asks for the player's password for their account ID.
-func (l *login) passwordDisplay() {
+func (l *Login) passwordDisplay() {
 	l.buf.Send("Enter the password for your account ID or just press enter to cancel:")
 	l.nextFunc = l.passwordProcess
 }
@@ -62,19 +62,19 @@ func (l *login) passwordDisplay() {
 // and the password is correct we load the player data and move on to
 // displaying the main menu. If either the account ID or password is invalid we
 // go back to asking for an account ID.
-func (l *login) passwordProcess() {
+func (l *Login) passwordProcess() {
 
 	// If no password given go back and ask for an account ID.
 	if len(l.input) == 0 {
 		l.buf.Send(text.Info, "Login cancelled.\n", text.Reset)
-		NewLogin(l.frontend)
+		NewLogin(l.Frontend)
 		return
 	}
 
 	acctData, err := data.LoadAcct(l.inputName)
 	if err {
 		l.buf.Send(text.Bad, "Account ID or password is incorrect. (Load acct failure) \n", text.Reset)
-		NewLogin(l.frontend)
+		NewLogin(l.Frontend)
 		return
 	}
 
@@ -83,23 +83,23 @@ func (l *login) passwordProcess() {
 	// Check password is valid
 	if hex.EncodeToString(encPass[:]) != password {
 		l.buf.Send(text.Bad, "Account ID or password is incorrect.\n", text.Reset)
-		NewLogin(l.frontend)
+		NewLogin(l.Frontend)
 		return
 	}
 
 	if !acctData["active"].(bool) {
 		l.buf.Send(text.Bad, "Account is not active.\n", text.Reset)
-		NewLogin(l.frontend)
+		NewLogin(l.Frontend)
 		return
 	}
 
 	accounts.Lock()
-	l.frontend.account = acctData["name"].(string)
-	l.frontend.permissions = permissions.Permissions(acctData["permissions"].(int64))
+	l.Frontend.account = acctData["name"].(string)
+	l.Frontend.permissions = permissions.Permissions(acctData["permissions"].(int64))
 	accounts.Unlock()
 
 	// Greet returning account
-	l.buf.Send(text.Good, "Welcome back ", l.frontend.account, "!", text.Reset)
+	l.buf.Send(text.Good, "Welcome back ", l.Frontend.account, "!", text.Reset)
 
-	NewStart(l.frontend)
+	NewStart(l.Frontend)
 }

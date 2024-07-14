@@ -16,22 +16,22 @@ import (
 	"time"
 )
 
-// game embeds a frontend instance adding fields and methods specific to
-// communicating with the game.
-type game struct {
-	*frontend
+// Game embeds a Frontend instance adding fields and methods specific to
+// communicating with the Game.
+type Game struct {
+	*Frontend
 }
 
-func StartGame(f *frontend, charName string) (g *game) {
+func StartGame(f *Frontend, charName string) (g *Game) {
 	accounts.inuse[f.account] = struct{}{}
-	g = &game{frontend: f}
+	g = &Game{Frontend: f}
 	g.character, _ = objects.LoadCharacter(charName, f.output, g.Disconnect)
 	g.gameInit()
 	return
 }
 
-func FirstTimeStartGame(f *frontend, charName string) (g *game) {
-	g = &game{frontend: f}
+func FirstTimeStartGame(f *Frontend, charName string) (g *Game) {
+	g = &Game{Frontend: f}
 	g.character, _ = objects.LoadCharacter(charName, f.output, f.Disconnect)
 	for _, itemId := range config.StartingGear[g.character.Class] {
 		newItem := objects.Item{}
@@ -44,8 +44,8 @@ func FirstTimeStartGame(f *frontend, charName string) (g *game) {
 	return
 }
 
-// gameInit is used to place the player into the game world.
-func (g *game) gameInit() {
+// gameInit is used to place the player into the Game world.
+func (g *Game) gameInit() {
 
 	message.ReleaseBuffer(g.buf)
 	g.buf = nil
@@ -73,15 +73,15 @@ func (g *game) gameInit() {
 	g.nextFunc = g.gameProcess
 }
 
-func ResumeGame(f *frontend, charRef *objects.Character) (g *game) {
-	g = &game{frontend: f}
+func ResumeGame(f *Frontend, charRef *objects.Character) (g *Game) {
+	g = &Game{Frontend: f}
 	g.character = charRef
 	g.gameResumeInit()
 	return
 }
 
-// gameInit is used to place the player into the game world.
-func (g *game) gameResumeInit() {
+// gameInit is used to place the player into the Game world.
+func (g *Game) gameResumeInit() {
 	message.ReleaseBuffer(g.buf)
 	g.buf = nil
 	g.character.Writer = g.output
@@ -92,21 +92,21 @@ func (g *game) gameResumeInit() {
 	g.nextFunc = g.gameProcess
 }
 
-// gameProcess hands input to the game backend for processing while the player
-// is in the game. When the player quits the game the frontend.buf buffer is
+// gameProcess hands input to the Game backend for processing while the player
+// is in the Game. When the player quits the Game the Frontend.buf buffer is
 // restored - see gameInit.
-func (g *game) gameProcess() {
+func (g *Game) gameProcess() {
 	c := cmd.Parse(g.character, string(g.input))
 	if c == "QUIT" {
 		g.CharUnloader()
 	}
 }
 
-func (g *game) CharUnloader() {
+func (g *Game) CharUnloader() {
 	g.AccountCleanup()
 	g.character.Unload()
 	g.character = nil
 	g.buf = message.AcquireBuffer()
 	g.buf.OmitLF(true)
-	NewStart(g.frontend)
+	NewStart(g.Frontend)
 }

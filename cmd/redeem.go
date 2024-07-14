@@ -52,9 +52,7 @@ func (redeem) process(s *state) {
 		s.actor.Gold.Add(totalGold)
 		s.msg.Actor.SendGood("You have redeemed ", strconv.Itoa(amt), " bonus points for ", strconv.Itoa(totalGold), " gold.")
 		return
-	}
-
-	if redType == "EXP" {
+	} else {
 		s.actor.BonusPoints.Subtract(amt)
 		experienceNeeded := config.TierExpLevels[s.actor.Tier+1] - config.TierExpLevels[s.actor.Tier]
 		expAward := int(math.Floor(float64(experienceNeeded)*.01)) * amt
@@ -62,7 +60,4 @@ func (redeem) process(s *state) {
 		s.msg.Actor.SendGood("You have redeemed ", strconv.Itoa(amt), " bonus points for ", strconv.Itoa(expAward), " experience.")
 		return
 	}
-
-	s.ok = true
-	return
 }

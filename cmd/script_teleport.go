@@ -7,7 +7,6 @@ import (
 	"github.com/jinzhu/copier"
 	"math/rand"
 	"strings"
-	"time"
 )
 
 func init() {
@@ -20,10 +19,11 @@ func init() {
 type scriptTeleport cmd
 
 func (scriptTeleport) process(s *state) {
-
-	rand.Seed(time.Now().Unix())
 	var modTeleportTable []int
-	copier.Copy(&modTeleportTable, &objects.TeleportTable)
+	err := copier.Copy(&modTeleportTable, &objects.TeleportTable)
+	if err != nil {
+		return
+	}
 	if utils.IntIn(s.actor.ParentId, modTeleportTable) {
 		modTeleportTable = utils.RemoveInt(modTeleportTable, s.actor.ParentId)
 	}

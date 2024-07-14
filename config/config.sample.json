@@ -8,5 +8,6 @@
   "pgaddress": "127.0.0.1",
   "pgport": 5432,
   "port": "4001",
-  "resttoken": "restpassword"
+  "resttoken": "restpassword",
+  "debug": false
 }

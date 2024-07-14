@@ -62,7 +62,7 @@ func LoadMenus() []interface{} {
 	return roomList
 }
 
-func LoadMenu(room_id int) map[string]interface{} {
+func LoadMenu(roomId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	data, err := execRead("MATCH (r:room {room_id: $room_id}) OPTIONAL MATCH (r)-[e:exit]->(d:room) OPTIONAL MATCH (r)-[s:spawns]->(m:mob) RETURN "+
 		`{room_id: r.room_id, creator: r.creator, name: r.name, description: r.description, encounter_rate: r.encounter_rate, 
@@ -107,7 +107,7 @@ func LoadMenu(room_id int) map[string]interface{} {
 	earth: r.earth,
 	wind: r.wind}}`,
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 		})
 	if err != nil {
 		log.Println(err)
@@ -116,7 +116,7 @@ func LoadMenu(room_id int) map[string]interface{} {
 	return data[0].Values[0].(map[string]interface{})
 }
 
-func LoadMenuOption(exitName string, room_id int, toId int) map[string]interface{} {
+func LoadMenuOption(exitName string, roomId int, toId int) map[string]interface{} {
 	// Return all of the rooms to be pushed into the room stack
 	data, err := execRead("MATCH (r:room)-[e:exit]->(d:room) WHERE r.room_id=$fromId AND e.name=$exitname AND d.room_id=$toId RETURN "+
 		`{direction:e.name, description: e.description, placement: e.placement, key_id: e.key_id, dest: d.room_id, 
@@ -134,7 +134,7 @@ func LoadMenuOption(exitName string, room_id int, toId int) map[string]interface
 	placement_dependent: e.placement_dependent}}`,
 		map[string]interface{}{
 			"exitname": exitName,
-			"fromId":   room_id,
+			"fromId":   roomId,
 			"toId":     toId,
 		})
 	if err != nil {
@@ -147,9 +147,9 @@ func LoadMenuOption(exitName string, room_id int, toId int) map[string]interface
 	return data[0].Values[0].(map[string]interface{})
 }
 
-// CreateRoom will create a new room from a roomname and a creator
+// CreateMenu will create a new menu
 func CreateMenu(roomName string, creator string) (int, bool) {
-	room_id := nextId("room")
+	roomId := nextId("room")
 	results, err := execWrite(
 		"CREATE (r:room) SET "+
 			"r.room_id = $room_id, "+
@@ -187,7 +187,7 @@ func CreateMenu(roomName string, creator string) (int, bool) {
 			"r.inventory = '[]', "+
 			"r.wind = 0",
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 			"name":    roomName,
 			"creator": creator,
 		},
@@ -196,13 +196,13 @@ func CreateMenu(roomName string, creator string) (int, bool) {
 		log.Println(err)
 	}
 	if results.Counters().NodesCreated() > 0 {
-		return room_id, false
+		return roomId, false
 	} else {
 		return -1, true
 	}
 }
 
-// CreateExit Create Exits from a map of exitData
+// CreateMenuOption Create a menu option for a menu
 func CreateMenuOption(exitData map[string]interface{}) bool {
 	_, err := execWrite(
 		"MATCH (r:room), (r2:room) WHERE "+
@@ -236,11 +236,11 @@ func CreateMenuOption(exitData map[string]interface{}) bool {
 	return false
 }
 
-// ExitExists Does this exit exist?
-func OptionExists(exitName string, room_id int) bool {
+// OptionExists Option Exists in the menu?
+func OptionExists(exitName string, roomId int) bool {
 	data, err := execRead("MATCH (r:room)-[e:exit]->() WHERE r.room_id=$room_id AND e.name=$name RETURN e",
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 			"name":    exitName,
 		},
 	)
@@ -255,11 +255,11 @@ func OptionExists(exitName string, room_id int) bool {
 	}
 }
 
-// DeleteRoom Delete Room
-func DeleteMenu(room_id int) bool {
+// DeleteMenu Delete a Menu
+func DeleteMenu(roomId int) bool {
 	results, err := execWrite("MATCH ()-[e:exit]->(r:room)-[e2:exit]->() WHERE r.room_id=$room_id DELETE r, e, e2",
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 		},
 	)
 	if err != nil {
@@ -273,7 +273,7 @@ func DeleteMenu(room_id int) bool {
 	}
 }
 
-// UpdateRoom Update Room
+// UpdateMenu a menu
 func UpdateMenu(roomData map[string]interface{}) bool {
 	results, err := execWrite(
 		"MATCH (r:room) WHERE r.room_id=$room_id SET "+
@@ -356,7 +356,7 @@ func UpdateMenu(roomData map[string]interface{}) bool {
 	return false
 }
 
-// UpdateExit Update Exit based on
+// UpdateMenuOption Update a menu option
 func UpdateMenuOption(exitData map[string]interface{}) bool {
 	results, err := execWrite(
 		"MATCH (r:room)-[e:exit]->(r2:room) WHERE "+
@@ -407,11 +407,11 @@ func UpdateMenuOption(exitData map[string]interface{}) bool {
 	return false
 }
 
-// DeleteExit Delete Exit based on the exit name and the containing room
-func DeleteMenuOption(exitName string, room_id int) bool {
+// DeleteMenuOption Delete Menu option from a menu
+func DeleteMenuOption(exitName string, roomId int) bool {
 	results, err := execWrite("MATCH (r:room)-[e:exit]->() WHERE r.room_id=$room_id AND e.name=$name DELETE e",
 		map[string]interface{}{
-			"room_id": room_id,
+			"room_id": roomId,
 			"name":    exitName,
 		},
 	)

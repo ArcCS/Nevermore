@@ -50,7 +50,12 @@ func FlushCombatMetrics() bool {
 		if err != nil {
 			log.Println(err)
 		}
-		defer db.Close()
+		defer func(db *sql.DB) {
+			err := db.Close()
+			if err != nil {
+				log.Println(err)
+			}
+		}(db)
 
 		// Begin a transaction
 		tx, err := db.Begin()
@@ -65,7 +70,12 @@ func FlushCombatMetrics() bool {
 			log.Println(err)
 			return false
 		}
-		defer stmt.Close()
+		defer func(stmt *sql.Stmt) {
+			err := stmt.Close()
+			if err != nil {
+				log.Println(err)
+			}
+		}(stmt)
 
 		// Insert multiple rows using the prepared statement
 		for _, combatMetric := range CombatMetricsCapture {
@@ -106,7 +116,12 @@ func FlushChatLogs() bool {
 		if err != nil {
 			log.Println(err)
 		}
-		defer db.Close()
+		defer func(db *sql.DB) {
+			err := db.Close()
+			if err != nil {
+				log.Println(err)
+			}
+		}(db)
 
 		// Begin a transaction
 		tx, err := db.Begin()
@@ -121,7 +136,12 @@ func FlushChatLogs() bool {
 			log.Println(err)
 			return false
 		}
-		defer stmt.Close()
+		defer func(stmt *sql.Stmt) {
+			err := stmt.Close()
+			if err != nil {
+				log.Println(err)
+			}
+		}(stmt)
 
 		// Insert multiple rows using the prepared statement
 		log.Println("Running Chatlog Flush")
@@ -152,7 +172,12 @@ func FlushItemSales() bool {
 		if err != nil {
 			log.Println(err)
 		}
-		defer db.Close()
+		defer func(db *sql.DB) {
+			err := db.Close()
+			if err != nil {
+				log.Println(err)
+			}
+		}(db)
 
 		// Begin a transaction
 		tx, err := db.Begin()
@@ -167,7 +192,12 @@ func FlushItemSales() bool {
 			log.Println(err)
 			return false
 		}
-		defer stmt.Close()
+		defer func(stmt *sql.Stmt) {
+			err := stmt.Close()
+			if err != nil {
+				log.Println(err)
+			}
+		}(stmt)
 
 		// Insert multiple rows using the prepared statement
 		for _, item := range ItemSalesCapture {
