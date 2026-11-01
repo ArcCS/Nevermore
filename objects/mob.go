@@ -97,6 +97,9 @@ type Mob struct {
 	// who hasn't attacked it out of the room until
 	// config.MobFollowSpawnLockout has passed.
 	SpawnedAt time.Time
+	// StoppedAt is when a permanent mob stopped ticking because its room
+	// emptied; see Rest.
+	StoppedAt time.Time
 
 	// WeakenSteps counts the $WEAKEN offerings already baked into this mob's
 	// template stats. It lives on the template so it survives death and
@@ -193,6 +196,7 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		time.Time{},
 		nil,
 		time.Time{},
+		time.Time{},
 		0,
 		0,
 		"",
@@ -230,6 +234,35 @@ func LoadMob(mobData map[string]interface{}) (*Mob, bool) {
 		}
 	}
 	return newMob, true
+}
+
+// Rest heals a permanent mob for the time its room sat empty, at
+// config.PermMobRegenPctPerMinute, and re-arms the HP triggers it is back
+// above. Its target and any windup it was holding are dropped, so it picks
+// whoever walks in as soon as it wakes and swings on its first tick.
+func (m *Mob) Rest() {
+	if m.StoppedAt.IsZero() {
+		return
+	}
+	m.CurrentTarget = ""
+	st := m.scriptState()
+	st.windup = nil
+	st.lastTarget = ""
+	if m.Stam.Max <= 0 {
+		m.StoppedAt = time.Time{}
+		return
+	}
+	minutes := time.Since(m.StoppedAt).Minutes()
+	m.StoppedAt = time.Time{}
+	heal := int(minutes * float64(m.Stam.Max*config.PermMobRegenPctPerMinute) / 100)
+	m.Stam.Current = min(m.Stam.Max, m.Stam.Current+heal)
+
+	pct := m.Stam.Current * 100 / m.Stam.Max
+	for threshold := range st.hpFired {
+		if pct >= threshold {
+			delete(st.hpFired, threshold)
+		}
+	}
 }
 
 func (m *Mob) StartTicking() {
@@ -353,7 +386,11 @@ func (m *Mob) Tick() {
 			}
 		}
 
+		// A mob that only now picks a target spends the tick on it: it may
+		// close in, but breathes, casts and attacks from the next tick.
+		hadTarget := m.CurrentTarget != ""
 		m.PickTarget()
+		picked := !hadTarget && m.CurrentTarget != ""
 
 		// Do I want to change targets? MobThreatSwitchChance percent per tick
 		// if the current target isn't the highest on the threat table.
@@ -393,7 +430,7 @@ func (m *Mob) Tick() {
 			return
 		}
 
-		if m.CurrentTarget != "" && m.BreathWeapon != "" &&
+		if !picked && m.CurrentTarget != "" && m.BreathWeapon != "" &&
 			(math.Abs(float64(m.Placement-Rooms[m.ParentId].Chars.MobSearch(m.CurrentTarget, m).Placement)) == 1) {
 
 			// Roll to see if we're going to breathe
@@ -449,7 +486,7 @@ func (m *Mob) Tick() {
 		}
 
 		// only hostile mobs or mobs with a current target will try to cast
-		if m.CheckFlag("hostile") || m.CurrentTarget != "" {
+		if !picked && (m.CheckFlag("hostile") || m.CurrentTarget != "") {
 			if m.ChanceCast > 0 && len(m.Spells) > 0 {
 				log.Println("Trying to cast a spell")
 				if utils.Roll(100, 1, 0) <= m.ChanceCast {
@@ -558,6 +595,9 @@ func (m *Mob) Tick() {
 				return
 			}
 		}
+		if picked {
+			return
+		}
 
 		// Am I against a fighter, and they succeed in a parry roll? A shield
 		// widens the parry window, but a parry that only the shield caught is
@@ -660,13 +700,17 @@ func (m *Mob) Charge(rescuer *Character, rescued *Character) {
 	rescuer.DeathCheck("was slain by a " + m.Name + " while rescuing " + rescued.Name + ".")
 }
 
+// RunDeathScript has the killer run the mob's @DEATH script. Kills happen
+// with the room locked, so it waits its turn on a goroutine of its own.
+func (m *Mob) RunDeathScript(killer *Character) {
+	if val, ok := m.Commands["@DEATH"]; ok && killer != nil && Script != nil {
+		go Script(killer, "$RUN "+val.Command)
+	}
+}
+
 func (m *Mob) DeathCheck(target *Character) bool {
 	if m.Stam.Current <= 0 {
-		// The killer runs the mob's @DEATH script. This is called with the
-		// room locked, so it has to wait its turn on a goroutine of its own.
-		if val, ok := m.Commands["@DEATH"]; ok && target != nil && Script != nil {
-			go Script(target, "$RUN "+val.Command)
-		}
+		m.RunDeathScript(target)
 		Rooms[m.ParentId].MessageAll(target.Name + " killed " + m.Name)
 		partyLead := target
 		if target.PartyFollow != "" {

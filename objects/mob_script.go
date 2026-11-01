@@ -31,7 +31,16 @@ import (
 //
 // Control steps stop the rest of the script when they fail: $CHANCE pct,
 // $COOLDOWN seconds, $ONCE, $IFSTAGE event stage. Put $COOLDOWN after any
-// $CHANCE, or a failed chance roll still starts the cooldown.
+// $CHANCE, or a failed chance roll still starts the cooldown. An action
+// that can't happen (no one to hit, say) fails the same way.
+//
+// $NEXT splits a script into blocks tried in order. A failed step skips to
+// the next block instead of ending the script, and so does a block that ran
+// without taking an action; the first block that takes one ends the script,
+// so the mob still does one thing a turn.
+//
+// $ONFAIL step runs step only if the step before it failed, then ends the
+// block. Several in a row all run.
 //
 // $WINDUP [conditions] [text] splits a script over two ticks, for a move
 // players can see coming and stop. The steps before it run now (the warning)
@@ -63,10 +72,14 @@ import (
 // from @HIT.
 //
 // Targets: target (current target), attacker (the striker on @HIT, else the
-// target), random, all. Only players the mob can see; staff are never hit.
+// target), second (the most threat after the target - often the healer),
+// random, all. Only players the mob can see; staff are never hit.
 //
 // Damage types: physical (armor), fire/air/earth/water (that resistance),
 // true (no mitigation). Amounts are a number or dice: 120, 4d10, 4d10+50.
+// 30% is 30% of each target's max stamina, dealt like any other hit; 30%v
+// is 30% of their max vitality, dealt straight to vitality, and takes only
+// physical (armor) or true.
 
 // mobScriptState is one copy's script bookkeeping. copier leaves unexported
 // fields alone, so every copy of a template starts with its own.
@@ -174,6 +187,8 @@ var MobVerbs map[string]mobVerb
 
 func init() {
 	MobVerbs = map[string]mobVerb{
+		"$NEXT":       {nil, false, "$NEXT - start the next block; a failed step skips to it, and the first block to act ends the script"},
+		"$ONFAIL":     {nil, false, "$ONFAIL step - run step only if the step before it failed, then end the block"},
 		"$WINDUP":     {mobWindUp, false, "$WINDUP [stun|damage N|hits N|rescue|escape|none ...] [text] - finish the script next tick unless cancelled; text shows if it is"},
 		"$CHANCE":     {mobChance, false, "$CHANCE pct - stop unless a pct% roll succeeds"},
 		"$COOLDOWN":   {mobCooldown, false, "$COOLDOWN seconds - stop if this step ran less than seconds ago"},
@@ -184,14 +199,14 @@ func init() {
 		"$MEMOTE":     {mobEmote, false, "$MEMOTE text - the room sees '<mob> text'"},
 		"$EXITTO":     {mobExitTo, false, "$EXITTO room_id exit to_room_id seconds - the exit leads elsewhere for a while (0 = put it back)"},
 		"$FLAG":       {mobFlag, false, "$FLAG name on|off - set one of the mob's flags"},
-		"$MCAST":      {mobCast, true, "$MCAST spell [target|attacker|random|all] - cast without mana"},
-		"$DAMAGE":     {mobDamage, true, "$DAMAGE target|attacker|random|all amount [type] - hurt players"},
-		"$AOE":        {mobAoe, true, "$AOE amount [type] - hurt everyone the mob can see"},
-		"$STUN":       {mobStun, true, "$STUN target|attacker|random|all seconds - stun players"},
+		"$MCAST":      {mobCast, true, "$MCAST spell [target|attacker|second|random|all] - cast without mana"},
+		"$DAMAGE":     {mobDamage, true, "$DAMAGE target|attacker|second|random|all amount [type] - hurt players; amount 120, 4d10+50, 30% (of max stamina) or 30%v (of max vitality, straight to it)"},
+		"$AOE":        {mobAoe, true, "$AOE amount [type] - hurt everyone the mob can see; amounts as $DAMAGE"},
+		"$STUN":       {mobStun, true, "$STUN target|attacker|second|random|all seconds - stun players"},
 		"$HEAL":       {mobHeal, true, "$HEAL pct - heal pct% of max stamina"},
 		"$SUMMON":     {mobSummon, true, "$SUMMON mob_id [count] - call up to 5 adds (no loot)"},
 		"$ENRAGE":     {mobEnrage, true, "$ENRAGE seconds pct - deal pct% more damage for seconds"},
-		"$MTELEPORT":  {mobTeleport, true, "$MTELEPORT target|attacker|random|all room_id - send players away"},
+		"$MTELEPORT":  {mobTeleport, true, "$MTELEPORT target|attacker|second|random|all room_id - send players away"},
 	}
 }
 
@@ -206,9 +221,16 @@ func ValidMobScript(script string) (string, bool) {
 		return script, false
 	}
 	for _, step := range steps {
-		verb := strings.ToUpper(strings.Fields(step)[0])
+		fields := strings.Fields(step)
+		verb := strings.ToUpper(fields[0])
 		if _, ok := MobVerbs[verb]; !ok {
 			return verb, false
+		}
+		if verb == "$ONFAIL" && len(fields) > 1 {
+			body := strings.ToUpper(fields[1])
+			if v, ok := MobVerbs[body]; !ok || v.run == nil {
+				return body, false
+			}
 		}
 	}
 	return "", true
@@ -252,19 +274,47 @@ func (m *Mob) runScriptFrom(trigger string, attacker *Character, start int, vict
 	defer func() { st.running = false }()
 
 	r := &mobRun{m: m, room: room, trigger: trigger, attacker: attacker, victim: victim}
-	for i, step := range splitSteps(val.Command) {
-		if i < start {
+	steps := splitSteps(val.Command)
+	skipping := false // a step in this block failed; wait for the next $NEXT
+	failed := false   // the step just before failed, so $ONFAIL steps run
+	for i := start; i < len(steps); i++ {
+		fields := strings.Fields(r.fillNames(steps[i]))
+		name := strings.ToUpper(fields[0])
+		onFail := name == "$ONFAIL"
+		switch {
+		case name == "$NEXT":
+			// A resumed wind-up finishes its own block and no more.
+			if start > 0 || r.usedTurn {
+				return r.usedTurn
+			}
+			skipping, failed = false, false
+			continue
+		case onFail:
+			if !failed || len(fields) < 2 {
+				continue
+			}
+			fields = fields[1:]
+			name = strings.ToUpper(fields[0])
+		case skipping:
+			failed = false
 			continue
 		}
-		fields := strings.Fields(r.fillNames(step))
-		verb, ok := MobVerbs[strings.ToUpper(fields[0])]
-		if !ok {
+		verb, ok := MobVerbs[name]
+		if !ok || verb.run == nil {
 			continue
 		}
 		r.step = i
 		verb.run(r, fields[1:])
-		if r.stopped {
+		if name == "$WINDUP" {
+			// The rest waits for the next tick; see runTickScripts.
 			break
+		}
+		if r.stopped {
+			r.stopped = false
+			if !onFail {
+				skipping, failed = true, true
+			}
+			continue
 		}
 		r.usedTurn = r.usedTurn || verb.usesTurn
 	}
@@ -522,6 +572,18 @@ func (r *mobRun) targets(word string) []*Character {
 			return nil
 		}
 		return []*Character{visible[rand.Intn(len(visible))]}
+	case "SECOND":
+		var second *Character
+		for _, c := range visible {
+			if c.Name != r.m.CurrentTarget && r.m.ThreatTable[c.Name] > 0 &&
+				(second == nil || r.m.ThreatTable[c.Name] > r.m.ThreatTable[second.Name]) {
+				second = c
+			}
+		}
+		if second == nil {
+			return nil
+		}
+		return []*Character{second}
 	case "ATTACKER":
 		if r.attacker != nil {
 			if c := pick(r.attacker.Name); c != nil {
@@ -596,17 +658,22 @@ func (r *mobRun) hurt(targets []*Character, args []string) {
 		kind = strings.ToLower(args[1])
 	}
 	for _, t := range targets {
-		amount, ok := rollAmount(args[0])
-		if !ok {
+		amount, vital, ok := amountFor(args[0], t)
+		// Only armor stands between a blow and vitality; no element does.
+		if !ok || (vital && kind != "physical" && kind != "true") {
 			r.stopped = true
 			return
 		}
 		t.RunHook("attacked")
 		var stam, vit int
-		switch kind {
-		case "true":
+		switch {
+		case vital && kind == "true":
+			vit = t.ReceiveVitalDamageNoArmor(amount)
+		case vital:
+			vit, _ = t.ReceiveVitalDamage(amount)
+		case kind == "true":
 			stam, vit = t.ReceiveDamageNoArmor(amount)
-		case "fire", "air", "earth", "water":
+		case kind == "fire" || kind == "air" || kind == "earth" || kind == "water":
 			stam, vit, _ = t.ReceiveMagicDamage(amount, kind, 0)
 		default:
 			stam, vit, _ = t.ReceiveDamage(amount)
@@ -743,6 +810,23 @@ func intArg(args []string, i int) (int, bool) {
 	}
 	v, err := strconv.Atoi(args[i])
 	return v, err == nil
+}
+
+// amountFor reads a damage amount for one target: anything rollAmount
+// reads, 30% for 30% of their max stamina, or 30%v for 30% of their max
+// vitality, which is dealt straight to vitality (vital).
+func amountFor(s string, t *Character) (amount int, vital, ok bool) {
+	s = strings.ToLower(s)
+	if pct, found := strings.CutSuffix(s, "%v"); found {
+		n, err := strconv.Atoi(pct)
+		return t.Vit.Max * n / 100, true, err == nil && n > 0
+	}
+	if pct, found := strings.CutSuffix(s, "%"); found {
+		n, err := strconv.Atoi(pct)
+		return t.Stam.Max * n / 100, false, err == nil && n > 0
+	}
+	amount, ok = rollAmount(s)
+	return amount, false, ok
 }
 
 // rollAmount reads 120, 4d10 or 4d10+50.

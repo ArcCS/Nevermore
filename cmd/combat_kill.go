@@ -405,6 +405,7 @@ func shatterWeapon(s *state) {
 // DeathCheck Universal death check for mobs on whatever the current state is
 func DeathCheck(s *state, m *objects.Mob) {
 	if m.Stam.Current <= 0 {
+		m.RunDeathScript(s.actor)
 		s.msg.Actor.SendGood("You killed " + m.Name)
 		s.msg.Observers.SendGood(s.actor.Name + " killed " + m.Name)
 		bloodlust(s, m.Name)

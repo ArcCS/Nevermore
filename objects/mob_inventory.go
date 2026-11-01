@@ -9,6 +9,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type MobInventory struct {
@@ -96,6 +97,7 @@ func (i *MobInventory) RemoveNonPerms() {
 		} else {
 			mob.MobTickerUnload <- true
 			close(mob.MobCommands)
+			mob.StoppedAt = time.Now()
 		}
 	}
 	// Check if we should continue to empty, this is only relevant if mobs have been thinking, and we have to back out of this loop entirely
@@ -120,6 +122,7 @@ func (i *MobInventory) RemoveNonPerms() {
 func (i *MobInventory) RestartPerms() {
 	for _, mob := range i.Contents {
 		if mob.Flags["permanent"] && !mob.IsActive {
+			mob.Rest()
 			mob.StartTicking()
 		}
 	}

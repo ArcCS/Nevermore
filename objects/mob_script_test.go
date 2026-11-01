@@ -66,6 +66,9 @@ func TestValidMobScript(t *testing.T) {
 		{"$msay Fools! ; $enrage 30 50", "", true},
 		{"$MSAY hi ; $GIVEGOLD 5", "$GIVEGOLD", false},
 		{" ; ", " ; ", false},
+		{"$CHANCE 20 ; $ONFAIL $MSAY Bah ; $NEXT ; $STUN second 24", "", true},
+		{"$CHANCE 20 ; $ONFAIL $GIVEGOLD 5", "$GIVEGOLD", false},
+		{"$CHANCE 20 ; $ONFAIL $NEXT", "$NEXT", false},
 	}
 	for _, c := range cases {
 		if bad, ok := ValidMobScript(c.script); ok != c.ok || bad != c.bad {
@@ -143,6 +146,99 @@ func TestMobScriptControlSteps(t *testing.T) {
 	}
 	if !m.Flags["no_stun"] {
 		t.Error("$FLAG didn't set the flag")
+	}
+}
+
+// 30% hits for 30% of each target's max stamina and spills into vitality;
+// 30%v goes straight to vitality and won't take an element.
+func TestMobScriptPercentDamage(t *testing.T) {
+	tank, mage := scriptFighter("Tank"), scriptFighter("Mage")
+	tank.Stam = Meter{Max: 1000, Current: 1000}
+	mage.Stam = Meter{Max: 200, Current: 50}
+	m, _ := scriptBoss(t, -96, map[string]string{
+		"@COMBAT": "$AOE 30% true",
+		"@HP50":   "$DAMAGE target 25%v true",
+		"@HP25":   "$DAMAGE target 25%v fire ; $ONFAIL $MSAY Bah",
+	}, tank, mage)
+
+	m.RunScript("COMBAT", nil)
+	if tank.Stam.Current != 700 || tank.Vit.Current != 100 {
+		t.Errorf("tank %d/%d, want 300 off stamina only", tank.Stam.Current, tank.Vit.Current)
+	}
+	if mage.Stam.Current != 0 || mage.Vit.Current != 90 {
+		t.Errorf("mage %d/%d, want 60 taking the last 50 stamina and 10 vitality", mage.Stam.Current, mage.Vit.Current)
+	}
+	m.RunScript("HP50", nil)
+	if tank.Stam.Current != 700 || tank.Vit.Current != 75 {
+		t.Errorf("vitality hit left tank %d/%d, want 700/75", tank.Stam.Current, tank.Vit.Current)
+	}
+	if m.RunScript("HP25", nil) || tank.Vit.Current != 75 {
+		t.Errorf("fire vitality hit landed: tank vitality %d", tank.Vit.Current)
+	}
+}
+
+// A failed step skips to the next $NEXT block, a block that only talks lets
+// the next one try, and the first block to act ends the script.
+func TestMobScriptNext(t *testing.T) {
+	tank := scriptFighter("Tank")
+	m, _ := scriptBoss(t, -97, map[string]string{
+		"@COMBAT": "$CHANCE 0 ; $DAMAGE target 50 true ; $NEXT ; $MSAY Hah ; $NEXT ; " +
+			"$COOLDOWN 60 ; $DAMAGE target 10 true ; $NEXT ; $DAMAGE target 1 true",
+	}, tank)
+
+	if !m.RunScript("COMBAT", nil) || tank.Stam.Current != 90 {
+		t.Fatalf("first run: stamina %d, want only the cooldown block's 10", tank.Stam.Current)
+	}
+	if !m.RunScript("COMBAT", nil) || tank.Stam.Current != 89 {
+		t.Errorf("second run: stamina %d, want the last block's 1 while the cooldown runs", tank.Stam.Current)
+	}
+}
+
+// $ONFAIL runs only after a failed step, every one in a row runs, and the
+// block ends after them.
+func TestMobScriptOnFail(t *testing.T) {
+	tank := scriptFighter("Tank")
+	m, _ := scriptBoss(t, -98, map[string]string{
+		"@COMBAT": "$CHANCE 0 ; $ONFAIL $DAMAGE target 5 true ; $ONFAIL $DAMAGE target 3 true ; $DAMAGE target 50 true",
+		"@IDLE":   "$CHANCE 100 ; $ONFAIL $DAMAGE target 5 true ; $DAMAGE target 2 true",
+		"@AGGRO":  "$CHANCE 0 ; $ONFAIL $MSAY Bah ; $NEXT ; $DAMAGE target 1 true",
+	}, tank)
+
+	if !m.RunScript("COMBAT", nil) || tank.Stam.Current != 92 {
+		t.Errorf("failed chance: stamina %d, want both $ONFAIL steps (92)", tank.Stam.Current)
+	}
+	if m.RunScript("IDLE", nil); tank.Stam.Current != 90 {
+		t.Errorf("passed chance: stamina %d, want the $ONFAIL skipped (90)", tank.Stam.Current)
+	}
+	if !m.RunScript("AGGRO", nil) || tank.Stam.Current != 89 {
+		t.Errorf("talking $ONFAIL: stamina %d, want the next block to act (89)", tank.Stam.Current)
+	}
+}
+
+// second is the most threat after the current target, and nobody when the
+// target is alone.
+func TestMobScriptSecondTarget(t *testing.T) {
+	tank, healer, rogue := scriptFighter("Tank"), scriptFighter("Healer"), scriptFighter("Rogue")
+	m, _ := scriptBoss(t, -99, map[string]string{
+		"@COMBAT": "$STUN second 24 ; $ONFAIL $DAMAGE target 7 true",
+	}, tank, healer, rogue)
+	m.ThreatTable = map[string]int{"Tank": 500, "Healer": 300, "Rogue": 100}
+
+	m.RunScript("COMBAT", nil)
+	if ready, _ := healer.TimerReady("stun"); ready {
+		t.Error("the healer, second on threat, wasn't stunned")
+	}
+	if ready, _ := rogue.TimerReady("stun"); !ready {
+		t.Error("the rogue was stunned")
+	}
+	if ready, _ := tank.TimerReady("stun"); !ready {
+		t.Error("the tank was stunned")
+	}
+
+	m.ThreatTable = map[string]int{"Tank": 500}
+	m.RunScript("COMBAT", nil)
+	if tank.Stam.Current != 93 {
+		t.Errorf("with no second, stamina %d, want the $ONFAIL hit (93)", tank.Stam.Current)
 	}
 }
 

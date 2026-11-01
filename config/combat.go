@@ -94,6 +94,9 @@ var (
 	ResumeGraceSeconds = 3
 
 	RoomClearTimer            = 3  // Seconds
+	// PermMobRegenPctPerMinute is how much of its max HP a permanent mob
+	// heals per minute its room sits empty.
+	PermMobRegenPctPerMinute = 10
 	RoomEffectInvocation      = 18 // Seconds
 	RoomDefaultEncounterSpeed = 10 // Seconds
 	RoomMaxJigger             = 4
