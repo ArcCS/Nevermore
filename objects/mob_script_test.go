@@ -526,13 +526,38 @@ func TestMobScriptWindup(t *testing.T) {
 func TestMobScriptFillNames(t *testing.T) {
 	m := &Mob{Object: Object{Name: "kraken"}, CurrentTarget: "Tank"}
 	r := &mobRun{m: m, attacker: scriptFighter("Rogue")}
-	got := r.fillNames("$MEMOTE %self% grapples %target% while %ATTACKER% watches")
+	got, _ := r.fillNames("$MEMOTE %self% grapples %target% while %ATTACKER% watches")
 	if got != "$MEMOTE kraken grapples Tank while Rogue watches" {
 		t.Errorf("fillNames = %q", got)
 	}
 	r.victim = "Mage"
-	if got := r.fillNames("%target%"); got != "Mage" {
+	if got, _ := r.fillNames("%target%"); got != "Mage" {
 		t.Errorf("a wind-up's victim wasn't used: %q", got)
+	}
+}
+
+// Threat-list placeholders name the same player the target word picks, and
+// a step naming nobody fails, so its block's action doesn't happen either.
+func TestMobScriptThreatNames(t *testing.T) {
+	tank, healer := scriptFighter("Tank"), scriptFighter("Healer")
+	m, room := scriptBoss(t, -89, map[string]string{
+		"@COMBAT": "$MEMOTE glares at %second%! ; $STUN second 24 ; $NEXT ; $DAMAGE target 5 true",
+	}, tank, healer)
+	m.ThreatTable = map[string]int{"Tank": 500, "Healer": 300}
+	r := &mobRun{m: m, room: room}
+	if got, ok := r.fillNames("$MSAY %Second% and %LAST% and %threat1%"); !ok || got != "$MSAY Healer and Healer and Tank" {
+		t.Errorf("fillNames = %q, %v", got, ok)
+	}
+	if _, ok := r.fillNames("$MSAY %threat3%"); ok {
+		t.Error("a third-on-threat placeholder with two players filled")
+	}
+
+	m.ThreatTable = map[string]int{"Tank": 500}
+	if !m.RunScript("COMBAT", nil) || tank.Stam.Current != 95 {
+		t.Errorf("with no second: stamina %d, want the emote to fail and the next block to hit (95)", tank.Stam.Current)
+	}
+	if ready, _ := healer.TimerReady("stun"); !ready {
+		t.Error("the healer was stunned with no threat")
 	}
 }
 

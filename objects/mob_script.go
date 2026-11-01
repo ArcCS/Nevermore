@@ -2,6 +2,7 @@ package objects
 
 import (
 	"math/rand"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -64,7 +65,9 @@ import (
 // cancelled, in place of a stock line - so the text can't begin with one of
 // those words.
 //
-// %target%, %attacker% and %self% in a step are replaced with those names.
+// %target%, %attacker% and %self% in a step are replaced with those names,
+// and so are %second%, %last% and %threat2%, %threat3%... (see Targets). A
+// step whose threat-list placeholder names nobody fails.
 //
 // An action step (cast, damage, stun, summon, heal, enrage, teleport) uses
 // the mob's turn: on a tick, a script that took an action replaces the
@@ -281,7 +284,8 @@ func (m *Mob) runScriptFrom(trigger string, attacker *Character, start int, vict
 	skipping := false // a step in this block failed; wait for the next $NEXT
 	failed := false   // the step just before failed, so $ONFAIL steps run
 	for i := start; i < len(steps); i++ {
-		fields := strings.Fields(r.fillNames(steps[i]))
+		filled, named := r.fillNames(steps[i])
+		fields := strings.Fields(filled)
 		name := strings.ToUpper(fields[0])
 		onFail := name == "$ONFAIL"
 		switch {
@@ -307,8 +311,9 @@ func (m *Mob) runScriptFrom(trigger string, attacker *Character, start int, vict
 			continue
 		}
 		r.step = i
-		verb.run(r, fields[1:])
-		if name == "$WINDUP" {
+		if !named {
+			r.stopped = true
+		} else if verb.run(r, fields[1:]); name == "$WINDUP" {
 			// The rest waits for the next tick; see runTickScripts.
 			break
 		}
@@ -433,11 +438,26 @@ func (m *Mob) cancelWindup(w *mobWindup) {
 	}
 }
 
-// fillNames replaces %target%, %attacker% and %self% in a step.
-func (r *mobRun) fillNames(step string) string {
+// threatName matches the threat-list placeholders: %second%, %last%,
+// %threat2% and so on.
+var threatName = regexp.MustCompile(`(?i)%(second|last|threat[0-9]+)%`)
+
+// fillNames replaces %target%, %attacker%, %self% and the threat-list
+// placeholders in a step. It reports false when a threat-list placeholder
+// names nobody, so the step fails rather than talking about no one.
+func (r *mobRun) fillNames(step string) (string, bool) {
 	if !strings.Contains(step, "%") {
-		return step
+		return step, true
 	}
+	found := true
+	step = threatName.ReplaceAllStringFunc(step, func(match string) string {
+		who := r.targets(strings.Trim(match, "%"))
+		if len(who) == 0 {
+			found = false
+			return match
+		}
+		return who[0].Name
+	})
 	target := r.m.CurrentTarget
 	if r.victim != "" {
 		target = r.victim
@@ -450,7 +470,7 @@ func (r *mobRun) fillNames(step string) string {
 		"%target%", target, "%TARGET%", target,
 		"%attacker%", attacker, "%ATTACKER%", attacker,
 		"%self%", r.m.Name, "%SELF%", r.m.Name,
-	).Replace(step)
+	).Replace(step), found
 }
 
 // --- control ---
