@@ -2,6 +2,7 @@ package objects
 
 import (
 	"math/rand"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -72,8 +73,10 @@ import (
 // from @HIT.
 //
 // Targets: target (current target), attacker (the striker on @HIT, else the
-// target), second (the most threat after the target - often the healer),
-// random, all. Only players the mob can see; staff are never hit.
+// target), threatN (Nth on its threat list: the target is threat1, then
+// everyone else with threat on it, most first), second (threat2 - often the
+// healer), last (least threat, never the target), random, all. Only players
+// the mob can see; staff are never hit.
 //
 // Damage types: physical (armor), fire/air/earth/water (that resistance),
 // true (no mitigation). Amounts are a number or dice: 120, 4d10, 4d10+50.
@@ -199,14 +202,14 @@ func init() {
 		"$MEMOTE":     {mobEmote, false, "$MEMOTE text - the room sees '<mob> text'"},
 		"$EXITTO":     {mobExitTo, false, "$EXITTO room_id exit to_room_id seconds - the exit leads elsewhere for a while (0 = put it back)"},
 		"$FLAG":       {mobFlag, false, "$FLAG name on|off - set one of the mob's flags"},
-		"$MCAST":      {mobCast, true, "$MCAST spell [target|attacker|second|random|all] - cast without mana"},
-		"$DAMAGE":     {mobDamage, true, "$DAMAGE target|attacker|second|random|all amount [type] - hurt players; amount 120, 4d10+50, 30% (of max stamina) or 30%v (of max vitality, straight to it)"},
+		"$MCAST":      {mobCast, true, "$MCAST spell [target|attacker|second|threatN|last|random|all] - cast without mana"},
+		"$DAMAGE":     {mobDamage, true, "$DAMAGE target|attacker|second|threatN|last|random|all amount [type] - hurt players; amount 120, 4d10+50, 30% (of max stamina) or 30%v (of max vitality, straight to it)"},
 		"$AOE":        {mobAoe, true, "$AOE amount [type] - hurt everyone the mob can see; amounts as $DAMAGE"},
-		"$STUN":       {mobStun, true, "$STUN target|attacker|second|random|all seconds - stun players"},
+		"$STUN":       {mobStun, true, "$STUN target|attacker|second|threatN|last|random|all seconds - stun players"},
 		"$HEAL":       {mobHeal, true, "$HEAL pct - heal pct% of max stamina"},
 		"$SUMMON":     {mobSummon, true, "$SUMMON mob_id [count] - call up to 5 adds (no loot)"},
 		"$ENRAGE":     {mobEnrage, true, "$ENRAGE seconds pct - deal pct% more damage for seconds"},
-		"$MTELEPORT":  {mobTeleport, true, "$MTELEPORT target|attacker|second|random|all room_id - send players away"},
+		"$MTELEPORT":  {mobTeleport, true, "$MTELEPORT target|attacker|second|threatN|last|random|all room_id - send players away"},
 	}
 }
 
@@ -564,7 +567,18 @@ func (r *mobRun) targets(word string) []*Character {
 		}
 		return nil
 	}
-	switch strings.ToUpper(word) {
+	word = strings.ToUpper(word)
+	if word == "SECOND" {
+		word = "THREAT2"
+	}
+	if n, err := strconv.Atoi(strings.TrimPrefix(word, "THREAT")); err == nil && strings.HasPrefix(word, "THREAT") {
+		ranked := r.threatOrder(visible)
+		if n < 1 || n > len(ranked) {
+			return nil
+		}
+		return ranked[n-1 : n]
+	}
+	switch word {
 	case "ALL":
 		return visible
 	case "RANDOM":
@@ -572,18 +586,12 @@ func (r *mobRun) targets(word string) []*Character {
 			return nil
 		}
 		return []*Character{visible[rand.Intn(len(visible))]}
-	case "SECOND":
-		var second *Character
-		for _, c := range visible {
-			if c.Name != r.m.CurrentTarget && r.m.ThreatTable[c.Name] > 0 &&
-				(second == nil || r.m.ThreatTable[c.Name] > r.m.ThreatTable[second.Name]) {
-				second = c
-			}
+	case "LAST":
+		// Never the target itself, so a lone tank isn't "last" too.
+		if ranked := r.threatOrder(visible); len(ranked) > 1 {
+			return ranked[len(ranked)-1:]
 		}
-		if second == nil {
-			return nil
-		}
-		return []*Character{second}
+		return nil
 	case "ATTACKER":
 		if r.attacker != nil {
 			if c := pick(r.attacker.Name); c != nil {
@@ -597,6 +605,28 @@ func (r *mobRun) targets(word string) []*Character {
 		}
 		return pick(r.m.CurrentTarget)
 	}
+}
+
+// threatOrder is the mob's threat list among visible: its current target
+// first, then everyone else with threat on it, most first.
+func (r *mobRun) threatOrder(visible []*Character) []*Character {
+	var target *Character
+	var rest []*Character
+	for _, c := range visible {
+		switch {
+		case c.Name == r.m.CurrentTarget:
+			target = c
+		case r.m.ThreatTable[c.Name] > 0:
+			rest = append(rest, c)
+		}
+	}
+	sort.SliceStable(rest, func(i, j int) bool {
+		return r.m.ThreatTable[rest[i].Name] > r.m.ThreatTable[rest[j].Name]
+	})
+	if target == nil {
+		return rest
+	}
+	return append([]*Character{target}, rest...)
 }
 
 func mobCast(r *mobRun, args []string) {

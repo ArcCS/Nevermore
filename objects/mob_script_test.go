@@ -149,6 +149,35 @@ func TestMobScriptControlSteps(t *testing.T) {
 	}
 }
 
+// threatN walks the threat list with the target first; last is the least
+// threat other than the target; players with no threat aren't on it.
+func TestMobScriptThreatTargets(t *testing.T) {
+	tank, healer, rogue, idler := scriptFighter("Tank"), scriptFighter("Healer"), scriptFighter("Rogue"), scriptFighter("Idler")
+	m, room := scriptBoss(t, -95, nil, tank, healer, rogue, idler)
+	// The target needn't top the table to be threat1.
+	m.ThreatTable = map[string]int{"Tank": 100, "Healer": 300, "Rogue": 200}
+	r := &mobRun{m: m, room: room}
+	name := func(word string) string {
+		got := r.targets(word)
+		if len(got) == 0 {
+			return ""
+		}
+		return got[0].Name
+	}
+	for word, want := range map[string]string{
+		"threat1": "Tank", "threat2": "Healer", "second": "Healer", "THREAT3": "Rogue",
+		"threat4": "", "threat0": "", "last": "Rogue",
+	} {
+		if got := name(word); got != want {
+			t.Errorf("%s = %q, want %q", word, got, want)
+		}
+	}
+	m.ThreatTable = map[string]int{"Tank": 100}
+	if got := name("last"); got != "" {
+		t.Errorf("last with only the target = %q, want nobody", got)
+	}
+}
+
 // 30% hits for 30% of each target's max stamina and spills into vitality;
 // 30%v goes straight to vitality and won't take an element.
 func TestMobScriptPercentDamage(t *testing.T) {
