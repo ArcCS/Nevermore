@@ -93,13 +93,16 @@ var (
 	// link-dead cannot kill them for real before they have seen the screen.
 	ResumeGraceSeconds = 3
 
-	RoomClearTimer            = 3  // Seconds
+	RoomClearTimer = 3 // Seconds
 	// PermMobRegenPctPerMinute is how much of its max HP a permanent mob
 	// heals per minute its room sits empty.
-	PermMobRegenPctPerMinute = 10
+	PermMobRegenPctPerMinute  = 10
 	RoomEffectInvocation      = 18 // Seconds
 	RoomDefaultEncounterSpeed = 10 // Seconds
 	RoomMaxJigger             = 4
+	// RoomEntryEncounterMaxDelay is the longest wait, in seconds, before the
+	// first encounter roll after someone wakes up an inactive room.
+	RoomEntryEncounterMaxDelay = 9
 	// Crowding: once a room holds more hostile mobs than characters, double
 	// spawns stop and the spawn chance falls linearly, reaching half at
 	// chars + RoomEncCrowdHalfAt mobs and staying there.

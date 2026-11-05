@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/prompt"
 	"github.com/jinzhu/copier"
@@ -475,8 +477,8 @@ func TestMobScriptWindup(t *testing.T) {
 	// Nobody stops it: the tank goes over, even though the mob has since
 	// turned to the rogue.
 	m, r, tank, rogue := setup()
-	if !m.runTickScripts() || m.scriptState().windup == nil {
-		t.Fatal("the warning tick didn't wind up, or didn't use the turn")
+	if m.runTickScripts() || m.scriptState().windup == nil {
+		t.Fatal("the warning tick didn't wind up, or took the mob's normal turn")
 	}
 	if tank.ParentId != deck {
 		t.Fatal("the tank was thrown on the warning tick")
@@ -520,6 +522,193 @@ func TestMobScriptWindup(t *testing.T) {
 	}
 	if ready, _ := tank.TimerReady("stun"); !ready {
 		t.Error("a victim who had left was still stunned")
+	}
+}
+
+// A phase script that winds up leaves the mob its normal turn, and @COMBAT
+// doesn't run on top of it that tick.
+func TestMobScriptWindupLeavesTurn(t *testing.T) {
+	tank, healer := scriptFighter("Tank"), scriptFighter("Healer")
+	m, _ := scriptBoss(t, -142, map[string]string{
+		"@HP50":   "$MEMOTE draws in a breath... ; $WINDUP ; $AOE 10 true",
+		"@COMBAT": "$STUN second 24",
+	}, tank, healer)
+	m.ThreatTable = map[string]int{"Tank": 500, "Healer": 300}
+	m.scriptState().lastTarget = tank.Name
+	m.Stam.Current = 400
+	if m.runTickScripts() || m.scriptState().windup == nil {
+		t.Fatal("the @HP50 wind-up didn't happen, or took the mob's normal turn")
+	}
+	if ready, _ := healer.TimerReady("stun"); !ready {
+		t.Error("@COMBAT ran on the tick the mob wound up")
+	}
+	if !m.runTickScripts() || tank.Stam.Current != 90 || healer.Stam.Current != 90 {
+		t.Errorf("follow-up: took turn / stamina %d, %d; want the AoE as the turn (90, 90)", tank.Stam.Current, healer.Stam.Current)
+	}
+}
+
+// Scripted damage is recorded under its trigger, with the $NEXT block when
+// the script has blocks - also when a wind-up finishes it on a later tick.
+func TestMobScriptDamageMetric(t *testing.T) {
+	tank, healer := scriptFighter("Tank"), scriptFighter("Healer")
+	m, _ := scriptBoss(t, -144, map[string]string{
+		"@HP50":   "$DAMAGE target 5 true",
+		"@COMBAT": "$CHANCE 0 ; $DAMAGE target 1 true ; $NEXT ; $WINDUP ; $AOE 10 true",
+	}, tank, healer)
+	m.MobId = 1713
+	last := func() []string {
+		var got []string
+		for _, c := range data.CombatMetricsCapture {
+			if c.AttackerId == 1713 {
+				got = append(got, c.Action)
+			}
+		}
+		data.CombatMetricsCapture = data.CombatMetricsCapture[:0]
+		return got
+	}
+	last()
+
+	m.RunScript("HP50", nil)
+	if got := last(); len(got) != 1 || got[0] != "@hp50" {
+		t.Errorf("unblocked script recorded %v, want [@hp50]", got)
+	}
+	m.scriptState().lastTarget = tank.Name
+	m.runTickScripts()
+	m.runTickScripts()
+	got := last()
+	if len(got) != 2 || got[0] != "@combat_2" || got[1] != "@combat_2" {
+		t.Errorf("second block's wind-up recorded %v, want [@combat_2 @combat_2]", got)
+	}
+	if tank.Stam.Current != 85 {
+		t.Errorf("tank stamina %d, want 85 (5 from @HP50, 10 from the AoE)", tank.Stam.Current)
+	}
+}
+
+// $ROOT holds its target without using the mob's turn, and a shorter root
+// doesn't cut a longer one short. A mob's own teleport still moves them.
+func TestMobScriptRoot(t *testing.T) {
+	const deck, sea = -145, -146
+	tank, healer := scriptFighter("Tank"), scriptFighter("Healer")
+	m, _ := scriptBoss(t, deck, map[string]string{
+		"@AGGRO":  "$ROOT target 30",
+		"@COMBAT": "$ROOT target 5 ; $WINDUP ; $MTELEPORT target -146",
+	}, tank, healer)
+	Rooms[sea] = &Room{RoomId: sea, Flags: map[string]bool{}, Mobs: &MobInventory{},
+		Chars: &CharInventory{ParentId: sea, Contents: []*Character{scriptFighter("Swimmer")}}}
+	t.Cleanup(func() { delete(Rooms, sea) })
+
+	if m.RunScript("AGGRO", nil) {
+		t.Error("$ROOT used the mob's turn")
+	}
+	if rooted, _ := tank.Rooted(); !rooted {
+		t.Fatal("the target wasn't rooted")
+	}
+	if rooted, _ := healer.Rooted(); rooted {
+		t.Error("someone other than the target was rooted")
+	}
+	for name, cast := range map[string]func() string{
+		"teleport":    func() string { return teleport(tank, tank, 0) },
+		"recall":      func() string { return recall(healer, tank, 0) },
+		"summon":      func() string { return summon(healer, tank, 0) },
+		"wizard walk": func() string { return wizardwalk(tank, healer, 0) },
+	} {
+		if got := cast(); strings.Contains(got, "$CRIPT") {
+			t.Errorf("%s moved a rooted player: %q", name, got)
+		}
+	}
+	long := tank.Timers["rooted"]
+	tank.Root(1)
+	if !tank.Timers["rooted"].Equal(long) {
+		t.Error("a shorter root cut a longer one short")
+	}
+
+	m.scriptState().lastTarget = tank.Name
+	if m.runTickScripts() || m.scriptState().windup == nil {
+		t.Fatal("root + wind-up didn't wind up, or took the mob's turn")
+	}
+	if !m.runTickScripts() || tank.ParentId != sea {
+		t.Errorf("the rooted target is in %d, want the mob's teleport to move them to %d", tank.ParentId, sea)
+	}
+
+	staff := scriptFighter("Staff")
+	staff.Permission = permissions.Dungeonmaster
+	staff.Root(30)
+	if rooted, _ := staff.Rooted(); rooted {
+		t.Error("staff can be rooted")
+	}
+}
+
+// Stuns are recorded both ways: who stunned a mob, whether that broke a
+// wind-up, and who a script stunned.
+func TestStunMetrics(t *testing.T) {
+	tank, healer := scriptFighter("Tank"), scriptFighter("Healer")
+	tank.CharId, healer.CharId = 501, 502
+	m, _ := scriptBoss(t, -147, map[string]string{
+		"@COMBAT": "$CHANCE 0 ; $DAMAGE target 1 true ; $NEXT ; $WINDUP ; $STUN target 8",
+		"@HP50":   "$STUN second 24",
+	}, tank, healer)
+	m.MobId = 1713
+	m.MobTicker = time.NewTicker(time.Hour)
+	m.ThreatTable = map[string]int{"Tank": 500, "Healer": 300}
+	type row struct {
+		action  string
+		seconds int
+		victim  int
+	}
+	rows := func() []row {
+		var got []row
+		for _, c := range data.CombatMetricsCapture {
+			got = append(got, row{c.Action, c.TotalDamage, c.VictimId})
+			if c.FinalDamage != 0 {
+				t.Errorf("%s recorded %d damage", c.Action, c.FinalDamage)
+			}
+		}
+		data.CombatMetricsCapture = data.CombatMetricsCapture[:0]
+		return got
+	}
+	rows()
+
+	m.StunBy(6, "circle-stun", tank)
+	if got := rows(); len(got) != 1 || got[0] != (row{"circle-stun", 6, 1713}) {
+		t.Errorf("plain stun recorded %v", got)
+	}
+
+	m.scriptState().lastTarget = tank.Name
+	m.runTickScripts()
+	m.StunBy(6, "circle-stun", tank)
+	if got := rows(); len(got) != 1 || got[0].action != "circle-stun_broke_windup" {
+		t.Errorf("stun that broke a wind-up recorded %v", got)
+	}
+
+	m.RunScript("HP50", nil)
+	if got := rows(); len(got) != 1 || got[0] != (row{"@hp50_stun", 24, 502}) {
+		t.Errorf("script stun recorded %v", got)
+	}
+
+	m.Flags["no_stun"] = true
+	m.StunBy(6, "circle-stun", tank)
+	if got := rows(); len(got) != 0 {
+		t.Errorf("a stun that can't land recorded %v", got)
+	}
+}
+
+// A phase whose wind-up finds no target stays unfired and tries again.
+func TestMobScriptWindupNoTargetRetries(t *testing.T) {
+	tank := scriptFighter("Tank")
+	m, _ := scriptBoss(t, -143, map[string]string{
+		"@HP50": "$WINDUP ; $AOE 10 true",
+	}, tank)
+	m.scriptState().lastTarget = tank.Name
+	m.Stam.Current = 400
+	tank.Flags["hidden"] = true
+	m.runTickScripts()
+	if m.scriptState().windup != nil || m.scriptState().hpFired[50] {
+		t.Fatal("a wind-up with no target happened, or used up the phase")
+	}
+	tank.Flags["hidden"] = false
+	m.runTickScripts()
+	if m.scriptState().windup == nil || !m.scriptState().hpFired[50] {
+		t.Error("the phase didn't wind up once a target was there")
 	}
 }
 
@@ -629,5 +818,129 @@ func TestMobScriptWindupConditions(t *testing.T) {
 	}
 	if thrown, _ := run("stun rescue", func(m *Mob, _ *Character) { m.Stun(10) }); thrown {
 		t.Error("with two conditions, the first didn't cancel")
+	}
+}
+
+// Paralytic breath stuns each player it catches who fails their own save, not
+// the mob's target on their behalf.
+func TestParalyticBreathStunsWhoItHits(t *testing.T) {
+	tank, bystander, elsewhere := scriptFighter("Tank"), scriptFighter("Bystander"), scriptFighter("Elsewhere")
+	m, _ := scriptBoss(t, -148, nil, tank, bystander, elsewhere)
+	m.BreathWeapon = "paralytic"
+	m.NumWander = 1000
+	tank.Placement, bystander.Placement, elsewhere.Placement = 3, 3, 5
+
+	// A tick that doesn't breathe closes the gap; put the mob back each time.
+	for i := 0; i < 500; i++ {
+		if ready, _ := tank.TimerReady("stun"); !ready {
+			break
+		}
+		m.Placement = 2
+		m.Tick()
+	}
+	if ready, _ := tank.TimerReady("stun"); ready {
+		t.Fatal("the mob never breathed")
+	}
+	if ready, _ := bystander.TimerReady("stun"); ready {
+		t.Error("a player beside the target wasn't stunned")
+	}
+	if ready, _ := elsewhere.TimerReady("stun"); !ready {
+		t.Error("a player on another square was stunned")
+	}
+}
+
+// breatheOnce ticks a breath mob until breathed reports true. A tick that
+// doesn't breathe closes the gap, so the mob goes back each time.
+func breatheOnce(t *testing.T, m *Mob, breathed func() bool) {
+	t.Helper()
+	for i := 0; i < 500 && !breathed(); i++ {
+		m.Placement = 2
+		m.Tick()
+	}
+	if !breathed() {
+		t.Fatal("the mob never breathed")
+	}
+}
+
+func TestPestilenceBreathInfectsWhoItHits(t *testing.T) {
+	tank, bystander, elsewhere := scriptFighter("Tank"), scriptFighter("Bystander"), scriptFighter("Elsewhere")
+	m, _ := scriptBoss(t, -149, nil, tank, bystander, elsewhere)
+	m.BreathWeapon = "pestilence"
+	m.Level = 10
+	m.NumWander = 1000
+	tank.Placement, bystander.Placement, elsewhere.Placement = 3, 3, 5
+	for _, c := range []*Character{tank, bystander, elsewhere} {
+		c.Effects = map[string]*Effect{}
+	}
+
+	breatheOnce(t, m, func() bool { return tank.Effects["disease"] != nil })
+	if bystander.Effects["disease"] == nil {
+		t.Error("a player beside the target wasn't infected")
+	}
+	if elsewhere.Effects["disease"] != nil {
+		t.Error("a player on another square was infected")
+	}
+}
+
+func TestBreathReflectionBelongsToEachPlayer(t *testing.T) {
+	reflectWith := func(roomId int, reflectors ...string) int {
+		tank, mage, third := scriptFighter("Tank"), scriptFighter("Mage"), scriptFighter("Third")
+		m, _ := scriptBoss(t, roomId, nil, tank, mage, third)
+		m.BreathWeapon = "fire"
+		m.Level = 10
+		m.NumWander = 1000
+		for _, c := range []*Character{tank, mage, third} {
+			c.Placement = 3
+			c.Stam = Meter{Max: 100000, Current: 100000}
+			for _, name := range reflectors {
+				if c.Name == name {
+					c.Flags["reflection"] = true
+					c.Int.Current = 50
+				}
+			}
+		}
+		// Int resists magic, so watch the one player who never has any.
+		breatheOnce(t, m, func() bool { return third.Stam.Current < third.Stam.Max })
+		return m.Stam.Max - m.Stam.Current
+	}
+
+	full := config.BreatheDamage(10)
+	if got := reflectWith(-150, "Tank"); got != full {
+		t.Errorf("target with reflection in a group of 3 reflected %d, want one reflection of %d", got, full)
+	}
+	if got := reflectWith(-151, "Mage"); got != full {
+		t.Errorf("bystander with reflection reflected %d, want %d", got, full)
+	}
+	if got := reflectWith(-152, "Tank", "Mage"); got != 2*full {
+		t.Errorf("two reflectors reflected %d, want %d", got, 2*full)
+	}
+	if got := reflectWith(-153); got != 0 {
+		t.Errorf("nobody has reflection but the mob lost %d", got)
+	}
+}
+
+func TestBreathReflectionPaysTheKillOnce(t *testing.T) {
+	tank, mage, third := scriptFighter("Tank"), scriptFighter("Mage"), scriptFighter("Third")
+	m, _ := scriptBoss(t, -154, nil, tank, mage, third)
+	m.BreathWeapon = "fire"
+	m.Level = 10
+	m.ExpMultiplier = 1
+	m.NumWander = 1000
+	m.Inventory = NewItemInventory()
+	m.Stam = Meter{Max: 1, Current: 1}
+	m.ThreatTable["Tank"], m.ThreatTable["Mage"] = 1, 1
+	third.Placement = 3
+	third.Stam = Meter{Max: 100000, Current: 100000}
+	for _, c := range []*Character{tank, mage} {
+		c.Placement = 3
+		c.Stam = Meter{Max: 100000, Current: 100000}
+		c.Flags["reflection"] = true
+		c.Int.Current = 50
+	}
+
+	breatheOnce(t, m, func() bool { return third.Stam.Current < third.Stam.Max })
+	want := m.Experience() / 10
+	if want == 0 || tank.Experience.Value != want {
+		t.Errorf("the tank earned %d exp, want one kill's %d", tank.Experience.Value, want)
 	}
 }

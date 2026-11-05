@@ -101,7 +101,7 @@ func (bash) process(s *state) {
 		s.actor.Victim = whatMob
 		// The special roll uses the skill of the weapon in hand, blunt or two-handed.
 		damageModifier, stunModifier, bashMsg := config.RollBash(attackSkillLevel(s), s.actor.Tier)
-		whatMob.Stun(config.BashStuns * stunModifier)
+		whatMob.StunBy(config.BashStuns*stunModifier, "bash-stun", s.actor)
 		actualDamage, _, resisted := whatMob.ReceiveDamage(config.BashDamage(s.actor.InflictDamage(), damageModifier, s.actor.Tier))
 		data.StoreCombatMetric("bash", 0, 0, actualDamage+resisted, resisted, actualDamage, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 		whatMob.AddThreatDamage(actualDamage+config.ThreatPercent(whatMob.Stam.Max, config.SmallThreatPercent), s.actor)

@@ -79,7 +79,7 @@ func InitialRoom(r int) {
 	objects.Rooms[r].LockRoom(strconv.Itoa(r)+":RoomInit", false)
 	if len(objects.Rooms[r].Chars.Contents) >= 0 {
 		if objects.Rooms[r].Flags["encounters_on"] && !objects.Rooms[r].EncountersReplaced() {
-			objects.Rooms[r].Encounter()
+			objects.Rooms[r].DelayFirstEncounter(utils.Roll(config.RoomEntryEncounterMaxDelay+1, 1, -1))
 		}
 	}
 	if objects.Rooms[r].Flags["fire"] ||

@@ -331,7 +331,7 @@ func (cast) process(s *state) {
 		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell.")
 	} else {
 		s.msg.Actor.SendGood("You cast a " + spellInstance.Name + " spell on yourself")
-		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + config.TextDescPronoun[s.actor.Gender] + "self.")
+		s.msg.Observers.SendGood(s.actor.Name + " cast a " + spellInstance.Name + " spell on " + config.DescPronoun(s.actor.Gender) + "self.")
 	}
 	if strings.Contains(msg, "$CRIPT") {
 		go Script(s.actor, strings.Replace(msg, "$CRIPT ", "", 1))

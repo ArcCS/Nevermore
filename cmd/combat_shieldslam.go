@@ -103,9 +103,9 @@ func (slam) process(s *state) {
 		if failChance > 0 && utils.Roll(100, 1, 0) <= failChance {
 			s.msg.Actor.SendBad(whatMob.Name + " shrugs off the blow, unstunned!")
 		} else {
-			whatMob.Stun(config.ShieldSlamStuns)
+			whatMob.StunBy(config.ShieldSlamStuns, "shieldslam-stun", s.actor)
 		}
-		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.TextPosPronoun[s.actor.Gender] + " shield into " + whatMob.Name)
+		s.msg.Observers.SendInfo(s.actor.Name + " slams " + config.PosPronoun(s.actor.Gender) + " shield into " + whatMob.Name)
 		if whatMob.CheckFlag("reflection") {
 			reflectDamage := int(float64(actualDamage) * config.ReflectDamageFromMob)
 			stamDamage, vitDamage, resisted := s.actor.ReceiveDamage(reflectDamage)

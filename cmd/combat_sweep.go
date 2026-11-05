@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
-	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/permissions"
 )
 
@@ -76,8 +75,7 @@ func (sweep) process(s *state) {
 	}
 
 	// A landed sweep always stuns, like circle and bash.
-	whatMob.Stun(config.SweepStuns)
-	data.StoreCombatMetric("sweep-stun", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
+	whatMob.StunBy(config.SweepStuns, "sweep-stun", s.actor)
 	// A light taunt: the mob turns on the monk without out-holding the real tanks.
 	whatMob.AddThreatDamage(config.ThreatPercent(whatMob.Stam.Max, config.SmallThreatPercent), s.actor)
 	whatMob.CurrentTarget = s.actor.Name

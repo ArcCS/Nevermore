@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ArcCS/Nevermore/config"
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/objects"
 	"github.com/ArcCS/Nevermore/permissions"
 	"github.com/ArcCS/Nevermore/utils"
@@ -80,6 +81,7 @@ func (circle) process(s *state) {
 		// Check for a miss
 		if utils.Roll(100, 1, 0) <= CircleMissChance(s, whatMob.Level-s.actor.Tier, whatMob.EngagedCount(s.actor)) {
 			s.msg.Actor.SendBad("You missed!!")
+			data.StoreCombatMetric("circle-stun-miss", 0, 0, 0, 0, 0, 0, s.actor.CharId, s.actor.Tier, 1, whatMob.MobId)
 			s.actor.SetTimer("combat_circle", config.CircleTimer)
 			s.actor.SetTimer("combat", config.CombatCooldown)
 			whatMob.AddThreatDamage(1, s.actor)
@@ -88,7 +90,7 @@ func (circle) process(s *state) {
 			return
 		}
 
-		whatMob.Stun(config.CircleStunFor(s.actor.Class, attackSkillLevel(s)))
+		whatMob.StunBy(config.CircleStunFor(s.actor.Class, attackSkillLevel(s)), "circle-stun", s.actor)
 		whatMob.AddThreatDamage(config.ThreatPercent(whatMob.Stam.Max, config.LargeThreatPercent), s.actor)
 		whatMob.CurrentTarget = s.actor.Name
 		s.actor.SetTimer("combat_circle", config.CircleTimer)

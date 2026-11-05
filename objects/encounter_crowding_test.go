@@ -1,6 +1,9 @@
 package objects
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestEncounterCrowding(t *testing.T) {
 	cases := []struct {
@@ -24,6 +27,17 @@ func TestEncounterCrowding(t *testing.T) {
 		if gotDouble != c.wantDouble || gotPct != c.wantPct {
 			t.Errorf("EncounterCrowding(%d chars, %d mobs) = (%v, %d), want (%v, %d)",
 				c.chars, c.mobs, gotDouble, gotPct, c.wantDouble, c.wantPct)
+		}
+	}
+}
+
+func TestDelayFirstEncounterComesDueAfterDelay(t *testing.T) {
+	r := &Room{EncounterSpeed: 10, EncounterJigger: 4}
+	for _, delay := range []int{0, 5, 9} {
+		r.DelayFirstEncounter(delay)
+		due := r.LastEncounterTime.Add(time.Duration(r.EncounterSpeed+r.EncounterJigger) * time.Second)
+		if left := time.Until(due); left > time.Duration(delay)*time.Second || left < time.Duration(delay)*time.Second-time.Second {
+			t.Errorf("delay %d: next roll due in %v", delay, left)
 		}
 	}
 }

@@ -36,6 +36,11 @@ func (leap) process(s *state) {
 		return
 	}
 
+	if rooted, msg := s.actor.Rooted(); rooted {
+		s.msg.Actor.SendBad(msg)
+		return
+	}
+
 	if config.LeapTimer > 0 {
 		ready, msg := s.actor.TimerReady("combat_leap")
 		if !ready {

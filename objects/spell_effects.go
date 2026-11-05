@@ -880,11 +880,23 @@ func detectInvisible(caller interface{}, target interface{}, magnitude int) stri
 	return ""
 }
 
+// heldInPlace is the line a player's teleporting spell returns when the one
+// it would move is rooted, or "" when it can go ahead.
+func heldInPlace(c *Character) string {
+	if rooted, _ := c.Rooted(); rooted {
+		return c.Name + " is held fast and can't be moved."
+	}
+	return ""
+}
+
 func teleport(caller interface{}, target interface{}, magnitude int) string {
 	switch caller := caller.(type) {
 	case *Character:
 		switch target := target.(type) {
 		case *Character:
+			if msg := heldInPlace(target); msg != "" {
+				return msg
+			}
 			if !Rooms[caller.ParentId].Flags["no_teleport"] {
 				if caller == target {
 					return "$CRIPT $TELEPORT"
@@ -927,9 +939,10 @@ func stun(caller interface{}, target interface{}, magnitude int) string {
 		case *Mob:
 			chance := config.StunSpellSuccessChance(caller.Tier, target.Level, caller.GetStat("int"), target.Int.Current)
 			if utils.Roll(100, 1, 0) > chance {
+				data.StoreCombatMetric("spell-stun-miss", 0, 0, 0, 0, 0, 0, caller.CharId, caller.Tier, 1, target.MobId)
 				return "You failed to stun " + target.Name
 			} else {
-				target.Stun(duration)
+				target.StunBy(duration, "spell-stun", caller)
 				return "You stunned " + target.Name
 			}
 		}
@@ -955,6 +968,7 @@ func stun(caller interface{}, target interface{}, magnitude int) string {
 				stunFor := config.MobStunDuration(caller.Level, target.Tier)
 				target.SetTimer("global", stunFor)
 				target.SetTimer("stun", stunFor)
+				data.StoreCombatMetric("spell-stun", 0, 2, stunFor, 0, 0, 1, caller.MobId, caller.Level, 0, target.CharId)
 			}
 		case *Mob:
 			// Mobs stun mobs?
@@ -969,6 +983,9 @@ func recall(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		switch target := target.(type) {
 		case *Character:
+			if msg := heldInPlace(target); msg != "" {
+				return msg
+			}
 			return "$CRIPT $TELEPORTTO " + target.Name + " " + RecallRoom
 		case *Mob:
 			return "Cannot be cast on a mob."
@@ -988,6 +1005,9 @@ func summon(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		switch target := target.(type) {
 		case *Character:
+			if msg := heldInPlace(target); msg != "" {
+				return msg
+			}
 			return "$CRIPT $TELEPORTTO " + target.Name + " " + strconv.Itoa(caller.ParentId)
 		case *Mob:
 			return "Cannot be cast on a mob."
@@ -1007,6 +1027,9 @@ func wizardwalk(caller interface{}, target interface{}, magnitude int) string {
 	case *Character:
 		switch target := target.(type) {
 		case *Character:
+			if msg := heldInPlace(caller); msg != "" {
+				return msg
+			}
 			return "$CRIPT $TELEPORTTO " + caller.Name + " " + strconv.Itoa(target.ParentId)
 		case *Mob:
 			return "Cannot be cast on a mob."

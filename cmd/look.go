@@ -123,7 +123,7 @@ func (look) process(s *state) {
 		if len(s.words) > 1 {
 			findItem := whatChar.Equipment.Search(s.words[1], 1)
 			if findItem != nil {
-				s.msg.Actor.SendInfo(findItem.Look())
+				s.msg.Actor.SendInfo(findItem.Look(s.actor))
 				return
 			}
 		}
@@ -159,8 +159,8 @@ func (look) process(s *state) {
 			Feet       string
 			Head       string
 		}{
-			utils.Title(config.TextSubPronoun[whatChar.Gender]),
-			config.TextPosPronoun[whatChar.Gender],
+			utils.Title(config.SubPronoun(whatChar.Gender)),
+			config.PosPronoun(whatChar.Gender),
 			"is",
 			"has",
 			whatChar.Equipment.GetText("chest"),
@@ -184,6 +184,9 @@ func (look) process(s *state) {
 			log.Println(err)
 		} else {
 			s.msg.Actor.SendGood(output.String())
+		}
+		if whatChar != s.actor {
+			s.msg.Actor.SendInfo(utils.Title(config.SubPronoun(whatChar.Gender)) + " is standing" + utils.WhereAt(whatChar.Placement, s.actor.Placement))
 		}
 
 		s.ok = true
@@ -233,7 +236,7 @@ func (look) process(s *state) {
 
 	// Item in the room?
 	if what != nil {
-		s.msg.Actor.SendInfo(what.Look())
+		s.msg.Actor.SendInfo(what.Look(s.actor))
 		s.msg.Actor.SendInfo("It is" + utils.WhereAt(what.Placement, s.actor.Placement))
 		return
 	}
@@ -243,7 +246,7 @@ func (look) process(s *state) {
 	// It was on you the whole time
 	if what != nil {
 		s.msg.Actor.SendInfo("You examine " + what.Name)
-		s.msg.Actor.SendInfo(what.Look())
+		s.msg.Actor.SendInfo(what.Look(s.actor))
 		return
 	}
 
@@ -252,7 +255,7 @@ func (look) process(s *state) {
 	// Check your equipment
 	if what != nil {
 		s.msg.Actor.SendInfo("You examine your equipped " + what.Name)
-		s.msg.Actor.SendInfo(what.Look())
+		s.msg.Actor.SendInfo(what.Look(s.actor))
 		return
 	} else {
 		s.msg.Actor.SendBad("You see no '", name, "' to examine.")

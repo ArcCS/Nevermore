@@ -446,7 +446,6 @@ func (m *Mob) Tick() {
 
 				Rooms[m.ParentId].MessageAll("The " + m.Name + " breathes " + m.BreathWeapon + " at " + target.Name + "\n")
 				damageTotal := config.BreatheDamage(m.Level)
-				reflectDamage := 0
 				for _, t := range targets {
 					if utils.StringIn(m.BreathWeapon, []string{"fire", "air", "earth", "water"}) {
 						t.RunHook("attacked")
@@ -455,13 +454,14 @@ func (m *Mob) Tick() {
 						if _, err := t.Write([]byte(text.Bad + m.Name + "'s breath  struck you for " + strconv.Itoa(stamDam) + " stamina and " + strconv.Itoa(vitDam) + " vitality. You resisted " + strconv.Itoa(resisted) + "damage." + text.Reset + "\n")); err != nil {
 							log.Println("Error writing to player:", err)
 						}
-						if target.CheckFlag("reflection") {
-							reflectDamage = int(float64(damageTotal) * (float64(target.GetStat("int")) * config.ReflectDamagePerInt))
+						// Once one reflection kills the mob, a second DeathCheck would pay out the kill again.
+						if t.CheckFlag("reflection") && m.Stam.Current > 0 {
+							reflectDamage := int(float64(damageTotal) * (float64(t.GetStat("int")) * config.ReflectDamagePerInt))
 							m.ReceiveDamage(reflectDamage)
-							if _, err := target.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset)); err != nil {
+							if _, err := t.Write([]byte(text.Cyan + "You reflect " + strconv.Itoa(reflectDamage) + " damage back to " + m.Name + "!\n" + text.Reset)); err != nil {
 								log.Println("Error writing to player:", err)
 							}
-							m.DeathCheck(target)
+							m.DeathCheck(t)
 						}
 						t.DeathCheck("was slain by a " + m.Name + ".")
 					} else if m.BreathWeapon == "paralytic" {
@@ -472,13 +472,14 @@ func (m *Mob) Tick() {
 							continue
 						}
 						// Paralysis is a stun: it blocks healing and support casts too.
-						target.SetTimer("global", 16)
-						target.SetTimer("stun", 16)
+						t.SetTimer("global", 16)
+						t.SetTimer("stun", 16)
+						data.StoreCombatMetric("breath-stun", 0, 1, 16, 0, 0, 1, m.MobId, m.Level, 0, t.CharId)
 					} else if m.BreathWeapon == "pestilence" {
 						if _, err := t.Write([]byte(text.Gray + m.Name + " breathes infectious gas on to you.\n")); err != nil {
 							log.Println("Error writing to player:", err)
 						}
-						Effects["disease"](m, target, m.Level)
+						Effects["disease"](m, t, m.Level)
 					}
 				}
 				return
@@ -630,11 +631,11 @@ func (m *Mob) Tick() {
 				if m.DeathCheck(target) {
 					return
 				}
-				m.Stun(config.ParryStuns)
+				m.StunBy(config.ParryStuns, "parry-stun", target)
 				return
 			} else {
 				target.writeCombat(text.Green + "You parry the attack from " + m.Name + "\n" + text.Reset)
-				m.Stun(config.ParryStuns)
+				m.StunBy(config.ParryStuns, "parry-stun", target)
 				return
 			}
 		}
@@ -1050,6 +1051,21 @@ func (m *Mob) Stun(amt int) {
 	m.MobStunned = amt
 	m.StunnedUntil = until
 	m.scheduleTick(time.Until(until))
+}
+
+// StunBy is Stun with a combat metric saying who did it. The seconds go in
+// total_damage and final_damage stays 0, so damage totals aren't touched. If
+// the stun broke a wind-up, the action gets _broke_windup on the end.
+func (m *Mob) StunBy(amt int, action string, by *Character) {
+	if m.Flags["no_stun"] || amt <= 0 {
+		return
+	}
+	pending := m.pendingWindup()
+	m.Stun(amt)
+	if pending != nil && m.pendingWindup() == nil {
+		action += "_broke_windup"
+	}
+	data.StoreCombatMetric(action, 0, 0, amt, 0, 0, 0, by.CharId, by.Tier, 1, m.MobId)
 }
 
 // Stunned reports whether the mob is currently held by a stun. A stunned mob

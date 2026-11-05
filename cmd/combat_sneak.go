@@ -22,6 +22,11 @@ func (sneak) process(s *state) {
 		return
 	}
 
+	if rooted, msg := s.actor.Rooted(); rooted {
+		s.msg.Actor.SendBad(msg)
+		return
+	}
+
 	ready, msg := s.actor.TimerReady("combat")
 	if !ready {
 		s.msg.Actor.SendBad(msg)
@@ -130,12 +135,12 @@ func (sneak) process(s *state) {
 				}
 
 				if toE.Flags["day_only"] && !objects.DayTime {
-					s.msg.Actor.SendBad("You can only go there at night.")
+					s.msg.Actor.SendBad("You can only go there during the day.")
 					return
 				}
 
 				if toE.Flags["night_only"] && objects.DayTime {
-					s.msg.Actor.SendBad("You can only go there during the day.")
+					s.msg.Actor.SendBad("You can only go there at night.")
 					return
 				}
 

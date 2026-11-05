@@ -483,6 +483,29 @@ func (c *Character) SetStanceTimer() {
 	c.Timers["stance"] = time.Now().Add(time.Duration(config.StanceCooldown) * time.Second)
 }
 
+// Root stops the character moving under their own power for the given
+// seconds: no squares, no exits, no teleporting away. Haste doesn't shorten
+// it, and a shorter root never cuts a longer one short.
+func (c *Character) Root(seconds int) {
+	if c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
+		return
+	}
+	until := time.Now().Add(time.Duration(seconds) * time.Second)
+	if until.After(c.Timers["rooted"]) {
+		c.Timers["rooted"] = until
+	}
+}
+
+// Rooted reports whether the character is held in place, and the line to
+// show them if they try to move.
+func (c *Character) Rooted() (bool, string) {
+	remaining := time.Until(c.Timers["rooted"])
+	if remaining <= 0 {
+		return false, ""
+	}
+	return true, "You are held fast and can't move for " + strconv.Itoa(int(math.Ceil(remaining.Seconds()))) + " more seconds."
+}
+
 // StanceReady reports whether the stance cooldown has expired. A stance can
 // be changed at any time, so nothing else is checked: not the global or
 // combat timers, and not a stun.

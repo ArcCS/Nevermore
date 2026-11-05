@@ -39,6 +39,9 @@ const (
 	DarkGreen   = "\x1b[38;5;106m"
 	BrightRed   = "\x1b[38;5;160m"
 	DarkYellow  = "\x1b[38;5;142m"
+	LightBlue   = "\u001b[38;5;117m"
+	LightPurple = "\u001b[38;5;141m"
+	LightOrange = "\u001b[38;5;215m"
 
 	Brown   = Yellow
 	BGBrown = BGYellow

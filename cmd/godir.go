@@ -297,6 +297,11 @@ func writeTo(char *objects.Character, msg string) {
 func canMove(m mover, from *objects.Room, to *objects.Room, toE *objects.Exit) (allowed bool, evasive int, chasers []*objects.Mob) {
 	char := m.char
 
+	if rooted, msg := char.Rooted(); rooted {
+		m.bad(msg)
+		return false, 0, nil
+	}
+
 	// Check some timers
 	if ready, msg := char.TimerReady("evade"); !ready {
 		m.bad(msg)
@@ -334,12 +339,12 @@ func canMove(m mover, from *objects.Room, to *objects.Room, toE *objects.Exit) (
 	}
 
 	if toE.Flags["day_only"] && !objects.DayTime {
-		m.bad("You can only go there at night.")
+		m.bad("You can only go there during the day.")
 		return false, 0, nil
 	}
 
 	if toE.Flags["night_only"] && objects.DayTime {
-		m.bad("You can only go there during the day.")
+		m.bad("You can only go there at night.")
 		return false, 0, nil
 	}
 

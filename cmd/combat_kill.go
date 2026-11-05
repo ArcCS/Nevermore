@@ -376,7 +376,7 @@ func resolveHits(s *state, whatMob *objects.Mob, attacks []float64, skillLevel i
 		s.msg.Actor.SendInfo("You hit the " + whatMob.Name + " " + strconv.Itoa(result.hits) + " times for " + strconv.Itoa(result.totalDamage) + " damage!" + text.Reset)
 	}
 	if crushing {
-		whatMob.Stun(config.CrushingStuns)
+		whatMob.StunBy(config.CrushingStuns, "crushing-stun", s.actor)
 		s.msg.Observers.SendInfo(s.actor.Name + " lands a crushing blow on " + whatMob.Name + "!")
 	}
 	if totalReflect > 0 {

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ArcCS/Nevermore/data"
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"github.com/jinzhu/copier"
@@ -46,10 +47,12 @@ import (
 //
 // $WINDUP [conditions] [text] splits a script over two ticks, for a move
 // players can see coming and stop. The steps before it run now (the warning)
-// and the mob spends its turn winding up; the steps after it run on the
-// mob's next tick, against whoever was its target when it wound up, even if
-// it has turned to someone else since. If the victim has left the room by
-// then, nothing happens. A mob winds up one thing at a time.
+// and winding up is free: unless a warning step was an action, the mob still
+// breathes, casts or attacks as usual, but no other script starts that tick.
+// The steps after it run on the mob's next tick and are its turn, against
+// whoever was its target when it wound up, even if it has turned to someone
+// else since. If the victim has left the room by then, nothing happens. A
+// mob winds up one thing at a time.
 //
 // The conditions say what cancels it; any one of them does. With none
 // given, a stun does:
@@ -71,9 +74,15 @@ import (
 //
 // An action step (cast, damage, stun, summon, heal, enrage, teleport) uses
 // the mob's turn: on a tick, a script that took an action replaces the
-// mob's normal move, breath, spell and attack. Talk, flags and stage steps
-// are free, and so is anything a @HIT script does. $MTELEPORT does nothing
-// from @HIT.
+// mob's normal move, breath, spell and attack. Talk, flags, stage steps and
+// $ROOT are free, and so is anything a @HIT script does. $MTELEPORT does
+// nothing from @HIT.
+//
+// $ROOT target seconds holds players in place: no squares, exits, leaps or
+// teleporting spells, for themselves or cast on them. Put it before a $WINDUP
+// so its victim can't walk out of the room to dodge the move. A mob's own
+// $MTELEPORT still moves them, and a stun that cancels the wind-up doesn't
+// lift it.
 //
 // Targets: target (current target), attacker (the striker on @HIT, else the
 // target), threatN (Nth on its threat list: the target is threat1, then
@@ -97,6 +106,7 @@ type mobScriptState struct {
 	lastTarget string
 	spawned    bool
 	windup     *mobWindup
+	noVictim   bool // the last $WINDUP failed for want of a target
 }
 
 // mobWindup is the rest of a script waiting for the mob's next tick.
@@ -178,8 +188,37 @@ type mobRun struct {
 	step     int
 	attacker *Character
 	victim   string // a resumed wind-up's target; overrides the current one
+	block    int    // which $NEXT block is running, from 1; 0 if there are none
 	usedTurn bool
 	stopped  bool
+}
+
+// metric names the script's damage in combat metrics: the trigger, plus the
+// block number when the script is split by $NEXT (@hp50, @combat_2).
+func (r *mobRun) metric() string {
+	name := "@" + strings.ToLower(r.trigger)
+	if r.block > 0 {
+		name += "_" + strconv.Itoa(r.block)
+	}
+	return name
+}
+
+// blockAt is the $NEXT block step i falls in, from 1, or 0 when the script
+// has no $NEXT at all.
+func blockAt(steps []string, i int) int {
+	block, split := 1, false
+	for n, step := range steps {
+		if strings.EqualFold(strings.Fields(step)[0], "$NEXT") {
+			split = true
+			if n < i {
+				block++
+			}
+		}
+	}
+	if !split {
+		return 0
+	}
+	return block
 }
 
 type mobVerb struct {
@@ -209,6 +248,7 @@ func init() {
 		"$DAMAGE":     {mobDamage, true, "$DAMAGE target|attacker|second|threatN|last|random|all amount [type] - hurt players; amount 120, 4d10+50, 30% (of max stamina) or 30%v (of max vitality, straight to it)"},
 		"$AOE":        {mobAoe, true, "$AOE amount [type] - hurt everyone the mob can see; amounts as $DAMAGE"},
 		"$STUN":       {mobStun, true, "$STUN target|attacker|second|threatN|last|random|all seconds - stun players"},
+		"$ROOT":       {mobRoot, false, "$ROOT target|attacker|second|threatN|last|random|all seconds - hold players in place: no squares, exits or teleporting away (free, doesn't use the turn)"},
 		"$HEAL":       {mobHeal, true, "$HEAL pct - heal pct% of max stamina"},
 		"$SUMMON":     {mobSummon, true, "$SUMMON mob_id [count] - call up to 5 adds (no loot)"},
 		"$ENRAGE":     {mobEnrage, true, "$ENRAGE seconds pct - deal pct% more damage for seconds"},
@@ -279,8 +319,8 @@ func (m *Mob) runScriptFrom(trigger string, attacker *Character, start int, vict
 	st.running = true
 	defer func() { st.running = false }()
 
-	r := &mobRun{m: m, room: room, trigger: trigger, attacker: attacker, victim: victim}
 	steps := splitSteps(val.Command)
+	r := &mobRun{m: m, room: room, trigger: trigger, attacker: attacker, victim: victim, block: blockAt(steps, start)}
 	skipping := false // a step in this block failed; wait for the next $NEXT
 	failed := false   // the step just before failed, so $ONFAIL steps run
 	for i := start; i < len(steps); i++ {
@@ -295,6 +335,7 @@ func (m *Mob) runScriptFrom(trigger string, attacker *Character, start int, vict
 				return r.usedTurn
 			}
 			skipping, failed = false, false
+			r.block++
 			continue
 		case onFail:
 			if !failed || len(fields) < 2 {
@@ -348,13 +389,25 @@ func (m *Mob) runTickScripts() bool {
 			return true
 		}
 	}
+	// No wind-up is pending past this point, so one that appears was started
+	// this tick: it leaves the mob its normal turn, but no other script runs.
 	used := false
 	if m.Stam.Max > 0 {
 		pct := m.Stam.Current * 100 / m.Stam.Max
 		for _, threshold := range []int{75, 50, 25, 10} {
 			if pct < threshold && !st.hpFired[threshold] {
 				st.hpFired[threshold] = true
+				st.noVictim = false
 				used = m.RunScript("HP"+strconv.Itoa(threshold), nil) || used
+				// A phase that couldn't wind up for want of a target tries
+				// again next tick.
+				if st.noVictim {
+					delete(st.hpFired, threshold)
+				}
+				if st.windup != nil {
+					st.lastTarget = m.CurrentTarget
+					return used
+				}
 			}
 		}
 	}
@@ -362,7 +415,7 @@ func (m *Mob) runTickScripts() bool {
 		used = m.RunScript("AGGRO", nil)
 	}
 	st.lastTarget = m.CurrentTarget
-	if used {
+	if used || st.windup != nil {
 		return true
 	}
 	if m.CurrentTarget != "" {
@@ -479,13 +532,13 @@ func mobWindUp(r *mobRun, args []string) {
 	st := r.m.scriptState()
 	targets := r.targets("target")
 	r.stopped = true
-	if st.windup != nil || len(targets) == 0 {
+	st.noVictim = len(targets) == 0
+	if st.windup != nil || st.noVictim {
 		return
 	}
 	w := parseWindup(args)
 	w.trigger, w.step, w.victim = r.trigger, r.step+1, targets[0].Name
 	st.windup = w
-	r.usedTurn = true
 }
 
 func (r *mobRun) key() string { return r.trigger + "#" + strconv.Itoa(r.step) }
@@ -715,19 +768,20 @@ func (r *mobRun) hurt(targets []*Character, args []string) {
 			return
 		}
 		t.RunHook("attacked")
-		var stam, vit int
+		var stam, vit, resisted int
 		switch {
 		case vital && kind == "true":
 			vit = t.ReceiveVitalDamageNoArmor(amount)
 		case vital:
-			vit, _ = t.ReceiveVitalDamage(amount)
+			vit, resisted = t.ReceiveVitalDamage(amount)
 		case kind == "true":
 			stam, vit = t.ReceiveDamageNoArmor(amount)
 		case kind == "fire" || kind == "air" || kind == "earth" || kind == "water":
-			stam, vit, _ = t.ReceiveMagicDamage(amount, kind, 0)
+			stam, vit, resisted = t.ReceiveMagicDamage(amount, kind, 0)
 		default:
-			stam, vit, _ = t.ReceiveDamage(amount)
+			stam, vit, resisted = t.ReceiveDamage(amount)
 		}
+		data.StoreCombatMetric(r.metric(), 0, 1, amount, resisted, stam+vit, 1, r.m.MobId, r.m.Level, 0, t.CharId)
 		writeChar(t, text.Bad+r.m.Name+" hits you for "+strconv.Itoa(stam)+" stamina and "+strconv.Itoa(vit)+" vitality damage."+text.Reset)
 		t.DeathCheck("was slain by a " + r.m.Name + ".")
 	}
@@ -748,7 +802,25 @@ func mobStun(r *mobRun, args []string) {
 		t.RunHook("attacked")
 		t.SetTimer("global", secs)
 		t.SetTimer("stun", secs)
+		data.StoreCombatMetric(r.metric()+"_stun", 0, 1, secs, 0, 0, 1, r.m.MobId, r.m.Level, 0, t.CharId)
 		writeChar(t, text.Bad+r.m.Name+" stuns you!"+text.Reset)
+	}
+}
+
+func mobRoot(r *mobRun, args []string) {
+	if len(args) < 2 {
+		r.stopped = true
+		return
+	}
+	secs, ok := intArg(args, 1)
+	targets := r.targets(args[0])
+	if !ok || secs <= 0 || len(targets) == 0 {
+		r.stopped = true
+		return
+	}
+	for _, t := range targets {
+		t.Root(secs)
+		writeChar(t, text.Bad+r.m.Name+" holds you fast!"+text.Reset)
 	}
 }
 

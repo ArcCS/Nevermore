@@ -24,6 +24,11 @@ func (move) process(s *state) {
 		return
 	}
 
+	if rooted, msg := s.actor.Rooted(); rooted {
+		s.msg.Actor.SendBad(msg)
+		return
+	}
+
 	// Check some timers
 	ready, msg := s.actor.TimerReady("combat")
 	if !ready {

@@ -1,6 +1,10 @@
 package objects
 
-import "github.com/ArcCS/Nevermore/utils"
+import (
+	"strings"
+
+	"github.com/ArcCS/Nevermore/utils"
+)
 
 type Spell struct {
 	Name        string
@@ -646,6 +650,24 @@ var Spells = map[string]Spell{
 // lets it be cast (or invoked from a device) while the global timer is running.
 func IsRestorativeSpell(name string) bool {
 	return utils.StringIn(name, HealingSpells) || utils.StringIn(name, SupportSpells)
+}
+
+// SpellEffectKind is the word a look uses for what a device or wand's spell
+// does, or "" if the spell doesn't exist.
+func SpellEffectKind(name string) string {
+	name = strings.ToLower(name)
+	switch {
+	case utils.StringIn(name, HealingSpells):
+		return "healing"
+	case utils.StringIn(name, OffensiveSpells):
+		return "damaging"
+	case utils.StringIn(name, SupportSpells):
+		return "supportive"
+	}
+	if _, ok := Spells[name]; ok {
+		return "utility"
+	}
+	return ""
 }
 
 var RemoteSpells = []string{

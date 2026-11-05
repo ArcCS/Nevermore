@@ -6,7 +6,7 @@ import (
 
 	"github.com/ArcCS/Nevermore/config"
 	"github.com/ArcCS/Nevermore/data"
-	//"github.com/ArcCS/Nevermore/text"
+	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 )
 
@@ -85,8 +85,10 @@ func (i *Item) GetWeight() int {
 	}
 }
 
-func (i *Item) Look() string {
-	resString := strings.ReplaceAll(i.Description, "\\n", "\n") + "\n\n"
+// Look describes the item to viewer, whose class decides the tier a weapon reads
+// as usable from.  A nil viewer reads the tier without any class adjustment.
+func (i *Item) Look(viewer *Character) string {
+	resString := i.appraisal(viewer) + strings.ReplaceAll(i.Description, "\\n", "\n") + "\n\n"
 	if utils.IntIn(i.ItemType, config.WeaponTypes) {
 		resString = "It is a " + config.ItemTypes[i.ItemType] + " weapon, and it" + i.ReturnState() + "\n" + resString
 	}
@@ -100,6 +102,59 @@ func (i *Item) Look() string {
 		}
 	}
 	return resString
+}
+
+// appraisal is the qualitative lines a look gives on a weapon, armor, device or
+// wand.  Ratings read the template, so enchanting or binding a copy doesn't
+// change them.
+func (i *Item) appraisal(viewer *Character) string {
+	base := i
+	if template, ok := Items[i.ItemId]; ok && template != nil {
+		base = template
+	}
+	switch {
+	case utils.IntIn(i.ItemType, []int{0, 1, 2, 3, 4}):
+		if base.NumDice <= 0 {
+			return ""
+		}
+		roll := config.WeaponRoll{Dice: base.NumDice, Sides: base.SidesDice, Plus: base.PlusDice}
+		twoHanded := base.Flags["two_handed"]
+		special := base.Flags["no_shatter"] || base.Flags["quest_loot"] || base.Flags["permanent"] ||
+			base.Flags["magic"] || base.Flags["light"]
+		class := -1
+		if viewer != nil {
+			class = viewer.Class
+		}
+		return qualityLine(config.WeaponQuality(roll, twoHanded, base.Flags["always_crit"], special)) +
+			tierLine(config.WeaponTierFor(roll.Max(), twoHanded, class))
+	case utils.IntIn(i.ItemType, config.ArmorTypes):
+		armor := i.BaseArmor()
+		return qualityLine(config.ArmorQuality(i.ItemType, armor)) + tierLine(config.ArmorTier(i.ItemType, armor))
+	case i.ItemType == 6 || i.ItemType == 8:
+		resString := "This is a " + config.ItemTypes[i.ItemType]
+		if kind := SpellEffectKind(i.Spell); kind != "" {
+			resString += " with " + kind + " effects"
+		}
+		resString += ".\n"
+		if charges := config.ChargeDescription(i.MaxUses, base.MaxUses); charges != "" && !i.Flags["infinite"] {
+			resString += charges + "\n"
+		}
+		return resString
+	}
+	return ""
+}
+
+// qualityLine colors only the rating, then picks back up the look's info color.
+func qualityLine(quality int) string {
+	return "This item appears to be " + config.QualityColors[quality] + config.QualityNames[quality] + text.Info + ".\n"
+}
+
+// tierLine is empty for a tier no character can reach.
+func tierLine(tier int) string {
+	if tier < 1 || tier > config.LevelCap {
+		return ""
+	}
+	return "It can be used from tier " + strconv.Itoa(tier) + ".\n"
 }
 
 // DisplayName Return a display name with numerics

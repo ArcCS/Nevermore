@@ -302,6 +302,13 @@ func (r *Room) FirstPerson() {
 	r.Mobs.RestartPerms()
 }
 
+// DelayFirstEncounter backdates the encounter timer so the room tick's next
+// roll comes due delay seconds from now, not a full encounter cycle away.
+func (r *Room) DelayFirstEncounter(delay int) {
+	r.EncounterJigger = 0
+	r.LastEncounterTime = time.Now().Add(time.Duration(delay-r.EncounterSpeed) * time.Second)
+}
+
 func (r *Room) Encounter() {
 	// Check if encounters are off, a GM can change this live.
 	if r.Flags["encounters_on"] {

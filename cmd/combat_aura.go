@@ -65,7 +65,7 @@ func (aura) process(s *state) {
 			return
 		}
 		s.actor.RemoveEffect("seal-" + current)
-		s.msg.Observers.SendInfo(s.actor.Name + " releases " + config.TextPosPronoun[s.actor.Gender] + " seal.")
+		s.msg.Observers.SendInfo(s.actor.Name + " releases " + config.PosPronoun(s.actor.Gender) + " seal.")
 		s.ok = true
 		return
 	}

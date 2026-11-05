@@ -61,7 +61,7 @@ func (show) process(s *state) {
 
 	s.msg.Actor.SendGood("You show ", target.Name, " to ", who.Name, ".")
 	s.msg.Participant.SendGood(s.actor.Name + " shows you " + target.Name)
-	s.msg.Participant.SendInfo(target.Look())
+	s.msg.Participant.SendInfo(target.Look(who))
 	if !s.actor.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 		s.msg.Observers.SendInfo("You see ", s.actor.Name, " show ", target.Name, " to ", who.Name, ".")
 	}

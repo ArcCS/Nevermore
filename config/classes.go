@@ -230,3 +230,26 @@ var TextGender = map[string]string{"m": "male", "f": "female"}
 var TextSubPronoun = map[string]string{"m": "he", "f": "she"}
 var TextPosPronoun = map[string]string{"m": "his", "f": "her"}
 var TextDescPronoun = map[string]string{"m": "him", "f": "her"}
+
+// SubPronoun, PosPronoun and DescPronoun fall back to the word mobs get for any
+// gender without pronouns of its own.
+func SubPronoun(gender string) string {
+	if pronoun, ok := TextSubPronoun[gender]; ok {
+		return pronoun
+	}
+	return "it"
+}
+
+func PosPronoun(gender string) string {
+	if pronoun, ok := TextPosPronoun[gender]; ok {
+		return pronoun
+	}
+	return "its"
+}
+
+func DescPronoun(gender string) string {
+	if pronoun, ok := TextDescPronoun[gender]; ok {
+		return pronoun
+	}
+	return "it"
+}
