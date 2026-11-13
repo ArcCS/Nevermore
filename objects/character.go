@@ -122,6 +122,12 @@ type Character struct {
 	// RescueUntil. Never persisted.
 	RescuedBy   string
 	RescueUntil time.Time
+	// CurrentSong is the song a bard is performing ("" when silent). Sing mix
+	// changes it mid-song, and the song ticker reads it on every pulse.
+	CurrentSong string
+	// SongLength is the full length in seconds of the song being performed,
+	// fixed when it starts so a mid-song tier gain can't skew the stop refund.
+	SongLength int
 }
 
 func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Character, bool) {
@@ -239,6 +245,8 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			nil,
 			"",
 			time.Time{},
+			"",
+			0,
 		}
 
 		// The pool formula may have changed since the character was last
@@ -541,6 +549,7 @@ func (c *Character) timerReady(timer string, checkGlobal bool) (bool, string) {
 // SingSong Bards get their own special ticker
 // TODO(?): Maybe eventually this is a generalized aura?
 func (c *Character) SingSong(song string, tickRate int) {
+	c.CurrentSong = song
 	c.FlagOn("singing", "sing")
 	c.SongTicker = time.NewTicker(time.Duration(tickRate) * time.Second)
 	go func() {
@@ -551,23 +560,40 @@ func (c *Character) SingSong(song string, tickRate int) {
 				c.FlagOffAndMsg("singing", "sing", "You stop singing.")
 				return
 			case <-c.SongTicker.C:
-				Rooms[c.ParentId].LockRoom(c.Name+":SongTick", false)
-				if SongEffects[song].target == "mobs" {
-					for _, mob := range Rooms[c.ParentId].Mobs.Contents {
-						if mob.CheckFlag("hostile") {
-							SongEffects[song].effect(mob, c)
-						}
-					}
-				}
-				if SongEffects[song].target == "players" {
-					for _, player := range Rooms[c.ParentId].Chars.Contents {
-						SongEffects[song].effect(player, c)
-					}
-				}
-				Rooms[c.ParentId].UnlockRoom(c.Name+":SongTick", false)
+				room := Rooms[c.ParentId]
+				room.LockRoom(c.Name+":SongTick", false)
+				c.songPulse()
+				room.UnlockRoom(c.Name+":SongTick", false)
 			}
 		}
 	}()
+}
+
+// MixSong switches the song being performed without ending it, so the time
+// left on it is unchanged, and lands the new song's first pulse at once. The
+// caller holds the room lock.
+func (c *Character) MixSong(song string) {
+	c.CurrentSong = song
+	if c.SongTicker != nil {
+		// Restart the period so the next pulse is a full tick after this one.
+		c.SongTicker.Reset(time.Duration(config.SongTickSeconds(c.Tier)) * time.Second)
+	}
+	c.songPulse()
+}
+
+// RefundTimer takes seconds off a running timer, never past now. A timer that
+// has expired or was never set (staff have none) is left alone.
+func (c *Character) RefundTimer(timer string, seconds float64) {
+	until, ok := c.Timers[timer]
+	now := time.Now()
+	if !ok || seconds <= 0 || !until.After(now) {
+		return
+	}
+	until = until.Add(-time.Duration(seconds * float64(time.Second)))
+	if until.Before(now) {
+		until = now
+	}
+	c.Timers[timer] = until
 }
 
 func (c *Character) Unload() {
@@ -879,7 +905,14 @@ func (c *Character) Save() {
 }
 
 func (c *Character) TickSaveWrapper() {
-	Rooms[c.ParentId].LockRoom(c.Name+":SaveWrap", false)
+	// Look the room up once. The lock can be a wait - a death script holding the
+	// room they died in, say - and by the time it is ours that script may have
+	// moved them on. Unlocking Rooms[c.ParentId] afterwards would then release
+	// the room they were moved to, which this never locked: either a fatal
+	// "unlock of unlocked mutex" here, or it silently frees whatever command is
+	// holding that room, and that command's own unlock is the one that crashes.
+	room := Rooms[c.ParentId]
+	room.LockRoom(c.Name+":SaveWrap", false)
 	if _, err := c.Write([]byte(text.Info + "Saving...." + text.Reset)); err != nil {
 		log.Println("Error writing to player: ", err)
 	}
@@ -887,7 +920,7 @@ func (c *Character) TickSaveWrapper() {
 	if _, err := c.Write([]byte(text.Info + "Saved!" + text.Reset)); err != nil {
 		log.Println("Error writing to player: ", err)
 	}
-	Rooms[c.ParentId].UnlockRoom(c.Name+":SaveWrap", false)
+	room.UnlockRoom(c.Name+":SaveWrap", false)
 }
 
 func (c *Character) SetPromptStyle(new PromptStyle) (old PromptStyle) {
@@ -1136,7 +1169,7 @@ func (c *Character) CanEquip(item *Item) (bool, string) {
 		if !utils.IntIn(item.ArmorClass, config.ArmorRestrictions[c.Class]) {
 			return false, "You cannot equip armor of this class."
 		}
-		if !config.CheckArmor(item.ItemType, c.Tier, item.BaseArmor()) {
+		if !config.IgnoresGearCaps(c.Tier) && !config.CheckArmor(item.ItemType, c.Tier, item.BaseArmor()) {
 			return false, "You are unsure of how to maximize the benefit of this armor and cannot wear it."
 		}
 
@@ -1146,7 +1179,7 @@ func (c *Character) CanEquip(item *Item) (bool, string) {
 		if item.IsTwoHanded() && !config.CanWieldTwoHanded(c.Class) {
 			return false, "Only fighters, barbarians and paladins can handle a two-handed weapon."
 		}
-		if !config.CanWield(c.Tier, c.Class, utils.RollMax(item.SidesDice, item.NumDice, item.PlusDice), item.Flags["two_handed"]) {
+		if !config.IgnoresGearCaps(c.Tier) && !config.CanWield(c.Tier, c.Class, utils.RollMax(item.SidesDice, item.NumDice, item.PlusDice), item.Flags["two_handed"]) {
 			return false, "You are not well enough trained to wield " + item.Name
 		}
 	}
@@ -1573,6 +1606,11 @@ func (c *Character) inflictDamage(extraStat int) (damage int) {
 		damage = utils.Roll(c.Equipment.Main.SidesDice,
 			c.Equipment.Main.NumDice,
 			c.Equipment.Main.PlusDice)
+		// Fighters lose their tier-ahead cap at LevelCap, so they get it back as
+		// damage on the roll itself.
+		if c.Class == config.FIGHTER && config.IgnoresGearCaps(c.Tier) {
+			damage += config.MaxTierFighterBonus
+		}
 
 		stat := c.GetStat("str")
 		if c.Equipment.Main.ItemType == 4 {

@@ -11,27 +11,28 @@ func TestWeaponQualityBands(t *testing.T) {
 		special    bool
 		want       int
 	}{
-		// Tier 10 one-handed: real cap 59, target 80, cuts at avg 46.02/47.79/48.97.
+		// Tier 10 one-handed: real cap 59, target 80, cuts at avg 46.02/47.79/51.33.
 		{"t10 under good", WeaponRoll{1, 19, 36}, false, false, false, QualityUnremarkable},
 		{"t10 good", WeaponRoll{1, 18, 37}, false, false, false, QualityGood},
 		{"t10 top of good", WeaponRoll{1, 17, 38}, false, false, false, QualityGood},
 		{"t10 excellent", WeaponRoll{1, 19, 38}, false, false, false, QualityExcellent},
-		{"t10 exceptional", WeaponRoll{1, 19, 39}, false, false, false, QualityExceptional},
+		{"t10 top of excellent", WeaponRoll{1, 15, 43}, false, false, false, QualityExcellent},
+		{"t10 exceptional", WeaponRoll{1, 15, 44}, false, false, false, QualityExceptional},
 		// The flag bonus moves a weapon up once it crosses a cut, and only then.
 		{"t10 flag lifts to good", WeaponRoll{1, 19, 36}, false, false, true, QualityGood},
-		{"t10 flag lifts to exceptional", WeaponRoll{1, 19, 38}, false, false, true, QualityExceptional},
-		// Tier 5 target 78: real cap 34, cuts at avg 25.84/26.86/27.54.
+		{"t10 flag lifts to exceptional", WeaponRoll{1, 15, 43}, false, false, true, QualityExceptional},
+		// Tier 5 target 78: real cap 34, cuts at avg 25.84/26.86/28.9.
 		{"t5 under good", WeaponRoll{1, 11, 19}, false, false, false, QualityUnremarkable},
-		{"t5 exceptional", WeaponRoll{1, 5, 25}, false, false, false, QualityExceptional},
-		// Tier 15 target 82: real cap 84, cuts at avg 67.2/69.72/71.4.
+		{"t5 exceptional", WeaponRoll{1, 9, 25}, false, false, false, QualityExceptional},
+		// Tier 15 target 82: real cap 84, cuts at avg 67.2/69.72/74.76.
 		{"t15 under good", WeaponRoll{1, 30, 50}, false, false, false, QualityUnremarkable},
 		{"t15 good", WeaponRoll{1, 30, 52}, false, false, false, QualityGood},
-		// Tier 20 target 84: real cap 109, cuts at avg 89.38/92.65/94.83.
+		// Tier 20 target 84: real cap 109, cuts at avg 89.38/92.65/99.19.
 		{"t20 under good", WeaponRoll{1, 40, 65}, false, false, false, QualityUnremarkable},
 		{"t20 excellent", WeaponRoll{1, 30, 78}, false, false, false, QualityExcellent},
-		// Tier 10 two-handed: real cap 69, cuts at avg 53.82/55.89/57.27.
+		// Tier 10 two-handed: real cap 69, cuts at avg 53.82/55.89/60.03.
 		{"2h t10 good", WeaponRoll{1, 22, 43}, true, false, false, QualityGood},
-		{"2h t10 exceptional", WeaponRoll{1, 20, 48}, true, false, false, QualityExceptional},
+		{"2h t10 exceptional", WeaponRoll{1, 17, 52}, true, false, false, QualityExceptional},
 		{"always crit", WeaponRoll{2, 4, 34}, false, true, false, QualityExceptional},
 		{"past every cap", WeaponRoll{100, 100, 100}, false, false, false, QualityExceptional},
 	}
@@ -134,12 +135,12 @@ func TestArmorTierMatchesCheckArmor(t *testing.T) {
 }
 
 func TestChargeDescription(t *testing.T) {
-	nearly := "This item appears to be nearly used up."
-	heavily := "This item appears to be heavily used."
-	lightly := "This item appears to be lightly used."
-	plump := "This item appears plump and full."
-	swelling := "This item is swelling unnaturally."
-	burst := "This item looks like it's starting to burst."
+	nearly := "This appears to be nearly used up."
+	heavily := "This appears to be heavily used."
+	lightly := "This appears to be lightly used."
+	plump := "This appears plump and full."
+	swelling := "This is swelling unnaturally."
+	burst := "This looks like it's starting to burst."
 	cases := []struct {
 		uses, base int
 		want       string
@@ -158,8 +159,49 @@ func TestChargeDescription(t *testing.T) {
 		{5, 0, ""},
 	}
 	for _, c := range cases {
-		if got := ChargeDescription(c.uses, c.base); got != c.want {
+		if got := ChargeDescription(c.uses, c.base, ChargeTypeDefault); got != c.want {
 			t.Errorf("%d of %d: got %q, want %q", c.uses, c.base, got, c.want)
+		}
+	}
+}
+
+func TestChargeWordSets(t *testing.T) {
+	cases := []struct {
+		chargeType, uses int
+		want             string
+	}{
+		{ChargeTypeLiquid, 10, "This container is nearly empty."},
+		{ChargeTypeLiquid, 100, "This container is full."},
+		{ChargeTypeFood, 60, "A few bites are missing."},
+		{ChargeTypeFood, 2000, "This looks like it's starting to burst."},
+		{ChargeTypePlural, 10, "These are almost gone."},
+		{ChargeTypePlural, 500, "There are an unusual number of these."},
+		{ChargeTypePlural, 2000, "These are overflowing."},
+		{99, 100, "This appears plump and full."},
+	}
+	for _, c := range cases {
+		if got := ChargeDescription(c.uses, 100, c.chargeType); got != c.want {
+			t.Errorf("type %d at %d: got %q, want %q", c.chargeType, c.uses, got, c.want)
+		}
+	}
+}
+
+func TestParseChargeType(t *testing.T) {
+	cases := []struct {
+		value string
+		want  int
+		ok    bool
+	}{
+		{"default", ChargeTypeDefault, true},
+		{"LIQUID", ChargeTypeLiquid, true},
+		{"food", ChargeTypeFood, true},
+		{"3", ChargeTypePlural, true},
+		{"potion", ChargeTypeDefault, false},
+		{"4", ChargeTypeDefault, false},
+	}
+	for _, c := range cases {
+		if got, ok := ParseChargeType(c.value); got != c.want || ok != c.ok {
+			t.Errorf("%q: got %d %v, want %d %v", c.value, got, ok, c.want, c.ok)
 		}
 	}
 }

@@ -294,10 +294,13 @@ func (m *Mob) StartTicking() {
 	*/
 	// Execute Immediately - Do not wrap locks, this is called from an existing lock
 	go func() {
-		Rooms[m.ParentId].LockRoom(m.Name+"MobInitTick", false)
+		room := m.lockCurrentRoom("MobInitTick")
+		if room == nil {
+			return
+		}
 		m.runSpawnScript()
 		m.PickTarget()
-		Rooms[m.ParentId].UnlockRoom(m.Name+"MobInitTick", false)
+		room.UnlockRoom(m.Name+" MobInitTick", false)
 	}()
 	go func() {
 		for {
@@ -307,11 +310,19 @@ func (m *Mob) StartTicking() {
 				m.IsActive = false
 				return
 			case <-m.MobTicker.C:
-				Rooms[m.ParentId].LockRoom(m.Name+" MobTick", false)
+				// lockCurrentRoom rather than Rooms[m.ParentId] twice: a mob that
+				// follows a player out while this waits for the lock arrives with
+				// a new ParentId, and unlocking by that would release a room this
+				// never locked - out from under whoever holds it, whose own unlock
+				// then dies with "unlock of unlocked mutex".
+				room := m.lockCurrentRoom("MobTick")
+				if room == nil {
+					continue
+				}
 				// The ticker keeps its current period unless Tick resets it.
 				m.NextTick = time.Now().Add(m.tickPeriod())
 				m.Tick()
-				Rooms[m.ParentId].UnlockRoom(m.Name+" MobTick", false)
+				room.UnlockRoom(m.Name+" MobTick", false)
 			}
 		}
 	}()
@@ -944,7 +955,9 @@ func (m *Mob) FollowChar(target *Character, from *Room, to *Room) bool {
 		return false
 	}
 
-	if !m.CheckFlag("follows") || m.CheckFlag("curious_canticle") || m.CheckFlag("run_away") {
+	// Run-run-away only keeps a mob from blocking the exit (see godir); it is
+	// curious-canticle that stops one following.
+	if !m.CheckFlag("follows") || m.CheckFlag("curious_canticle") {
 		return false
 	}
 

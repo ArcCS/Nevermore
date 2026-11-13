@@ -7,6 +7,7 @@ import (
 	"github.com/ArcCS/Nevermore/text"
 	"github.com/ArcCS/Nevermore/utils"
 	"log"
+	"math"
 	"text/template"
 )
 
@@ -31,6 +32,11 @@ func (information) process(s *state) {
 	if !singOk {
 		singing = false
 	}
+	songLeft := 0
+	if song, ok := s.actor.Effects["sing"]; ok {
+		songLeft = max(0, int(math.Ceil(song.TimeRemaining())))
+	}
+	singing = singing && s.actor.CurrentSong != ""
 	disprerolls := false
 	if s.actor.Rerolls > 0 {
 		disprerolls = true
@@ -61,7 +67,7 @@ func (information) process(s *state) {
 		"Str: {{.Str}}/{{.MaxStr}}, Dex: {{.Dex}}/{{.MaxDex}}, Con: {{.Con}}/{{.MaxCon}}, Int: {{.Int}}/{{.MaxInt}}, Piety: {{.Pie}}/{{.MaxPie}}.\n" +
 		"You have an armor resistance of {{.ArmorResistance}}.\n" +
 		"{{if .God}} You bear the mark of a devotee of {{.God}}.\n{{end}}" +
-		"{{if .Singing}}" + text.Cyan + "You are currently performing a song!\n{{end}}" + text.Good +
+		"{{if .Singing}}" + text.Cyan + "You are singing {{.SongName}} ({{.SongLeft}}s left).\n{{end}}" + text.Good +
 		"{{if .Berz}}" + text.Red + "The red rage grips you!\n" + text.Good +
 		"{{else}}You have {{.Stamina}}/{{.MaxStamina}} stamina, {{.Health}}/{{.MaxHealth}} health, and {{.Mana}}/{{.MaxMana}} {{if .Monk}}chi{{else}}mana{{end}} pts.{{end}}\n" +
 		"You require {{.NextLevel}} additional experience pts for your next tier.\n" +
@@ -130,6 +136,8 @@ func (information) process(s *state) {
 		Month           string
 		Berz            bool
 		Singing         bool
+		SongName        string
+		SongLeft        int
 		DispRerolls     bool
 		Rerolls         int
 		Meditating      bool
@@ -183,6 +191,8 @@ func (information) process(s *state) {
 		utils.Title(config.Months[s.actor.Birthmonth]["name"].(string)),
 		berz,
 		singing,
+		s.actor.CurrentSong,
+		songLeft,
 		disprerolls,
 		s.actor.Rerolls,
 		s.actor.CheckFlag("meditate"),

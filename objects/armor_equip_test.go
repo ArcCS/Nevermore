@@ -25,6 +25,36 @@ func TestEnchantedArmorMayExceedCap(t *testing.T) {
 	}
 }
 
+func TestLevelCapIgnoresGearCaps(t *testing.T) {
+	const id = 987655
+	Items[id] = &Item{Object: Object{Name: "plate"}, ItemId: id, ItemType: 5, Armor: 500, ArmorClass: 3, Flags: map[string]bool{}}
+	defer delete(Items, id)
+	plate := &Item{Object: Object{Name: "plate"}, ItemId: id, ItemType: 5, Armor: 500, ArmorClass: 3, Flags: map[string]bool{}}
+	sword := &Item{Object: Object{Name: "sword"}, ItemType: 0, SidesDice: 100, NumDice: 2, Flags: map[string]bool{}}
+
+	below := &Character{Class: config.FIGHTER, Tier: config.LevelCap - 1}
+	if ok, _ := below.CanEquip(plate); ok {
+		t.Error("over-cap armor should be refused below LevelCap")
+	}
+	if ok, _ := below.CanEquip(sword); ok {
+		t.Error("over-cap weapon should be refused below LevelCap")
+	}
+
+	capped := &Character{Class: config.FIGHTER, Tier: config.LevelCap}
+	if ok, msg := capped.CanEquip(plate); !ok {
+		t.Errorf("over-cap armor should be allowed at LevelCap: %s", msg)
+	}
+	if ok, msg := capped.CanEquip(sword); !ok {
+		t.Errorf("over-cap weapon should be allowed at LevelCap: %s", msg)
+	}
+
+	// Class rules still hold at LevelCap.
+	mage := &Character{Class: config.MAGE, Tier: config.LevelCap}
+	if ok, _ := mage.CanEquip(plate); ok {
+		t.Error("armor class restriction should still apply at LevelCap")
+	}
+}
+
 func TestVitalStrikeRespectsInertialBarrier(t *testing.T) {
 	c := &Character{Class: config.MAGE, Tier: 20, Flags: map[string]bool{"inertial-barrier": true}, Modifiers: map[string]int{}}
 	c.Int.Current = 30

@@ -32,6 +32,8 @@ type Item struct {
 
 	Storage *ItemInventory
 	Weight  int
+
+	ChargeType int // which charge messages a look reads with, see config.ChargeTypes
 }
 
 func LoadItem(itemData map[string]interface{}) (*Item, bool) {
@@ -39,6 +41,11 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 	var ok bool
 	if description, ok = itemData["description"].(string); !ok {
 		description = "This one was missing a description.. maybe fix that?"
+	}
+	// Items saved before charge types have none set and read as the default.
+	chargeType := config.ChargeTypeDefault
+	if value, ok := itemData["charge_type"].(int64); ok {
+		chargeType = int(value)
 	}
 	newItem := &Item{
 		Object{
@@ -66,6 +73,7 @@ func LoadItem(itemData map[string]interface{}) (*Item, bool) {
 		"",
 		&ItemInventory{},
 		int(itemData["weight"].(int64)),
+		chargeType,
 	}
 	for k, v := range itemData["flags"].(map[string]interface{}) {
 		if v == nil {
@@ -119,8 +127,7 @@ func (i *Item) appraisal(viewer *Character) string {
 		}
 		roll := config.WeaponRoll{Dice: base.NumDice, Sides: base.SidesDice, Plus: base.PlusDice}
 		twoHanded := base.Flags["two_handed"]
-		special := base.Flags["no_shatter"] || base.Flags["quest_loot"] || base.Flags["permanent"] ||
-			base.Flags["magic"] || base.Flags["light"]
+		special := base.Flags["no_shatter"] || base.Flags["permanent"] || base.Flags["magic"] || base.Flags["light"]
 		class := -1
 		if viewer != nil {
 			class = viewer.Class
@@ -136,7 +143,8 @@ func (i *Item) appraisal(viewer *Character) string {
 			resString += " with " + kind + " effects"
 		}
 		resString += ".\n"
-		if charges := config.ChargeDescription(i.MaxUses, base.MaxUses); charges != "" && !i.Flags["infinite"] {
+		// A device with no spell has nothing to meld or use up.
+		if charges := config.ChargeDescription(i.MaxUses, base.MaxUses, base.ChargeType); charges != "" && !i.Flags["infinite"] && i.Spell != "" {
 			resString += charges + "\n"
 		}
 		return resString
@@ -256,6 +264,7 @@ func (i *Item) Save() {
 	itemData["pdice"] = i.PlusDice
 	itemData["armor"] = i.Armor
 	itemData["armor_class"] = i.ArmorClass
+	itemData["charge_type"] = i.ChargeType
 	itemData["max_uses"] = i.MaxUses
 	itemData["name"] = i.Name
 	itemData["sdice"] = i.SidesDice

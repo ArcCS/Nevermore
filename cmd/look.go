@@ -140,8 +140,13 @@ func (look) process(s *state) {
 			" {{if .Hands}}\n{{.SubPronoun}} {{.HasHave}} {{.Hands}} on {{.PosPronoun}} hands.{{end}}" +
 			" {{if .Feet}}\n{{.SubPronoun}} {{.HasHave}} {{.Feet}} on {{.PosPronoun}} feet.{{end}}" +
 			" {{if .Head}}\n{{.SubPronoun}} {{.Isare}} wearing a {{.Head}}.{{end}}" +
+			" {{if .Tune}}\n{{.SubPronoun}} {{.Isare}} singing {{.Tune}}.{{end}}" +
 			text.Reset
 
+		tune := ""
+		if whatChar.CheckFlag("singing") {
+			tune = whatChar.SongDescriptor()
+		}
 		data := struct {
 			SubPronoun string
 			PosPronoun string
@@ -158,6 +163,7 @@ func (look) process(s *state) {
 			Hands      string
 			Feet       string
 			Head       string
+			Tune       string
 		}{
 			utils.Title(config.SubPronoun(whatChar.Gender)),
 			config.PosPronoun(whatChar.Gender),
@@ -174,6 +180,7 @@ func (look) process(s *state) {
 			whatChar.Equipment.GetText("hands"),
 			whatChar.Equipment.GetText("feet"),
 			whatChar.Equipment.GetText("head"),
+			tune,
 		}
 
 		tmpl, _ := template.New("char_info").Parse(equipTemplate)

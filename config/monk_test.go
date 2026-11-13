@@ -219,17 +219,26 @@ func TestMonkUnarmedRange(t *testing.T) {
 	if lo, hi := MonkUnarmedRange(9, 20); lo != 38 || hi != 62 {
 		t.Errorf("tier 9 str 20 range = %d..%d, want 38..62", lo, hi)
 	}
-	// Tier 10, str 20: base 30, str share 14, roll 3d10, less 6 -> 41..68.
-	if lo, hi := MonkUnarmedRange(10, 20); lo != 41 || hi != 68 {
-		t.Errorf("tier 10 str 20 range = %d..%d, want 41..68", lo, hi)
+	// Tier 10, str 20: base 30, str share 14, roll 3d10, cut still 4 -> 43..70.
+	if lo, hi := MonkUnarmedRange(10, 20); lo != 43 || hi != 70 {
+		t.Errorf("tier 10 str 20 range = %d..%d, want 43..70", lo, hi)
 	}
-	// Tier 21, str 20: base 57, str share 26, roll 3d19, less 6 -> 80..134.
-	if lo, hi := MonkUnarmedRange(21, 20); lo != 80 || hi != 134 {
-		t.Errorf("tier 21 str 20 range = %d..%d, want 80..134", lo, hi)
+	// Tier 14, str 20: base 40, str share 18, roll 3d13, cut tapered to 2 -> 59..95.
+	if lo, hi := MonkUnarmedRange(14, 20); lo != 59 || hi != 95 {
+		t.Errorf("tier 14 str 20 range = %d..%d, want 59..95", lo, hi)
 	}
-	// Tier 20, str 30: base 55, str share 37, roll 3d18, less 6 -> 89..140.
-	if lo, hi := MonkUnarmedRange(20, 30); lo != 89 || hi != 140 {
-		t.Errorf("tier 20 str 30 range = %d..%d, want 89..140", lo, hi)
+	// Tier 21, str 20: base 60, str share 27, roll 3d20, no cut -> 90..147.
+	if lo, hi := MonkUnarmedRange(21, 20); lo != 90 || hi != 147 {
+		t.Errorf("tier 21 str 20 range = %d..%d, want 90..147", lo, hi)
+	}
+	// Tier 20, str 30: base 55, str share 37, roll 3d18, no cut -> 95..146.
+	if lo, hi := MonkUnarmedRange(20, 30); lo != 95 || hi != 146 {
+		t.Errorf("tier 20 str 30 range = %d..%d, want 95..146", lo, hi)
+	}
+	for tier, want := range map[int]int{9: 4, 11: 4, 12: 3, 16: 1, 17: 1, 18: 0, 25: 0} {
+		if got := MonkDamageCut(tier); got != want {
+			t.Errorf("tier %d cut = %d, want %d", tier, got, want)
+		}
 	}
 	// The flat cut never drives a hit below the floor.
 	if lo, _ := MonkUnarmedRange(1, 0); lo < MonkDamageFloor {

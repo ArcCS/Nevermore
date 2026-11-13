@@ -1,6 +1,11 @@
 package config
 
-import "github.com/ArcCS/Nevermore/text"
+import (
+	"strconv"
+	"strings"
+
+	"github.com/ArcCS/Nevermore/text"
+)
 
 // Qualitative item ratings shown when a player looks at weapons and armor.
 const (
@@ -25,10 +30,11 @@ var QualityColors = map[int]string{
 }
 
 // Where a weapon's rating changes, in points of the real cap off the tier's
-// WeaponRollTargetPercent.
+// WeaponRollTargetPercent.  Exceptional starts one point under the special item
+// standard.
 const WeaponQualityGoodOffset = -2
 const WeaponQualityExcellentOffset = 1
-const WeaponQualityExceptionalOffset = 3
+const WeaponQualityExceptionalOffset = WeaponRollSpecialBonusPercent - 1
 
 // WeaponQualityFlagBonus is the points of the real cap a weapon with a special
 // flag rates above its dice.
@@ -121,24 +127,89 @@ func ArmorTier(aType int, val int) int {
 	return 0
 }
 
+// Which set of charge messages a device or wand reads with.
+const (
+	ChargeTypeDefault = iota
+	ChargeTypeLiquid
+	ChargeTypeFood
+	ChargeTypePlural
+)
+
+var ChargeTypes = map[int]string{
+	ChargeTypeDefault: "default",
+	ChargeTypeLiquid:  "liquid",
+	ChargeTypeFood:    "food",
+	ChargeTypePlural:  "plural",
+}
+
+// ParseChargeType reads a charge type's name or number.
+func ParseChargeType(value string) (int, bool) {
+	for chargeType, name := range ChargeTypes {
+		if strings.EqualFold(value, name) || value == strconv.Itoa(chargeType) {
+			return chargeType, true
+		}
+	}
+	return ChargeTypeDefault, false
+}
+
+// chargeWords runs from nearly used up to overflowing, see ChargeDescription.
+var chargeWords = map[int][6]string{
+	ChargeTypeDefault: {
+		"This appears to be nearly used up.",
+		"This appears to be heavily used.",
+		"This appears to be lightly used.",
+		"This appears plump and full.",
+		"This is swelling unnaturally.",
+		"This looks like it's starting to burst.",
+	},
+	ChargeTypeLiquid: {
+		"This container is nearly empty.",
+		"This container is less than half full.",
+		"This container is mostly full.",
+		"This container is full.",
+		"This container is swelling unnaturally.",
+		"This container looks like it's starting to burst.",
+	},
+	ChargeTypeFood: {
+		"There are only a few bites left.",
+		"Less than half of this is left.",
+		"A few bites are missing.",
+		"This looks fresh and whole.",
+		"This is swelling unnaturally.",
+		"This looks like it's starting to burst.",
+	},
+	ChargeTypePlural: {
+		"These are almost gone.",
+		"These appear to be heavily used.",
+		"These appear to be lightly used.",
+		"These appear to be full and unused.",
+		"There are an unusual number of these.",
+		"These are overflowing.",
+	},
+}
+
 // ChargeDescription tells how used a device or wand looks from its remaining
 // uses against its template's, or "" if the template has none.  Melding can
 // take an item well past its template.
-func ChargeDescription(uses int, base int) string {
+func ChargeDescription(uses int, base int, chargeType int) string {
 	if base <= 0 {
 		return ""
 	}
+	set, ok := chargeWords[chargeType]
+	if !ok {
+		set = chargeWords[ChargeTypeDefault]
+	}
 	switch percent := uses * 100 / base; {
 	case percent <= 15:
-		return "This item appears to be nearly used up."
+		return set[0]
 	case percent <= 50:
-		return "This item appears to be heavily used."
+		return set[1]
 	case percent <= 99:
-		return "This item appears to be lightly used."
+		return set[2]
 	case percent <= 150:
-		return "This item appears plump and full."
+		return set[3]
 	case percent <= 1000:
-		return "This item is swelling unnaturally."
+		return set[4]
 	}
-	return "This item looks like it's starting to burst."
+	return set[5]
 }

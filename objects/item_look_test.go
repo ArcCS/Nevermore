@@ -65,6 +65,10 @@ func TestLookIgnoresEnchanting(t *testing.T) {
 	if look := weapon.Look(nil); !strings.Contains(look, text.White+"unremarkable") {
 		t.Errorf("enchanted weapon changed rating: %q", look)
 	}
+	Items[lookTestItemId].Flags["quest_loot"] = true
+	if look := weapon.Look(nil); !strings.Contains(look, text.White+"unremarkable") {
+		t.Errorf("quest loot gave a bonus: %q", look)
+	}
 	Items[lookTestItemId].Flags["no_shatter"] = true
 	if look := weapon.Look(nil); !strings.Contains(look, text.LightBlue+"good quality") {
 		t.Errorf("template flag gave no bonus: %q", look)
@@ -105,7 +109,7 @@ func TestLookDeviceLines(t *testing.T) {
 	if !strings.Contains(look, "This is a device with healing effects.\n") {
 		t.Errorf("effect line missing: %q", look)
 	}
-	if !strings.Contains(look, "This item is swelling unnaturally.\n") {
+	if !strings.Contains(look, "This is swelling unnaturally.\n") {
 		t.Errorf("charge line missing: %q", look)
 	}
 
@@ -122,6 +126,28 @@ func TestLookDeviceLines(t *testing.T) {
 	unknown := lookTemplate(t, &Item{ItemType: 6, Spell: "remove-blind", MaxUses: 10})
 	if look = unknown.Look(nil); !strings.Contains(look, "This is a device.\n") {
 		t.Errorf("unknown spell line wrong: %q", look)
+	}
+
+	noSpell := lookTemplate(t, &Item{ItemType: 6, MaxUses: 5})
+	look = noSpell.Look(nil)
+	if !strings.Contains(look, "This is a device.\n") || strings.Contains(look, "plump") {
+		t.Errorf("no spell device: %q", look)
+	}
+
+	// The template's charge type picks the words, and the effect line doesn't change.
+	potion := lookTemplate(t, &Item{ItemType: 6, Spell: "Vigor", MaxUses: 20, ChargeType: config.ChargeTypeLiquid})
+	look = potion.Look(nil)
+	if !strings.Contains(look, "This is a device with healing effects.\n") || !strings.Contains(look, "This container is full.\n") {
+		t.Errorf("liquid device: %q", look)
+	}
+	berries := lookTemplate(t, &Item{ItemType: 6, Spell: "Vigor", MaxUses: 20, ChargeType: config.ChargeTypeFood})
+	berries.MaxUses = 12
+	if look = berries.Look(nil); !strings.Contains(look, "A few bites are missing.\n") {
+		t.Errorf("food device: %q", look)
+	}
+	eyes := lookTemplate(t, &Item{ItemType: 8, Spell: "fireball", MaxUses: 20, ChargeType: config.ChargeTypePlural})
+	if look = eyes.Look(nil); !strings.Contains(look, "These appear to be full and unused.\n") {
+		t.Errorf("plural wand: %q", look)
 	}
 }
 

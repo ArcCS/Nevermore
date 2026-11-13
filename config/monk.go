@@ -182,26 +182,29 @@ const (
 	// its range. The flat cut is a large share of a low-tier hit and a small
 	// share of a high-tier one, so the monk lands near three quarters of a
 	// geared melee hit from tier 5 up instead of drifting down with level
-	// (2026-09-27: was 2 dice with no cut). Below MonkFullCutTier the cut is
-	// lighter so tiers 6-9 stay playable before the kit is complete (2026-10-01:
+	// (2026-09-27: was 2 dice with no cut). From MonkFullCutTier the cut tapers
+	// off so high tiers keep up with weapon drops (2026-10-01:
 	// was 8 at every tier; 2026-10-13: 8/6 -> 6/4 after low-tier damage
 	// complaints; 2026-10-14: gate split from MonkFlurryTier when flurry moved
-	// to tier 5).
-	MonkDamageDivisor    = 2
-	MonkRollDivisor      = 3
-	MonkDamageDice       = 3
-	MonkDamageFlatCut    = 6
-	MonkDamageFlatCutLow = 4 // below MonkFullCutTier
-	MonkFullCutTier      = MajorAbilityTier
-	MonkDamageFloor      = 1
+	// to tier 5; 2026-10-26: was 6 from MonkFullCutTier, now tapers to 0 so
+	// monks keep pace with the raised tier 10+ weapon drops).
+	MonkDamageDivisor        = 2
+	MonkRollDivisor          = 3
+	MonkDamageDice           = 3
+	MonkDamageFlatCut        = 4
+	MonkFullCutTier          = MajorAbilityTier
+	MonkCutTaperTiersPerStep = 2 // from MonkFullCutTier the cut drops 1 every this many tiers
+	MonkDamageFloor          = 1
 )
 
-// MonkDamageCut is the flat cut taken off a monk's unarmed hit at a tier.
+// MonkDamageCut is the flat cut taken off a monk's unarmed hit at a tier: the
+// full cut below MonkFullCutTier, then 1 less every MonkCutTaperTiersPerStep
+// tiers until it is gone at tier 18.
 func MonkDamageCut(tier int) int {
 	if tier < MonkFullCutTier {
-		return MonkDamageFlatCutLow
+		return MonkDamageFlatCut
 	}
-	return MonkDamageFlatCut
+	return max(0, MonkDamageFlatCut-(tier-MonkFullCutTier)/MonkCutTaperTiersPerStep)
 }
 
 // MonkVitalReduction is how much a monk of the given tier shaves off an

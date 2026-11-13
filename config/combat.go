@@ -209,8 +209,7 @@ var (
 	// from the rest of the party. (2026-10-13: was top + 1.)
 	RescueThreatMarginPercent = 10
 
-	ScalePerPiety  = 1
-	DurationPerCon = 10
+	ScalePerPiety = 1
 
 	ParryStuns  = 16
 	CircleStuns = 6

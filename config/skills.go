@@ -23,12 +23,21 @@ var MaxWeaponDamage = map[int]int{
 	18: 100,
 	19: 105,
 	20: 110,
-	21: 115,
-	22: 120,
-	23: 125,
-	24: 130,
-	25: 135,
-	26: 140,
+	21: 120,
+	22: 130,
+	23: 140,
+	24: 150,
+	25: 160,
+	26: 170,
+}
+
+// MaxTierFighterBonus is the flat damage a fighter at LevelCap adds to every
+// weapon roll, standing in for reading one tier ahead once caps no longer apply.
+const MaxTierFighterBonus = 5
+
+// IgnoresGearCaps reports whether a tier is past the weapon and armor caps.
+func IgnoresGearCaps(tier int) bool {
+	return tier >= LevelCap
 }
 
 // CanWieldTwoHanded reports whether a class may wield two-handed weapons.

@@ -24,7 +24,11 @@ func (people) process(s *state) {
 	}
 
 	for _, char := range objects.Rooms[s.actor.ParentId].Chars.ListPeoChars(s.actor) {
-		s.msg.Actor.SendInfo(char.Name + char.ReturnState() + "," + utils.WhereAt(char.Placement, s.actor.Placement))
+		name := char.Name
+		if char.CheckFlag("singing") {
+			name += " (singing " + char.SongDescriptor() + ")"
+		}
+		s.msg.Actor.SendInfo(name + char.ReturnState() + "," + utils.WhereAt(char.Placement, s.actor.Placement))
 	}
 	s.ok = true
 

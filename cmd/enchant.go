@@ -97,7 +97,7 @@ func DetermineWeaponEnchant(tier int) int {
 	case tier < 25:
 		return 6
 	default:
-		return 2
+		return 7
 	}
 }
 
@@ -114,6 +114,6 @@ func DetermineArmorEnchant(tier int) int {
 	case tier < 25:
 		return 5
 	default:
-		return 1
+		return 6
 	}
 }

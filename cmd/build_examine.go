@@ -184,6 +184,7 @@ func (examine) process(s *state) {
 				{"V", "max_uses", strconv.Itoa(objRef.MaxUses), "Number of uses before breakage"},
 				{"V", "armor", strconv.Itoa(objRef.Armor), "Armor value from this item"},
 				{"V", "armor_class", config.ArmorClass[objRef.ArmorClass], "Armor class of this item"},
+				{"V", "charge_type", config.ChargeTypes[objRef.ChargeType], "Charge wording on look: default, liquid, food or plural"},
 				{"V", "ndice", strconv.Itoa(objRef.NumDice), "Number of Dice to Roll"},
 				{"V", "sdice", strconv.Itoa(objRef.SidesDice), "Sides of Dice Being Rolled"},
 				{"V", "pdice", strconv.Itoa(objRef.PlusDice), "Additional value to add to roll."},

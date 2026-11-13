@@ -162,7 +162,7 @@ func (i *CharInventory) List(observer *Character) []string {
 							!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
 						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 						if c.CheckFlag("singing") {
-							items = append(items, c.Name+" (singing)")
+							items = append(items, c.Name+" (singing "+c.SongDescriptor()+")")
 						} else {
 							items = append(items, c.Name)
 
@@ -192,7 +192,7 @@ func (i *CharInventory) ListPoses(observer *Character) (poseLines []string) {
 							!c.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster)) ||
 						observer.Permission.HasAnyFlags(permissions.Builder, permissions.Dungeonmaster, permissions.Gamemaster) {
 						if c.CheckFlag("singing") {
-							poseLines = append(poseLines, c.Name+" is "+c.Pose+" and singing.")
+							poseLines = append(poseLines, c.Name+" is "+c.Pose+" and singing "+c.SongDescriptor()+".")
 						} else {
 							poseLines = append(poseLines, c.Name+" is "+c.Pose)
 						}
