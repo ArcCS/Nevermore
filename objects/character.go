@@ -128,6 +128,10 @@ type Character struct {
 	// SongLength is the full length in seconds of the song being performed,
 	// fixed when it starts so a mid-song tier gain can't skew the stop refund.
 	SongLength int
+	// AnthemBonus is the flat damage this rendition of the bard's song gives
+	// as Champion's Anthem. It is rolled when the song starts or is mixed in,
+	// so everyone the song reaches gets the same bonus.
+	AnthemBonus int
 }
 
 func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Character, bool) {
@@ -246,6 +250,7 @@ func LoadCharacter(charName string, writer io.Writer, disconnect func()) (*Chara
 			"",
 			time.Time{},
 			"",
+			0,
 			0,
 		}
 
@@ -550,6 +555,7 @@ func (c *Character) timerReady(timer string, checkGlobal bool) (bool, string) {
 // TODO(?): Maybe eventually this is a generalized aura?
 func (c *Character) SingSong(song string, tickRate int) {
 	c.CurrentSong = song
+	c.rollAnthemBonus()
 	c.FlagOn("singing", "sing")
 	c.SongTicker = time.NewTicker(time.Duration(tickRate) * time.Second)
 	go func() {
@@ -574,6 +580,7 @@ func (c *Character) SingSong(song string, tickRate int) {
 // caller holds the room lock.
 func (c *Character) MixSong(song string) {
 	c.CurrentSong = song
+	c.rollAnthemBonus()
 	if c.SongTicker != nil {
 		// Restart the period so the next pulse is a full tick after this one.
 		c.SongTicker.Reset(time.Duration(config.SongTickSeconds(c.Tier)) * time.Second)

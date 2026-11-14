@@ -6,11 +6,11 @@ import (
 )
 
 func TestSongDuration(t *testing.T) {
-	if got := SongDuration(1); got != 182 {
-		t.Errorf("tier 1 song = %d, want 182", got)
+	if got := SongDuration(1); got != 183 {
+		t.Errorf("tier 1 song = %d, want 183", got)
 	}
-	if got := SongDuration(LevelCap); got != 230 {
-		t.Errorf("tier %d song = %d, want 230", LevelCap, got)
+	if got := SongDuration(LevelCap); got != 255 {
+		t.Errorf("tier %d song = %d, want 255", LevelCap, got)
 	}
 	// A song never outlasts the cooldown or the mix timer, so a bard can't
 	// sing forever or mix twice in one song.
@@ -78,18 +78,22 @@ func TestDraensTaleMana(t *testing.T) {
 }
 
 func TestCelebrationHeal(t *testing.T) {
-	cases := []struct{ roll, players, want int }{
-		{100, 1, 85},
-		{100, 2, 54}, // 85 / 2^(2/3) = 53.5
-		{100, 5, 29}, // 85 / 5^(2/3) = 29.1
-		{100, 6, 28}, // divisor capped at 3
-		{100, 10, 28},
-		{100, 0, 85}, // nobody counted reads as the bard alone
-		{2, 6, 1},    // small rolls round instead of truncating to 0
+	cases := []struct{ roll, pie, players, want int }{
+		{100, 20, 1, 85},
+		{100, 20, 2, 54}, // 85 / 2^(2/3) = 53.5
+		{100, 20, 5, 29}, // 85 / 5^(2/3) = 29.1
+		{100, 20, 6, 28}, // divisor capped at 3
+		{100, 20, 10, 28},
+		{100, 20, 0, 85}, // nobody counted reads as the bard alone
+		{60, 8, 1, 47},   // 39 + 8 at the piety floor
+		{60, 30, 1, 69},  // 39 + 30
+		{0, 18, 1, 18},   // no instrument still heals the bard's piety
+		{2, 0, 6, 0},     // 1.3 / 3 rounds down
+		{3, 1, 6, 1},     // 2.95 / 3 rounds up instead of truncating
 	}
 	for _, c := range cases {
-		if got := CelebrationHeal(c.roll, c.players); got != c.want {
-			t.Errorf("CelebrationHeal(%d, %d) = %d, want %d", c.roll, c.players, got, c.want)
+		if got := CelebrationHeal(c.roll, c.pie, c.players); got != c.want {
+			t.Errorf("CelebrationHeal(%d, %d, %d) = %d, want %d", c.roll, c.pie, c.players, got, c.want)
 		}
 	}
 }
@@ -109,5 +113,38 @@ func TestBardSingCastMod(t *testing.T) {
 	}
 	if got := BardSingCastMod(CLERIC, 1, true); got != 1 {
 		t.Errorf("non-bard = %v, want 1", got)
+	}
+}
+
+func TestBansheeDamage(t *testing.T) {
+	cases := []struct{ roll, pie, hostiles, want int }{
+		{60, 18, 1, 33}, // 24 + 9
+		{60, 8, 1, 28},  // 24 + 4 at the piety floor
+		{100, 30, 1, 55},
+		{100, 20, 2, 25}, // 50 split two ways
+		{100, 20, 3, 17}, // 16.7 rounds up
+		{100, 20, 0, 50}, // nobody counted reads as one mob
+		{0, 18, 1, 9},    // no instrument still deals half the bard's piety
+	}
+	for _, c := range cases {
+		if got := BansheeDamage(c.roll, c.pie, c.hostiles); got != c.want {
+			t.Errorf("BansheeDamage(%d, %d, %d) = %d, want %d", c.roll, c.pie, c.hostiles, got, c.want)
+		}
+	}
+}
+
+func TestChampionsAnthemBonus(t *testing.T) {
+	cases := []struct{ roll, pie, want int }{
+		{60, 18, 15}, // 6 + 9
+		{80, 18, 17},
+		{100, 20, 20},
+		{60, 8, 10},  // piety floor
+		{55, 18, 15}, // 5.5 + 9 = 14.5, rounds up
+		{0, 18, 9},
+	}
+	for _, c := range cases {
+		if got := ChampionsAnthemBonus(c.roll, c.pie); got != c.want {
+			t.Errorf("ChampionsAnthemBonus(%d, %d) = %d, want %d", c.roll, c.pie, got, c.want)
+		}
 	}
 }

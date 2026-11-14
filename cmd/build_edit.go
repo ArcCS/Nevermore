@@ -308,6 +308,10 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(wordArg)
 					character.Evals = value
 					s.msg.Actor.SendGood("Changed evals")
+				case "rerolls":
+					value, _ := strconv.Atoi(wordArg)
+					character.Rerolls = value
+					s.msg.Actor.SendGood("Changed rerolls")
 				case "concur":
 					value, _ := strconv.Atoi(wordArg)
 					character.Con.Current = value
@@ -452,6 +456,10 @@ func (edit) process(s *state) {
 					value, _ := strconv.Atoi(wordArg)
 					data.SaveCharField(charName, "evals", value)
 					s.msg.Actor.SendGood("Changed evals")
+				case "rerolls":
+					value, _ := strconv.Atoi(wordArg)
+					data.SaveCharField(charName, "rerolls", value)
+					s.msg.Actor.SendGood("Changed rerolls")
 				case "concur":
 					value, _ := strconv.Atoi(wordArg)
 					data.SaveCharField(charName, "concur", value)

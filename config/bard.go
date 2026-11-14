@@ -26,7 +26,7 @@ func BardSingCastMod(class int, tier int, singing bool) float64 {
 // SongTickSlow seconds until SongFastTickTier, then every SongTickFast.
 var (
 	SongBaseDuration    = 180
-	SongDurationPerTier = 2
+	SongDurationPerTier = 3
 	SongCooldown        = 300
 	SongTickSlow        = 8
 	SongTickFast        = 6
@@ -80,22 +80,57 @@ func DraensTaleMana(roll int, pie int) int {
 }
 
 // Celebration Night heals each player present for CelebrationHealScale of the
-// instrument roll, split over the number of players raised to
-// CelebrationDivisorExp, with the divisor capped at CelebrationDivisorCap.
-// Each share shrinks as the room fills but the whole heal grows (2026-11-08:
-// was the roll split evenly, so the total never grew).
+// instrument roll plus the bard's piety, split over the number of players
+// raised to CelebrationDivisorExp, with the divisor capped at
+// CelebrationDivisorCap. Each share shrinks as the room fills but the whole
+// heal grows (2026-11-08: was the roll split evenly, so the total never grew;
+// 2026-11-13: was 0.85 of the roll with no piety).
 var (
-	CelebrationHealScale  = .85
+	CelebrationHealScale  = .65
 	CelebrationDivisorExp = 2.0 / 3
 	CelebrationDivisorCap = 3.0
 )
 
 // CelebrationHeal is what one pulse of Celebration Night heals each player for,
-// given an instrument roll (adjustment included) and the characters present.
-func CelebrationHeal(roll int, players int) int {
+// given an instrument roll (adjustment included), the bard's piety and the
+// characters present.
+func CelebrationHeal(roll int, pie int, players int) int {
 	if players < 1 {
 		players = 1
 	}
 	divisor := math.Min(CelebrationDivisorCap, math.Pow(float64(players), CelebrationDivisorExp))
-	return max(0, int(math.Round(CelebrationHealScale*float64(roll)/divisor)))
+	return max(0, int(math.Round((CelebrationHealScale*float64(roll)+float64(pie))/divisor)))
+}
+
+// Banshee's Lament deals BansheeRollScale of the instrument roll plus the
+// bard's piety over BansheePieDivisor in damage on each pulse, split evenly
+// between the hostile mobs present (2026-11-13: was half the roll, no piety).
+var (
+	BansheeRollScale  = .4
+	BansheePieDivisor = 2.0
+)
+
+// BansheeDamage is what one pulse of Banshee's Lament deals each hostile mob,
+// for an instrument roll (adjustment included), the bard's piety and the
+// number of hostile mobs hit.
+func BansheeDamage(roll int, pie int, hostiles int) int {
+	if hostiles < 1 {
+		hostiles = 1
+	}
+	return max(0, int(math.Round((BansheeRollScale*float64(roll)+float64(pie)/BansheePieDivisor)/float64(hostiles))))
+}
+
+// Champion's Anthem adds AnthemRollScale of one instrument roll plus the bard's
+// piety over AnthemPieDivisor in flat melee damage. It is rolled once per
+// rendition, so everyone the song reaches gets the same bonus (2026-11-13:
+// was the bard's full piety).
+var (
+	AnthemRollScale  = .1
+	AnthemPieDivisor = 2.0
+)
+
+// ChampionsAnthemBonus is the flat damage a rendition of Champion's Anthem
+// adds, for an instrument roll (adjustment included) and the bard's piety.
+func ChampionsAnthemBonus(roll int, pie int) int {
+	return max(0, int(math.Round(AnthemRollScale*float64(roll)+float64(pie)/AnthemPieDivisor)))
 }

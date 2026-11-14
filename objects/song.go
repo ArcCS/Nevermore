@@ -73,6 +73,9 @@ var Songs = map[string]map[string]string{
 type songPulse struct {
 	// roll is one instrument roll, adjustment included.
 	roll int
+	// hostiles is how many hostile mobs the pulse hits, for songs that split
+	// their effect between them.
+	hostiles int
 }
 
 // A song effect applies one pulse to one target and returns the amount it
@@ -126,6 +129,11 @@ func (c *Character) songPulse() {
 	switch effect.target {
 	case "mobs":
 		victimType = 1
+		for _, mob := range room.Mobs.Contents {
+			if mob.CheckFlag("hostile") {
+				pulse.hostiles++
+			}
+		}
 		for _, mob := range room.Mobs.Contents {
 			if mob.CheckFlag("hostile") {
 				total += effect.effect(mob, c, pulse)
@@ -209,7 +217,7 @@ func CuriousCanticle(target interface{}, singer *Character, _ songPulse) int {
 func CelebrationNight(target interface{}, singer *Character, _ songPulse) int {
 	switch target := target.(type) {
 	case *Character:
-		heal := config.CelebrationHeal(instrumentRoll(singer), len(Rooms[target.ParentId].Chars.Contents))
+		heal := config.CelebrationHeal(instrumentRoll(singer), singer.GetStat("pie"), len(Rooms[target.ParentId].Chars.Contents))
 		if _, err := singer.Write([]byte(text.Red + "Your song healed " + strconv.Itoa(heal) + " damage to " + target.Name + ".\n" + text.Reset)); err != nil {
 			log.Println("Error writing to player:", err)
 		}
@@ -220,30 +228,40 @@ func CelebrationNight(target interface{}, singer *Character, _ songPulse) int {
 	return 0
 }
 
+// rollAnthemBonus rolls the instrument once for a new rendition and fixes the
+// Champion's Anthem bonus it gives, whatever song is starting: mixing into
+// the anthem later in the song uses a fresh roll from the mix.
+func (c *Character) rollAnthemBonus() {
+	c.AnthemBonus = config.ChampionsAnthemBonus(instrumentRoll(c), c.GetStat("pie"))
+}
+
 func ChampionsAnthem(target interface{}, singer *Character, _ songPulse) int {
 	switch target := target.(type) {
 	case *Character:
-		// The bonus is computed once when the anthem lands and the same amount
-		// is removed when it ends, so a piety change on the singer mid-song
-		// (pray starting or expiring) cannot leave a residue on the modifier.
+		// The bonus is read once when the anthem lands and the same amount is
+		// removed when it ends, so nothing that changes on the singer mid-song
+		// can leave a residue on the modifier.
 		bonus := 0
 		target.ApplyEffect(singer.Name+"_champions_anthem_song", "16", 0, 0,
 			func(triggers int) {
-				bonus = singer.GetStat("pie") * config.ScalePerPiety
+				bonus = singer.AnthemBonus
 				target.SetModifier("base_damage", bonus)
 			},
 			func() {
 				target.SetModifier("base_damage", -bonus)
 			})
-		return singer.GetStat("pie") * config.ScalePerPiety
+		return singer.AnthemBonus
 	}
 	return 0
 }
 
-func BansheesLament(target interface{}, singer *Character, _ songPulse) int {
+// BansheesLament rolls the instrument for each hostile mob and splits the
+// damage between the hostile mobs the pulse hits; non-hostile mobs in the room
+// are neither hit nor counted.
+func BansheesLament(target interface{}, singer *Character, pulse songPulse) int {
 	switch target := target.(type) {
 	case *Mob:
-		damage := (instrumentRoll(singer) / 2) / len(Rooms[target.ParentId].Mobs.Contents)
+		damage := config.BansheeDamage(instrumentRoll(singer), singer.GetStat("pie"), pulse.hostiles)
 		if _, err := singer.Write([]byte(text.Red + "Your song caused " + strconv.Itoa(damage) + " damage to " + target.Name + ".\n" + text.Reset)); err != nil {
 			log.Println("Error writing to player:", err)
 		}
