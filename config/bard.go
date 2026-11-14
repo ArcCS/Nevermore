@@ -125,7 +125,7 @@ func BansheeDamage(roll int, pie int, hostiles int) int {
 // rendition, so everyone the song reaches gets the same bonus (2026-11-13:
 // was the bard's full piety).
 var (
-	AnthemRollScale  = .1
+	AnthemRollScale  = .15
 	AnthemPieDivisor = 2.0
 )
 

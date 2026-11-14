@@ -135,11 +135,11 @@ func TestBansheeDamage(t *testing.T) {
 
 func TestChampionsAnthemBonus(t *testing.T) {
 	cases := []struct{ roll, pie, want int }{
-		{60, 18, 15}, // 6 + 9
-		{80, 18, 17},
-		{100, 20, 20},
-		{60, 8, 10},  // piety floor
-		{55, 18, 15}, // 5.5 + 9 = 14.5, rounds up
+		{60, 18, 18}, // 9 + 9
+		{80, 18, 21},
+		{100, 30, 30}, // matches the old full-piety anthem
+		{60, 8, 13},   // piety floor
+		{50, 18, 17},  // 7.5 + 9 = 16.5, rounds up
 		{0, 18, 9},
 	}
 	for _, c := range cases {
